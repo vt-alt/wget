@@ -1,0 +1,15 @@
+--- wget-1.7/src/main.c.orig	Sun May 27 23:35:05 2001
++++ wget-1.7/src/main.c	Fri Jun 15 14:15:58 2001
+@@ -89,12 +89,7 @@
+      things up.  For example, when in a foreign locale, Solaris
+      strptime() fails to handle international dates correctly, which
+      makes http_atotm() malfunction.  */
+-#ifdef LC_MESSAGES
+-  setlocale (LC_MESSAGES, "");
+-  setlocale (LC_CTYPE, "");
+-#else
+   setlocale (LC_ALL, "");
+-#endif
+   /* Set the text message domain.  */
+   bindtextdomain ("wget", LOCALEDIR);
+   textdomain ("wget");
