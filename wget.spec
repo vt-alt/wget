@@ -3,7 +3,7 @@
 
 Name: wget
 Version: 1.9.1
-Release: alt1
+Release: alt1.1
 
 Summary: An utility for retrieving files using the HTTP, HTTPS or FTP protocols
 License: GPL
@@ -72,6 +72,9 @@ find doc -type f -print0 |
 %doc AUTHORS MACHINES MAILING-LIST NEWS README* TODO
 
 %changelog
+* Mon May 10 2004 ALT QA Team Robot <qa-robot@altlinux.org> 1.9.1-alt1.1
+- Rebuilt with openssl-0.9.7d.
+
 * Fri Mar 19 2004 Grigory Milev <week@altlinux.ru> 1.9.1-alt1
 - new version released
 - remove unneeded putches due changes in release
