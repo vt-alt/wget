@@ -69,9 +69,33 @@ so, delete this exception statement from your version.  */
 # include <termios.h>
 #endif
 
+/* Needed for run_with_timeout. */
+#undef USE_SIGNAL_TIMEOUT
+#ifdef HAVE_SIGNAL_H
+# include <signal.h>
+#endif
+#ifdef HAVE_SETJMP_H
+# include <setjmp.h>
+#endif
+
+#ifndef HAVE_SIGSETJMP
+/* If sigsetjmp is a macro, configure won't pick it up. */
+# ifdef sigsetjmp
+#  define HAVE_SIGSETJMP
+# endif
+#endif
+
+#ifdef HAVE_SIGNAL
+# ifdef HAVE_SIGSETJMP
+#  define USE_SIGNAL_TIMEOUT
+# endif
+# ifdef HAVE_SIGBLOCK
+#  define USE_SIGNAL_TIMEOUT
+# endif
+#endif
+
 #include "wget.h"
 #include "utils.h"
-#include "fnmatch.h"
 #include "hash.h"
 
 #ifndef errno
@@ -220,7 +244,7 @@ static void
 register_ptr (void *ptr, const char *file, int line)
 {
   int i;
-  for (i = 0; i < ARRAY_SIZE (malloc_debug); i++)
+  for (i = 0; i < countof (malloc_debug); i++)
     if (malloc_debug[i].ptr == NULL)
       {
 	malloc_debug[i].ptr = ptr;
@@ -238,7 +262,7 @@ static void
 unregister_ptr (void *ptr)
 {
   int i;
-  for (i = 0; i < ARRAY_SIZE (malloc_debug); i++)
+  for (i = 0; i < countof (malloc_debug); i++)
     if (malloc_debug[i].ptr == ptr)
       {
 	malloc_debug[i].ptr = NULL;
@@ -258,7 +282,7 @@ print_malloc_debug_stats (void)
   int i;
   printf ("\nMalloc:  %d\nFree:    %d\nBalance: %d\n\n",
 	  malloc_count, free_count, malloc_count - free_count);
-  for (i = 0; i < ARRAY_SIZE (malloc_debug); i++)
+  for (i = 0; i < countof (malloc_debug); i++)
     if (malloc_debug[i].ptr != NULL)
       printf ("0x%08ld: %s:%d\n", (long)malloc_debug[i].ptr,
 	      malloc_debug[i].file, malloc_debug[i].line);
@@ -449,7 +473,7 @@ fork_to_background (void)
 
   if (!opt.lfilename)
     {
-      opt.lfilename = unique_name (DEFAULT_LOGFILE);
+      opt.lfilename = unique_name (DEFAULT_LOGFILE, 0);
       changedp = 1;
     }
   pid = fork ();
@@ -543,39 +567,73 @@ file_non_directory_p (const char *path)
   return S_ISDIR (buf.st_mode) ? 0 : 1;
 }
 
-/* Return a unique filename, given a prefix and count */
-static char *
-unique_name_1 (const char *fileprefix, int count)
+/* Return the size of file named by FILENAME, or -1 if it cannot be
+   opened or seeked into. */
+long
+file_size (const char *filename)
 {
-  char *filename;
-
-  if (count)
-    {
-      filename = (char *)xmalloc (strlen (fileprefix) + numdigit (count) + 2);
-      sprintf (filename, "%s.%d", fileprefix, count);
-    }
-  else
-    filename = xstrdup (fileprefix);
-
-  if (!file_exists_p (filename))
-    return filename;
-  else
-    {
-      xfree (filename);
-      return NULL;
-    }
+  long size;
+  /* We use fseek rather than stat to determine the file size because
+     that way we can also verify whether the file is readable.
+     Inspired by the POST patch by Arnaud Wylie.  */
+  FILE *fp = fopen (filename, "rb");
+  if (!fp)
+    return -1;
+  fseek (fp, 0, SEEK_END);
+  size = ftell (fp);
+  fclose (fp);
+  return size;
 }
 
-/* Return a unique file name, based on PREFIX.  */
-char *
-unique_name (const char *prefix)
-{
-  char *file = NULL;
-  int count = 0;
+/* stat file names named PREFIX.1, PREFIX.2, etc., until one that
+   doesn't exist is found.  Return a freshly allocated copy of the
+   unused file name.  */
 
-  while (!file)
-    file = unique_name_1 (prefix, count++);
-  return file;
+static char *
+unique_name_1 (const char *prefix)
+{
+  int count = 1;
+  int plen = strlen (prefix);
+  char *template = (char *)alloca (plen + 1 + 24);
+  char *template_tail = template + plen;
+
+  memcpy (template, prefix, plen);
+  *template_tail++ = '.';
+
+  do
+    number_to_string (template_tail, count++);
+  while (file_exists_p (template));
+
+  return xstrdup (template);
+}
+
+/* Return a unique file name, based on FILE.
+
+   More precisely, if FILE doesn't exist, it is returned unmodified.
+   If not, FILE.1 is tried, then FILE.2, etc.  The first FILE.<number>
+   file name that doesn't exist is returned.
+
+   The resulting file is not created, only verified that it didn't
+   exist at the point in time when the function was called.
+   Therefore, where security matters, don't rely that the file created
+   by this function exists until you open it with O_EXCL or
+   something.
+
+   If ALLOW_PASSTHROUGH is 0, it always returns a freshly allocated
+   string.  Otherwise, it may return FILE if the file doesn't exist
+   (and therefore doesn't need changing).  */
+
+char *
+unique_name (const char *file, int allow_passthrough)
+{
+  /* If the FILE itself doesn't exist, return it without
+     modification. */
+  if (!file_exists_p (file))
+    return allow_passthrough ? (char *)file : xstrdup (file);
+
+  /* Otherwise, find a numeric suffix that results in unused file name
+     and return it.  */
+  return unique_name_1 (file);
 }
 
 /* Create DIRECTORY.  If some of the pathname components of DIRECTORY
@@ -589,6 +647,7 @@ make_directory (const char *directory)
 {
   int quit = 0;
   int i;
+  int ret = 0;
   char *dir;
 
   /* Make a copy of dir, to be able to write to it.  Otherwise, the
@@ -604,18 +663,19 @@ make_directory (const char *directory)
       if (!dir[i])
 	quit = 1;
       dir[i] = '\0';
-      /* Check whether the directory already exists.  */
+      /* Check whether the directory already exists.  Allow creation of
+	 of intermediate directories to fail, as the initial path components
+	 are not necessarily directories!  */
       if (!file_exists_p (dir))
-	{
-	  if (mkdir (dir, 0777) < 0)
-	    return -1;
-	}
+	ret = mkdir (dir, 0777);
+      else
+	ret = 0;
       if (quit)
 	break;
       else
 	dir[i] = '/';
     }
-  return 0;
+  return ret;
 }
 
 /* Merge BASE with FILE.  BASE can be a directory or a file name, FILE
@@ -726,20 +786,37 @@ accdir (const char *directory, enum accd flags)
   return 1;
 }
 
-/* Match the end of STRING against PATTERN.  For instance:
+/* Return non-zero if STRING ends with TAIL.  For instance:
 
-   match_backwards ("abc", "bc") -> 1
-   match_backwards ("abc", "ab") -> 0
-   match_backwards ("abc", "abc") -> 1 */
+   match_tail ("abc", "bc", 0)  -> 1
+   match_tail ("abc", "ab", 0)  -> 0
+   match_tail ("abc", "abc", 0) -> 1
+
+   If FOLD_CASE_P is non-zero, the comparison will be
+   case-insensitive.  */
+
 int
-match_tail (const char *string, const char *pattern)
+match_tail (const char *string, const char *tail, int fold_case_p)
 {
   int i, j;
 
-  for (i = strlen (string), j = strlen (pattern); i >= 0 && j >= 0; i--, j--)
-    if (string[i] != pattern[j])
-      break;
-  /* If the pattern was exhausted, the match was succesful.  */
+  /* We want this to be fast, so we code two loops, one with
+     case-folding, one without. */
+
+  if (!fold_case_p)
+    {
+      for (i = strlen (string), j = strlen (tail); i >= 0 && j >= 0; i--, j--)
+	if (string[i] != tail[j])
+	  break;
+    }
+  else
+    {
+      for (i = strlen (string), j = strlen (tail); i >= 0 && j >= 0; i--, j--)
+	if (TOLOWER (string[i]) != TOLOWER (tail[j]))
+	  break;
+    }
+
+  /* If the tail was exhausted, the match was succesful.  */
   if (j == -1)
     return 1;
   else
@@ -768,7 +845,7 @@ in_acclist (const char *const *accepts, const char *s, int backward)
 	{
 	  if (backward)
 	    {
-	      if (match_tail (s, *accepts))
+	      if (match_tail (s, *accepts, 0))
 		return 1;
 	    }
 	  else
@@ -800,9 +877,46 @@ suffix (const char *str)
     return NULL;
 }
 
+/* Return non-zero if S contains globbing wildcards (`*', `?', `[' or
+   `]').  */
+
+int
+has_wildcards_p (const char *s)
+{
+  for (; *s; s++)
+    if (*s == '*' || *s == '?' || *s == '[' || *s == ']')
+      return 1;
+  return 0;
+}
+
+/* Return non-zero if FNAME ends with a typical HTML suffix.  The
+   following (case-insensitive) suffixes are presumed to be HTML files:
+   
+     html
+     htm
+     ?html (`?' matches one character)
+
+   #### CAVEAT.  This is not necessarily a good indication that FNAME
+   refers to a file that contains HTML!  */
+int
+has_html_suffix_p (const char *fname)
+{
+  char *suf;
+
+  if ((suf = suffix (fname)) == NULL)
+    return 0;
+  if (!strcasecmp (suf, "html"))
+    return 1;
+  if (!strcasecmp (suf, "htm"))
+    return 1;
+  if (suf[0] && !strcasecmp (suf + 1, "html"))
+    return 1;
+  return 0;
+}
+
 /* Read a line from FP and return the pointer to freshly allocated
-   storage.  The stoarage space is obtained through malloc() and
-   should be freed with free() when it is no longer needed.
+   storage.  The storage space is obtained through malloc() and should
+   be freed with free() when it is no longer needed.
 
    The length of the line is not limited, except by available memory.
    The newline character at the end of line is retained.  The line is
@@ -936,7 +1050,7 @@ read_file (const char *file)
 	  /* Normally, we grow SIZE exponentially to make the number
              of calls to read() and realloc() logarithmic in relation
              to file size.  However, read() can read an amount of data
-             smaller than requested, and it would be unreasonably to
+             smaller than requested, and it would be unreasonable to
              double SIZE every time *something* was read.  Therefore,
              we double SIZE only when the length exceeds half of the
              entire allocated size.  */
@@ -1180,13 +1294,13 @@ free_keys_and_values (struct hash_table *ht)
 }
 
 
-/* Engine for legible and legible_very_long; this function works on
-   strings.  */
+/* Engine for legible and legible_large_int; add thousand separators
+   to numbers printed in strings.  */
 
 static char *
 legible_1 (const char *repr)
 {
-  static char outbuf[128];
+  static char outbuf[48];
   int i, i1, mod;
   char *outptr;
   const char *inptr;
@@ -1194,7 +1308,9 @@ legible_1 (const char *repr)
   /* Reset the pointers.  */
   outptr = outbuf;
   inptr = repr;
-  /* If the number is negative, shift the pointers.  */
+
+  /* Ignore the sign for the purpose of adding thousand
+     separators.  */
   if (*inptr == '-')
     {
       *outptr++ = '-';
@@ -1219,6 +1335,7 @@ legible_1 (const char *repr)
 }
 
 /* Legible -- return a static pointer to the legibly printed long.  */
+
 char *
 legible (long l)
 {
@@ -1228,53 +1345,29 @@ legible (long l)
   return legible_1 (inbuf);
 }
 
-/* Write a string representation of NUMBER into the provided buffer.
-   We cannot use sprintf() because we cannot be sure whether the
-   platform supports printing of what we chose for VERY_LONG_TYPE.
+/* Write a string representation of LARGE_INT NUMBER into the provided
+   buffer.  The buffer should be able to accept 24 characters,
+   including the terminating zero.
 
-   Example: Gcc supports `long long' under many platforms, but on many
-   of those the native libc knows nothing of it and therefore cannot
-   print it.
-
-   How long BUFFER needs to be depends on the platform and the content
-   of NUMBER.  For 64-bit VERY_LONG_TYPE (the most common case), 24
-   bytes are sufficient.  Using more might be a good idea.
-
-   This function does not go through the hoops that long_to_string
-   goes to because it doesn't aspire to be fast.  (It's called perhaps
-   once in a Wget run.)  */
+   It would be dangerous to use sprintf, because the code wouldn't
+   work on a machine with gcc-provided long long support, but without
+   libc support for "%lld".  However, such platforms will typically
+   not have snprintf and will use our version, which does support
+   "%lld" where long longs are available.  */
 
 static void
-very_long_to_string (char *buffer, VERY_LONG_TYPE number)
+large_int_to_string (char *buffer, LARGE_INT number)
 {
-  int i = 0;
-  int j;
-
-  /* Print the number backwards... */
-  do
-    {
-      buffer[i++] = '0' + number % 10;
-      number /= 10;
-    }
-  while (number);
-
-  /* ...and reverse the order of the digits. */
-  for (j = 0; j < i / 2; j++)
-    {
-      char c = buffer[j];
-      buffer[j] = buffer[i - 1 - j];
-      buffer[i - 1 - j] = c;
-    }
-  buffer[i] = '\0';
+  snprintf (buffer, 24, LARGE_INT_FMT, number);
 }
 
-/* The same as legible(), but works on VERY_LONG_TYPE.  See sysdep.h.  */
+/* The same as legible(), but works on LARGE_INT.  */
+
 char *
-legible_very_long (VERY_LONG_TYPE l)
+legible_large_int (LARGE_INT l)
 {
-  char inbuf[128];
-  /* Print the number into the buffer.  */
-  very_long_to_string (inbuf, l);
+  char inbuf[48];
+  large_int_to_string (inbuf, l);
   return legible_1 (inbuf);
 }
 
@@ -1292,6 +1385,12 @@ numdigit (long number)
     ++cnt;
   return cnt;
 }
+
+/* A half-assed implementation of INT_MAX on machines that don't
+   bother to define one. */
+#ifndef INT_MAX
+# define INT_MAX ((int) ~((unsigned)1 << 8 * sizeof (int) - 1))
+#endif
 
 #define ONE_DIGIT(figure) *p++ = n / (figure) + '0'
 #define ONE_DIGIT_ADVANCE(figure) (ONE_DIGIT (figure), n %= (figure))
@@ -1352,6 +1451,15 @@ number_to_string (char *buffer, long number)
 
   if (n < 0)
     {
+      if (n < -INT_MAX)
+	{
+	  /* We cannot print a '-' and assign -n to n because -n would
+	     overflow.  Let sprintf deal with this border case.  */
+	  sprintf (buffer, "%ld", n);
+	  p += strlen (buffer);
+	  return p;
+	}
+
       *p++ = '-';
       n = -n;
     }
@@ -1436,19 +1544,30 @@ number_to_string (char *buffer, long number)
 # endif
 #endif /* not WINDOWS */
 
-struct wget_timer {
 #ifdef TIMER_GETTIMEOFDAY
-  long secs;
-  long usecs;
+typedef struct timeval wget_sys_time;
 #endif
 
 #ifdef TIMER_TIME
-  time_t secs;
+typedef time_t wget_sys_time;
 #endif
 
 #ifdef TIMER_WINDOWS
-  ULARGE_INTEGER wintime;
+typedef ULARGE_INTEGER wget_sys_time;
 #endif
+
+struct wget_timer {
+  /* The starting point in time which, subtracted from the current
+     time, yields elapsed time. */
+  wget_sys_time start;
+
+  /* The most recent elapsed time, calculated by wtimer_elapsed().
+     Measured in milliseconds.  */
+  double elapsed_last;
+
+  /* Approximately, the time elapsed between the true start of the
+     measurement and the time represented by START.  */
+  double elapsed_pre_start;
 };
 
 /* Allocate a timer.  It is not legal to do anything with a freshly
@@ -1481,6 +1600,40 @@ wtimer_delete (struct wget_timer *wt)
   xfree (wt);
 }
 
+/* Store system time to WST.  */
+
+static void
+wtimer_sys_set (wget_sys_time *wst)
+{
+#ifdef TIMER_GETTIMEOFDAY
+  gettimeofday (wst, NULL);
+#endif
+
+#ifdef TIMER_TIME
+  time (wst);
+#endif
+
+#ifdef TIMER_WINDOWS
+  /* We use GetSystemTime to get the elapsed time.  MSDN warns that
+     system clock adjustments can skew the output of GetSystemTime
+     when used as a timer and gives preference to GetTickCount and
+     high-resolution timers.  But GetTickCount can overflow, and hires
+     timers are typically used for profiling, not for regular time
+     measurement.  Since we handle clock skew anyway, we just use
+     GetSystemTime.  */
+  FILETIME ft;
+  SYSTEMTIME st;
+  GetSystemTime (&st);
+
+  /* As recommended by MSDN, we convert SYSTEMTIME to FILETIME, copy
+     FILETIME to ULARGE_INTEGER, and use regular 64-bit integer
+     arithmetic on that.  */
+  SystemTimeToFileTime (&st, &ft);
+  wst->HighPart = ft.dwHighDateTime;
+  wst->LowPart  = ft.dwLowDateTime;
+#endif
+}
+
 /* Reset timer WT.  This establishes the starting point from which
    wtimer_elapsed() will return the number of elapsed
    milliseconds.  It is allowed to reset a previously used timer.  */
@@ -1488,78 +1641,92 @@ wtimer_delete (struct wget_timer *wt)
 void
 wtimer_reset (struct wget_timer *wt)
 {
+  /* Set the start time to the current time. */
+  wtimer_sys_set (&wt->start);
+  wt->elapsed_last = 0;
+  wt->elapsed_pre_start = 0;
+}
+
+static double
+wtimer_sys_diff (wget_sys_time *wst1, wget_sys_time *wst2)
+{
 #ifdef TIMER_GETTIMEOFDAY
-  struct timeval t;
-  gettimeofday (&t, NULL);
-  wt->secs  = t.tv_sec;
-  wt->usecs = t.tv_usec;
+  return ((double)(wst1->tv_sec - wst2->tv_sec) * 1000
+	  + (double)(wst1->tv_usec - wst2->tv_usec) / 1000);
 #endif
 
 #ifdef TIMER_TIME
-  wt->secs = time (NULL);
+  return 1000 * (*wst1 - *wst2);
 #endif
 
-#ifdef TIMER_WINDOWS
-  FILETIME ft;
-  SYSTEMTIME st;
-  GetSystemTime (&st);
-  SystemTimeToFileTime (&st, &ft);
-  wt->wintime.HighPart = ft.dwHighDateTime;
-  wt->wintime.LowPart  = ft.dwLowDateTime;
+#ifdef WINDOWS
+  /* VC++ 6 doesn't support direct cast of uint64 to double.  To work
+     around this, we subtract, then convert to signed, then finally to
+     double.  */
+  return (double)(signed __int64)(wst1->QuadPart - wst2->QuadPart) / 10000;
 #endif
 }
 
 /* Return the number of milliseconds elapsed since the timer was last
    reset.  It is allowed to call this function more than once to get
-   increasingly higher elapsed values.  */
+   increasingly higher elapsed values.  These timers handle clock
+   skew.  */
 
-long
+double
 wtimer_elapsed (struct wget_timer *wt)
 {
-#ifdef TIMER_GETTIMEOFDAY
-  struct timeval t;
-  gettimeofday (&t, NULL);
-  return (t.tv_sec - wt->secs) * 1000 + (t.tv_usec - wt->usecs) / 1000;
-#endif
+  wget_sys_time now;
+  double elapsed;
 
-#ifdef TIMER_TIME
-  time_t now = time (NULL);
-  return 1000 * (now - wt->secs);
-#endif
+  wtimer_sys_set (&now);
+  elapsed = wt->elapsed_pre_start + wtimer_sys_diff (&now, &wt->start);
 
-#ifdef WINDOWS
-  FILETIME ft;
-  SYSTEMTIME st;
-  ULARGE_INTEGER uli;
-  GetSystemTime (&st);
-  SystemTimeToFileTime (&st, &ft);
-  uli.HighPart = ft.dwHighDateTime;
-  uli.LowPart = ft.dwLowDateTime;
-  return (long)((uli.QuadPart - wt->wintime.QuadPart) / 10000);
-#endif
+  /* Ideally we'd just return the difference between NOW and
+     wt->start.  However, the system timer can be set back, and we
+     could return a value smaller than when we were last called, even
+     a negative value.  Both of these would confuse the callers, which
+     expect us to return monotonically nondecreasing values.
+
+     Therefore: if ELAPSED is smaller than its previous known value,
+     we reset wt->start to the current time and effectively start
+     measuring from this point.  But since we don't want the elapsed
+     value to start from zero, we set elapsed_pre_start to the last
+     elapsed time and increment all future calculations by that
+     amount.  */
+
+  if (elapsed < wt->elapsed_last)
+    {
+      wt->start = now;
+      wt->elapsed_pre_start = wt->elapsed_last;
+      elapsed = wt->elapsed_last;
+    }
+
+  wt->elapsed_last = elapsed;
+  return elapsed;
 }
 
-/* Return the assessed granularity of the timer implementation.  This
-   is important for certain code that tries to deal with "zero" time
-   intervals.  */
+/* Return the assessed granularity of the timer implementation, in
+   milliseconds.  This is used by code that tries to substitute a
+   better value for timers that have returned zero.  */
 
-long
+double
 wtimer_granularity (void)
 {
 #ifdef TIMER_GETTIMEOFDAY
-  /* Granularity of gettimeofday is hugely architecture-dependent.
-     However, it appears that on modern machines it is better than
-     1ms.  */
-  return 1;
+  /* Granularity of gettimeofday varies wildly between architectures.
+     However, it appears that on modern machines it tends to be better
+     than 1ms.  Assume 100 usecs.  (Perhaps the configure process
+     could actually measure this?)  */
+  return 0.1;
 #endif
 
 #ifdef TIMER_TIME
-  /* This is clear. */
   return 1000;
 #endif
 
 #ifdef TIMER_WINDOWS
-  /* ? */
+  /* According to MSDN, GetSystemTime returns a broken-down time
+     structure the smallest member of which are milliseconds.  */
   return 1;
 #endif
 }
@@ -1676,7 +1843,11 @@ determine_screen_width (void)
    This uses rand() for portability.  It has been suggested that
    random() offers better randomness, but this is not required for
    Wget, so I chose to go for simplicity and use rand
-   unconditionally.  */
+   unconditionally.
+
+   DO NOT use this for cryptographic purposes.  It is only meant to be
+   used in situations where quality of the random numbers returned
+   doesn't really matter.  */
 
 int
 random_number (int max)
@@ -1707,6 +1878,22 @@ random_number (int max)
   return (int)bounded;
 }
 
+/* Return a random uniformly distributed floating point number in the
+   [0, 1) range.  The precision of returned numbers is 9 digits.
+
+   Modify this to use erand48() where available!  */
+
+double
+random_float (void)
+{
+  /* We can't rely on any specific value of RAND_MAX, but I'm pretty
+     sure it's greater than 1000.  */
+  int rnd1 = random_number (1000);
+  int rnd2 = random_number (1000);
+  int rnd3 = random_number (1000);
+  return rnd1 / 1000.0 + rnd2 / 1000000.0 + rnd3 / 1000000000.0;
+}
+
 #if 0
 /* A debugging function for checking whether an MD5 library works. */
 
@@ -1731,8 +1918,8 @@ debug_test_md5 (char *buf)
   cnt = 16;
   while (cnt--)
     {
-      *p2++ = XDIGIT_TO_xchar (*p1 >> 4);
-      *p2++ = XDIGIT_TO_xchar (*p1 & 0xf);
+      *p2++ = XNUM_TO_digit (*p1 >> 4);
+      *p2++ = XNUM_TO_digit (*p1 & 0xf);
       ++p1;
     }
   *p2 = '\0';
@@ -1740,3 +1927,161 @@ debug_test_md5 (char *buf)
   return res;
 }
 #endif
+
+/* Implementation of run_with_timeout, a generic timeout-forcing
+   routine for systems with Unix-like signal handling.  */
+
+#ifdef USE_SIGNAL_TIMEOUT
+# ifdef HAVE_SIGSETJMP
+#  define SETJMP(env) sigsetjmp (env, 1)
+
+static sigjmp_buf run_with_timeout_env;
+
+static RETSIGTYPE
+abort_run_with_timeout (int sig)
+{
+  assert (sig == SIGALRM);
+  siglongjmp (run_with_timeout_env, -1);
+}
+# else /* not HAVE_SIGSETJMP */
+#  define SETJMP(env) setjmp (env)
+
+static jmp_buf run_with_timeout_env;
+
+static RETSIGTYPE
+abort_run_with_timeout (int sig)
+{
+  assert (sig == SIGALRM);
+  /* We don't have siglongjmp to preserve the set of blocked signals;
+     if we longjumped out of the handler at this point, SIGALRM would
+     remain blocked.  We must unblock it manually. */
+  int mask = siggetmask ();
+  mask &= ~sigmask (SIGALRM);
+  sigsetmask (mask);
+
+  /* Now it's safe to longjump. */
+  longjmp (run_with_timeout_env, -1);
+}
+# endif /* not HAVE_SIGSETJMP */
+
+/* Arrange for SIGALRM to be delivered in TIMEOUT seconds.  This uses
+   setitimer where available, alarm otherwise.
+
+   TIMEOUT should be non-zero.  If the timeout value is so small that
+   it would be rounded to zero, it is rounded to the least legal value
+   instead (1us for setitimer, 1s for alarm).  That ensures that
+   SIGALRM will be delivered in all cases.  */
+
+static void
+alarm_set (double timeout)
+{
+#ifdef ITIMER_REAL
+  /* Use the modern itimer interface. */
+  struct itimerval itv;
+  memset (&itv, 0, sizeof (itv));
+  itv.it_value.tv_sec = (long) timeout;
+  itv.it_value.tv_usec = 1000000L * (timeout - (long)timeout);
+  if (itv.it_value.tv_sec == 0 && itv.it_value.tv_usec == 0)
+    /* Ensure that we wait for at least the minimum interval.
+       Specifying zero would mean "wait forever".  */
+    itv.it_value.tv_usec = 1;
+  setitimer (ITIMER_REAL, &itv, NULL);
+#else  /* not ITIMER_REAL */
+  /* Use the old alarm() interface. */
+  int secs = (int) timeout;
+  if (secs == 0)
+    /* Round TIMEOUTs smaller than 1 to 1, not to zero.  This is
+       because alarm(0) means "never deliver the alarm", i.e. "wait
+       forever", which is not what someone who specifies a 0.5s
+       timeout would expect.  */
+    secs = 1;
+  alarm (secs);
+#endif /* not ITIMER_REAL */
+}
+
+/* Cancel the alarm set with alarm_set. */
+
+static void
+alarm_cancel (void)
+{
+#ifdef ITIMER_REAL
+  struct itimerval disable;
+  memset (&disable, 0, sizeof (disable));
+  setitimer (ITIMER_REAL, &disable, NULL);
+#else  /* not ITIMER_REAL */
+  alarm (0);
+#endif /* not ITIMER_REAL */
+}
+
+/* Call FUN(ARG), but don't allow it to run for more than TIMEOUT
+   seconds.  Returns non-zero if the function was interrupted with a
+   timeout, zero otherwise.
+
+   This works by setting up SIGALRM to be delivered in TIMEOUT seconds
+   using setitimer() or alarm().  The timeout is enforced by
+   longjumping out of the SIGALRM handler.  This has several
+   advantages compared to the traditional approach of relying on
+   signals causing system calls to exit with EINTR:
+
+     * The callback function is *forcibly* interrupted after the
+       timeout expires, (almost) regardless of what it was doing and
+       whether it was in a syscall.  For example, a calculation that
+       takes a long time is interrupted as reliably as an IO
+       operation.
+
+     * It works with both SYSV and BSD signals because it doesn't
+       depend on the default setting of SA_RESTART.
+
+     * It doesn't special handler setup beyond a simple call to
+       signal().  (It does use sigsetjmp/siglongjmp, but they're
+       optional.)
+
+   The only downside is that, if FUN allocates internal resources that
+   are normally freed prior to exit from the functions, they will be
+   lost in case of timeout.  */
+
+int
+run_with_timeout (double timeout, void (*fun) (void *), void *arg)
+{
+  int saved_errno;
+
+  if (timeout == 0)
+    {
+      fun (arg);
+      return 0;
+    }
+
+  signal (SIGALRM, abort_run_with_timeout);
+  if (SETJMP (run_with_timeout_env) != 0)
+    {
+      /* Longjumped out of FUN with a timeout. */
+      signal (SIGALRM, SIG_DFL);
+      return 1;
+    }
+  alarm_set (timeout);
+  fun (arg);
+
+  /* Preserve errno in case alarm() or signal() modifies it. */
+  saved_errno = errno;
+  alarm_cancel ();
+  signal (SIGALRM, SIG_DFL);
+  errno = saved_errno;
+
+  return 0;
+}
+
+#else  /* not USE_SIGNAL_TIMEOUT */
+
+#ifndef WINDOWS
+/* A stub version of run_with_timeout that just calls FUN(ARG).  Don't
+   define it under Windows, because Windows has its own version of
+   run_with_timeout that uses threads.  */
+
+int
+run_with_timeout (double timeout, void (*fun) (void *), void *arg)
+{
+  fun (arg);
+  return 0;
+}
+#endif /* not WINDOWS */
+#endif /* not USE_SIGNAL_TIMEOUT */

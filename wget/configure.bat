@@ -30,8 +30,7 @@ cls
 if .%1 == .--borland goto :borland
 if .%1 == .--msvc goto :msvc
 if .%1 == .--watcom goto :watcom
-if not .%BORPATH% == . goto :borland
-if not .%1 == . goto :usage
+goto :usage
 
 :msvc
 copy windows\config.h.ms src\config.h > nul
@@ -68,5 +67,5 @@ cd src
 goto :end
 
 :usage
-echo Usage: Configure [--borland | --msvc | --watcom]
+echo "Usage: configure [--borland | --msvc | --watcom]"
 :end

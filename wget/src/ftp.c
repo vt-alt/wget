@@ -52,12 +52,14 @@ so, delete this exception statement from your version.  */
 #include "ftp.h"
 #include "connect.h"
 #include "host.h"
-#include "fnmatch.h"
 #include "netrc.h"
+#include "convert.h"		/* for downloaded_file */
 
 #ifndef errno
 extern int errno;
 #endif
+
+extern LARGE_INT total_downloaded_bytes;
 
 /* File where the "ls -al" listing will be saved.  */
 #define LIST_FILENAME ".listing"
@@ -69,10 +71,11 @@ typedef struct
   int st;			/* connection status */
   int cmd;			/* command code */
   struct rbuf rbuf;		/* control connection buffer */
-  long dltime;			/* time of the download */
+  double dltime;		/* time of the download in msecs */
   enum stype rs;		/* remote system reported by ftp server */ 
   char *id;			/* initial directory */
   char *target;			/* target file name */
+  struct url *proxy;		/* FTWK-style proxy */
 } ccon;
 
 
@@ -129,9 +132,8 @@ getftp (struct url *u, long *len, long restval, ccon *con)
   FILE *fp;
   char *user, *passwd, *respline;
   char *tms, *tmrate;
-  unsigned char pasv_addr[6];
   int cmd = con->cmd;
-  int passive_mode_open = 0;
+  int pasv_mode_open = 0;
   long expected_bytes = 0L;
 
   assert (con != NULL);
@@ -161,20 +163,31 @@ getftp (struct url *u, long *len, long restval, ccon *con)
       char type_char;
       struct address_list *al;
 
+      char    *host = con->proxy ? con->proxy->host : u->host;
+      int      port = con->proxy ? con->proxy->port : u->port;
+      char *logname = user;
+
+      if (con->proxy)
+	{
+	  /* If proxy is in use, log in as username@target-site. */
+	  logname = xmalloc (strlen (user) + 1 + strlen (u->host) + 1);
+	  sprintf (logname, "%s@%s", user, u->host);
+	}
+
       /* Login to the server: */
 
       /* First: Establish the control connection.  */
 
-      al = lookup_host (u->host, 0);
+      al = lookup_host (host, 0);
       if (!al)
 	return HOSTERR;
-      set_connection_host_name (u->host);
-      csock = connect_to_many (al, u->port, 0);
+      set_connection_host_name (host);
+      csock = connect_to_many (al, port, 0);
       set_connection_host_name (NULL);
       address_list_release (al);
 
       if (csock < 0)
-	return errno == ECONNREFUSED ? CONREFUSED : CONERROR;
+	return CONNECT_ERROR (errno);
 
       if (cmd & LEAVE_PENDING)
 	rbuf_initialize (&con->rbuf, csock);
@@ -189,7 +202,11 @@ getftp (struct url *u, long *len, long restval, ccon *con)
       logprintf (LOG_VERBOSE, _("Logging in as %s ... "), user);
       if (opt.server_response)
 	logputs (LOG_ALWAYS, "\n");
-      err = ftp_login (&con->rbuf, user, passwd);
+      err = ftp_login (&con->rbuf, logname, passwd);
+
+      if (con->proxy)
+	xfree (logname);
+
       /* FTPRERR, FTPSRVERR, WRITEFAILED, FTPLOGREFUSED, FTPLOGINC */
       switch (err)
 	{
@@ -378,17 +395,39 @@ Error in server response, closing control connection.\n"));
 
 	  /* Change working directory.  To change to a non-absolute
 	     Unix directory, we need to prepend initial directory
-	     (con->id) to it.  Absolute directories "just work".  */
+	     (con->id) to it.  Absolute directories "just work".
 
-	  if (*target != '/')
+	     A relative directory is one that does not begin with '/'
+	     and, on non-Unix OS'es, one that doesn't begin with
+	     "[a-z]:".
+
+	     This is not done for OS400, which doesn't use
+	     "/"-delimited directories, nor does it support directory
+	     hierarchies.  "CWD foo" followed by "CWD bar" leaves us
+	     in "bar", not in "foo/bar", as would be customary
+	     elsewhere.  */
+
+	  if (target[0] != '/'
+	      && !(con->rs != ST_UNIX
+		   && ISALPHA (target[0])
+		   && target[1] == ':')
+	      && con->rs != ST_OS400)
 	    {
 	      int idlen = strlen (con->id);
-	      char *ntarget = (char *)alloca (idlen + 1 + strlen (u->dir) + 1);
-	      /* idlen == 1 means con->id = "/" */
-	      sprintf (ntarget, "%s%s%s", con->id, idlen == 1 ? "" : "/",
-		       target);
+	      char *ntarget, *p;
+
+	      /* Strip trailing slash(es) from con->id. */
+	      while (idlen > 0 && con->id[idlen - 1] == '/')
+		--idlen;
+	      p = ntarget = (char *)alloca (idlen + 1 + strlen (u->dir) + 1);
+	      memcpy (p, con->id, idlen);
+	      p += idlen;
+	      *p++ = '/';
+	      strcpy (p, target);
+
               DEBUGP (("Prepended initial PWD to relative path:\n"));
-              DEBUGP (("  old: '%s'\n  new: '%s'\n", target, ntarget));
+              DEBUGP (("   pwd: '%s'\n   old: '%s'\n  new: '%s'\n",
+		       con->id, target, ntarget));
 	      target = ntarget;
 	    }
 
@@ -499,9 +538,11 @@ Error in server response, closing control connection.\n"));
     {
       if (opt.ftp_pasv > 0)
 	{
+  	  ip_address     passive_addr;
+  	  unsigned short passive_port;
 	  if (!opt.server_response)
 	    logputs (LOG_VERBOSE, "==> PASV ... ");
-	  err = ftp_pasv (&con->rbuf, pasv_addr);
+	  err = ftp_pasv (&con->rbuf, &passive_addr, &passive_port);
 	  /* FTPRERR, WRITEFAILED, FTPNOPASV, FTPINVPASV */
 	  switch (err)
 	    {
@@ -535,32 +576,28 @@ Error in server response, closing control connection.\n"));
 	    default:
 	      abort ();
 	      break;
-	    }
+	    }	/* switch(err) */
 	  if (err==FTPOK)
 	    {
-	      unsigned short tport;
-
-	      tport = (pasv_addr[4] << 8) + pasv_addr[5];
-	      dtsock = connect_to_one (pasv_addr, tport, 1);
-
+	      dtsock = connect_to_one (&passive_addr, passive_port, 1);
 	      if (dtsock < 0)
 		{
 		  int save_errno = errno;
 		  CLOSE (csock);
 		  rbuf_uninitialize (&con->rbuf);
 		  logprintf (LOG_VERBOSE, _("couldn't connect to %s:%hu: %s\n"),
-			     pretty_print_address (pasv_addr), tport,
+			     pretty_print_address (&passive_addr), passive_port,
 			     strerror (save_errno));
-		  return save_errno == ECONNREFUSED ? CONREFUSED : CONERROR;
+		  return CONNECT_ERROR (save_errno);
 		}
 
-	      passive_mode_open = 1;  /* Flag to avoid accept port */
+	      pasv_mode_open = 1;  /* Flag to avoid accept port */
 	      if (!opt.server_response)
 		logputs (LOG_VERBOSE, _("done.    "));
 	    } /* err==FTP_OK */
 	}
 
-      if (!passive_mode_open)   /* Try to use a port command if PASV failed */
+      if (!pasv_mode_open)   /* Try to use a port command if PASV failed */
 	{
 	  if (!opt.server_response)
 	    logputs (LOG_VERBOSE, "==> PORT ... ");
@@ -681,6 +718,18 @@ Error in server response, closing control connection.\n"));
 
   if (cmd & DO_RETR)
     {
+      /* If we're in spider mode, don't really retrieve anything.  The
+	 fact that we got to this point should be proof enough that
+	 the file exists, vaguely akin to HTTP's concept of a "HEAD"
+	 request.  */
+      if (opt.spider)
+	{
+	  CLOSE (csock);
+	  closeport (dtsock);
+	  rbuf_uninitialize (&con->rbuf);
+	  return RETRFINISHED;
+	}
+
       if (opt.verbose)
 	{
 	  if (!opt.server_response)
@@ -779,6 +828,9 @@ Error in server response, closing control connection.\n"));
       expected_bytes = ftp_expected_bytes (ftp_last_respline);
     } /* cmd & DO_LIST */
 
+  if (!(cmd & (DO_LIST | DO_RETR)) || (opt.spider && !(cmd & DO_LIST)))
+    return RETRFINISHED;
+
   /* Some FTP servers return the total length of file after REST
      command, others just return the remaining size. */
   if (*len && restval && expected_bytes
@@ -789,10 +841,7 @@ Error in server response, closing control connection.\n"));
     }
 
   /* If no transmission was required, then everything is OK.  */
-  if (!(cmd & (DO_LIST | DO_RETR)))
-    return RETRFINISHED;
-
-  if (!passive_mode_open)  /* we are not using pasive mode so we need
+  if (!pasv_mode_open)  /* we are not using pasive mode so we need
 			      to accept */
     {
       /* Open the data transmission socket by calling acceptport().  */
@@ -832,7 +881,7 @@ Error in server response, closing control connection.\n"));
       /* Rewind the output document if the download starts over and if
 	 this is the first download.  See gethttp() for a longer
 	 explanation.  */
-      if (!restval && global_download_count == 0)
+      if (!restval && global_download_count == 0 && opt.dfp != stdout)
 	{
 	  /* This will silently fail for streams that don't correspond
 	     to regular files, but that's OK.  */
@@ -981,12 +1030,13 @@ ftp_loop_internal (struct url *u, struct fileinfo *f, ccon *con)
 {
   int count, orig_lp;
   long restval, len;
-  char *tms, *tmrate, *locf;
+  char *tms, *locf;
+  char *tmrate = NULL;
   uerr_t err;
   struct stat st;
 
   if (!con->target)
-    con->target = url_filename (u);
+    con->target = url_file_name (u);
 
   if (opt.noclobber && file_exists_p (con->target))
     {
@@ -1114,19 +1164,21 @@ ftp_loop_internal (struct url *u, struct fileinfo *f, ccon *con)
 	}
       /* Time?  */
       tms = time_str (NULL);
-      tmrate = retr_rate (len - restval, con->dltime, 0);
+      if (!opt.spider)
+        tmrate = retr_rate (len - restval, con->dltime, 0);
 
       /* If we get out of the switch above without continue'ing, we've
 	 successfully downloaded a file.  Remember this fact. */
-      downloaded_file(FILE_DOWNLOADED_NORMALLY, locf);
+      downloaded_file (FILE_DOWNLOADED_NORMALLY, locf);
 
       if (con->st & ON_YOUR_OWN)
 	{
 	  CLOSE (RBUF_FD (&con->rbuf));
 	  rbuf_uninitialize (&con->rbuf);
 	}
-      logprintf (LOG_VERBOSE, _("%s (%s) - `%s' saved [%ld]\n\n"),
-		 tms, tmrate, locf, len);
+      if (!opt.spider)
+        logprintf (LOG_VERBOSE, _("%s (%s) - `%s' saved [%ld]\n\n"),
+		   tms, tmrate, locf, len);
       if (!opt.verbose && !opt.quiet)
 	{
 	  /* Need to hide the password from the URL.  The `if' is here
@@ -1145,7 +1197,7 @@ ftp_loop_internal (struct url *u, struct fileinfo *f, ccon *con)
 	    /* --dont-remove-listing was specified, so do count this towards the
 	       number of bytes and files downloaded. */
 	    {
-	      downloaded_increase (len);
+	      total_downloaded_bytes += len;
 	      opt.numurls++;
 	    }
 
@@ -1153,14 +1205,14 @@ ftp_loop_internal (struct url *u, struct fileinfo *f, ccon *con)
 	     by the more specific option --dont-remove-listing, and the code
 	     to do this deletion is in another function. */
 	}
-      else
+      else if (!opt.spider)
 	/* This is not a directory listing file. */
 	{
 	  /* Unlike directory listing files, don't pretend normal files weren't
 	     downloaded if they're going to be deleted.  People seeding proxies,
 	     for instance, may want to know how many bytes and files they've
 	     downloaded through it. */
-	  downloaded_increase (len);
+	  total_downloaded_bytes += len;
 	  opt.numurls++;
 
 	  if (opt.delete_after)
@@ -1206,7 +1258,7 @@ ftp_get_listing (struct url *u, ccon *con, struct fileinfo **f)
   /* Find the listing file name.  We do it by taking the file name of
      the URL and replacing the last component with the listing file
      name.  */
-  uf = url_filename (u);
+  uf = url_file_name (u);
   lf = file_merge (uf, LIST_FILENAME);
   xfree (uf);
   DEBUGP ((_("Using `%s' as listing tmp file.\n"), lf));
@@ -1286,7 +1338,7 @@ ftp_retrieve_list (struct url *u, struct fileinfo *f, ccon *con)
     {
       char *old_target, *ofile;
 
-      if (downloaded_exceeds_quota ())
+      if (opt.quota && total_downloaded_bytes > opt.quota)
 	{
 	  --depth;
 	  return QUOTEXC;
@@ -1296,7 +1348,7 @@ ftp_retrieve_list (struct url *u, struct fileinfo *f, ccon *con)
       ofile = xstrdup (u->file);
       url_set_file (u, f->name);
 
-      con->target = url_filename (u);
+      con->target = url_file_name (u);
       err = RETROK;
 
       dlthis = 1;
@@ -1315,6 +1367,11 @@ ftp_retrieve_list (struct url *u, struct fileinfo *f, ccon *con)
 	      /* Else, get it from the file.  */
 	      local_size = st.st_size;
 	      tml = st.st_mtime;
+#ifdef WINDOWS
+	      /* Modification time granularity is 2 seconds for Windows, so
+		 increase local time by 1 second for later comparison. */
+	      tml++;
+#endif
               /* Compare file sizes only for servers that tell us correct
                  values. Assumme sizes being equal for servers that lie
                  about file size.  */
@@ -1485,7 +1542,7 @@ ftp_retrieve_dirs (struct url *u, struct fileinfo *f, ccon *con)
       int size;
       char *odir, *newdir;
 
-      if (downloaded_exceeds_quota ())
+      if (opt.quota && total_downloaded_bytes > opt.quota)
 	break;
       if (f->type != FT_DIRECTORY)
 	continue;
@@ -1531,12 +1588,24 @@ Not descending to `%s' as it is excluded/not-included.\n"), newdir);
       /* Set the time-stamp?  */
     }
 
-  if (opt.quota && opt.downloaded > opt.quota)
+  if (opt.quota && total_downloaded_bytes > opt.quota)
     return QUOTEXC;
   else
     return RETROK;
 }
 
+/* Return non-zero if S has a leading '/'  or contains '../' */
+static int
+has_insecure_name_p (const char *s)
+{
+  if (*s == '/')
+    return 1;
+
+  if (strstr(s, "../") != 0)
+    return 1;
+
+  return 0;
+}
 
 /* A near-top-level function to retrieve the files in a directory.
    The function calls ftp_get_listing, to get a linked list of files.
@@ -1549,21 +1618,19 @@ Not descending to `%s' as it is excluded/not-included.\n"), newdir);
 static uerr_t
 ftp_retrieve_glob (struct url *u, ccon *con, int action)
 {
-  struct fileinfo *orig, *start;
+  struct fileinfo *f, *start;
   uerr_t res;
 
   con->cmd |= LEAVE_PENDING;
 
-  res = ftp_get_listing (u, con, &orig);
+  res = ftp_get_listing (u, con, &start);
   if (res != RETROK)
     return res;
-  start = orig;
   /* First: weed out that do not conform the global rules given in
      opt.accepts and opt.rejects.  */
   if (opt.accepts || opt.rejects)
     {
-      struct fileinfo *f = orig;
-
+      f = start;
       while (f)
 	{
 	  if (f->type != FT_DIRECTORY && !acceptable (f->name))
@@ -1575,13 +1642,25 @@ ftp_retrieve_glob (struct url *u, ccon *con, int action)
 	    f = f->next;
 	}
     }
+  /* Remove all files with possible harmful names */
+  f = start;
+  while (f)
+    {
+      if (has_insecure_name_p (f->name))
+	{
+	  logprintf (LOG_VERBOSE, _("Rejecting `%s'.\n"), f->name);
+	  f = delelement (f, &start);
+	}
+      else
+	f = f->next;
+    }
   /* Now weed out the files that do not match our globbing pattern.
      If we are dealing with a globbing pattern, that is.  */
   if (*u->file && (action == GLOBALL || action == GETONE))
     {
       int matchres = 0;
-      struct fileinfo *f = start;
 
+      f = start;
       while (f)
 	{
 	  matchres = fnmatch (u->file, f->name, 0);
@@ -1626,7 +1705,7 @@ ftp_retrieve_glob (struct url *u, ccon *con, int action)
 	}
     }
   freefileinfo (start);
-  if (downloaded_exceeds_quota ())
+  if (opt.quota && total_downloaded_bytes > opt.quota)
     return QUOTEXC;
   else
     /* #### Should we return `res' here?  */
@@ -1637,7 +1716,7 @@ ftp_retrieve_glob (struct url *u, ccon *con, int action)
    of URL.  Inherently, its capabilities are limited on what can be
    encoded into a URL.  */
 uerr_t
-ftp_loop (struct url *u, int *dt)
+ftp_loop (struct url *u, int *dt, struct url *proxy)
 {
   ccon con;			/* FTP connection */
   uerr_t res;
@@ -1650,6 +1729,7 @@ ftp_loop (struct url *u, int *dt)
   con.st = ON_YOUR_OWN;
   con.rs = ST_UNIX;
   con.id = NULL;
+  con.proxy = proxy;
   res = RETROK;			/* in case it's not used */
 
   /* If the file name is empty, the user probably wants a directory
@@ -1662,12 +1742,12 @@ ftp_loop (struct url *u, int *dt)
 
       if (res == RETROK)
 	{
-	  if (opt.htmlify)
+	  if (opt.htmlify && !opt.spider)
 	    {
 	      char *filename = (opt.output_document
 				? xstrdup (opt.output_document)
 				: (con.target ? xstrdup (con.target)
-				   : url_filename (u)));
+				   : url_file_name (u)));
 	      res = ftp_index (filename, u, f);
 	      if (res == FTPOK && opt.verbose)
 		{
@@ -1701,8 +1781,8 @@ ftp_loop (struct url *u, int *dt)
 	  /* ftp_retrieve_glob is a catch-all function that gets called
 	     if we need globbing, time-stamping or recursion.  Its
 	     third argument is just what we really need.  */
-	  ftp_retrieve_glob (u, &con,
-			     (opt.ftp_glob && wild) ? GLOBALL : GETONE);
+	  res = ftp_retrieve_glob (u, &con,
+				   (opt.ftp_glob && wild) ? GLOBALL : GETONE);
 	}
       else
 	res = ftp_loop_internal (u, NULL, &con);

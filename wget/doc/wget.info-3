@@ -1,7 +1,6 @@
-This is wget.info, produced by makeinfo version 4.1 from ./wget.texi.
+This is wget.info, produced by makeinfo version 4.3 from ./wget.texi.
 
-INFO-DIR-SECTION Net Utilities
-INFO-DIR-SECTION World Wide Web
+INFO-DIR-SECTION Network Applications
 START-INFO-DIR-ENTRY
 * Wget: (wget).         The non-interactive network downloader.
 END-INFO-DIR-ENTRY
@@ -9,8 +8,8 @@ END-INFO-DIR-ENTRY
    This file documents the the GNU Wget utility for downloading network
 data.
 
-   Copyright (C) 1996, 1997, 1998, 2000, 2001 Free Software Foundation,
-Inc.
+   Copyright (C) 1996, 1997, 1998, 2000, 2001, 2002, 2003 Free Software
+Foundation, Inc.
 
    Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
@@ -23,6 +22,298 @@ Invariant Sections being "GNU General Public License" and "GNU Free
 Documentation License", with no Front-Cover Texts, and with no
 Back-Cover Texts.  A copy of the license is included in the section
 entitled "GNU Free Documentation License".
+
+
+File: wget.info,  Node: Advanced Usage,  Next: Very Advanced Usage,  Prev: Simple Usage,  Up: Examples
+
+Advanced Usage
+==============
+
+   * You have a file that contains the URLs you want to download?  Use
+     the `-i' switch:
+
+          wget -i FILE
+
+     If you specify `-' as file name, the URLs will be read from
+     standard input.
+
+   * Create a five levels deep mirror image of the GNU web site, with
+     the same directory structure the original has, with only one try
+     per document, saving the log of the activities to `gnulog':
+
+          wget -r http://www.gnu.org/ -o gnulog
+
+   * The same as the above, but convert the links in the HTML files to
+     point to local files, so you can view the documents off-line:
+
+          wget --convert-links -r http://www.gnu.org/ -o gnulog
+
+   * Retrieve only one HTML page, but make sure that all the elements
+     needed for the page to be displayed, such as inline images and
+     external style sheets, are also downloaded.  Also make sure the
+     downloaded page references the downloaded links.
+
+          wget -p --convert-links http://www.server.com/dir/page.html
+
+     The HTML page will be saved to `www.server.com/dir/page.html', and
+     the images, stylesheets, etc., somewhere under `www.server.com/',
+     depending on where they were on the remote server.
+
+   * The same as the above, but without the `www.server.com/' directory.
+     In fact, I don't want to have all those random server directories
+     anyway--just save _all_ those files under a `download/'
+     subdirectory of the current directory.
+
+          wget -p --convert-links -nH -nd -Pdownload \
+               http://www.server.com/dir/page.html
+
+   * Retrieve the index.html of `www.lycos.com', showing the original
+     server headers:
+
+          wget -S http://www.lycos.com/
+
+   * Save the server headers with the file, perhaps for post-processing.
+
+          wget -s http://www.lycos.com/
+          more index.html
+
+   * Retrieve the first two levels of `wuarchive.wustl.edu', saving them
+     to `/tmp'.
+
+          wget -r -l2 -P/tmp ftp://wuarchive.wustl.edu/
+
+   * You want to download all the GIFs from a directory on an HTTP
+     server.  You tried `wget http://www.server.com/dir/*.gif', but that
+     didn't work because HTTP retrieval does not support globbing.  In
+     that case, use:
+
+          wget -r -l1 --no-parent -A.gif http://www.server.com/dir/
+
+     More verbose, but the effect is the same.  `-r -l1' means to
+     retrieve recursively (*note Recursive Retrieval::), with maximum
+     depth of 1.  `--no-parent' means that references to the parent
+     directory are ignored (*note Directory-Based Limits::), and
+     `-A.gif' means to download only the GIF files.  `-A "*.gif"' would
+     have worked too.
+
+   * Suppose you were in the middle of downloading, when Wget was
+     interrupted.  Now you do not want to clobber the files already
+     present.  It would be:
+
+          wget -nc -r http://www.gnu.org/
+
+   * If you want to encode your own username and password to HTTP or
+     FTP, use the appropriate URL syntax (*note URL Format::).
+
+          wget ftp://hniksic:mypassword@unix.server.com/.emacs
+
+     Note, however, that this usage is not advisable on multi-user
+     systems because it reveals your password to anyone who looks at
+     the output of `ps'.
+
+   * You would like the output documents to go to standard output
+     instead of to files?
+
+          wget -O - http://jagor.srce.hr/ http://www.srce.hr/
+
+     You can also combine the two options and make pipelines to
+     retrieve the documents from remote hotlists:
+
+          wget -O - http://cool.list.com/ | wget --force-html -i -
+
+
+File: wget.info,  Node: Very Advanced Usage,  Prev: Advanced Usage,  Up: Examples
+
+Very Advanced Usage
+===================
+
+   * If you wish Wget to keep a mirror of a page (or FTP
+     subdirectories), use `--mirror' (`-m'), which is the shorthand for
+     `-r -l inf -N'.  You can put Wget in the crontab file asking it to
+     recheck a site each Sunday:
+
+          crontab
+          0 0 * * 0 wget --mirror http://www.gnu.org/ -o /home/me/weeklog
+
+   * In addition to the above, you want the links to be converted for
+     local viewing.  But, after having read this manual, you know that
+     link conversion doesn't play well with timestamping, so you also
+     want Wget to back up the original HTML files before the
+     conversion.  Wget invocation would look like this:
+
+          wget --mirror --convert-links --backup-converted  \
+               http://www.gnu.org/ -o /home/me/weeklog
+
+   * But you've also noticed that local viewing doesn't work all that
+     well when HTML files are saved under extensions other than `.html',
+     perhaps because they were served as `index.cgi'.  So you'd like
+     Wget to rename all the files served with content-type `text/html'
+     or `application/xhtml+xml' to `NAME.html'.
+
+          wget --mirror --convert-links --backup-converted \
+               --html-extension -o /home/me/weeklog        \
+               http://www.gnu.org/
+
+     Or, with less typing:
+
+          wget -m -k -K -E http://www.gnu.org/ -o /home/me/weeklog
+
+
+File: wget.info,  Node: Various,  Next: Appendices,  Prev: Examples,  Up: Top
+
+Various
+*******
+
+   This chapter contains all the stuff that could not fit anywhere else.
+
+* Menu:
+
+* Proxies::             Support for proxy servers
+* Distribution::        Getting the latest version.
+* Mailing List::        Wget mailing list for announcements and discussion.
+* Reporting Bugs::      How and where to report bugs.
+* Portability::         The systems Wget works on.
+* Signals::             Signal-handling performed by Wget.
+
+
+File: wget.info,  Node: Proxies,  Next: Distribution,  Prev: Various,  Up: Various
+
+Proxies
+=======
+
+   "Proxies" are special-purpose HTTP servers designed to transfer data
+from remote servers to local clients.  One typical use of proxies is
+lightening network load for users behind a slow connection.  This is
+achieved by channeling all HTTP and FTP requests through the proxy
+which caches the transferred data.  When a cached resource is requested
+again, proxy will return the data from cache.  Another use for proxies
+is for companies that separate (for security reasons) their internal
+networks from the rest of Internet.  In order to obtain information
+from the Web, their users connect and retrieve remote data using an
+authorized proxy.
+
+   Wget supports proxies for both HTTP and FTP retrievals.  The
+standard way to specify proxy location, which Wget recognizes, is using
+the following environment variables:
+
+`http_proxy'
+     This variable should contain the URL of the proxy for HTTP
+     connections.
+
+`ftp_proxy'
+     This variable should contain the URL of the proxy for FTP
+     connections.  It is quite common that HTTP_PROXY and FTP_PROXY are
+     set to the same URL.
+
+`no_proxy'
+     This variable should contain a comma-separated list of domain
+     extensions proxy should _not_ be used for.  For instance, if the
+     value of `no_proxy' is `.mit.edu', proxy will not be used to
+     retrieve documents from MIT.
+
+   In addition to the environment variables, proxy location and settings
+may be specified from within Wget itself.
+
+`-Y on/off'
+`--proxy=on/off'
+`proxy = on/off'
+     This option may be used to turn the proxy support on or off.  Proxy
+     support is on by default, provided that the appropriate environment
+     variables are set.
+
+`http_proxy = URL'
+`ftp_proxy = URL'
+`no_proxy = STRING'
+     These startup file variables allow you to override the proxy
+     settings specified by the environment.
+
+   Some proxy servers require authorization to enable you to use them.
+The authorization consists of "username" and "password", which must be
+sent by Wget.  As with HTTP authorization, several authentication
+schemes exist.  For proxy authorization only the `Basic' authentication
+scheme is currently implemented.
+
+   You may specify your username and password either through the proxy
+URL or through the command-line options.  Assuming that the company's
+proxy is located at `proxy.company.com' at port 8001, a proxy URL
+location containing authorization data might look like this:
+
+     http://hniksic:mypassword@proxy.company.com:8001/
+
+   Alternatively, you may use the `proxy-user' and `proxy-password'
+options, and the equivalent `.wgetrc' settings `proxy_user' and
+`proxy_passwd' to set the proxy username and password.
+
+
+File: wget.info,  Node: Distribution,  Next: Mailing List,  Prev: Proxies,  Up: Various
+
+Distribution
+============
+
+   Like all GNU utilities, the latest version of Wget can be found at
+the master GNU archive site ftp.gnu.org, and its mirrors.  For example,
+Wget 1.9.1 can be found at
+<ftp://ftp.gnu.org/pub/gnu/wget/wget-1.9.1.tar.gz>
+
+
+File: wget.info,  Node: Mailing List,  Next: Reporting Bugs,  Prev: Distribution,  Up: Various
+
+Mailing List
+============
+
+   Wget has its own mailing list at <wget@sunsite.dk>, thanks to
+Karsten Thygesen.  The mailing list is for discussion of Wget features
+and web, reporting Wget bugs (those that you think may be of interest
+to the public) and mailing announcements.  You are welcome to
+subscribe.  The more people on the list, the better!
+
+   To subscribe, simply send mail to <wget-subscribe@sunsite.dk>.
+Unsubscribe by mailing to <wget-unsubscribe@sunsite.dk>.
+
+   The mailing list is archived at <http://fly.srk.fer.hr/archive/wget>.
+Alternative archive is available at
+<http://www.mail-archive.com/wget%40sunsite.auc.dk/>.
+
+
+File: wget.info,  Node: Reporting Bugs,  Next: Portability,  Prev: Mailing List,  Up: Various
+
+Reporting Bugs
+==============
+
+   You are welcome to send bug reports about GNU Wget to
+<bug-wget@gnu.org>.
+
+   Before actually submitting a bug report, please try to follow a few
+simple guidelines.
+
+  1. Please try to ascertain that the behavior you see really is a bug.
+     If Wget crashes, it's a bug.  If Wget does not behave as
+     documented, it's a bug.  If things work strange, but you are not
+     sure about the way they are supposed to work, it might well be a
+     bug.
+
+  2. Try to repeat the bug in as simple circumstances as possible.
+     E.g. if Wget crashes while downloading `wget -rl0 -kKE -t5 -Y0
+     http://yoyodyne.com -o /tmp/log', you should try to see if the
+     crash is repeatable, and if will occur with a simpler set of
+     options.  You might even try to start the download at the page
+     where the crash occurred to see if that page somehow triggered the
+     crash.
+
+     Also, while I will probably be interested to know the contents of
+     your `.wgetrc' file, just dumping it into the debug message is
+     probably a bad idea.  Instead, you should first try to see if the
+     bug repeats with `.wgetrc' moved out of the way.  Only if it turns
+     out that `.wgetrc' settings affect the bug, mail me the relevant
+     parts of the file.
+
+  3. Please start Wget with `-d' option and send the log (or the
+     relevant parts of it).  If Wget was compiled without debug support,
+     recompile it.  It is _much_ easier to trace bugs with debug support
+     on.
+
+  4. If Wget has crashed, try to run it in a debugger, e.g. `gdb `which
+     wget` core' and type `where' to get the backtrace.
 
 
 File: wget.info,  Node: Portability,  Next: Signals,  Prev: Reporting Bugs,  Up: Various
@@ -100,25 +391,27 @@ set.  Great?  Not for the server admin.
 reasonable rate (see the `--wait' option), there's not much of a
 problem.  The trouble is that Wget can't tell the difference between the
 smallest static page and the most demanding CGI.  A site I know has a
-section handled by an, uh, "bitchin'" CGI Perl script that converts
-Info files to HTML on the fly.  The script is slow, but works well
-enough for human users viewing an occasional Info file.  However, when
-someone's recursive Wget download stumbles upon the index page that
-links to all the Info files through the script, the system is brought to
-its knees without providing anything useful to the downloader.
+section handled by a CGI Perl script that converts Info files to HTML on
+the fly.  The script is slow, but works well enough for human users
+viewing an occasional Info file.  However, when someone's recursive Wget
+download stumbles upon the index page that links to all the Info files
+through the script, the system is brought to its knees without providing
+anything useful to the user (This task of converting Info files could be
+done locally and access to Info documentation for all installed GNU
+software on a system is available from the `info' command).
 
    To avoid this kind of accident, as well as to preserve privacy for
 documents that need to be protected from well-behaved robots, the
-concept of "robot exclusion" has been invented.  The idea is that the
-server administrators and document authors can specify which portions
-of the site they wish to protect from the robots.
+concept of "robot exclusion" was invented.  The idea is that the server
+administrators and document authors can specify which portions of the
+site they wish to protect from robots and those they will permit access.
 
    The most popular mechanism, and the de facto standard supported by
 all the major robots, is the "Robots Exclusion Standard" (RES) written
 by Martijn Koster et al. in 1994.  It specifies the format of a text
 file containing directives that instruct the robots which URL paths to
 avoid.  To be found by the robots, the specifications must be placed in
-`/robots.txt' in the server root, which the robots are supposed to
+`/robots.txt' in the server root, which the robots are expected to
 download and parse.
 
    Although Wget is not a web robot in the strictest sense of the word,
@@ -194,7 +487,7 @@ File: wget.info,  Node: Contributors,  Prev: Security Considerations,  Up: Appen
 Contributors
 ============
 
-   GNU Wget was written by Hrvoje Niksic <hniksic@arsdigita.com>.
+   GNU Wget was written by Hrvoje Niksic <hniksic@xemacs.org>.
 However, its development could never have gone as far as it has, were it
 not for the help of many people, either with bug reports, feature
 proposals, patches, or letters saying "Thanks!".
@@ -241,25 +534,26 @@ that make maintenance so much fun:
    Ian Abbott Tim Adam, Adrian Aichner, Martin Baehr, Dieter Baron,
 Roger Beeman, Dan Berger, T. Bharath, Paul Bludov, Daniel Bodea, Mark
 Boyns, John Burden, Wanderlei Cavassin, Gilles Cedoc, Tim Charron, Noel
-Cragg, Kristijan Conkas, John Daily, Andrew Davison, Andrew Deryabin,
-Ulrich Drepper, Marc Duponcheel, Damir Dzeko, Alan Eldridge, Aleksandar
-Erkalovic, Andy Eskilsson, Christian Fraenkel, Masashi Fujita, Howard
-Gayle, Marcel Gerrits, Lemble Gregory, Hans Grobler, Mathieu Guillaume,
-Dan Harkless, Herold Heiko, Jochen Hein, Karl Heuer, HIROSE Masaaki,
-Gregor Hoffleit, Erik Magnus Hulthen, Richard Huveneers, Jonas Jensen,
-Simon Josefsson, Mario Juric, Hack Kampbjorn, Const Kaplinsky, Goran
-Kezunovic, Robert Kleine, KOJIMA Haime, Fila Kolodny, Alexander
-Kourakos, Martin Kraemer, Simos KSenitellis, Hrvoje Lacko, Daniel S.
-Lewart, Nicolas Lichtmeier, Dave Love, Alexander V. Lukyanov, Jordan
+Cragg, Kristijan Conkas, John Daily, Ahmon Dancy, Andrew Davison,
+Andrew Deryabin, Ulrich Drepper, Marc Duponcheel, Damir Dzeko, Alan
+Eldridge, Aleksandar Erkalovic, Andy Eskilsson, Christian Fraenkel,
+Masashi Fujita, Howard Gayle, Marcel Gerrits, Lemble Gregory, Hans
+Grobler, Mathieu Guillaume, Dan Harkless, Aaron Hawley, Herold Heiko,
+Jochen Hein, Karl Heuer, HIROSE Masaaki, Gregor Hoffleit, Erik Magnus
+Hulthen, Richard Huveneers, Jonas Jensen, Simon Josefsson, Mario Juric,
+Hack Kampbjorn, Const Kaplinsky, Goran Kezunovic, Robert Kleine, KOJIMA
+Haime, Fila Kolodny, Alexander Kourakos, Martin Kraemer, Simos
+KSenitellis, Hrvoje Lacko, Daniel S. Lewart, Nicolas Lichtmeier, Dave
+Love, Alexander V. Lukyanov, Thomas Lussnig, Aurelien Marchand, Jordan
 Mendelson, Lin Zhe Min, Tim Mooney, Simon Munton, Charlie Negyesi, R.
 K. Owen, Andrew Pollock, Steve Pothier, Jan Prikryl, Marin Purgar,
-Csaba Raduly, Keith Refson, Tyler Riddle, Tobias Ringstrom, Juan Jose
-Rodrigues, Edward J. Sabol, Heinz Salzmann, Robert Schmidt, Andreas
-Schwab, Chris Seawood, Toomas Soome, Tage Stabell-Kulo, Sven
-Sternberger, Markus Strasser, John Summerfield, Szakacsits Szabolcs,
-Mike Thomas, Philipp Thomas, Dave Turner, Russell Vincent, Charles G
-Waldman, Douglas E. Wegscheid, Jasmin Zainul, Bojan Zdrnja, Kristijan
-Zimmer.
+Csaba Raduly, Keith Refson, Bill Richardson, Tyler Riddle, Tobias
+Ringstrom, Juan Jose Rodrigues, Maciej W. Rozycki, Edward J. Sabol,
+Heinz Salzmann, Robert Schmidt, Andreas Schwab, Chris Seawood, Toomas
+Soome, Tage Stabell-Kulo, Sven Sternberger, Markus Strasser, John
+Summerfield, Szakacsits Szabolcs, Mike Thomas, Philipp Thomas, Mauro
+Tortonesi, Dave Turner, Gisle Vanem, Russell Vincent, Charles G Waldman,
+Douglas E. Wegscheid, Jasmin Zainul, Bojan Zdrnja, Kristijan Zimmer.
 
    Apologies to all who I accidentally left out, and many thanks to all
 the subscribers of the Wget mailing list.

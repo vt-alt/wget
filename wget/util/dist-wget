@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh
 
 # Copyright (C) 2001 Free Software Foundation, Inc.
 
@@ -26,6 +26,30 @@
 # file, but you are not obligated to do so.  If you do not wish to do
 # so, delete this exception statement from your version.
 
+##
+#
+# This script creates a Wget distribution (wget-VERSION.tar.gz).
+# It uses `make dist' to do most of the work, but corrects some
+# things that `make dist' doesn't and can't do.  Specifically:
+#
+# * Checks out the clean CVS source from the repository to a temporary
+#   directory.
+# * Runs autoconf, configure and `make' in the doc and po subdirs to
+#   make sure that all the generated files, such as `confifure',
+#   `wget.info', and translated PO files, end up in the distribution.
+# * Optionally changes src/version.c and doc/version.texi to the
+#   version forced by `--force-version'.
+# * Runs `make dist' to produce the archive.
+# * Removes the checkout.
+#
+# For example, to produce a Wget beta based on the latest CVS sources,
+# with version "1.23-beta10", run `dist-wget --force-version 1.23-beta10'.
+# You can choose which sources will be used by specifying `-D DATE'
+# or `-r TAG'.
+#
+##
+
+set -e
 
 CVSROOT=:pserver:cvs@sunsite.dk:/pack/anoncvs
 SUBDIR=wget.cvs.$$
@@ -33,6 +57,7 @@ DEBUG=no
 
 EXPORT_TAG='-r HEAD'
 VERSION=
+MAKE=${MAKE-make}
 
 if test x"$TMPDIR" = x
 then
@@ -48,7 +73,7 @@ do
       ;;
     -D)
       shift
-      EXPORT_TAG="-D '$1'"
+      EXPORT_TAG="-D $1"
       ;;
     -r)
       shift
@@ -68,7 +93,7 @@ done
 # Resolve echo -n incompatibilities.
 e_n=-n
 e_c=
-if test "`(echo foo; echo -n bar) | tr '[\012]' x`" != fooxbar; then
+if test x"`(echo -n foo; echo bar)`" != xfoobar; then
   e_n=
   e_c='\c'
 fi
@@ -84,7 +109,7 @@ echo "Output from commands is in $O."
 echo "-----------" >$O
 
 # Checkout clean sources from the repository.
-echo $e_n "Exporting ($EXPORT_TAG) out the CVS tree to $SUBDIR... $e_c"
+echo $e_n "Exporting ($EXPORT_TAG) out the CVS tree to $TMPDIR/$SUBDIR... $e_c"
 cvs -d $CVSROOT export $EXPORT_TAG -d $SUBDIR wget 1>>$O 2>&1
 echo "done."
 
@@ -96,21 +121,22 @@ rm -rf Branches 1>>$O 2>&1
 # Force the version if required.
 if test x"$VERSION" != x
 then
-  echo "char *version_string = \"$VERSION\";" > src/version.c
   echo "Forcing version to $VERSION."
+  echo "char *version_string = \"$VERSION\";" > src/version.c
+  echo "@set VERSION $VERSION" > doc/version.texi
 fi
 
 # Create configure and friends.
 if test ! -f configure; then
   echo $e_n "Creating \`configure' from \`configure.in'... $e_c"
-  make -f Makefile.cvs 1>>$O 2>&1
+  $MAKE -f Makefile.cvs 1>>$O 2>&1
   echo "done."
 fi
 
 # Remove `Makefile' if it already exists.
 if test -f Makefile; then
-  echo $e_n "Cleaning old Makefiles with \`make distclean'... $e_c"
-  make distclean 1>>$O 2>&1
+  echo $e_n "Cleaning old Makefiles with \`$MAKE distclean'... $e_c"
+  $MAKE distclean 1>>$O 2>&1
   echo "done."
 fi
 
@@ -122,22 +148,23 @@ echo "done."
 # Now build the MO files.
 echo $e_n "Building MO files out of PO files... $e_c"
 cd po
-make 1>>$O 2>&1
+$MAKE 1>>$O 2>&1
 cd ..
 echo "done."
 
 # Now build the Info documentation and the man page.
 echo $e_n "Building Info and man documentation... $e_c"
 cd doc
-make 1>>$O 2>&1
+$MAKE 1>>$O 2>&1
 cd ..
 echo "done."
 
 # Create the distribution file.
 echo $e_n "Creating distribution tarball... $e_c"
-make dist 1>>$O 2>&1
-mv wget-*.tar.gz $DEST_DIR
-echo "done."
+$MAKE dist 1>>$O 2>&1
+archive=`echo wget-*.tar.gz`
+mv "$archive" $DEST_DIR
+echo "$archive"
 
 cd ..
 

@@ -62,7 +62,7 @@
  *    fixed return value to comply with C99
  *    fixed handling of snprintf(NULL, ...)
  *
- *  Hrvoje Niksic <hniksic@arsdigita.com> 2000-11-04
+ *  Hrvoje Niksic <hniksic@xemacs.org> 2000-11-04
  *    include <config.h> instead of "config.h".
  *    moved TEST_SNPRINTF stuff out of HAVE_SNPRINTF ifdef.
  *    include <stdio.h> for NULL.
@@ -107,7 +107,7 @@
 #define LDOUBLE double
 #endif
 
-#ifdef HAVE_LONG_LONG
+#if SIZEOF_LONG_LONG != 0
 # define LLONG long long
 #else
 # define LLONG long
@@ -849,7 +849,7 @@ int main (void)
     NULL
   };
   long int_nums[] = { -1, 134, 91340, 341, 0203, 0};
-#ifdef HAVE_LONG_LONG
+#if SIZEOF_LONG_LONG != 0
   char *llong_fmt[] = {
     "%lld",		"%llu",
     "%-1.5lld",		"%-1.5llu",
@@ -905,7 +905,7 @@ int main (void)
       num++;
     }
 
-#ifdef HAVE_LONG_LONG
+#if SIZEOF_LONG_LONG != 0
   for (x = 0; llong_fmt[x] != NULL ; x++)
     for (y = 0; llong_nums[y] != 0 ; y++)
     {

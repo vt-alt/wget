@@ -1,5 +1,5 @@
 /* HTML parser for Wget.
-   Copyright (C) 1998, 2000 Free Software Foundation, Inc.
+   Copyright (C) 1998, 2000, 2003 Free Software Foundation, Inc.
 
 This file is part of GNU Wget.
 
@@ -46,10 +46,7 @@ so, delete this exception statement from your version.  */
    written some time during the Geturl 1.0 beta cycle, and was very
    inefficient and buggy.  It also contained some very complex code to
    remember a list of parser states, because it was supposed to be
-   reentrant.  The idea was that several parsers would be running
-   concurrently, and you'd have pass the function a unique ID string
-   (for example, the URL) by which it found the relevant parser state
-   and returned the next URL.  Over-engineering at its best.
+   reentrant.
 
    The second HTML parser was written for Wget 1.4 (the first version
    by the name `Wget'), and was a complete rewrite.  Although the new
@@ -110,16 +107,40 @@ so, delete this exception statement from your version.  */
 #include "html-parse.h"
 
 #ifdef STANDALONE
+# undef xmalloc
+# undef xrealloc
+# undef xfree
 # define xmalloc malloc
 # define xrealloc realloc
 # define xfree free
 
+# undef ISSPACE
+# undef ISDIGIT
+# undef ISXDIGIT
+# undef ISALPHA
+# undef ISALNUM
+# undef TOLOWER
+# undef TOUPPER
+
 # define ISSPACE(x) isspace (x)
 # define ISDIGIT(x) isdigit (x)
+# define ISXDIGIT(x) isxdigit (x)
 # define ISALPHA(x) isalpha (x)
 # define ISALNUM(x) isalnum (x)
 # define TOLOWER(x) tolower (x)
-#endif /* STANDALONE */
+# define TOUPPER(x) toupper (x)
+
+struct hash_table {
+  int dummy;
+};
+static void *
+hash_table_get (const struct hash_table *ht, void *ptr)
+{
+  return ptr;
+}
+#else  /* not STANDALONE */
+# include "hash.h"
+#endif
 
 /* Pool support.  A pool is a resizable chunk of memory.  It is first
    allocated on the stack, and moved to the heap if it needs to be
@@ -135,62 +156,58 @@ so, delete this exception statement from your version.  */
 struct pool {
   char *contents;		/* pointer to the contents. */
   int size;			/* size of the pool. */
-  int index;			/* next unoccupied position in
-                                   contents. */
+  int tail;			/* next available position index. */
+  int resized;			/* whether the pool has been resized
+				   using malloc. */
 
-  int alloca_p;			/* whether contents was allocated
-                                   using alloca(). */
-  char *orig_contents;		/* orig_contents, allocated by
-                                   alloca().  this is used by
-                                   POOL_FREE to restore the pool to
-                                   the "initial" state. */
+  char *orig_contents;		/* original pool contents, usually
+                                   stack-allocated.  used by POOL_FREE
+                                   to restore the pool to the initial
+                                   state. */
   int orig_size;
 };
 
 /* Initialize the pool to hold INITIAL_SIZE bytes of storage. */
 
-#define POOL_INIT(pool, initial_size) do {		\
-  (pool).size = (initial_size);				\
-  (pool).contents = ALLOCA_ARRAY (char, (pool).size);	\
-  (pool).index = 0;					\
-  (pool).alloca_p = 1;					\
-  (pool).orig_contents = (pool).contents;		\
-  (pool).orig_size = (pool).size;			\
+#define POOL_INIT(p, initial_storage, initial_size) do {	\
+  struct pool *P = (p);						\
+  P->contents = (initial_storage);				\
+  P->size = (initial_size);					\
+  P->tail = 0;							\
+  P->resized = 0;						\
+  P->orig_contents = P->contents;				\
+  P->orig_size = P->size;					\
 } while (0)
 
 /* Grow the pool to accomodate at least SIZE new bytes.  If the pool
    already has room to accomodate SIZE bytes of data, this is a no-op.  */
 
-#define POOL_GROW(pool, increase) do {					\
-  int PG_newsize = (pool).index + increase;				\
-  DO_REALLOC_FROM_ALLOCA ((pool).contents, (pool).size, PG_newsize,	\
-			  (pool).alloca_p, char);			\
-} while (0)
+#define POOL_GROW(p, increase)					\
+  GROW_ARRAY ((p)->contents, (p)->size, (p)->tail + (increase),	\
+	      (p)->resized, char)
 
 /* Append text in the range [beg, end) to POOL.  No zero-termination
    is done.  */
 
-#define POOL_APPEND(pool, beg, end) do {			\
-  const char *PA_beg = beg;					\
-  int PA_size = end - PA_beg;					\
-  POOL_GROW (pool, PA_size);					\
-  memcpy ((pool).contents + (pool).index, PA_beg, PA_size);	\
-  (pool).index += PA_size;					\
+#define POOL_APPEND(p, beg, end) do {			\
+  const char *PA_beg = (beg);				\
+  int PA_size = (end) - PA_beg;				\
+  POOL_GROW (p, PA_size);				\
+  memcpy ((p)->contents + (p)->tail, PA_beg, PA_size);	\
+  (p)->tail += PA_size;					\
 } while (0)
 
-/* The same as the above, but with zero termination. */
+/* Append one character to the pool.  Can be used to zero-terminate
+   pool strings.  */
 
-#define POOL_APPEND_ZT(pool, beg, end) do {			\
-  const char *PA_beg = beg;					\
-  int PA_size = end - PA_beg;					\
-  POOL_GROW (pool, PA_size + 1);				\
-  memcpy ((pool).contents + (pool).index, PA_beg, PA_size);	\
-  (pool).contents[(pool).index + PA_size] = '\0';		\
-  (pool).index += PA_size + 1;					\
+#define POOL_APPEND_CHR(p, ch) do {		\
+  char PAC_char = (ch);				\
+  POOL_GROW (p, 1);				\
+  (p)->contents[(p)->tail++] = PAC_char;	\
 } while (0)
 
 /* Forget old pool contents.  The allocated memory is not freed. */
-#define POOL_REWIND(pool) pool.index = 0
+#define POOL_REWIND(p) (p)->tail = 0
 
 /* Free heap-allocated memory for contents of POOL.  This calls
    xfree() if the memory was allocated through malloc.  It also
@@ -198,23 +215,55 @@ struct pool {
    values.  That way after POOL_FREE, the pool is fully usable, just
    as if it were freshly initialized with POOL_INIT.  */
 
-#define POOL_FREE(pool) do {			\
-  if (!(pool).alloca_p)				\
-    xfree ((pool).contents);			\
-  (pool).contents = (pool).orig_contents;	\
-  (pool).size = (pool).orig_size;		\
-  (pool).index = 0;				\
-  (pool).alloca_p = 1;				\
+#define POOL_FREE(p) do {			\
+  struct pool *P = p;				\
+  if (P->resized)				\
+    xfree (P->contents);			\
+  P->contents = P->orig_contents;		\
+  P->size = P->orig_size;			\
+  P->tail = 0;					\
+  P->resized = 0;				\
 } while (0)
 
+/* Used for small stack-allocated memory chunks that might grow.  Like
+   DO_REALLOC, this macro grows BASEVAR as necessary to take
+   NEEDED_SIZE items of TYPE.
+
+   The difference is that on the first resize, it will use
+   malloc+memcpy rather than realloc.  That way you can stack-allocate
+   the initial chunk, and only resort to heap allocation if you
+   stumble upon large data.
+
+   After the first resize, subsequent ones are performed with realloc,
+   just like DO_REALLOC.  */
+
+#define GROW_ARRAY(basevar, sizevar, needed_size, resized, type) do {		\
+  long ga_needed_size = (needed_size);						\
+  long ga_newsize = (sizevar);							\
+  while (ga_newsize < ga_needed_size)						\
+    ga_newsize <<= 1;								\
+  if (ga_newsize != (sizevar))							\
+    {										\
+      if (resized)								\
+	basevar = (type *)xrealloc (basevar, ga_newsize * sizeof (type));	\
+      else									\
+	{									\
+	  void *ga_new = xmalloc (ga_newsize * sizeof (type));			\
+	  memcpy (ga_new, basevar, (sizevar) * sizeof (type));			\
+	  (basevar) = ga_new;							\
+	  resized = 1;								\
+	}									\
+      (sizevar) = ga_newsize;							\
+    }										\
+} while (0)
 
 #define AP_DOWNCASE		1
 #define AP_PROCESS_ENTITIES	2
-#define AP_SKIP_BLANKS		4
+#define AP_TRIM_BLANKS		4
 
 /* Copy the text in the range [BEG, END) to POOL, optionally
    performing operations specified by FLAGS.  FLAGS may be any
-   combination of AP_DOWNCASE, AP_PROCESS_ENTITIES and AP_SKIP_BLANKS
+   combination of AP_DOWNCASE, AP_PROCESS_ENTITIES and AP_TRIM_BLANKS
    with the following meaning:
 
    * AP_DOWNCASE -- downcase all the letters;
@@ -223,18 +272,19 @@ struct pool {
    the decoded string.  Recognized entities are &lt, &gt, &amp, &quot,
    &nbsp and the numerical entities.
 
-   * AP_SKIP_BLANKS -- ignore blanks at the beginning and at the end
+   * AP_TRIM_BLANKS -- ignore blanks at the beginning and at the end
    of text.  */
+
 static void
 convert_and_copy (struct pool *pool, const char *beg, const char *end, int flags)
 {
-  int old_index = pool->index;
+  int old_tail = pool->tail;
   int size;
 
   /* First, skip blanks if required.  We must do this before entities
      are processed, so that blanks can still be inserted as, for
      instance, `&#32;'.  */
-  if (flags & AP_SKIP_BLANKS)
+  if (flags & AP_TRIM_BLANKS)
     {
       while (beg < end && ISSPACE (*beg))
 	++beg;
@@ -245,11 +295,18 @@ convert_and_copy (struct pool *pool, const char *beg, const char *end, int flags
 
   if (flags & AP_PROCESS_ENTITIES)
     {
-      /* Stack-allocate a copy of text, process entities and copy it
-         to the pool.  */
-      char *local_copy = (char *)alloca (size + 1);
+      /* Grow the pool, then copy the text to the pool character by
+	 character, processing the encountered entities as we go
+	 along.
+
+	 It's safe (and necessary) to grow the pool in advance because
+	 processing the entities can only *shorten* the string, it can
+	 never lengthen it.  */
       const char *from = beg;
-      char *to = local_copy;
+      char *to;
+
+      POOL_GROW (pool, end - beg);
+      to = pool->contents + pool->tail;
 
       while (from < end)
 	{
@@ -260,22 +317,33 @@ convert_and_copy (struct pool *pool, const char *beg, const char *end, int flags
 	      const char *save = from;
 	      int remain;
 
-	      if (++from == end) goto lose;
+	      if (++from == end)
+		goto lose;
 	      remain = end - from;
 
+	      /* Process numeric entities "&#DDD;" and "&#xHH;".  */
 	      if (*from == '#')
 		{
-		  int numeric;
+		  int numeric = 0, digits = 0;
 		  ++from;
-		  if (from == end || !ISDIGIT (*from)) goto lose;
-		  for (numeric = 0; from < end && ISDIGIT (*from); from++)
-		    numeric = 10 * numeric + (*from) - '0';
-		  if (from < end && ISALPHA (*from)) goto lose;
+		  if (*from == 'x')
+		    {
+		      ++from;
+		      for (; from < end && ISXDIGIT (*from); from++, digits++)
+			numeric = (numeric << 4) + XDIGIT_TO_NUM (*from);
+		    }
+		  else
+		    {
+		      for (; from < end && ISDIGIT (*from); from++, digits++)
+			numeric = (numeric * 10) + (*from - '0');
+		    }
+		  if (!digits)
+		    goto lose;
 		  numeric &= 0xff;
 		  *to++ = numeric;
 		}
 #define FROB(x) (remain >= (sizeof (x) - 1)			\
-		 && !memcmp (from, x, sizeof (x) - 1)		\
+		 && 0 == memcmp (from, x, sizeof (x) - 1)	\
 		 && (*(from + sizeof (x) - 1) == ';'		\
 		     || remain == sizeof (x) - 1		\
 		     || !ISALNUM (*(from + sizeof (x) - 1))))
@@ -309,69 +377,55 @@ convert_and_copy (struct pool *pool, const char *beg, const char *end, int flags
 	      *to++ = *from++;
 	    }
 	}
-      *to++ = '\0';
-      POOL_APPEND (*pool, local_copy, to);
+      /* Verify that we haven't exceeded the original size.  (It
+	 shouldn't happen, hence the assert.)  */
+      assert (to - (pool->contents + pool->tail) <= end - beg);
+
+      /* Make POOL's tail point to the position following the string
+	 we've written.  */
+      pool->tail = to - pool->contents;
+      POOL_APPEND_CHR (pool, '\0');
     }
   else
     {
       /* Just copy the text to the pool.  */
-      POOL_APPEND_ZT (*pool, beg, end);
+      POOL_APPEND (pool, beg, end);
+      POOL_APPEND_CHR (pool, '\0');
     }
 
   if (flags & AP_DOWNCASE)
     {
-      char *p = pool->contents + old_index;
+      char *p = pool->contents + old_tail;
       for (; *p; p++)
 	*p = TOLOWER (*p);
     }
 }
 
-/* Check whether the contents of [POS, POS+LENGTH) match any of the
-   strings in the ARRAY.  */
-static int
-array_allowed (const char **array, const char *beg, const char *end)
-{
-  int length = end - beg;
-  if (array)
-    {
-      for (; *array; array++)
-	if (length >= strlen (*array)
-	    && !strncasecmp (*array, beg, length))
-	  break;
-      if (!*array)
-	return 0;
-    }
-  return 1;
-}
-
-/* RFC1866: name [of attribute or tag] consists of letters, digits,
-   periods, or hyphens.  We also allow _, for compatibility with
-   brain-damaged generators.  */
-#define NAME_CHAR_P(x) (ISALNUM (x) || (x) == '.' || (x) == '-' || (x) == '_')
+/* Originally we used to adhere to rfc 1866 here, and allowed only
+   letters, digits, periods, and hyphens as names (of tags or
+   attributes).  However, this broke too many pages which used
+   proprietary or strange attributes, e.g. <img src="a.gif"
+   v:shapes="whatever">.
 
-/* States while advancing through comments. */
-#define AC_S_DONE	0
-#define AC_S_BACKOUT	1
-#define AC_S_BANG	2
-#define AC_S_DEFAULT	3
-#define AC_S_DCLNAME	4
-#define AC_S_DASH1	5
-#define AC_S_DASH2	6
-#define AC_S_COMMENT	7
-#define AC_S_DASH3	8
-#define AC_S_DASH4	9
-#define AC_S_QUOTE1	10
-#define AC_S_IN_QUOTE	11
-#define AC_S_QUOTE2	12
+   So now we allow any character except:
+     * whitespace
+     * 8-bit and control chars
+     * characters that clearly cannot be part of name:
+       '=', '>', '/'.
+
+   This only affects attribute and tag names; attribute values allow
+   an even greater variety of characters.  */
+
+#define NAME_CHAR_P(x) ((x) > 32 && (x) < 127				\
+			&& (x) != '=' && (x) != '>' && (x) != '/')
 
 #ifdef STANDALONE
 static int comment_backout_count;
 #endif
 
-/* Advance over an SGML declaration (the <!...> forms you find in HTML
-   documents).  The function returns the location after the
-   declaration.  The reason we need this is that HTML comments are
-   expressed as comments in so-called "empty declarations".
+/* Advance over an SGML declaration, such as <!DOCTYPE ...>.  In
+   strict comments mode, this is used for skipping over comments as
+   well.
 
    To recap: any SGML declaration may have comments associated with
    it, e.g.
@@ -385,17 +439,31 @@ static int comment_backout_count;
        <!-- have -- -- fun -->
 
    Whitespace is allowed between and after the comments, but not
-   before the first comment.
+   before the first comment.  Additionally, this function attempts to
+   handle double quotes in SGML declarations correctly.  */
 
-   Additionally, this function attempts to handle double quotes in
-   SGML declarations correctly.  */
 static const char *
 advance_declaration (const char *beg, const char *end)
 {
   const char *p = beg;
   char quote_char = '\0';	/* shut up, gcc! */
   char ch;
-  int state = AC_S_BANG;
+
+  enum {
+    AC_S_DONE,
+    AC_S_BACKOUT,
+    AC_S_BANG,
+    AC_S_DEFAULT,
+    AC_S_DCLNAME,
+    AC_S_DASH1,
+    AC_S_DASH2,
+    AC_S_COMMENT,
+    AC_S_DASH3,
+    AC_S_DASH4,
+    AC_S_QUOTE1,
+    AC_S_IN_QUOTE,
+    AC_S_QUOTE2
+  } state = AC_S_BANG;
 
   if (beg == end)
     return beg;
@@ -450,10 +518,10 @@ advance_declaration (const char *beg, const char *end)
 	    }
 	  break;
 	case AC_S_DCLNAME:
-	  if (NAME_CHAR_P (ch))
-	    ch = *p++;
-	  else if (ch == '-')
+	  if (ch == '-')
 	    state = AC_S_DASH1;
+	  else if (NAME_CHAR_P (ch))
+	    ch = *p++;
 	  else
 	    state = AC_S_DEFAULT;
 	  break;
@@ -534,7 +602,69 @@ advance_declaration (const char *beg, const char *end)
     }
   return p;
 }
+
+/* Find the first occurrence of the substring "-->" in [BEG, END) and
+   return the pointer to the character after the substring.  If the
+   substring is not found, return NULL.  */
+
+static const char *
+find_comment_end (const char *beg, const char *end)
+{
+  /* Open-coded Boyer-Moore search for "-->".  Examine the third char;
+     if it's not '>' or '-', advance by three characters.  Otherwise,
+     look at the preceding characters and try to find a match.  */
+
+  const char *p = beg - 1;
+
+  while ((p += 3) < end)
+    switch (p[0])
+      {
+      case '>':
+	if (p[-1] == '-' && p[-2] == '-')
+	  return p + 1;
+	break;
+      case '-':
+      at_dash:
+	if (p[-1] == '-')
+	  {
+	  at_dash_dash:
+	    if (++p == end) return NULL;
+	    switch (p[0])
+	      {
+	      case '>': return p + 1;
+	      case '-': goto at_dash_dash;
+	      }
+	  }
+	else
+	  {
+	    if ((p += 2) >= end) return NULL;
+	    switch (p[0])
+	      {
+	      case '>':
+		if (p[-1] == '-')
+		  return p + 1;
+		break;
+	      case '-':
+		goto at_dash;
+	      }
+	  }
+      }
+  return NULL;
+}
 
+/* Return non-zero of the string inside [b, e) are present in hash
+   table HT.  */
+
+static int
+name_allowed (const struct hash_table *ht, const char *b, const char *e)
+{
+  char *copy;
+  if (!ht)
+    return 1;
+  BOUNDED_TO_ALLOCA (b, e, copy);
+  return hash_table_get (ht, copy) != NULL;
+}
+
 /* Advance P (a char pointer), with the explicit intent of being able
    to read the next character.  If this is not possible, go to finish.  */
 
@@ -566,7 +696,7 @@ static int tag_backout_count;
 
 /* Map MAPFUN over HTML tags in TEXT, which is SIZE characters long.
    MAPFUN will be called with two arguments: pointer to an initialized
-   struct taginfo, and CLOSURE.
+   struct taginfo, and MAPARG.
 
    ALLOWED_TAG_NAMES should be a NULL-terminated array of tag names to
    be processed by this function.  If it is NULL, all the tags are
@@ -582,23 +712,28 @@ static int tag_backout_count;
 
 void
 map_html_tags (const char *text, int size,
-	       const char **allowed_tag_names,
-	       const char **allowed_attribute_names,
-	       void (*mapfun) (struct taginfo *, void *),
-	       void *closure)
+	       void (*mapfun) (struct taginfo *, void *), void *maparg,
+	       int flags,
+	       const struct hash_table *allowed_tags,
+	       const struct hash_table *allowed_attributes)
 {
+  /* storage for strings passed to MAPFUN callback; if 256 bytes is
+     too little, POOL_APPEND allocates more with malloc. */
+  char pool_initial_storage[256];
+  struct pool pool;
+
   const char *p = text;
   const char *end = text + size;
 
-  int attr_pair_count = 8;
-  int attr_pair_alloca_p = 1;
-  struct attr_pair *pairs = ALLOCA_ARRAY (struct attr_pair, attr_pair_count);
-  struct pool pool;
+  struct attr_pair attr_pair_initial_storage[8];
+  int attr_pair_size = countof (attr_pair_initial_storage);
+  int attr_pair_resized = 0;
+  struct attr_pair *pairs = attr_pair_initial_storage;
 
   if (!size)
     return;
 
-  POOL_INIT (pool, 256);
+  POOL_INIT (&pool, pool_initial_storage, countof (pool_initial_storage));
 
   {
     int nattrs, end_tag;
@@ -607,7 +742,7 @@ map_html_tags (const char *text, int size,
     int uninteresting_tag;
 
   look_for_tag:
-    POOL_REWIND (pool);
+    POOL_REWIND (&pool);
 
     nattrs = 0;
     end_tag = 0;
@@ -625,8 +760,26 @@ map_html_tags (const char *text, int size,
        declaration).  */
     if (*p == '!')
       {
-	/* This is an SGML declaration -- just skip it.  */
-	p = advance_declaration (p, end);
+	if (!(flags & MHT_STRICT_COMMENTS)
+	    && p < end + 3 && p[1] == '-' && p[2] == '-')
+	  {
+	    /* If strict comments are not enforced and if we know
+	       we're looking at a comment, simply look for the
+	       terminating "-->".  Non-strict is the default because
+	       it works in other browsers and most HTML writers can't
+	       be bothered with getting the comments right.  */
+	    const char *comment_end = find_comment_end (p + 3, end);
+	    if (comment_end)
+	      p = comment_end;
+	  }
+	else
+	  {
+	    /* Either in strict comment mode or looking at a non-empty
+	       declaration.  Real declarations are much less likely to
+	       be misused the way comments are, so advance over them
+	       properly regardless of strictness.  */
+	    p = advance_declaration (p, end);
+	  }
 	if (p == end)
 	  goto finish;
 	goto look_for_tag;
@@ -646,7 +799,7 @@ map_html_tags (const char *text, int size,
     if (end_tag && *p != '>')
       goto backout_tag;
 
-    if (!array_allowed (allowed_tag_names, tag_name_begin, tag_name_end))
+    if (!name_allowed (allowed_tags, tag_name_begin, tag_name_end))
       /* We can't just say "goto look_for_tag" here because we need
          the loop below to properly advance over the tag's attributes.  */
       uninteresting_tag = 1;
@@ -744,10 +897,9 @@ map_html_tags (const char *text, int size,
 		  goto look_for_tag;
 		attr_raw_value_end = p;	/* <foo bar="baz"> */
 					/*               ^ */
-		/* The AP_SKIP_BLANKS part is not entirely correct,
-		   because we don't want to skip blanks for all the
-		   attribute values.  */
-		operation = AP_PROCESS_ENTITIES | AP_SKIP_BLANKS;
+		operation = AP_PROCESS_ENTITIES;
+		if (flags & MHT_TRIM_VALUES)
+		  operation |= AP_TRIM_BLANKS;
 	      }
 	    else
 	      {
@@ -788,18 +940,16 @@ map_html_tags (const char *text, int size,
 	/* If we aren't interested in the attribute, skip it.  We
            cannot do this test any sooner, because our text pointer
            needs to correctly advance over the attribute.  */
-	if (allowed_attribute_names
-	    && !array_allowed (allowed_attribute_names, attr_name_begin,
-			       attr_name_end))
+	if (!name_allowed (allowed_attributes, attr_name_begin, attr_name_end))
 	  continue;
 
-	DO_REALLOC_FROM_ALLOCA (pairs, attr_pair_count, nattrs + 1,
-				attr_pair_alloca_p, struct attr_pair);
+	GROW_ARRAY (pairs, attr_pair_size, nattrs + 1, attr_pair_resized,
+		    struct attr_pair);
 
-	pairs[nattrs].name_pool_index = pool.index;
+	pairs[nattrs].name_pool_index = pool.tail;
 	convert_and_copy (&pool, attr_name_begin, attr_name_end, AP_DOWNCASE);
 
-	pairs[nattrs].value_pool_index = pool.index;
+	pairs[nattrs].value_pool_index = pool.tail;
 	convert_and_copy (&pool, attr_value_begin, attr_value_end, operation);
 	pairs[nattrs].value_raw_beginning = attr_raw_value_begin;
 	pairs[nattrs].value_raw_size = (attr_raw_value_end
@@ -835,7 +985,7 @@ map_html_tags (const char *text, int size,
       taginfo.start_position = tag_start_position;
       taginfo.end_position   = p + 1;
       /* Ta-dam! */
-      (*mapfun) (&taginfo, closure);
+      (*mapfun) (&taginfo, maparg);
       ADVANCE (p);
     }
     goto look_for_tag;
@@ -851,8 +1001,8 @@ map_html_tags (const char *text, int size,
   }
 
  finish:
-  POOL_FREE (pool);
-  if (!attr_pair_alloca_p)
+  POOL_FREE (&pool);
+  if (attr_pair_resized)
     xfree (pairs);
 }
 
@@ -888,7 +1038,7 @@ int main ()
       x = (char *)xrealloc (x, size);
     }
 
-  map_html_tags (x, length, NULL, NULL, test_mapper, &tag_counter);
+  map_html_tags (x, length, test_mapper, &tag_counter, 0, NULL, NULL);
   printf ("TAGS: %d\n", tag_counter);
   printf ("Tag backouts:     %d\n", tag_backout_count);
   printf ("Comment backouts: %d\n", comment_backout_count);

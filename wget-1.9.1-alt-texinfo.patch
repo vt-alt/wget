@@ -1,0 +1,15 @@
+diff -rubB wget-1.9.1.orig/doc/wget.texi wget-1.9.1/doc/wget.texi
+--- wget-1.9.1.orig/doc/wget.texi	2003-11-09 01:46:33 +0200
++++ wget-1.9.1/doc/wget.texi	2004-03-19 12:05:33 +0200
+@@ -21,9 +21,9 @@
+ @set Wget Wget
+ @c man title Wget The non-interactive network downloader.
+ 
+-@dircategory Network Applications
++@dircategory Networking/WWW
+ @direntry
+-* Wget: (wget).         The non-interactive network downloader.
++* Wget: (wget).         The non-interactive network downloader
+ @end direntry
+ 
+ @ifnottex

@@ -1,6 +1,9 @@
+# -*- rpm-spec -*-
+# $Id: wget,v 1.1 2004/03/19 10:48:41 grigory Exp $
+
 Name: wget
-Version: 1.8.2
-Release: alt4
+Version: 1.9.1
+Release: alt1
 
 Summary: An utility for retrieving files using the HTTP, HTTPS or FTP protocols
 License: GPL
@@ -9,14 +12,10 @@ Url: http://www.gnu.org/directory/GNU/%name.html
 
 Source: ftp://ftp.gnu.org/gnu/%name/%name-%version.tar.bz2
 
-Patch1: %name-1.8.2-alt-texinfo.patch
+Patch1: %name-1.9.1-alt-texinfo.patch
 Patch2: %name-1.6-mdk-passive_ftp.patch
 Patch3: %name-1.7-alt-locale.patch
 Patch4: %name-1.8.1-alt-quiet.patch
-Patch5: %name-1.8.1-mdk-netrc.patch
-Patch6: %name-1.8.2-rh-ht.patch
-Patch7: %name-1.8.2-rh-alt-filename.patch
-Patch8: %name-1.8.2-rh-segv.patch
 
 Requires(post,preun): %__install_info
 
@@ -49,10 +48,6 @@ find doc -type f -print0 |
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
-%patch6 -p0
-%patch7 -p1
-%patch8 -p1
 
 %build
 %configure --with-ssl
@@ -77,6 +72,10 @@ find doc -type f -print0 |
 %doc AUTHORS MACHINES MAILING-LIST NEWS README* TODO
 
 %changelog
+* Fri Mar 19 2004 Grigory Milev <week@altlinux.ru> 1.9.1-alt1
+- new version released
+- remove unneeded putches due changes in release
+
 * Wed Aug 06 2003 Alexey Voinov <voins@altlinux.ru> 1.8.2-alt4
 - updated rh-filename patch.
 - fixup wrong fix for directory traversal bug
@@ -158,4 +157,5 @@ find doc -type f -print0 |
 
 * Fri Nov 14 1997 Cristian Gafton <gafton@redhat.com>
 - first build against glibc
+
 

@@ -48,6 +48,10 @@ so, delete this exception statement from your version.  */
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#ifdef HAVE_INTTYPES_H
+# include <inttypes.h>
+#endif
+
 #ifdef WINDOWS
 /* Windows doesn't have some functions.  Include mswindows.h so we get
    their declarations, as well as some additional declarations and
@@ -128,33 +132,33 @@ do {						\
   DEBUGP (("Closing fd %d\n", x));		\
 } while (0)
 
-/* Define a large ("very long") type useful for storing large
-   non-negative quantities that exceed sizes of normal download, such
-   as the *total* number of bytes downloaded.  To fit today's needs,
-   this needs to be an integral type at least 64 bits wide.  On the
-   machines where `long' is 64-bit, we use long.  Otherwise, we check
-   whether `long long' is available and if yes, use that.  If long
-   long is unavailable, we give up and just use `long'.
+/* Define a large integral type useful for storing large sizes that
+   exceed sizes of one download, such as when printing the sum of all
+   downloads.  Note that this has nothing to do with large file
+   support, yet.
 
-   This check could be smarter and moved to configure, which could
-   check for a bunch of non-standard types such as uint64_t.  But I
-   don't see the need for it -- the current test will work on all
-   modern architectures, and if it fails, nothing bad happens, we just
-   end up with long.
+   We use a 64-bit integral type where available, `double' otherwise.
+   It's hard to print LARGE_INT's portably, but fortunately it's
+   rarely needed.  */
 
-   Note: you cannot use VERY_LONG_TYPE along with printf().  When you
-   need to print it, use very_long_to_string().  */
+#if SIZEOF_LONG >= 8
+/* Long is large enough: use it.  */
+typedef long LARGE_INT;
+# define LARGE_INT_FMT "%ld"
+#else
+# if SIZEOF_LONG_LONG >= 8
+/* Long long is large enough: use it.  */
+typedef long long LARGE_INT;
+#  define LARGE_INT_FMT "%lld"
+# else
+/* Large integer type unavailable; use `double' instead.  */
+typedef double LARGE_INT;
+#  define LARGE_INT_FMT "%.0f"
+# endif
+#endif
 
-#if (SIZEOF_LONG >= 8) || !defined(HAVE_LONG_LONG)
-/* either long is "big enough", or long long is unavailable which
-   leaves long as the only choice. */ 
-# define VERY_LONG_TYPE   unsigned long
-#else  /* use long long */
-/* long is smaller than 8 bytes, but long long is available. */
-# define VERY_LONG_TYPE   unsigned long long
-#endif /* use long long */
-
-/* Defined in cmpt.c: */
+/* These are defined in cmpt.c if missing, therefore it's generally
+   safe to declare their parameters.  */
 #ifndef HAVE_STRERROR
 char *strerror ();
 #endif
@@ -170,19 +174,23 @@ char *strstr ();
 #ifndef HAVE_STRPTIME
 char *strptime ();
 #endif
+#ifndef HAVE_SNPRINTF
+int snprintf ();
+#endif
 #ifndef HAVE_VSNPRINTF
 int vsnprintf ();
 #endif
 #ifndef HAVE_USLEEP
-int usleep ();
+int usleep PARAMS ((unsigned long));
 #endif
 #ifndef HAVE_MEMMOVE
 void *memmove ();
 #endif
 
 /* SunOS brain damage -- for some reason, SunOS header files fail to
-   declare the functions below, which causes all kinds of problems
-   (compiling errors) with pointer arithmetic and similar.
+   declare the functions below, which causes all kinds of problems,
+   most notably compilation errors when using pointer arithmetic on
+   their return values.
 
    This used to be only within `#ifdef STDC_HEADERS', but it got
    tripped on other systems (AIX), thus causing havoc.  Fortunately,
@@ -190,16 +198,16 @@ void *memmove ();
    added an extra `#ifdef sun' guard.  */
 #ifndef STDC_HEADERS
 #ifdef sun
-#ifndef __cplusplus
+#ifndef __SVR4			/* exclude Solaris */
 char *strstr ();
 char *strchr ();
 char *strrchr ();
 char *strtok ();
 char *strdup ();
 void *memcpy ();
-#endif /* not __cplusplus */
+#endif /* not __SVR4 */
 #endif /* sun */
-#endif /* STDC_HEADERS */
+#endif /* not STDC_HEADERS */
 
 /* Some systems (Linux libc5, "NCR MP-RAS 3.0", and others) don't
    provide MAP_FAILED, a symbolic constant for the value returned by
@@ -209,6 +217,61 @@ void *memcpy ();
 
 #ifndef MAP_FAILED
 # define MAP_FAILED ((void *) -1)
+#endif
+
+/* Enable system fnmatch only on systems where fnmatch.h is usable and
+   which are known to have a non-broken fnmatch implementation.
+   Currently those include glibc-based systems and Solaris.  One could
+   add more, but fnmatch is not that large, so it might be better to
+   play it safe.  */
+#ifdef HAVE_WORKING_FNMATCH_H
+# if defined __GLIBC__ && __GLIBC__ >= 2
+#  define SYSTEM_FNMATCH
+# endif
+# ifdef solaris
+#  define SYSTEM_FNMATCH
+# endif
+#endif /* HAVE_FNMATCH_H */
+
+#ifdef SYSTEM_FNMATCH
+# include <fnmatch.h>
+#else  /* not SYSTEM_FNMATCH */
+/* Define fnmatch flags.  Undef them first to avoid warnings in case
+   an evil library include chose to include system fnmatch.h.  */
+# undef FNM_PATHNAME
+# undef FNM_NOESCAPE
+# undef FNM_PERIOD
+# undef FNM_NOMATCH
+
+# define FNM_PATHNAME	(1 << 0) /* No wildcard can ever match `/'.  */
+# define FNM_NOESCAPE	(1 << 1) /* Backslashes don't quote special chars.  */
+# define FNM_PERIOD	(1 << 2) /* Leading `.' is matched only explicitly.  */
+# define FNM_NOMATCH	1
+
+/* Declare the function minimally. */
+int fnmatch ();
+#endif
+
+/* Provide uint32_t on the platforms that don't define it.  Although
+   most code should be agnostic about integer sizes, some code really
+   does need a 32-bit integral type.  Such code should use uint32_t.
+   (The exception is gnu-md5.[ch], which uses its own detection for
+   portability across platforms.)  */
+
+#ifndef HAVE_UINT32_T
+# if SIZEOF_INT == 4
+typedef unsigned int uint32_t;
+# else
+#  if SIZEOF_LONG == 4
+typedef unsigned long uint32_t;
+#  else
+#   if SIZEOF_SHORT == 4
+typedef unsigned short uint32_t;
+#   else
+ #error "Cannot determine a 32-bit unsigned integer type"
+#   endif
+#  endif
+# endif
 #endif
 
 #endif /* SYSDEP_H */

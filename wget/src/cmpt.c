@@ -43,6 +43,11 @@ so, delete this exception statement from your version.  */
 #endif
 #include <limits.h>
 
+#include <errno.h>
+#ifndef errno
+extern int errno;
+#endif
+
 #include "wget.h"
 
 #ifndef HAVE_STRERROR
@@ -289,13 +294,12 @@ strpbrk (const char *s, const char *accept)
 #endif
 
 /* How many days come before each month (0-12).  */
-const unsigned short int __mon_yday[2][13] =
-  {
-    /* Normal years.  */
-    { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 },
-    /* Leap years.  */
-    { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
-  };
+/* __mon_yday[][] is common to mktime and strptime implementations.
+   --abbotti */
+const unsigned short int __mon_yday[2][13];
+#ifndef NEED_MON_YDAY
+# define NEED_MON_YDAY
+#endif
 
 static time_t ydhms_tm_diff __P ((int, int, int, int, int, const struct tm *));
 time_t __mktime_internal __P ((struct tm *,
@@ -509,11 +513,11 @@ weak_alias (mktime, timelocal)
 
 
 #ifndef HAVE_STRPTIME
-/* From GNU libc 2.0.6.  */
+/* From GNU libc 2.1.3.  */
 /* Ulrich, thanks for helping me out with this!  --hniksic  */
 
 /* strptime - Convert a string representation of time to a time value.
-   Copyright (C) 1996, 1997 Free Software Foundation, Inc.
+   Copyright (C) 1996, 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@cygnus.com>, 1996.  */
 
@@ -526,12 +530,12 @@ weak_alias (mktime, timelocal)
 # define __P(args) PARAMS (args)
 #endif /* not __P */
 
-#if ! HAVE_LOCALTIME_R && ! defined (localtime_r)
-#ifdef _LIBC
-#define localtime_r __localtime_r
-#else
+#if ! HAVE_LOCALTIME_R && ! defined localtime_r
+# ifdef _LIBC
+#  define localtime_r __localtime_r
+# else
 /* Approximate localtime_r as best we can in its absence.  */
-#define localtime_r my_localtime_r
+#  define localtime_r my_localtime_r
 static struct tm *localtime_r __P ((const time_t *, struct tm *));
 static struct tm *
 localtime_r (t, tp)
@@ -544,7 +548,7 @@ localtime_r (t, tp)
   *tp = *l;
   return tp;
 }
-#endif /* ! _LIBC */
+# endif /* ! _LIBC */
 #endif /* ! HAVE_LOCALTIME_R && ! defined (localtime_r) */
 
 
@@ -562,50 +566,118 @@ localtime_r (t, tp)
 #endif
 /* We intentionally do not use isdigit() for testing because this will
    lead to problems with the wide character version.  */
-#define get_number(from, to) \
+#define get_number(from, to, n) \
   do {									      \
+    int __n = n;							      \
     val = 0;								      \
+    while (*rp == ' ')							      \
+      ++rp;								      \
     if (*rp < '0' || *rp > '9')						      \
       return NULL;							      \
     do {								      \
       val *= 10;							      \
       val += *rp++ - '0';						      \
-    } while (val * 10 <= to && *rp >= '0' && *rp <= '9');		      \
+    } while (--__n > 0 && val * 10 <= to && *rp >= '0' && *rp <= '9');	      \
     if (val < from || val > to)						      \
       return NULL;							      \
   } while (0)
 #ifdef _NL_CURRENT
-# define get_alt_number(from, to) \
-  do {									      \
+/* Added check for __GNUC__ extensions here for Wget. --abbotti */
+# if defined __GNUC__ && __GNUC__ >= 2
+#  define get_alt_number(from, to, n) \
+  ({									      \
+    __label__ do_normal;						      \
     if (*decided != raw)						      \
       {									      \
 	const char *alts = _NL_CURRENT (LC_TIME, ALT_DIGITS);		      \
+	int __n = n;							      \
+	int any = 0;							      \
+	while (*rp == ' ')						      \
+	  ++rp;								      \
 	val = 0;							      \
-	while (*alts != '\0')						      \
-	  {								      \
-	    size_t len = strlen (alts);					      \
-	    if (strncasecmp (alts, rp, len) == 0)			      \
+	do {								      \
+	  val *= 10;							      \
+	  while (*alts != '\0')						      \
+	    {								      \
+	      size_t len = strlen (alts);				      \
+	      if (strncasecmp (alts, rp, len) == 0)			      \
+	        break;							      \
+	      alts += len + 1;						      \
+	      ++val;							      \
+	    }								      \
+	  if (*alts == '\0')						      \
+	    {								      \
+	      if (*decided == not && ! any)				      \
+		goto do_normal;						      \
+	      /* If we haven't read anything it's an error.  */		      \
+	      if (! any)						      \
+		return NULL;						      \
+	      /* Correct the premature multiplication.  */		      \
+	      val /= 10;						      \
 	      break;							      \
-	    alts = strchr (alts, '\0') + 1;				      \
-	    ++val;							      \
-	  }								      \
-	if (*alts == '\0')						      \
-	  {								      \
-	    if (*decided == loc && val != 0)				      \
-	      return NULL;						      \
-	  }								      \
-	else								      \
-	  {								      \
+	    }								      \
+	  else								      \
 	    *decided = loc;						      \
-	    break;							      \
-	  }								      \
+	} while (--__n > 0 && val * 10 <= to);				      \
+	if (val < from || val > to)					      \
+	  return NULL;							      \
       }									      \
-    get_number (from, to);						      \
+    else								      \
+      {									      \
+       do_normal:							      \
+        get_number (from, to, n);					      \
+      }									      \
+    0;									      \
+  })
+# else
+#  define get_alt_number(from, to, n) \
+  do {
+    if (*decided != raw)						      \
+      {									      \
+	const char *alts = _NL_CURRENT (LC_TIME, ALT_DIGITS);		      \
+	int __n = n;							      \
+	int any = 0;							      \
+	while (*rp == ' ')						      \
+	  ++rp;								      \
+	val = 0;							      \
+	do {								      \
+	  val *= 10;							      \
+	  while (*alts != '\0')						      \
+	    {								      \
+	      size_t len = strlen (alts);				      \
+	      if (strncasecmp (alts, rp, len) == 0)			      \
+	        break;							      \
+	      alts += len + 1;						      \
+	      ++val;							      \
+	    }								      \
+	  if (*alts == '\0')						      \
+	    {								      \
+	      if (*decided == not && ! any)				      \
+		goto do_normal;						      \
+	      /* If we haven't read anything it's an error.  */		      \
+	      if (! any)						      \
+		return NULL;						      \
+	      /* Correct the premature multiplication.  */		      \
+	      val /= 10;						      \
+	      break;							      \
+	    }								      \
+	  else								      \
+	    *decided = loc;						      \
+	} while (--__n > 0 && val * 10 <= to);				      \
+	if (val < from || val > to)					      \
+	  return NULL;							      \
+      }									      \
+    else								      \
+      {									      \
+       do_normal:							      \
+        get_number (from, to, n);					      \
+      }									      \
   } while (0)
+# endif /* defined __GNUC__ && __GNUC__ >= 2 */
 #else
-# define get_alt_number(from, to) \
+# define get_alt_number(from, to, n) \
   /* We don't have the alternate representation.  */			      \
-  get_number(from, to)
+  get_number(from, to, n)
 #endif
 #define recursive(new_fmt) \
   (*(new_fmt) != '\0'							      \
@@ -615,6 +687,7 @@ localtime_r (t, tp)
 #ifdef _LIBC
 /* This is defined in locale/C-time.c in the GNU libc.  */
 extern const struct locale_data _nl_C_LC_TIME;
+extern const unsigned short int __mon_yday[2][13];
 
 # define weekday_name (&_nl_C_LC_TIME.values[_NL_ITEM_INDEX (DAY_1)].string)
 # define ab_weekday_name \
@@ -622,12 +695,14 @@ extern const struct locale_data _nl_C_LC_TIME;
 # define month_name (&_nl_C_LC_TIME.values[_NL_ITEM_INDEX (MON_1)].string)
 # define ab_month_name (&_nl_C_LC_TIME.values[_NL_ITEM_INDEX (ABMON_1)].string)
 # define HERE_D_T_FMT (_nl_C_LC_TIME.values[_NL_ITEM_INDEX (D_T_FMT)].string)
-# define HERE_D_FMT (_nl_C_LC_TIME.values[_NL_ITEM_INDEX (D_T_FMT)].string)
+# define HERE_D_FMT (_nl_C_LC_TIME.values[_NL_ITEM_INDEX (D_FMT)].string)
 # define HERE_AM_STR (_nl_C_LC_TIME.values[_NL_ITEM_INDEX (AM_STR)].string)
 # define HERE_PM_STR (_nl_C_LC_TIME.values[_NL_ITEM_INDEX (PM_STR)].string)
 # define HERE_T_FMT_AMPM \
   (_nl_C_LC_TIME.values[_NL_ITEM_INDEX (T_FMT_AMPM)].string)
 # define HERE_T_FMT (_nl_C_LC_TIME.values[_NL_ITEM_INDEX (T_FMT)].string)
+
+# define strncasecmp(s1, s2, n) __strncasecmp (s1, s2, n)
 #else
 static char const weekday_name[][10] =
   {
@@ -654,31 +729,82 @@ static char const ab_month_name[][4] =
 # define HERE_PM_STR "PM"
 # define HERE_T_FMT_AMPM "%I:%M:%S %p"
 # define HERE_T_FMT "%H:%M:%S"
+
+/* __mon_yday[][] is common to mktime and strptime implementations.
+   --abbotti */
+const unsigned short int __mon_yday[2][13];
+# ifndef NEED_MON_YDAY
+#  define NEED_MON_YDAY
+# endif
 #endif
 
 /* Status of lookup: do we use the locale data or the raw data?  */
 enum locale_status { not, loc, raw };
 
+
+#ifndef __isleap
+/* Nonzero if YEAR is a leap year (every 4 years,
+   except every 100th isn't, and every 400th is).  */
+# define __isleap(year)	\
+  ((year) % 4 == 0 && ((year) % 100 != 0 || (year) % 400 == 0))
+#endif
+
+/* Compute the day of the week.  */
+static void
+day_of_the_week (struct tm *tm)
+{
+  /* We know that January 1st 1970 was a Thursday (= 4).  Compute the
+     the difference between this data in the one on TM and so determine
+     the weekday.  */
+  int corr_year = 1900 + tm->tm_year - (tm->tm_mon < 2);
+  int wday = (-473
+	      + (365 * (tm->tm_year - 70))
+	      + (corr_year / 4)
+	      - ((corr_year / 4) / 25) + ((corr_year / 4) % 25 < 0)
+	      + (((corr_year / 4) / 25) / 4)
+	      + __mon_yday[0][tm->tm_mon]
+	      + tm->tm_mday - 1);
+  tm->tm_wday = ((wday % 7) + 7) % 7;
+}
+
+/* Compute the day of the year.  */
+static void
+day_of_the_year (struct tm *tm)
+{
+  tm->tm_yday = (__mon_yday[__isleap (1900 + tm->tm_year)][tm->tm_mon]
+		 + (tm->tm_mday - 1));
+}
+
 static char *
+#ifdef _LIBC
+internal_function
+#endif
 strptime_internal __P ((const char *buf, const char *format, struct tm *tm,
 			enum locale_status *decided));
 
 static char *
-strptime_internal (buf, format, tm, decided)
-     const char *buf;
-     const char *format;
+#ifdef _LIBC
+internal_function
+#endif
+strptime_internal (rp, fmt, tm, decided)
+     const char *rp;
+     const char *fmt;
      struct tm *tm;
      enum locale_status *decided;
 {
-  const char *rp;
-  const char *fmt;
+  const char *rp_backup;
   int cnt;
   size_t val;
   int have_I, is_pm;
+  int century, want_century;
+  int have_wday, want_xday;
+  int have_yday;
+  int have_mon, have_mday;
 
-  rp = buf;
-  fmt = format;
   have_I = is_pm = 0;
+  century = -1;
+  want_century = 0;
+  have_wday = want_xday = have_yday = have_mon = have_mday = 0;
 
   while (*fmt != '\0')
     {
@@ -705,6 +831,10 @@ strptime_internal (buf, format, tm, decided)
       /* We need this for handling the `E' modifier.  */
     start_over:
 #endif
+
+      /* Make back up of current processing pointer.  */
+      rp_backup = rp;
+
       switch (*fmt++)
 	{
 	case '%':
@@ -749,6 +879,7 @@ strptime_internal (buf, format, tm, decided)
 	    /* Does not match a weekday name.  */
 	    return NULL;
 	  tm->tm_wday = cnt;
+	  have_wday = 1;
 	  break;
 	case 'b':
 	case 'B':
@@ -788,6 +919,7 @@ strptime_internal (buf, format, tm, decided)
 	    /* Does not match a month name.  */
 	    return NULL;
 	  tm->tm_mon = cnt;
+	  want_xday = 1;
 	  break;
 	case 'c':
 	  /* Match locale's date and time format.  */
@@ -798,12 +930,15 @@ strptime_internal (buf, format, tm, decided)
 		{
 		  if (*decided == loc)
 		    return NULL;
+		  else
+		    rp = rp_backup;
 		}
 	      else
 		{
 		  if (*decided == not &&
 		      strcmp (_NL_CURRENT (LC_TIME, D_T_FMT), HERE_D_T_FMT))
 		    *decided = loc;
+		  want_xday = 1;
 		  break;
 		}
 	      *decided = raw;
@@ -811,17 +946,26 @@ strptime_internal (buf, format, tm, decided)
 #endif
 	  if (!recursive (HERE_D_T_FMT))
 	    return NULL;
+	  want_xday = 1;
 	  break;
 	case 'C':
 	  /* Match century number.  */
-	  get_number (0, 99);
-	  /* We don't need the number.  */
+	  get_number (0, 99, 2);
+	  century = val;
+	  want_xday = 1;
 	  break;
 	case 'd':
 	case 'e':
 	  /* Match day of month.  */
-	  get_number (1, 31);
+	  get_number (1, 31, 2);
 	  tm->tm_mday = val;
+	  have_mday = 1;
+	  want_xday = 1;
+	  break;
+	case 'F':
+	  if (!recursive ("%Y-%m-%d"))
+	    return NULL;
+	  want_xday = 1;
 	  break;
 	case 'x':
 #ifdef _NL_CURRENT
@@ -831,12 +975,15 @@ strptime_internal (buf, format, tm, decided)
 		{
 		  if (*decided == loc)
 		    return NULL;
+		  else
+		    rp = rp_backup;
 		}
 	      else
 		{
-		  if (decided == not
+		  if (*decided == not
 		      && strcmp (_NL_CURRENT (LC_TIME, D_FMT), HERE_D_FMT))
 		    *decided = loc;
+		  want_xday = 1;
 		  break;
 		}
 	      *decided = raw;
@@ -847,32 +994,37 @@ strptime_internal (buf, format, tm, decided)
 	  /* Match standard day format.  */
 	  if (!recursive (HERE_D_FMT))
 	    return NULL;
+	  want_xday = 1;
 	  break;
+	case 'k':
 	case 'H':
 	  /* Match hour in 24-hour clock.  */
-	  get_number (0, 23);
+	  get_number (0, 23, 2);
 	  tm->tm_hour = val;
 	  have_I = 0;
 	  break;
 	case 'I':
 	  /* Match hour in 12-hour clock.  */
-	  get_number (1, 12);
+	  get_number (1, 12, 2);
 	  tm->tm_hour = val % 12;
 	  have_I = 1;
 	  break;
 	case 'j':
 	  /* Match day number of year.  */
-	  get_number (1, 366);
+	  get_number (1, 366, 3);
 	  tm->tm_yday = val - 1;
+	  have_yday = 1;
 	  break;
 	case 'm':
 	  /* Match number of month.  */
-	  get_number (1, 12);
+	  get_number (1, 12, 2);
 	  tm->tm_mon = val - 1;
+	  have_mon = 1;
+	  want_xday = 1;
 	  break;
 	case 'M':
 	  /* Match minute.  */
-	  get_number (0, 59);
+	  get_number (0, 59, 2);
 	  tm->tm_min = val;
 	  break;
 	case 'n':
@@ -916,6 +1068,8 @@ strptime_internal (buf, format, tm, decided)
 		{
 		  if (*decided == loc)
 		    return NULL;
+		  else
+		    rp = rp_backup;
 		}
 	      else
 		{
@@ -941,7 +1095,7 @@ strptime_internal (buf, format, tm, decided)
 	       the `get_number' macro.  Instead read the number
 	       character for character and construct the result while
 	       doing this.  */
-	    time_t secs;
+	    time_t secs = 0;
 	    if (*rp < '0' || *rp > '9')
 	      /* We need at least one digit.  */
 	      return NULL;
@@ -959,7 +1113,7 @@ strptime_internal (buf, format, tm, decided)
 	  }
 	  break;
 	case 'S':
-	  get_number (0, 61);
+	  get_number (0, 61, 2);
 	  tm->tm_sec = val;
 	  break;
 	case 'X':
@@ -970,6 +1124,8 @@ strptime_internal (buf, format, tm, decided)
 		{
 		  if (*decided == loc)
 		    return NULL;
+		  else
+		    rp = rp_backup;
 		}
 	      else
 		{
@@ -986,11 +1142,12 @@ strptime_internal (buf, format, tm, decided)
 	    return NULL;
 	  break;
 	case 'u':
-	  get_number (1, 7);
+	  get_number (1, 7, 1);
 	  tm->tm_wday = val % 7;
+	  have_wday = 1;
 	  break;
 	case 'g':
-	  get_number (0, 99);
+	  get_number (0, 99, 2);
 	  /* XXX This cannot determine any field in TM.  */
 	  break;
 	case 'G':
@@ -1005,27 +1162,32 @@ strptime_internal (buf, format, tm, decided)
 	case 'U':
 	case 'V':
 	case 'W':
-	  get_number (0, 53);
+	  get_number (0, 53, 2);
 	  /* XXX This cannot determine any field in TM without some
 	     information.  */
 	  break;
 	case 'w':
 	  /* Match number of weekday.  */
-	  get_number (0, 6);
+	  get_number (0, 6, 1);
 	  tm->tm_wday = val;
+	  have_wday = 1;
 	  break;
 	case 'y':
 	  /* Match year within century.  */
-	  get_number (0, 99);
-	  tm->tm_year = val >= 50 ? val : val + 100;
+	  get_number (0, 99, 2);
+	  /* The "Year 2000: The Millennium Rollover" paper suggests that
+	     values in the range 69-99 refer to the twentieth century.  */
+	  tm->tm_year = val >= 69 ? val : val + 100;
+	  /* Indicate that we want to use the century, if specified.  */
+	  want_century = 1;
+	  want_xday = 1;
 	  break;
 	case 'Y':
 	  /* Match year including century number.  */
-	  if (sizeof (time_t) > 4)
-	    get_number (0, 9999);
-	  else
-	    get_number (0, 2036);
+	  get_number (0, 9999, 4);
 	  tm->tm_year = val - 1900;
+	  want_century = 0;
+	  want_xday = 1;
 	  break;
 	case 'Z':
 	  /* XXX How to handle this?  */
@@ -1047,11 +1209,14 @@ strptime_internal (buf, format, tm, decided)
 		    {
 		      if (*decided == loc)
 			return NULL;
+		      else
+			rp = rp_backup;
 		    }
 		  else
 		    {
 		      if (strcmp (fmt, HERE_D_T_FMT))
 			*decided = loc;
+		      want_xday = 1;
 		      break;
 		    }
 		  *decided = raw;
@@ -1060,6 +1225,7 @@ strptime_internal (buf, format, tm, decided)
 		 normal representation.  */
 	      if (!recursive (HERE_D_T_FMT))
 		return NULL;
+	      want_xday = 1;
 	      break;
 	    case 'C':
 	    case 'y':
@@ -1081,6 +1247,8 @@ strptime_internal (buf, format, tm, decided)
 		    {
 		      if (*decided == loc)
 			return NULL;
+		      else
+			rp = rp_backup;
 		    }
 		  else
 		    {
@@ -1105,6 +1273,8 @@ strptime_internal (buf, format, tm, decided)
 		    {
 		      if (*decided == loc)
 			return NULL;
+		      else
+			rp = rp_backup;
 		    }
 		  else
 		    {
@@ -1137,53 +1307,60 @@ strptime_internal (buf, format, tm, decided)
 	    case 'd':
 	    case 'e':
 	      /* Match day of month using alternate numeric symbols.  */
-	      get_alt_number (1, 31);
+	      get_alt_number (1, 31, 2);
 	      tm->tm_mday = val;
+	      have_mday = 1;
+	      want_xday = 1;
 	      break;
 	    case 'H':
 	      /* Match hour in 24-hour clock using alternate numeric
 		 symbols.  */
-	      get_alt_number (0, 23);
+	      get_alt_number (0, 23, 2);
 	      tm->tm_hour = val;
 	      have_I = 0;
 	      break;
 	    case 'I':
 	      /* Match hour in 12-hour clock using alternate numeric
 		 symbols.  */
-	      get_alt_number (1, 12);
+	      get_alt_number (1, 12, 2);
 	      tm->tm_hour = val - 1;
 	      have_I = 1;
 	      break;
 	    case 'm':
 	      /* Match month using alternate numeric symbols.  */
-	      get_alt_number (1, 12);
+	      get_alt_number (1, 12, 2);
 	      tm->tm_mon = val - 1;
+	      have_mon = 1;
+	      want_xday = 1;
 	      break;
 	    case 'M':
 	      /* Match minutes using alternate numeric symbols.  */
-	      get_alt_number (0, 59);
+	      get_alt_number (0, 59, 2);
 	      tm->tm_min = val;
 	      break;
 	    case 'S':
 	      /* Match seconds using alternate numeric symbols.  */
-	      get_alt_number (0, 61);
+	      get_alt_number (0, 61, 2);
 	      tm->tm_sec = val;
 	      break;
 	    case 'U':
 	    case 'V':
 	    case 'W':
-	      get_alt_number (0, 53);
+	      get_alt_number (0, 53, 2);
 	      /* XXX This cannot determine any field in TM without
 		 further information.  */
 	      break;
 	    case 'w':
 	      /* Match number of weekday using alternate numeric symbols.  */
-	      get_alt_number (0, 6);
+	      get_alt_number (0, 6, 1);
 	      tm->tm_wday = val;
+	      have_wday = 1;
 	      break;
 	    case 'y':
 	      /* Match year within century using alternate numeric symbols.  */
-	      get_alt_number (0, 99);
+	      get_alt_number (0, 99, 2);
+	      tm->tm_year = val >= 69 ? val : val + 100;
+	      want_xday = 1;
 	      break;
 	    default:
 	      return NULL;
@@ -1196,6 +1373,31 @@ strptime_internal (buf, format, tm, decided)
 
   if (have_I && is_pm)
     tm->tm_hour += 12;
+
+  if (century != -1)
+    {
+      if (want_century)
+	tm->tm_year = tm->tm_year % 100 + (century - 19) * 100;
+      else
+	/* Only the century, but not the year.  Strange, but so be it.  */
+	tm->tm_year = (century - 19) * 100;
+    }
+
+  if (want_xday && !have_wday) {
+      if ( !(have_mon && have_mday) && have_yday)  {
+	  /* we don't have tm_mon and/or tm_mday, compute them */
+	  int t_mon = 0;
+	  while (__mon_yday[__isleap(1900 + tm->tm_year)][t_mon] <= tm->tm_yday)
+	      t_mon++;
+	  if (!have_mon)
+	      tm->tm_mon = t_mon - 1;
+	  if (!have_mday)
+	      tm->tm_mday = tm->tm_yday - __mon_yday[__isleap(1900 + tm->tm_year)][t_mon - 1] + 1;
+      }
+      day_of_the_week (tm);
+  }
+  if (want_xday && !have_yday)
+    day_of_the_year (tm);
 
   return (char *) rp;
 }
@@ -1217,6 +1419,17 @@ strptime (buf, format, tm)
 }
 #endif /* not HAVE_STRPTIME */
 
+#ifdef NEED_MON_YDAY
+/* __mon_yday[][] is common to mktime and strptime implementations.
+   --abbotti */
+const unsigned short int __mon_yday[2][13] =
+  {
+    /* Normal years.  */
+    { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 },
+    /* Leap years.  */
+    { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
+  };
+#endif
 
 #ifndef HAVE_USLEEP
 #ifndef WINDOWS
@@ -1238,6 +1451,10 @@ usleep (unsigned long usec)
 #endif /* not HAVE_USLEEP */
 
 
+/* Currently unused in Wget.  Uncomment if we start using memmove
+   again. */
+#if 0
+
 #ifndef HAVE_MEMMOVE
 void *
 memmove (char *dest, const char *source, unsigned length)
@@ -1256,3 +1473,182 @@ memmove (char *dest, const char *source, unsigned length)
   return (void *) d0;
 }
 #endif /* not HAVE_MEMMOVE */
+
+#endif /* 0 */
+
+/* fnmatch is a POSIX function, but we include an implementation for
+   the sake of systems that don't have it.  Furthermore, according to
+   anecdotal evidence, historical implementations of fnmatch are buggy
+   and unreliable.  So we use our version, except when compiling under
+   systems where fnmatch is known to work (currently glibc.)  */
+
+#ifndef SYSTEM_FNMATCH
+
+#define	__FNM_FLAGS	(FNM_PATHNAME | FNM_NOESCAPE | FNM_PERIOD)
+
+/* Match STRING against the filename pattern PATTERN, returning zero
+   if it matches, FNM_NOMATCH if not.  This implementation comes from
+   an earlier version of GNU Bash.  (It doesn't make sense to update
+   it with a newer version because it adds a lot of features Wget
+   doesn't use or care about.)  */
+
+int
+fnmatch (const char *pattern, const char *string, int flags)
+{
+  register const char *p = pattern, *n = string;
+  register char c;
+
+  if ((flags & ~__FNM_FLAGS) != 0)
+    {
+      errno = EINVAL;
+      return (-1);
+    }
+
+  while ((c = *p++) != '\0')
+    {
+      switch (c)
+	{
+	case '?':
+	  if (*n == '\0')
+	    return (FNM_NOMATCH);
+	  else if ((flags & FNM_PATHNAME) && *n == '/')
+	    return (FNM_NOMATCH);
+	  else if ((flags & FNM_PERIOD) && *n == '.' &&
+		   (n == string || ((flags & FNM_PATHNAME) && n[-1] == '/')))
+	    return (FNM_NOMATCH);
+	  break;
+
+	case '\\':
+	  if (!(flags & FNM_NOESCAPE))
+	    c = *p++;
+	  if (*n != c)
+	    return (FNM_NOMATCH);
+	  break;
+
+	case '*':
+	  if ((flags & FNM_PERIOD) && *n == '.' &&
+	      (n == string || ((flags & FNM_PATHNAME) && n[-1] == '/')))
+	    return (FNM_NOMATCH);
+
+	  for (c = *p++; c == '?' || c == '*'; c = *p++, ++n)
+	    if (((flags & FNM_PATHNAME) && *n == '/') ||
+		(c == '?' && *n == '\0'))
+	      return (FNM_NOMATCH);
+
+	  if (c == '\0')
+	    return (0);
+
+	  {
+	    char c1 = (!(flags & FNM_NOESCAPE) && c == '\\') ? *p : c;
+	    for (--p; *n != '\0'; ++n)
+	      if ((c == '[' || *n == c1) &&
+		  fnmatch (p, n, flags & ~FNM_PERIOD) == 0)
+		return (0);
+	    return (FNM_NOMATCH);
+	  }
+
+	case '[':
+	  {
+	    /* Nonzero if the sense of the character class is
+	       inverted.  */
+	    register int not;
+
+	    if (*n == '\0')
+	      return (FNM_NOMATCH);
+
+	    if ((flags & FNM_PERIOD) && *n == '.' &&
+		(n == string || ((flags & FNM_PATHNAME) && n[-1] == '/')))
+	      return (FNM_NOMATCH);
+
+	    /* Make sure there is a closing `]'.  If there isn't,
+	       the `[' is just a character to be matched.  */
+	    {
+	      register const char *np;
+
+	      for (np = p; np && *np && *np != ']'; np++);
+
+	      if (np && !*np)
+		{
+		  if (*n != '[')
+		    return (FNM_NOMATCH);
+		  goto next_char;
+		}
+	    }
+
+	    not = (*p == '!' || *p == '^');
+	    if (not)
+	      ++p;
+
+	    c = *p++;
+	    while (1)
+	      {
+		register char cstart = c, cend = c;
+
+		if (!(flags & FNM_NOESCAPE) && c == '\\')
+		  cstart = cend = *p++;
+
+		if (c == '\0')
+		  /* [ (unterminated) loses.  */
+		  return (FNM_NOMATCH);
+
+		c = *p++;
+
+		if ((flags & FNM_PATHNAME) && c == '/')
+		  /* [/] can never match.  */
+		  return (FNM_NOMATCH);
+
+		if (c == '-' && *p != ']')
+		  {
+		    cend = *p++;
+		    if (!(flags & FNM_NOESCAPE) && cend == '\\')
+		      cend = *p++;
+		    if (cend == '\0')
+		      return (FNM_NOMATCH);
+		    c = *p++;
+		  }
+
+		if (*n >= cstart && *n <= cend)
+		  goto matched;
+
+		if (c == ']')
+		  break;
+	      }
+	    if (!not)
+	      return (FNM_NOMATCH);
+
+	  next_char:
+	    break;
+
+	  matched:
+	    /* Skip the rest of the [...] that already matched.  */
+	    while (c != ']')
+	      {
+		if (c == '\0')
+		  /* [... (unterminated) loses.  */
+		  return (FNM_NOMATCH);
+
+		c = *p++;
+		if (!(flags & FNM_NOESCAPE) && c == '\\')
+		  /* 1003.2d11 is unclear if this is right.  %%% */
+		  ++p;
+	      }
+	    if (not)
+	      return (FNM_NOMATCH);
+	  }
+	  break;
+
+	default:
+	  if (c != *n)
+	    return (FNM_NOMATCH);
+	}
+
+      ++n;
+    }
+
+  if (*n == '\0')
+    return (0);
+
+  return (FNM_NOMATCH);
+}
+
+#endif /* not SYSTEM_FNMATCH */

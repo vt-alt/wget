@@ -25,35 +25,12 @@
    file, but you are not obligated to do so.  If you do not wish to do
    so, delete this exception statement from your version.  */
 
+
 #ifndef CONFIG_H
 #define CONFIG_H
 
 /* Define if you have the <alloca.h> header file.  */
 #undef HAVE_ALLOCA_H
-
-/* AIX requires this to be the first thing in the file.  */
-#ifdef __GNUC__
-# define alloca __builtin_alloca
-#else
-# if HAVE_ALLOCA_H
-#  include <alloca.h>
-# else
-#  ifdef _AIX
- #pragma alloca
-#  else
-#   ifndef alloca /* predefined by HP cc +Olibcalls */
-char *alloca ();
-#   endif
-#  endif
-# endif
-#endif
-
-/* Define if on AIX 3.
-   System headers sometimes define this.
-   We just want to avoid a redefinition error message.  */
-#ifndef _ALL_SOURCE
-/* #undef _ALL_SOURCE */
-#endif
 
 /* Define to empty if the keyword does not work.  */
 /* #undef const */
@@ -71,9 +48,6 @@ char *alloca ();
    significant byte first).  */
 #undef WORDS_BIGENDIAN
 
-/* Define this if you want the NLS support.  */
-#undef ENABLE_NLS
-
 /* Define if you want the FTP support for Opie compiled in.  */
 #define USE_OPIE 1
 
@@ -81,7 +55,7 @@ char *alloca ();
 #define USE_DIGEST 1
 
 /* Define if you want the debug output support compiled in.  */
-#define DEBUG
+#define ENABLE_DEBUG
 
 /* Define if you have sys/time.h header. */
 #undef HAVE_SYS_TIME_H
@@ -117,10 +91,10 @@ char *alloca ();
 #define HAVE_STRERROR 1
 
 /* Define if you have the snprintf function.  */
-#undef HAVE_SNPRINTF
+#define HAVE_SNPRINTF
 
 /* Define if you have the vsnprintf function.  */
-#undef HAVE_VSNPRINTF
+#define HAVE_VSNPRINTF
 
 /* Define if you have the strstr function. */
 #define HAVE_STRSTR 1
@@ -146,6 +120,11 @@ char *alloca ();
 /* Define if you have the <stdarg.h> header file.  */
 #define HAVE_STDARG_H 1
 
+/* Use ANSI-style stdargs regardless of whether the compiler bothers
+   to define __STDC__.  (Many don't when extensions are enabled.)
+   This define used to be in mswindows.h, but wheren't making any use there */
+#define WGET_USE_STDARG
+
 /* Define if you have the <stdlib.h> header file.  */
 #define HAVE_STDLIB_H 1
 
@@ -153,8 +132,15 @@ char *alloca ();
 #define HAVE_STRING_H 1
 
 /* Define if you have the <unistd.h> header file.  */
-/* #define HAVE_UNISTD_H 1 */
+#if !defined(_MSC_VER)
 #undef HAVE_UNISTD_H
+#endif
+
+/* None except Digital Mars have sleep/usleep functions */
+#if defined(__DMC__)
+#define HAVE_USLEEP
+#define HAVE_SLEEP
+#endif
 
 /* Define if you have the <utime.h> header file.  */
 #undef HAVE_UTIME_H
@@ -169,7 +155,7 @@ char *alloca ();
 #undef HAVE_PWD_H
 
 /* Define if you have the <signal.h> header file.  */
-#undef HAVE_SIGNAL_H
+#define HAVE_SIGNAL_H
 
 /* Define to be the name of the operating system.  */
 #define OS_TYPE "Windows"
@@ -198,5 +184,22 @@ char *alloca ();
 /* Define if you have the isatty function.  */
 #define HAVE_ISATTY 1
 
-#endif /* CONFIG_H */
+/* Define if you have the memmove function */
+#define HAVE_MEMMOVE 1
 
+/* Define to the length of short. */
+#define SIZEOF_SHORT 2
+
+/* Define to the length of int. */
+#define SIZEOF_INT 4
+
+/* Define to the length of long. */
+#define SIZEOF_LONG 4
+
+/* Defined to int or size_t on systems without socklen_t.  */
+#define socklen_t int
+
+/* Define if you have uint32_t.  */
+#undef HAVE_UINT32_T
+
+#endif /* CONFIG_H */

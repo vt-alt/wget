@@ -71,14 +71,18 @@ void touch PARAMS ((const char *, time_t));
 int remove_link PARAMS ((const char *));
 int file_exists_p PARAMS ((const char *));
 int file_non_directory_p PARAMS ((const char *));
+long file_size PARAMS ((const char *));
 int make_directory PARAMS ((const char *));
-char *unique_name PARAMS ((const char *));
+char *unique_name PARAMS ((const char *, int));
 char *file_merge PARAMS ((const char *, const char *));
 
 int acceptable PARAMS ((const char *));
 int accdir PARAMS ((const char *s, enum accd));
 char *suffix PARAMS ((const char *s));
-int match_tail PARAMS ((const char *, const char *));
+int match_tail PARAMS ((const char *, const char *, int));
+int has_wildcards_p PARAMS ((const char *));
+
+int has_html_suffix_p PARAMS ((const char *));
 
 char *read_whole_line PARAMS ((FILE *));
 struct file_memory *read_file PARAMS ((const char *));
@@ -98,7 +102,7 @@ void string_set_free PARAMS ((struct hash_table *));
 void free_keys_and_values PARAMS ((struct hash_table *));
 
 char *legible PARAMS ((long));
-char *legible_very_long PARAMS ((VERY_LONG_TYPE));
+char *legible_large_int PARAMS ((LARGE_INT));
 int numdigit PARAMS ((long));
 char *number_to_string PARAMS ((char *, long));
 
@@ -106,12 +110,15 @@ struct wget_timer *wtimer_allocate PARAMS ((void));
 struct wget_timer *wtimer_new PARAMS ((void));
 void wtimer_delete PARAMS ((struct wget_timer *));
 void wtimer_reset PARAMS ((struct wget_timer *));
-long wtimer_elapsed PARAMS ((struct wget_timer *));
-long wtimer_granularity PARAMS ((void));
+double wtimer_elapsed PARAMS ((struct wget_timer *));
+double wtimer_granularity PARAMS ((void));
 
 char *html_quote_string PARAMS ((const char *));
 
 int determine_screen_width PARAMS ((void));
 int random_number PARAMS ((int));
+double random_float PARAMS ((void));
+
+int run_with_timeout PARAMS ((double, void (*) (void *), void *));
 
 #endif /* UTILS_H */

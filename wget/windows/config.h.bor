@@ -29,32 +29,28 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#define HAVE_SNPRINTF
+
+#define HAVE_MEMMOVE
+#define ftruncate chsize
+#define inline __inline
+
+/* Flag that C files should include <stdarg.h>, not <varargs.h>.  */
+#define WGET_USE_STDARG
+
+/* Define if the free Borland C++Builder 5.5 command-line compiler is used,
+   because its utime() has a bug. */
+#define HACK_BCC_UTIME_BUG
+
+#ifdef HACK_BCC_UTIME_BUG
+#define utime borland_utime
+#endif
+
 /* Define if you have the <alloca.h> header file.  */
 #undef HAVE_ALLOCA_H
 
-/* AIX requires this to be the first thing in the file.  */
-#ifdef __GNUC__
-# define alloca __builtin_alloca
-#else
-# if HAVE_ALLOCA_H
-#  include <alloca.h>
-# else
-#  ifdef _AIX
- #pragma alloca
-#  else
-#   ifndef alloca /* predefined by HP cc +Olibcalls */
-char *alloca ();
-#   endif
-#  endif
-# endif
-#endif
-
-/* Define if on AIX 3.
-   System headers sometimes define this.
-   We just want to avoid a redefinition error message.  */
-#ifndef _ALL_SOURCE
-/* #undef _ALL_SOURCE */
-#endif
+/* For Borland C++ 5.5, alloca is defined in the <malloc.h> header file. */
+#include <malloc.h>
 
 /* Define to empty if the keyword does not work.  */
 /* #undef const */
@@ -82,7 +78,7 @@ char *alloca ();
 #define USE_DIGEST 1
 
 /* Define if you want the debug output support compiled in.  */
-#define DEBUG
+#define ENABLE_DEBUG
 
 /* Define if you have sys/time.h header. */
 #undef HAVE_SYS_TIME_H
@@ -187,7 +183,21 @@ char *alloca ();
 #define HAVE_BUILTIN_MD5 1
 
 /* Define if you have the isatty function.  */
-#undef HAVE_ISATTY
+#define HAVE_ISATTY
 
+/* Define to the length of short. */
+#define SIZEOF_SHORT 2
+
+/* Define to the length of int. */
+#define SIZEOF_INT 4
+
+/* Define to the length of long. */
+#define SIZEOF_LONG 4
+
+/* Defined to int or size_t on systems without socklen_t.  */
+#define socklen_t int
+
+/* Define if you have uint32_t.  */
+#define HAVE_UINT32_T */
 
 #endif /* CONFIG_H */

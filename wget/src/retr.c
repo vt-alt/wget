@@ -5,8 +5,8 @@ This file is part of GNU Wget.
 
 GNU Wget is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+the Free Software Foundation; either version 2 of the License, or (at
+your option) any later version.
 
 GNU Wget is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -53,6 +53,7 @@ so, delete this exception statement from your version.  */
 #include "host.h"
 #include "connect.h"
 #include "hash.h"
+#include "convert.h"
 
 #ifdef HAVE_SSL
 # include "gen_sslfunc.h"	/* for ssl_iread */
@@ -65,49 +66,70 @@ extern int errno;
 /* See the comment in gethttp() why this is needed. */
 int global_download_count;
 
+/* Total size of downloaded files.  Used to enforce quota.  */
+LARGE_INT total_downloaded_bytes;
+
 
 static struct {
-  long bytes;
-  long dltime;
+  long chunk_bytes;
+  double chunk_start;
+  double sleep_adjust;
 } limit_data;
 
 static void
 limit_bandwidth_reset (void)
 {
-  limit_data.bytes  = 0;
-  limit_data.dltime = 0;
+  limit_data.chunk_bytes = 0;
+  limit_data.chunk_start = 0;
 }
 
 /* Limit the bandwidth by pausing the download for an amount of time.
-   BYTES is the number of bytes received from the network, DELTA is
-   how long it took to receive them, DLTIME the current download time,
-   TIMER the timer, and ADJUSTMENT the previous.  */
+   BYTES is the number of bytes received from the network, and DELTA
+   is the number of milliseconds it took to receive them.  */
 
 static void
-limit_bandwidth (long bytes, long delta)
+limit_bandwidth (long bytes, double *dltime, struct wget_timer *timer)
 {
-  long expected;
+  double delta_t = *dltime - limit_data.chunk_start;
+  double expected;
 
-  limit_data.bytes += bytes;
-  limit_data.dltime += delta;
+  limit_data.chunk_bytes += bytes;
 
-  expected = (long)(1000.0 * limit_data.bytes / opt.limit_rate);
+  /* Calculate the amount of time we expect downloading the chunk
+     should take.  If in reality it took less time, sleep to
+     compensate for the difference.  */
+  expected = 1000.0 * limit_data.chunk_bytes / opt.limit_rate;
 
-  if (expected > limit_data.dltime)
+  if (expected > delta_t)
     {
-      long slp = expected - limit_data.dltime;
+      double slp = expected - delta_t + limit_data.sleep_adjust;
+      double t0, t1;
       if (slp < 200)
 	{
-	  DEBUGP (("deferring a %ld ms sleep (%ld/%ld) until later.\n",
-		   slp, limit_data.bytes, limit_data.dltime));
+	  DEBUGP (("deferring a %.2f ms sleep (%ld/%.2f).\n",
+		   slp, limit_data.chunk_bytes, delta_t));
 	  return;
 	}
-      DEBUGP (("sleeping %ld ms\n", slp));
-      usleep (1000 * slp);
+      DEBUGP (("\nsleeping %.2f ms for %ld bytes, adjust %.2f ms\n",
+	       slp, limit_data.chunk_bytes, limit_data.sleep_adjust));
+
+      t0 = *dltime;
+      usleep ((unsigned long) (1000 * slp));
+      t1 = wtimer_elapsed (timer);
+
+      /* Due to scheduling, we probably slept slightly longer (or
+	 shorter) than desired.  Calculate the difference between the
+	 desired and the actual sleep, and adjust the next sleep by
+	 that amount.  */
+      limit_data.sleep_adjust = slp - (t1 - t0);
+
+      /* Since we've called wtimer_elapsed, we might as well update
+	 the caller's dltime. */
+      *dltime = t1;
     }
 
-  limit_data.bytes = 0;
-  limit_data.dltime = 0;
+  limit_data.chunk_bytes = 0;
+  limit_data.chunk_start = *dltime;
 }
 
 #define MIN(i, j) ((i) <= (j) ? (i) : (j))
@@ -135,13 +157,16 @@ limit_bandwidth (long bytes, long delta)
    from fd immediately, flush or discard the buffer.  */
 int
 get_contents (int fd, FILE *fp, long *len, long restval, long expected,
-	      struct rbuf *rbuf, int use_expected, long *elapsed)
+	      struct rbuf *rbuf, int use_expected, double *elapsed)
 {
   int res = 0;
-  static char c[8192];
+
+  static char dlbuf[16384];
+  int dlbufsize = sizeof (dlbuf);
+
   void *progress = NULL;
   struct wget_timer *timer = wtimer_allocate ();
-  long dltime = 0, last_dltime = 0;
+  double dltime = 0;
 
   *len = restval;
 
@@ -151,9 +176,9 @@ get_contents (int fd, FILE *fp, long *len, long restval, long expected,
   if (rbuf && RBUF_FD (rbuf) == fd)
     {
       int sz = 0;
-      while ((res = rbuf_flush (rbuf, c, sizeof (c))) != 0)
+      while ((res = rbuf_flush (rbuf, dlbuf, sizeof (dlbuf))) != 0)
 	{
-	  fwrite (c, sizeof (char), res, fp);
+	  fwrite (dlbuf, 1, res, fp);
 	  *len += res;
 	  sz += res;
 	}
@@ -164,13 +189,20 @@ get_contents (int fd, FILE *fp, long *len, long restval, long expected,
 	  res = -2;
 	  goto out;
 	}
-      if (opt.verbose)
+      if (progress)
 	progress_update (progress, sz, 0);
     }
 
   if (opt.limit_rate)
     limit_bandwidth_reset ();
   wtimer_reset (timer);
+
+  /* Use a smaller buffer for low requested bandwidths.  For example,
+     with --limit-rate=2k, it doesn't make sense to slurp in 16K of
+     data and then sleep for 8s.  With buffer size equal to the limit,
+     we never have to sleep for more than one second.  */
+  if (opt.limit_rate && opt.limit_rate < dlbufsize)
+    dlbufsize = opt.limit_rate;
 
   /* Read from fd while there is available data.
 
@@ -180,50 +212,46 @@ get_contents (int fd, FILE *fp, long *len, long restval, long expected,
   while (!use_expected || (*len < expected))
     {
       int amount_to_read = (use_expected
-			    ? MIN (expected - *len, sizeof (c))
-			    : sizeof (c));
+			    ? MIN (expected - *len, dlbufsize) : dlbufsize);
 #ifdef HAVE_SSL
       if (rbuf->ssl!=NULL)
-	res = ssl_iread (rbuf->ssl, c, amount_to_read);
+	res = ssl_iread (rbuf->ssl, dlbuf, amount_to_read);
       else
 #endif /* HAVE_SSL */
-	res = iread (fd, c, amount_to_read);
+	res = iread (fd, dlbuf, amount_to_read);
 
-      if (res > 0)
-	{
-	  fwrite (c, sizeof (char), res, fp);
-	  /* Always flush the contents of the network packet.  This
-	     should not be adverse to performance, as the network
-	     packets typically won't be too tiny anyway.  */
-	  fflush (fp);
-	  if (ferror (fp))
-	    {
-	      res = -2;
-	      goto out;
-	    }
-
-	  /* If bandwidth is not limited, one call to wtimer_elapsed
-	     is sufficient.  */
-	  dltime = wtimer_elapsed (timer);
-	  if (opt.limit_rate)
-	    {
-	      limit_bandwidth (res, dltime - last_dltime);
-	      dltime = wtimer_elapsed (timer);
-	      last_dltime = dltime;
-	    }
-
-	  if (opt.verbose)
-	    progress_update (progress, res, dltime);
-	  *len += res;
-	}
-      else
+      if (res <= 0)
 	break;
+
+      fwrite (dlbuf, 1, res, fp);
+      /* Always flush the contents of the network packet.  This should
+	 not hinder performance: fast downloads will be received in
+	 16K chunks (which stdio would write out anyway), and slow
+	 downloads won't be limited with disk performance.  */
+      fflush (fp);
+      if (ferror (fp))
+	{
+	  res = -2;
+	  goto out;
+	}
+
+      dltime = wtimer_elapsed (timer);
+      if (opt.limit_rate)
+	limit_bandwidth (res, &dltime, timer);
+
+      *len += res;
+      if (progress)
+	progress_update (progress, res, dltime);
+#ifdef WINDOWS
+      if (use_expected && expected > 0)
+	ws_percenttitle (100.0 * (double)(*len) / (double)expected);
+#endif
     }
   if (res < -1)
     res = -1;
 
  out:
-  if (opt.verbose)
+  if (progress)
     progress_finish (progress, dltime);
   if (elapsed)
     *elapsed = dltime;
@@ -236,7 +264,7 @@ get_contents (int fd, FILE *fp, long *len, long restval, long expected,
    appropriate for the speed.  If PAD is non-zero, strings will be
    padded to the width of 7 characters (xxxx.xx).  */
 char *
-retr_rate (long bytes, long msecs, int pad)
+retr_rate (long bytes, double msecs, int pad)
 {
   static char res[20];
   static char *rate_names[] = {"B/s", "KB/s", "MB/s", "GB/s" };
@@ -256,7 +284,7 @@ retr_rate (long bytes, long msecs, int pad)
    UNITS is zero for B/s, one for KB/s, two for MB/s, and three for
    GB/s.  */
 double
-calc_rate (long bytes, long msecs, int *units)
+calc_rate (long bytes, double msecs, int *units)
 {
   double dlrate;
 
@@ -264,9 +292,9 @@ calc_rate (long bytes, long msecs, int *units)
   assert (bytes >= 0);
 
   if (msecs == 0)
-    /* If elapsed time is 0, it means we're under the granularity of
-       the timer.  This often happens on systems that use time() for
-       the timer.  */
+    /* If elapsed time is exactly zero, it means we're under the
+       granularity of the timer.  This often happens on systems that
+       use time() for the timer.  */
     msecs = wtimer_granularity ();
 
   dlrate = (double)1000 * bytes / msecs;
@@ -277,37 +305,12 @@ calc_rate (long bytes, long msecs, int *units)
   else if (dlrate < 1024.0 * 1024.0 * 1024.0)
     *units = 2, dlrate /= (1024.0 * 1024.0);
   else
-    /* Maybe someone will need this one day.  More realistically, it
-       will get tickled by buggy timers. */
+    /* Maybe someone will need this, one day. */
     *units = 3, dlrate /= (1024.0 * 1024.0 * 1024.0);
 
   return dlrate;
 }
 
-static int
-register_redirections_mapper (void *key, void *value, void *arg)
-{
-  const char *redirected_from = (const char *)key;
-  const char *redirected_to   = (const char *)arg;
-  if (0 != strcmp (redirected_from, redirected_to))
-    register_redirection (redirected_from, redirected_to);
-  return 0;
-}
-
-/* Register the redirections that lead to the successful download of
-   this URL.  This is necessary so that the link converter can convert
-   redirected URLs to the local file.  */
-
-static void
-register_all_redirections (struct hash_table *redirections, const char *final)
-{
-  hash_table_map (redirections, register_redirections_mapper, (void *)final);
-}
-
-#define USE_PROXY_P(u) (opt.use_proxy && getproxy((u)->scheme)		\
-			&& no_proxy_match((u)->host,			\
-					  (const char **)opt.no_proxy))
-
 /* Maximum number of allowed redirections.  20 was chosen as a
    "reasonable" value, which is low enough to not cause havoc, yet
    high enough to guarantee that normal retrievals will not be hurt by
@@ -315,8 +318,30 @@ register_all_redirections (struct hash_table *redirections, const char *final)
 
 #define MAX_REDIRECTIONS 20
 
+#define SUSPEND_POST_DATA do {			\
+  post_data_suspended = 1;			\
+  saved_post_data = opt.post_data;		\
+  saved_post_file_name = opt.post_file_name;	\
+  opt.post_data = NULL;				\
+  opt.post_file_name = NULL;			\
+} while (0)
+
+#define RESTORE_POST_DATA do {				\
+  if (post_data_suspended)				\
+    {							\
+      opt.post_data = saved_post_data;			\
+      opt.post_file_name = saved_post_file_name;	\
+      post_data_suspended = 0;				\
+    }							\
+} while (0)
+
+static char *getproxy PARAMS ((struct url *));
+
 /* Retrieve the given URL.  Decides which loop to call -- HTTP, FTP,
    FTP, proxy, etc.  */
+
+/* #### This function should be rewritten so it doesn't return from
+   multiple points. */
 
 uerr_t
 retrieve_url (const char *origurl, char **file, char **newloc,
@@ -325,17 +350,22 @@ retrieve_url (const char *origurl, char **file, char **newloc,
   uerr_t result;
   char *url;
   int location_changed, dummy;
-  int use_proxy;
   char *mynewloc, *proxy;
-  struct url *u;
+  struct url *u, *proxy_url;
   int up_error_code;		/* url parse error code */
   char *local_file;
-  struct hash_table *redirections = NULL;
   int redirection_count = 0;
 
-  /* If dt is NULL, just ignore it.  */
+  int post_data_suspended = 0;
+  char *saved_post_data = NULL;
+  char *saved_post_file_name = NULL;
+
+  /* If dt is NULL, use local storage.  */
   if (!dt)
-    dt = &dummy;
+    {
+      dt = &dummy;
+      dummy = 0;
+    }
   url = xstrdup (origurl);
   if (newloc)
     *newloc = NULL;
@@ -346,8 +376,6 @@ retrieve_url (const char *origurl, char **file, char **newloc,
   if (!u)
     {
       logprintf (LOG_NOTQUIET, "%s: %s.\n", url, url_error (up_error_code));
-      if (redirections)
-	string_set_free (redirections);
       xfree (url);
       return URLERROR;
     }
@@ -360,55 +388,38 @@ retrieve_url (const char *origurl, char **file, char **newloc,
   result = NOCONERROR;
   mynewloc = NULL;
   local_file = NULL;
+  proxy_url = NULL;
 
-  use_proxy = USE_PROXY_P (u);
-  if (use_proxy)
+  proxy = getproxy (u);
+  if (proxy)
     {
-      struct url *proxy_url;
-
-      /* Get the proxy server for the current scheme.  */
-      proxy = getproxy (u->scheme);
-      if (!proxy)
-	{
-	  logputs (LOG_NOTQUIET, _("Could not find proxy host.\n"));
-	  url_free (u);
-	  if (redirections)
-	    string_set_free (redirections);
-	  xfree (url);
-	  return PROXERR;
-	}
-
       /* Parse the proxy URL.  */
       proxy_url = url_parse (proxy, &up_error_code);
       if (!proxy_url)
 	{
 	  logprintf (LOG_NOTQUIET, _("Error parsing proxy URL %s: %s.\n"),
 		     proxy, url_error (up_error_code));
-	  if (redirections)
-	    string_set_free (redirections);
 	  xfree (url);
+	  RESTORE_POST_DATA;
 	  return PROXERR;
 	}
-      if (proxy_url->scheme != SCHEME_HTTP)
+      if (proxy_url->scheme != SCHEME_HTTP && proxy_url->scheme != u->scheme)
 	{
 	  logprintf (LOG_NOTQUIET, _("Error in proxy URL %s: Must be HTTP.\n"), proxy);
 	  url_free (proxy_url);
-	  if (redirections)
-	    string_set_free (redirections);
 	  xfree (url);
+	  RESTORE_POST_DATA;
 	  return PROXERR;
 	}
-
-      result = http_loop (u, &mynewloc, &local_file, refurl, dt, proxy_url);
-      url_free (proxy_url);
     }
-  else if (u->scheme == SCHEME_HTTP
+
+  if (u->scheme == SCHEME_HTTP
 #ifdef HAVE_SSL
       || u->scheme == SCHEME_HTTPS
 #endif
-      )
+      || (proxy_url && proxy_url->scheme == SCHEME_HTTP))
     {
-      result = http_loop (u, &mynewloc, &local_file, refurl, dt, NULL);
+      result = http_loop (u, &mynewloc, &local_file, refurl, dt, proxy_url);
     }
   else if (u->scheme == SCHEME_FTP)
     {
@@ -416,22 +427,28 @@ retrieve_url (const char *origurl, char **file, char **newloc,
 	 retrieval, so we save recursion to oldrec, and restore it
 	 later.  */
       int oldrec = opt.recursive;
-      if (redirections)
+      if (redirection_count)
 	opt.recursive = 0;
-      result = ftp_loop (u, dt);
+      result = ftp_loop (u, dt, proxy_url);
       opt.recursive = oldrec;
 
       /* There is a possibility of having HTTP being redirected to
 	 FTP.  In these cases we must decide whether the text is HTML
-	 according to the suffix.  The HTML suffixes are `.html' and
-	 `.htm', case-insensitive.  */
-      if (redirections && local_file && u->scheme == SCHEME_FTP)
+	 according to the suffix.  The HTML suffixes are `.html',
+	 `.htm' and a few others, case-insensitive.  */
+      if (redirection_count && local_file && u->scheme == SCHEME_FTP)
 	{
-	  char *suf = suffix (local_file);
-	  if (suf && (!strcasecmp (suf, "html") || !strcasecmp (suf, "htm")))
+	  if (has_html_suffix_p (local_file))
 	    *dt |= TEXTHTML;
 	}
     }
+
+  if (proxy_url)
+    {
+      url_free (proxy_url);
+      proxy_url = NULL;
+    }
+
   location_changed = (result == NEWLOCATION);
   if (location_changed)
     {
@@ -458,10 +475,9 @@ retrieve_url (const char *origurl, char **file, char **newloc,
 	  logprintf (LOG_NOTQUIET, "%s: %s.\n", mynewloc,
 		     url_error (up_error_code));
 	  url_free (u);
-	  if (redirections)
-	    string_set_free (redirections);
 	  xfree (url);
 	  xfree (mynewloc);
+	  RESTORE_POST_DATA;
 	  return result;
 	}
 
@@ -471,49 +487,32 @@ retrieve_url (const char *origurl, char **file, char **newloc,
       xfree (mynewloc);
       mynewloc = xstrdup (newloc_parsed->url);
 
-      if (!redirections)
-	{
-	  redirections = make_string_hash_table (0);
-	  /* Add current URL immediately so we can detect it as soon
-             as possible in case of a cycle. */
-	  string_set_add (redirections, u->url);
-	}
-
-      /* The new location is OK.  Check for max. number of
-	 redirections.  */
+      /* Check for max. number of redirections.  */
       if (++redirection_count > MAX_REDIRECTIONS)
 	{
 	  logprintf (LOG_NOTQUIET, _("%d redirections exceeded.\n"),
 		     MAX_REDIRECTIONS);
 	  url_free (newloc_parsed);
 	  url_free (u);
-	  if (redirections)
-	    string_set_free (redirections);
 	  xfree (url);
 	  xfree (mynewloc);
+	  RESTORE_POST_DATA;
 	  return WRONGCODE;
 	}
-
-      /*Check for redirection cycle by
-         peeking through the history of redirections. */
-      if (string_set_contains (redirections, newloc_parsed->url))
-	{
-	  logprintf (LOG_NOTQUIET, _("%s: Redirection cycle detected.\n"),
-		     mynewloc);
-	  url_free (newloc_parsed);
-	  url_free (u);
-	  if (redirections)
-	    string_set_free (redirections);
-	  xfree (url);
-	  xfree (mynewloc);
-	  return WRONGCODE;
-	}
-      string_set_add (redirections, newloc_parsed->url);
 
       xfree (url);
       url = mynewloc;
       url_free (u);
       u = newloc_parsed;
+
+      /* If we're being redirected from POST, we don't want to POST
+	 again.  Many requests answer POST with a redirection to an
+	 index page; that redirection is clearly a GET.  We "suspend"
+	 POST data for the duration of the redirections, and restore
+	 it when we're done. */
+      if (!post_data_suspended)
+	SUSPEND_POST_DATA;
+
       goto redirected;
     }
 
@@ -522,8 +521,8 @@ retrieve_url (const char *origurl, char **file, char **newloc,
       if (*dt & RETROKF)
 	{
 	  register_download (u->url, local_file);
-	  if (redirections)
-	    register_all_redirections (redirections, u->url);
+	  if (redirection_count && 0 != strcmp (origurl, u->url))
+	    register_redirection (origurl, u->url);
 	  if (*dt & TEXTHTML)
 	    register_html (u->url, local_file);
 	}
@@ -536,9 +535,8 @@ retrieve_url (const char *origurl, char **file, char **newloc,
 
   url_free (u);
 
-  if (redirections)
+  if (redirection_count)
     {
-      string_set_free (redirections);
       if (newloc)
 	*newloc = url;
       else
@@ -552,6 +550,7 @@ retrieve_url (const char *origurl, char **file, char **newloc,
     }
 
   ++global_download_count;
+  RESTORE_POST_DATA;
 
   return result;
 }
@@ -580,7 +579,7 @@ retrieve_from_file (const char *file, int html, int *count)
       if (cur_url->ignore_when_downloading)
 	continue;
 
-      if (downloaded_exceeds_quota ())
+      if (opt.quota && total_downloaded_bytes > opt.quota)
 	{
 	  status = QUOTEXC;
 	  break;
@@ -618,40 +617,6 @@ printwhat (int n1, int n2)
   logputs (LOG_VERBOSE, (n1 == n2) ? _("Giving up.\n\n") : _("Retrying.\n\n"));
 }
 
-/* Increment opt.downloaded by BY_HOW_MUCH.  If an overflow occurs,
-   set opt.downloaded_overflow to 1. */
-void
-downloaded_increase (unsigned long by_how_much)
-{
-  VERY_LONG_TYPE old;
-  if (opt.downloaded_overflow)
-    return;
-  old = opt.downloaded;
-  opt.downloaded += by_how_much;
-  if (opt.downloaded < old)	/* carry flag, where are you when I
-                                   need you? */
-    {
-      /* Overflow. */
-      opt.downloaded_overflow = 1;
-      opt.downloaded = ~((VERY_LONG_TYPE)0);
-    }
-}
-
-/* Return non-zero if the downloaded amount of bytes exceeds the
-   desired quota.  If quota is not set or if the amount overflowed, 0
-   is returned. */
-int
-downloaded_exceeds_quota (void)
-{
-  if (!opt.quota)
-    return 0;
-  if (opt.downloaded_overflow)
-    /* We don't really know.  (Wildly) assume not. */
-    return 0;
-
-  return opt.downloaded > opt.quota;
-}
-
 /* If opt.wait or opt.waitretry are specified, and if certain
    conditions are met, sleep the appropriate number of seconds.  See
    the documentation of --wait and --waitretry for more information.
@@ -677,7 +642,7 @@ sleep_between_retrievals (int count)
       if (count <= opt.waitretry)
 	sleep (count - 1);
       else
-	sleep (opt.waitretry);
+	usleep (1000000L * opt.waitretry);
     }
   else if (opt.wait)
     {
@@ -685,19 +650,114 @@ sleep_between_retrievals (int count)
 	/* If random-wait is not specified, or if we are sleeping
 	   between retries of the same download, sleep the fixed
 	   interval.  */
-	sleep (opt.wait);
+	usleep (1000000L * opt.wait);
       else
 	{
 	  /* Sleep a random amount of time averaging in opt.wait
 	     seconds.  The sleeping amount ranges from 0 to
 	     opt.wait*2, inclusive.  */
-	  int waitsecs = random_number (opt.wait * 2 + 1);
-
-	  DEBUGP (("sleep_between_retrievals: norm=%ld,fuzz=%ld,sleep=%d\n",
-		   opt.wait, waitsecs - opt.wait, waitsecs));
-
-	  if (waitsecs)
-	    sleep (waitsecs);
+	  double waitsecs = 2 * opt.wait * random_float ();
+	  DEBUGP (("sleep_between_retrievals: avg=%f,sleep=%f\n",
+		   opt.wait, waitsecs));
+	  usleep (1000000L * waitsecs);
 	}
     }
+}
+
+/* Free the linked list of urlpos.  */
+void
+free_urlpos (struct urlpos *l)
+{
+  while (l)
+    {
+      struct urlpos *next = l->next;
+      if (l->url)
+	url_free (l->url);
+      FREE_MAYBE (l->local_name);
+      xfree (l);
+      l = next;
+    }
+}
+
+/* Rotate FNAME opt.backups times */
+void
+rotate_backups(const char *fname)
+{
+  int maxlen = strlen (fname) + 1 + numdigit (opt.backups) + 1;
+  char *from = (char *)alloca (maxlen);
+  char *to = (char *)alloca (maxlen);
+  struct stat sb;
+  int i;
+
+  if (stat (fname, &sb) == 0)
+    if (S_ISREG (sb.st_mode) == 0)
+      return;
+
+  for (i = opt.backups; i > 1; i--)
+    {
+      sprintf (from, "%s.%d", fname, i - 1);
+      sprintf (to, "%s.%d", fname, i);
+      rename (from, to);
+    }
+
+  sprintf (to, "%s.%d", fname, 1);
+  rename(fname, to);
+}
+
+static int no_proxy_match PARAMS ((const char *, const char **));
+
+/* Return the URL of the proxy appropriate for url U.  */
+
+static char *
+getproxy (struct url *u)
+{
+  char *proxy = NULL;
+  char *rewritten_url;
+  static char rewritten_storage[1024];
+
+  if (!opt.use_proxy)
+    return NULL;
+  if (!no_proxy_match (u->host, (const char **)opt.no_proxy))
+    return NULL;
+
+  switch (u->scheme)
+    {
+    case SCHEME_HTTP:
+      proxy = opt.http_proxy ? opt.http_proxy : getenv ("http_proxy");
+      break;
+#ifdef HAVE_SSL
+    case SCHEME_HTTPS:
+      proxy = opt.https_proxy ? opt.https_proxy : getenv ("https_proxy");
+      break;
+#endif
+    case SCHEME_FTP:
+      proxy = opt.ftp_proxy ? opt.ftp_proxy : getenv ("ftp_proxy");
+      break;
+    case SCHEME_INVALID:
+      break;
+    }
+  if (!proxy || !*proxy)
+    return NULL;
+
+  /* Handle shorthands.  `rewritten_storage' is a kludge to allow
+     getproxy() to return static storage. */
+  rewritten_url = rewrite_shorthand_url (proxy);
+  if (rewritten_url)
+    {
+      strncpy (rewritten_storage, rewritten_url, sizeof(rewritten_storage));
+      rewritten_storage[sizeof (rewritten_storage) - 1] = '\0';
+      proxy = rewritten_storage;
+    }
+
+  return proxy;
+}
+
+/* Should a host be accessed through proxy, concerning no_proxy?  */
+int
+no_proxy_match (const char *host, const char **no_proxy)
+{
+  if (!no_proxy)
+    return 1;
+  else
+    return !sufmatch (no_proxy, host);
 }

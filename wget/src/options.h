@@ -35,6 +35,7 @@ struct options
   int verbose;			/* Are we verbose? */
   int quiet;			/* Are we quiet? */
   int ntry;			/* Number of tries per URL */
+  int retry_connrefused;	/* Treat CONNREFUSED as non-fatal. */
   int background;		/* Whether we should work in background. */
   int kill_longer;		/* Do we reject messages with *more*
 				   data than specified in
@@ -69,6 +70,7 @@ struct options
 
   char **domains;		/* See host.c */
   char **exclude_domains;
+  int dns_cache;		/* whether we cache DNS lookups. */
 
   char **follow_tags;           /* List of HTML tags to recursively follow. */
   char **ignore_tags;           /* List of HTML tags to ignore if recursing. */
@@ -105,21 +107,20 @@ struct options
   char *progress_type;		/* progress indicator type. */
   char *proxy_user; /*oli*/
   char *proxy_passwd;
-#ifdef HAVE_SELECT
-  long timeout;			/* The value of read timeout in
-				   seconds. */
-#endif
+
+  double read_timeout;		/* The read/write timeout. */
+  double dns_timeout;		/* The DNS timeout. */
+  double connect_timeout;	/* The connect timeout. */
+
   int random_wait;		/* vary from 0 .. wait secs by random()? */
-  long wait;			/* The wait period between retrievals. */
-  long waitretry;		/* The wait period between retries. - HEH */
+  double wait;			/* The wait period between retrievals. */
+  double waitretry;		/* The wait period between retries. - HEH */
   int use_robots;		/* Do we heed robots.txt? */
 
   long limit_rate;		/* Limit the download rate to this
 				   many bps. */
-  long quota;			/* Maximum number of bytes to
-				   retrieve. */
-  VERY_LONG_TYPE downloaded;	/* How much we downloaded already. */
-  int downloaded_overflow;	/* Whether the above overflowed. */
+  LARGE_INT quota;		/* Maximum file size to download and
+				   store. */
   int numurls;			/* Number of successfully downloaded
 				   URLs */
 
@@ -127,9 +128,9 @@ struct options
   int save_headers;		/* Do we save headers together with
 				   file? */
 
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
   int debug;			/* Debugging on/off */
-#endif /* DEBUG */
+#endif
 
   int timestamping;		/* Whether to use time-stamping. */
 
@@ -162,22 +163,37 @@ struct options
 
   int page_requisites;		/* Whether we need to download all files
 				   necessary to display a page properly. */
-
-  struct sockaddr_in *bind_address; /* What local IP address to bind to. */
-
+  char *bind_address;		/* What local IP address to bind to. */
 #ifdef HAVE_SSL
+  char *sslcadir;		/* CA directory (hash files) */
+  char *sslcafile;		/* CA File to use */
   char *sslcertfile;		/* external client cert to use. */
   char *sslcertkey;		/* the keyfile for this certificate
 				   (if not internal) included in the
 				   certfile. */
+  int   sslcerttype;		/* 0 = PEM / 1=ASN1 (DER) */
+  int   sslcheckcert;		/* 0 do not check / 1 check server cert */
   char *sslegdsock;             /* optional socket of the egd daemon */
+  int   sslprotocol;		/* 0 = auto / 1 = v2 / 2 = v3 / 3 = TLSv1 */
 #endif /* HAVE_SSL */
 
   int   cookies;
   char *cookies_input;
   char *cookies_output;
+
+  char *post_data;		/* POST query string */
+  char *post_file_name;		/* File to post */
+
+  enum {
+    restrict_unix,
+    restrict_windows
+  } restrict_files_os;		/* file name restriction ruleset. */
+  int restrict_files_ctrl;	/* non-zero if control chars in URLs
+				   are restricted from appearing in
+				   generated file names. */
+
+  int strict_comments;		/* whether strict SGML comments are
+				   enforced.  */
 };
 
-#ifndef OPTIONS_DEFINED_HERE
 extern struct options opt;
-#endif

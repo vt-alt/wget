@@ -1,5 +1,5 @@
 /* HTTP support.
-   Copyright (C) 1995, 1996, 1997, 1998, 2000, 2001
+   Copyright (C) 1995, 1996, 1997, 1998, 2000, 2001, 2002
    Free Software Foundation, Inc.
 
 This file is part of GNU Wget.
@@ -7,7 +7,7 @@ This file is part of GNU Wget.
 GNU Wget is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+ (at your option) any later version.
 
 GNU Wget is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -53,6 +53,9 @@ so, delete this exception statement from your version.  */
 #  include <time.h>
 # endif
 #endif
+#ifndef errno
+extern int errno;
+#endif
 
 #include "wget.h"
 #include "utils.h"
@@ -62,7 +65,6 @@ so, delete this exception statement from your version.  */
 #include "retr.h"
 #include "headers.h"
 #include "connect.h"
-#include "fnmatch.h"
 #include "netrc.h"
 #ifdef HAVE_SSL
 # include "gen_sslfunc.h"
@@ -71,23 +73,25 @@ so, delete this exception statement from your version.  */
 #ifdef USE_DIGEST
 # include "gen-md5.h"
 #endif
+#include "convert.h"
 
 extern char *version_string;
+extern LARGE_INT total_downloaded_bytes;
 
-#ifndef errno
-extern int errno;
-#endif
 
 static int cookies_loaded_p;
+struct cookie_jar *wget_cookie_jar;
 
 #define TEXTHTML_S "text/html"
+#define TEXTXHTML_S "application/xhtml+xml"
 #define HTTP_ACCEPT "*/*"
 
 /* Some status code validation macros: */
 #define H_20X(x)        (((x) >= 200) && ((x) < 300))
 #define H_PARTIAL(x)    ((x) == HTTP_STATUS_PARTIAL_CONTENTS)
-#define H_REDIRECTED(x) (((x) == HTTP_STATUS_MOVED_PERMANENTLY)	\
-			 || ((x) == HTTP_STATUS_MOVED_TEMPORARILY))
+#define H_REDIRECTED(x) ((x) == HTTP_STATUS_MOVED_PERMANENTLY	\
+                         || (x) == HTTP_STATUS_MOVED_TEMPORARILY \
+			 || (x) == HTTP_STATUS_TEMPORARY_REDIRECT)
 
 /* HTTP/1.0 status codes from RFC1945, provided for reference.  */
 /* Successful 2xx.  */
@@ -102,6 +106,7 @@ static int cookies_loaded_p;
 #define HTTP_STATUS_MOVED_PERMANENTLY	301
 #define HTTP_STATUS_MOVED_TEMPORARILY	302
 #define HTTP_STATUS_NOT_MODIFIED	304
+#define HTTP_STATUS_TEMPORARY_REDIRECT  307
 
 /* Client error 4xx.  */
 #define HTTP_STATUS_BAD_REQUEST		400
@@ -178,6 +183,64 @@ parse_http_status_line (const char *line, const char **reason_phrase_ptr)
     *reason_phrase_ptr = line + 1;
 
   return statcode;
+}
+
+#define WMIN(x, y) ((x) > (y) ? (y) : (x))
+
+/* Send the contents of FILE_NAME to SOCK/SSL.  Make sure that exactly
+   PROMISED_SIZE bytes are sent over the wire -- if the file is
+   longer, read only that much; if the file is shorter, report an error.  */
+
+static int
+post_file (int sock, void *ssl, const char *file_name, long promised_size)
+{
+  static char chunk[8192];
+  long written = 0;
+  int write_error;
+  FILE *fp;
+
+  /* Only one of SOCK and SSL may be active at the same time. */
+  assert (sock > -1 || ssl != NULL);
+  assert (sock == -1 || ssl == NULL);
+
+  DEBUGP (("[writing POST file %s ... ", file_name));
+
+  fp = fopen (file_name, "rb");
+  if (!fp)
+    return -1;
+  while (!feof (fp) && written < promised_size)
+    {
+      int towrite;
+      int length = fread (chunk, 1, sizeof (chunk), fp);
+      if (length == 0)
+	break;
+      towrite = WMIN (promised_size - written, length);
+#ifdef HAVE_SSL
+      if (ssl)
+	write_error = ssl_iwrite (ssl, chunk, towrite);
+      else
+#endif
+	write_error = iwrite (sock, chunk, towrite);
+      if (write_error < 0)
+	{
+	  fclose (fp);
+	  return -1;
+	}
+      written += towrite;
+    }
+  fclose (fp);
+
+  /* If we've written less than was promised, report a (probably
+     nonsensical) error rather than break the promise.  */
+  if (written < promised_size)
+    {
+      errno = EINVAL;
+      return -1;
+    }
+
+  assert (written == promised_size);
+  DEBUGP (("done]\n"));
+  return 0;
 }
 
 /* Functions to be used as arguments to header_process(): */
@@ -270,6 +333,22 @@ http_process_connection (const char *hdr, void *arg)
     *flag = 1;
   return 1;
 }
+
+/* Commit the cookie to the cookie jar. */
+
+int
+http_process_set_cookie (const char *hdr, void *arg)
+{
+  struct url *u = (struct url *)arg;
+
+  /* The jar should have been created by now. */
+  assert (wget_cookie_jar != NULL);
+
+  cookie_jar_process_set_cookie (wget_cookie_jar, u->host, u->port, u->path,
+				 hdr);
+  return 1;
+}
+
 
 /* Persistent connections.  Currently, we cache the most recently used
    connection as persistent, provided that the HTTP server agrees to
@@ -493,7 +572,7 @@ struct http_stat
   char *remote_time;		/* remote time-stamp string */
   char *error;			/* textual HTTP error */
   int statcode;			/* status code */
-  long dltime;			/* time of the download */
+  double dltime;		/* time of the download in msecs */
   int no_truncate;		/* whether truncating the file is
 				   forbidden. */
   const char *referer;		/* value of the referer header. */
@@ -520,7 +599,7 @@ static char *basic_authentication_encode PARAMS ((const char *, const char *,
 						  const char *));
 static int known_authentication_scheme_p PARAMS ((const char *));
 
-time_t http_atotm PARAMS ((char *));
+time_t http_atotm PARAMS ((const char *));
 
 #define BEGINS_WITH(line, string_constant)				\
   (!strncasecmp (line, string_constant, sizeof (string_constant) - 1)	\
@@ -550,7 +629,8 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
   char *all_headers;
   char *port_maybe;
   char *request_keep_alive;
-  int sock, hcount, num_written, all_length, statcode;
+  int sock, hcount, all_length, statcode;
+  int write_error;
   long contlen, contrange;
   struct url *conn;
   FILE *fp;
@@ -559,7 +639,7 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
 #ifdef HAVE_SSL
   static SSL_CTX *ssl_ctx = NULL;
   SSL *ssl = NULL;
-#endif /* HAVE_SSL */
+#endif
   char *cookies = NULL;
 
   /* Whether this connection will be kept alive after the HTTP request
@@ -572,6 +652,15 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
 
   /* Whether keep-alive should be inhibited. */
   int inhibit_keep_alive;
+
+  /* Whether we need to print the host header with braces around host,
+     e.g. "Host: [3ffe:8100:200:2::2]:1234" instead of the usual
+     "Host: symbolic-name:1234". */
+  int squares_around_host = 0;
+
+  /* Headers sent when using POST. */
+  char *post_content_type, *post_content_length;
+  long post_data_size = 0;
 
 #ifdef HAVE_SSL
   /* initialize ssl_ctx on first run */
@@ -629,6 +718,9 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
   keep_alive = 0;
   http_keep_alive_1 = http_keep_alive_2 = 0;
 
+  post_content_type = NULL;
+  post_content_length = NULL;
+
   /* Initialize certain elements of struct http_stat.  */
   hs->len = 0L;
   hs->contlen = -1;
@@ -661,7 +753,7 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
       address_list_release (al);
 
       if (sock < 0)
-	return errno == ECONNREFUSED ? CONREFUSED : CONERROR;
+	return CONNECT_ERROR (errno);
 
 #ifdef HAVE_SSL
      if (conn->scheme == SCHEME_HTTPS)
@@ -688,7 +780,12 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
       DEBUGP (("Reusing fd %d.\n", sock));
     }
 
-  command = (*dt & HEAD_ONLY) ? "HEAD" : "GET";
+  if (*dt & HEAD_ONLY)
+    command = "HEAD";
+  else if (opt.post_file_name || opt.post_data)
+    command = "POST";
+  else
+    command = "GET";
 
   referer = NULL;
   if (hs->referer)
@@ -809,13 +906,34 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
     request_keep_alive = NULL;
 
   if (opt.cookies)
-    cookies = build_cookies_request (u->host, u->port, u->path,
+    cookies = cookie_jar_generate_cookie_header (wget_cookie_jar, u->host,
+						 u->port, u->path,
 #ifdef HAVE_SSL
-				     u->scheme == SCHEME_HTTPS
+						 u->scheme == SCHEME_HTTPS
 #else
-				     0
+						 0
 #endif
-				     );
+				 );
+
+  if (opt.post_data || opt.post_file_name)
+    {
+      post_content_type = "Content-Type: application/x-www-form-urlencoded\r\n";
+      if (opt.post_data)
+	post_data_size = strlen (opt.post_data);
+      else
+	{
+	  post_data_size = file_size (opt.post_file_name);
+	  if (post_data_size == -1)
+	    {
+	      logprintf (LOG_NOTQUIET, "POST data file missing: %s\n",
+			 opt.post_file_name);
+	      post_data_size = 0;
+	    }
+	}
+      post_content_length = xmalloc (16 + numdigit (post_data_size) + 2 + 1);
+      sprintf (post_content_length,
+	       "Content-Length: %ld\r\n", post_data_size);
+    }
 
   if (proxy)
     full_path = xstrdup (u->url);
@@ -824,6 +942,9 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
        the query string.  E.g. if u->path is "foo/bar" and u->query is
        "param=value", full_path will be "/foo/bar?param=value".  */
     full_path = url_full_path (u);
+
+  if (strchr (u->host, ':'))
+    squares_around_host = 1;
 
   /* Allocate the memory for the request.  */
   request = (char *)alloca (strlen (command)
@@ -840,17 +961,22 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
 			    + (proxyauth ? strlen (proxyauth) : 0)
 			    + (range ? strlen (range) : 0)
 			    + strlen (pragma_h)
+			    + (post_content_type
+			       ? strlen (post_content_type) : 0)
+			    + (post_content_length
+			       ? strlen (post_content_length) : 0)
 			    + (opt.user_header ? strlen (opt.user_header) : 0)
 			    + 64);
   /* Construct the request.  */
   sprintf (request, "\
 %s %s HTTP/1.0\r\n\
 User-Agent: %s\r\n\
-Host: %s%s\r\n\
+Host: %s%s%s%s\r\n\
 Accept: %s\r\n\
-%s%s%s%s%s%s%s%s\r\n",
+%s%s%s%s%s%s%s%s%s%s\r\n",
 	   command, full_path,
-	   useragent, u->host,
+	   useragent,
+	   squares_around_host ? "[" : "", u->host, squares_around_host ? "]" : "",
 	   port_maybe ? port_maybe : "",
 	   HTTP_ACCEPT,
 	   request_keep_alive ? request_keep_alive : "",
@@ -859,9 +985,11 @@ Accept: %s\r\n\
 	   wwwauth ? wwwauth : "", 
 	   proxyauth ? proxyauth : "", 
 	   range ? range : "",
-	   pragma_h, 
+	   pragma_h,
+	   post_content_type ? post_content_type : "",
+	   post_content_length ? post_content_length : "",
 	   opt.user_header ? opt.user_header : "");
-  DEBUGP (("---request begin---\n%s---request end---\n", request));
+  DEBUGP (("---request begin---\n%s", request));
 
   /* Free the temporary memory.  */
   FREE_MAYBE (wwwauth);
@@ -872,12 +1000,38 @@ Accept: %s\r\n\
   /* Send the request to server.  */
 #ifdef HAVE_SSL
   if (conn->scheme == SCHEME_HTTPS)
-    num_written = ssl_iwrite (ssl, request, strlen (request));
+    write_error = ssl_iwrite (ssl, request, strlen (request));
   else
-#endif /* HAVE_SSL */
-    num_written = iwrite (sock, request, strlen (request));
+#endif
+    write_error = iwrite (sock, request, strlen (request));
 
-  if (num_written < 0)
+  if (write_error >= 0)
+    {
+      if (opt.post_data)
+	{
+	  DEBUGP (("[POST data: %s]\n", opt.post_data));
+#ifdef HAVE_SSL
+	  if (conn->scheme == SCHEME_HTTPS)
+	    write_error = ssl_iwrite (ssl, opt.post_data, post_data_size);
+	  else
+#endif
+	    write_error = iwrite (sock, opt.post_data, post_data_size);
+	}
+      else if (opt.post_file_name && post_data_size != 0)
+	{
+#ifdef HAVE_SSL
+	  if (conn->scheme == SCHEME_HTTPS)
+	    write_error = post_file (-1, ssl, opt.post_file_name,
+				     post_data_size);
+	  else
+#endif
+	    write_error = post_file (sock, NULL, opt.post_file_name,
+				     post_data_size);
+	}
+    }
+  DEBUGP (("---request end---\n"));
+
+  if (write_error < 0)
     {
       logprintf (LOG_VERBOSE, _("Failed writing HTTP request: %s.\n"),
 		 strerror (errno));
@@ -985,7 +1139,7 @@ Accept: %s\r\n\
 	    hs->error = xstrdup (error);
 
 	  if ((statcode != -1)
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
 	      && !opt.debug
 #endif
 	      )
@@ -1030,7 +1184,7 @@ Accept: %s\r\n\
 	  goto done_header;
       /* Try getting cookies. */
       if (opt.cookies)
-	if (header_process (hdr, "Set-Cookie", set_cookie_header_cb, u))
+	if (header_process (hdr, "Set-Cookie", http_process_set_cookie, u))
 	  goto done_header;
       /* Try getting www-authentication.  */
       if (!authenticate_h)
@@ -1170,10 +1324,14 @@ Accept: %s\r\n\
 	}
     }
 
-  if (type && !strncasecmp (type, TEXTHTML_S, strlen (TEXTHTML_S)))
+  /* If content-type is not given, assume text/html.  This is because
+     of the multitude of broken CGI's that "forget" to generate the
+     content-type.  */
+  if (!type ||
+        0 == strncasecmp (type, TEXTHTML_S, strlen (TEXTHTML_S)) ||
+        0 == strncasecmp (type, TEXTXHTML_S, strlen (TEXTXHTML_S)))
     *dt |= TEXTHTML;
   else
-    /* We don't assume text/html by default.  */
     *dt &= ~TEXTHTML;
 
   if (opt.html_extension && (*dt & TEXTHTML))
@@ -1350,8 +1508,12 @@ Refusing to truncate existing file `%s'.\n\n"), *hs->local_file);
 
          #### A possible solution to this would be to remember the
 	 file position in the output document and to seek to that
-	 position, instead of rewinding.  */
-      if (!hs->restval && global_download_count == 0)
+	 position, instead of rewinding.
+
+         We don't truncate stdout, since that breaks
+	 "wget -O - [...] >> foo".
+      */
+      if (!hs->restval && global_download_count == 0 && opt.dfp != stdout)
 	{
 	  /* This will silently fail for streams that don't correspond
 	     to regular files, but that's OK.  */
@@ -1406,7 +1568,7 @@ http_loop (struct url *u, char **newloc, char **local_file, const char *referer,
   int use_ts, got_head = 0;	/* time-stamping info */
   char *filename_plus_orig_suffix;
   char *local_filename = NULL;
-  char *tms, *suf, *locf, *tmrate;
+  char *tms, *locf, *tmrate;
   uerr_t err;
   time_t tml = -1, tmr = -1;	/* local and remote time-stamps */
   long local_size = 0;		/* the size of the local file */
@@ -1418,10 +1580,15 @@ http_loop (struct url *u, char **newloc, char **local_file, const char *referer,
   /* This used to be done in main(), but it's a better idea to do it
      here so that we don't go through the hoops if we're just using
      FTP or whatever. */
-  if (opt.cookies && opt.cookies_input && !cookies_loaded_p)
+  if (opt.cookies)
     {
-      load_cookies (opt.cookies_input);
-      cookies_loaded_p = 1;
+      if (!wget_cookie_jar)
+	wget_cookie_jar = cookie_jar_new ();
+      if (opt.cookies_input && !cookies_loaded_p)
+	{
+	  cookie_jar_load (wget_cookie_jar, opt.cookies_input);
+	  cookies_loaded_p = 1;
+	}
     }
 
   *newloc = NULL;
@@ -1437,12 +1604,12 @@ http_loop (struct url *u, char **newloc, char **local_file, const char *referer,
     hstat.local_file = local_file;
   else if (local_file)
     {
-      *local_file = url_filename (u);
+      *local_file = url_file_name (u);
       hstat.local_file = local_file;
     }
   else
     {
-      dummy = url_filename (u);
+      dummy = url_file_name (u);
       hstat.local_file = &dummy;
     }
 
@@ -1466,9 +1633,8 @@ File `%s' already there, will not retrieve.\n"), *hstat.local_file);
       *dt |= RETROKF;
 
       /* #### Bogusness alert.  */
-      /* If its suffix is "html" or "htm", assume text/html.  */
-      if (((suf = suffix (*hstat.local_file)) != NULL)
-	  && (!strcmp (suf, "html") || !strcmp (suf, "htm")))
+      /* If its suffix is "html" or "htm" or similar, assume text/html.  */
+      if (has_html_suffix_p (*hstat.local_file))
 	*dt |= TEXTHTML;
 
       FREE_MAYBE (dummy);
@@ -1522,6 +1688,11 @@ File `%s' already there, will not retrieve.\n"), *hstat.local_file);
 	{
 	  use_ts = 1;
 	  tml = st.st_mtime;
+#ifdef WINDOWS
+	  /* Modification time granularity is 2 seconds for Windows, so
+	     increase local time by 1 second for later comparison. */
+	  tml++;
+#endif
 	  local_size = st.st_size;
 	  got_head = 0;
 	}
@@ -1783,7 +1954,7 @@ The sizes do not match (local %ld) -- retrieving.\n"), local_size);
 			 tms, u->url, hstat.len, hstat.contlen, locf, count);
 	    }
 	  ++opt.numurls;
-	  downloaded_increase (hstat.len);
+	  total_downloaded_bytes += hstat.len;
 
 	  /* Remember that we downloaded the file for later ".orig" code. */
 	  if (*dt & ADDED_HTML_EXTENSION)
@@ -1810,7 +1981,7 @@ The sizes do not match (local %ld) -- retrieving.\n"), local_size);
 			     tms, u->url, hstat.len, locf, count);
 		}
 	      ++opt.numurls;
-	      downloaded_increase (hstat.len);
+	      total_downloaded_bytes += hstat.len;
 
 	      /* Remember that we downloaded the file for later ".orig" code. */
 	      if (*dt & ADDED_HTML_EXTENSION)
@@ -1841,7 +2012,7 @@ The sizes do not match (local %ld) -- retrieving.\n"), local_size);
 			 "%s URL:%s [%ld/%ld] -> \"%s\" [%d]\n",
 			 tms, u->url, hstat.len, hstat.contlen, locf, count);
 	      ++opt.numurls;
-	      downloaded_increase (hstat.len);
+	      total_downloaded_bytes += hstat.len;
 
 	      /* Remember that we downloaded the file for later ".orig" code. */
 	      if (*dt & ADDED_HTML_EXTENSION)
@@ -2011,7 +2182,7 @@ check_end (const char *p)
    it is not assigned to the FSF.  So I stuck it with strptime.  */
 
 time_t
-http_atotm (char *time_string)
+http_atotm (const char *time_string)
 {
   /* NOTE: Solaris strptime man page claims that %n and %t match white
      space, but that's not universally available.  Instead, we simply
@@ -2046,7 +2217,7 @@ http_atotm (char *time_string)
      GNU strptime does not have this problem because it recognizes
      both international and local dates.  */
 
-  for (i = 0; i < ARRAY_SIZE (time_formats); i++)
+  for (i = 0; i < countof (time_formats); i++)
     if (check_end (strptime (time_string, time_formats[i], &t)))
       return mktime_from_utc (&t);
 
@@ -2176,8 +2347,8 @@ dump_hash (unsigned char *buf, const unsigned char *hash)
 
   for (i = 0; i < MD5_HASHLEN; i++, hash++)
     {
-      *buf++ = XDIGIT_TO_xchar (*hash >> 4);
-      *buf++ = XDIGIT_TO_xchar (*hash & 0xf);
+      *buf++ = XNUM_TO_digit (*hash >> 4);
+      *buf++ = XNUM_TO_digit (*hash & 0xf);
     }
   *buf = '\0';
 }
@@ -2208,7 +2379,7 @@ digest_authentication_encode (const char *au, const char *user,
       int i;
 
       au += skip_lws (au);
-      for (i = 0; i < ARRAY_SIZE (options); i++)
+      for (i = 0; i < countof (options); i++)
 	{
 	  int skip = extract_header_attr (au, options[i].name,
 					  options[i].variable);
@@ -2225,7 +2396,7 @@ digest_authentication_encode (const char *au, const char *user,
 	      break;
 	    }
 	}
-      if (i == ARRAY_SIZE (options))
+      if (i == countof (options))
 	{
 	  while (*au && *au != '=')
 	    au++;

@@ -1,7 +1,6 @@
-This is wget.info, produced by makeinfo version 4.1 from ./wget.texi.
+This is wget.info, produced by makeinfo version 4.3 from ./wget.texi.
 
-INFO-DIR-SECTION Net Utilities
-INFO-DIR-SECTION World Wide Web
+INFO-DIR-SECTION Network Applications
 START-INFO-DIR-ENTRY
 * Wget: (wget).         The non-interactive network downloader.
 END-INFO-DIR-ENTRY
@@ -9,8 +8,8 @@ END-INFO-DIR-ENTRY
    This file documents the the GNU Wget utility for downloading network
 data.
 
-   Copyright (C) 1996, 1997, 1998, 2000, 2001 Free Software Foundation,
-Inc.
+   Copyright (C) 1996, 1997, 1998, 2000, 2001, 2002, 2003 Free Software
+Foundation, Inc.
 
    Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
@@ -36,7 +35,6 @@ GNU Free Documentation License
      
      Everyone is permitted to copy and distribute verbatim copies
      of this license document, but changing it is not allowed.
-
 
 
   0. PREAMBLE
@@ -125,7 +123,6 @@ GNU Free Documentation License
      Page" means the text near the most prominent appearance of the
      work's title, preceding the beginning of the body of the text.
 
-
   2. VERBATIM COPYING
 
      You may copy and distribute the Document in any medium, either
@@ -141,7 +138,6 @@ GNU Free Documentation License
 
      You may also lend copies, under the same conditions stated above,
      and you may publicly display copies.
-
 
   3. COPYING IN QUANTITY
 
@@ -182,7 +178,6 @@ GNU Free Documentation License
      the Document well before redistributing any large number of
      copies, to give them a chance to provide you with an updated
      version of the Document.
-
 
   4. MODIFICATIONS
 
@@ -275,7 +270,6 @@ GNU Free Documentation License
      License give permission to use their names for publicity for or to
      assert or imply endorsement of any Modified Version.
 
-
   5. COMBINING DOCUMENTS
 
      You may combine the Document with other documents released under
@@ -301,7 +295,6 @@ GNU Free Documentation License
      "Acknowledgements", and any sections entitled "Dedications".  You
      must delete all sections entitled "Endorsements."
 
-
   6. COLLECTIONS OF DOCUMENTS
 
      You may make a collection consisting of the Document and other
@@ -316,7 +309,6 @@ GNU Free Documentation License
      a copy of this License into the extracted document, and follow
      this License in all other respects regarding verbatim copying of
      that document.
-
 
   7. AGGREGATION WITH INDEPENDENT WORKS
 
@@ -337,7 +329,6 @@ GNU Free Documentation License
      aggregate.  Otherwise they must appear on covers around the whole
      aggregate.
 
-
   8. TRANSLATION
 
      Translation is considered a kind of modification, so you may
@@ -351,7 +342,6 @@ GNU Free Documentation License
      disagreement between the translation and the original English
      version of this License, the original English version will prevail.
 
-
   9. TERMINATION
 
      You may not copy, modify, sublicense, or distribute the Document
@@ -361,7 +351,6 @@ GNU Free Documentation License
      License.  However, parties who have received copies, or rights,
      from you under this License will not have their licenses
      terminated so long as such parties remain in full compliance.
-
 
  10. FUTURE REVISIONS OF THIS LICENSE
 
@@ -433,9 +422,12 @@ Concept Index
 * bug reports:                           Reporting Bugs.
 * bugs:                                  Reporting Bugs.
 * cache:                                 HTTP Options.
+* caching of DNS lookups:                Download Options.
 * client IP address:                     Download Options.
 * clobbering, file:                      Download Options.
 * command line:                          Invoking.
+* comments, HTML:                        Recursive Retrieval Options.
+* connect timeout:                       Download Options.
 * Content-Length, ignore:                HTTP Options.
 * continue retrieval:                    Download Options.
 * contributors:                          Contributors.
@@ -452,12 +444,15 @@ Concept Index
 * directories, include:                  Directory-Based Limits.
 * directory limits:                      Directory-Based Limits.
 * directory prefix:                      Directory Options.
+* DNS cache:                             Download Options.
+* DNS timeout:                           Download Options.
 * dot style:                             Download Options.
 * downloading multiple times:            Download Options.
 * examples:                              Examples.
 * exclude directories:                   Directory-Based Limits.
 * execute wgetrc command:                Basic Startup Options.
 * features:                              Overview.
+* file names, restrict:                  Download Options.
 * filling proxy cache:                   Recursive Retrieval Options.
 * follow FTP links:                      Recursive Accept/Reject Options.
 * following ftp links:                   FTP Links.
@@ -471,6 +466,7 @@ Concept Index
 * hangup:                                Signals.
 * header, add:                           HTTP Options.
 * hosts, spanning:                       Spanning Hosts.
+* HTML comments:                         Recursive Retrieval Options.
 * http password:                         HTTP Options.
 * http referer:                          HTTP Options.
 * http time-stamping:                    HTTP Time-Stamping Internals.
@@ -505,6 +501,7 @@ Concept Index
 * passive ftp:                           FTP Options.
 * pause:                                 Download Options.
 * portability:                           Portability.
+* POST:                                  HTTP Options.
 * progress indicator:                    Download Options.
 * proxies:                               Proxies.
 * proxy <1>:                             HTTP Options.
@@ -517,6 +514,7 @@ Concept Index
 * quota:                                 Download Options.
 * random wait:                           Download Options.
 * rate, limit:                           Download Options.
+* read timeout:                          Download Options.
 * recursion:                             Recursive Retrieval.
 * recursive retrieval:                   Recursive Retrieval.
 * redirecting output:                    Advanced Usage.
@@ -553,6 +551,9 @@ Concept Index
 * time-stamping:                         Time-Stamping.
 * time-stamping usage:                   Time-Stamping Usage.
 * timeout:                               Download Options.
+* timeout, connect:                      Download Options.
+* timeout, DNS:                          Download Options.
+* timeout, read:                         Download Options.
 * timestamping:                          Time-Stamping.
 * tries:                                 Download Options.
 * types of files:                        Types of Files.
@@ -573,5 +574,6 @@ Concept Index
 * wgetrc syntax:                         Wgetrc Syntax.
 * wildcards, accept:                     Types of Files.
 * wildcards, reject:                     Types of Files.
+* Windows file names:                    Download Options.
 
 

@@ -1,5 +1,5 @@
 /* Support for cookies.
-   Copyright (C) 2001 Free Software Foundation, Inc.
+   Copyright (C) 2001, 2002 Free Software Foundation, Inc.
 
 This file is part of GNU Wget.
 
@@ -30,16 +30,18 @@ so, delete this exception statement from your version.  */
 #ifndef COOKIES_H
 #define COOKIES_H
 
-/* struct cookie is not exported; this file only exports functions for
-   manipulating cookie contents.  */
+struct cookie_jar;
 
-int set_cookie_header_cb PARAMS ((const char *, void *));
+struct cookie_jar *cookie_jar_new PARAMS ((void));
+void cookie_jar_delete PARAMS ((struct cookie_jar *));
 
-char *build_cookies_request PARAMS ((const char *, int, const char *, int));
+void cookie_jar_process_set_cookie PARAMS ((struct cookie_jar *, const char *,
+					    int, const char *, const char *));
+char *cookie_jar_generate_cookie_header PARAMS ((struct cookie_jar *,
+						 const char *, int,
+						 const char *, int));
 
-void load_cookies PARAMS ((const char *));
-void save_cookies PARAMS ((const char *));
-
-void cookies_cleanup PARAMS ((void));
+void cookie_jar_load PARAMS ((struct cookie_jar *, const char *));
+void cookie_jar_save PARAMS ((struct cookie_jar *, const char *));
 
 #endif /* COOKIES_H */

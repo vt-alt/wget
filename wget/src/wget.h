@@ -34,9 +34,10 @@ so, delete this exception statement from your version.  */
 #ifndef WGET_H
 #define WGET_H
 
-#ifndef DEBUG
-# define NDEBUG /* To kill off assertions */
-#endif /* not DEBUG */
+/* Disable assertions when debug support is not compiled in. */
+#ifndef ENABLE_DEBUG
+# define NDEBUG
+#endif
 
 /* Define this if you want primitive but extensive malloc debugging.
    It will make Wget extremely slow, so only do it in development
@@ -62,7 +63,10 @@ so, delete this exception statement from your version.  */
 # define _(string) string
 #endif /* not HAVE_NLS */
 
-/* I18N NOTE: You will notice that none of the DEBUG messages are
+/* No-op version of gettext, used for constant strings. */
+#define N_(string) (string)
+
+/* I18N NOTE: You will notice that none of the DEBUGP messages are
    marked as translatable.  This is intentional, for a few reasons:
 
    1) The debug messages are not meant for the users to look at, but
@@ -87,11 +91,11 @@ so, delete this exception statement from your version.  */
 #define DO_NOTHING do {} while (0)
 
 /* Print X if debugging is enabled; a no-op otherwise.  */
-#ifdef DEBUG
+#ifdef ENABLE_DEBUG
 # define DEBUGP(x) do { if (opt.debug) { debug_logprintf x; } } while (0)
-#else  /* not DEBUG */
+#else  /* not ENABLE_DEBUG */
 # define DEBUGP(x) DO_NOTHING
-#endif /* not DEBUG */
+#endif /* not ENABLE_DEBUG */
 
 /* Make gcc check for the format of logmsg() and debug_logmsg().  */
 #ifdef __GNUC__
@@ -157,33 +161,48 @@ char *xstrdup_debug PARAMS ((const char *, const char *, int));
 /* The smaller value of the two.  */
 #define MINVAL(x, y) ((x) < (y) ? (x) : (y))
 
-/* Convert the ASCII character X to a hex-digit.  X should be between
-   '0' and '9', or between 'A' and 'F', or between 'a' and 'f'.  The
-   result is a number between 0 and 15.  If X is not a hexadecimal
-   digit character, the result is undefined.  */
-#define XCHAR_TO_XDIGIT(x)			\
-  (((x) >= '0' && (x) <= '9') ?			\
-   ((x) - '0') : (TOUPPER(x) - 'A' + 10))
+/* Convert an ASCII hex digit to the corresponding number between 0
+   and 15.  X should be a hexadecimal digit that satisfies isxdigit;
+   otherwise, the result is undefined.  */
+#define XDIGIT_TO_NUM(x) ((x) < 'A' ? (x) - '0' : TOUPPER (x) - 'A' + 10)
 
-/* The reverse of the above: convert a HEX digit in the [0, 15] range
-   to an ASCII character representing it.  The A-F characters are
-   always in upper case.  */
-#define XDIGIT_TO_XCHAR(x) (((x) < 10) ? ((x) + '0') : ((x) - 10 + 'A'))
+/* Convert a sequence of ASCII hex digits X and Y to a number betewen
+   0 and 255.  Uses XDIGIT_TO_NUM for conversion of individual
+   digits.  */
+#define X2DIGITS_TO_NUM(h1, h2) ((XDIGIT_TO_NUM (h1) << 4) + XDIGIT_TO_NUM (h2))
 
-/* Like XDIGIT_TO_XCHAR, but produce a lower-case char. */
-#define XDIGIT_TO_xchar(x) (((x) < 10) ? ((x) + '0') : ((x) - 10 + 'a'))
+/* The reverse of the above: convert a number in the [0, 16) range to
+   its ASCII representation in hex.  The A-F characters are in upper
+   case.  */
+#define XNUM_TO_DIGIT(x) ("0123456789ABCDEF"[x])
 
-#define ARRAY_SIZE(array) (sizeof (array) / sizeof (*(array)))
+/* Like XNUM_TO_DIGIT, but generates lower-case characters. */
+#define XNUM_TO_digit(x) ("0123456789abcdef"[x])
+
+/* Returns the number of elements in an array with fixed
+   initialization.  For example:
+
+   static char a[] = "foo";     -- countof(a) == 4 (for terminating \0)
+
+   int a[5] = {1, 2};           -- countof(a) == 5
+
+   char *a[] = {                -- countof(a) == 3
+     "foo", "bar", "baz"
+   }; */
+#define countof(array) (sizeof (array) / sizeof (*(array)))
+
+#define alloca_array(type, size) ((type *) alloca ((size) * sizeof (type)))
 
 /* Copy the data delimited with BEG and END to alloca-allocated
-   storage, and zero-terminate it.  BEG and END are evaluated only
-   once, in that order.  */
+   storage, and zero-terminate it.  Arguments are evaluated only once,
+   in the order BEG, END, PLACE.  */
 #define BOUNDED_TO_ALLOCA(beg, end, place) do {	\
-  const char *DTA_beg = (beg);			\
-  int DTA_len = (end) - DTA_beg;		\
-  place = alloca (DTA_len + 1);			\
-  memcpy (place, DTA_beg, DTA_len);		\
-  place[DTA_len] = '\0';			\
+  const char *BTA_beg = (beg);			\
+  int BTA_len = (end) - BTA_beg;		\
+  char **BTA_dest = &(place);			\
+  *BTA_dest = alloca (BTA_len + 1);		\
+  memcpy (*BTA_dest, BTA_beg, BTA_len);		\
+  (*BTA_dest)[BTA_len] = '\0';			\
 } while (0)
 
 /* Return non-zero if string bounded between BEG and END is equal to
@@ -209,13 +228,8 @@ char *xstrdup_debug PARAMS ((const char *, const char *, int));
 
 #define STRDUP_ALLOCA(ptr, str) do {		\
   (ptr) = (char *)alloca (strlen (str) + 1);	\
-  strcpy (ptr, str);				\
+  strcpy ((ptr), (str));			\
 } while (0)
-
-#define ALLOCA_ARRAY(type, len) ((type *) alloca ((len) * sizeof (type)))
-
-#define XREALLOC_ARRAY(ptr, type, len)					\
-     ((void) (ptr = (type *) xrealloc (ptr, (len) * sizeof (type))))
 
 /* Generally useful if you want to avoid arbitrary size limits but
    don't need a full dynamic array.  Assumes that BASEVAR points to a
@@ -224,70 +238,31 @@ char *xstrdup_debug PARAMS ((const char *, const char *, int));
    will realloc BASEVAR as necessary so that it can hold at least
    NEEDED_SIZE objects.  The reallocing is done by doubling, which
    ensures constant amortized time per element.  */
-#define DO_REALLOC(basevar, sizevar, needed_size, type)	do	\
-{								\
-  /* Avoid side-effectualness.  */				\
-  long do_realloc_needed_size = (needed_size);			\
-  long do_realloc_newsize = 0;					\
-  while ((sizevar) < (do_realloc_needed_size)) {		\
-    do_realloc_newsize = 2*(sizevar);				\
-    if (do_realloc_newsize < 32)				\
-      do_realloc_newsize = 32;					\
-    (sizevar) = do_realloc_newsize;				\
-  }								\
-  if (do_realloc_newsize)					\
-    XREALLOC_ARRAY (basevar, type, do_realloc_newsize);		\
-} while (0)
-
-/* Use this for small stack-allocated memory chunks that might grow.
-   The initial array is created using alloca(), and this macro
-   requests it to grow.  If the needed size is larger than the array,
-   this macro will use malloc to allocate it to new size, and copy the
-   old contents.  After that, successive invocations behave just like
-   DO_REALLOC.  */
-#define DO_REALLOC_FROM_ALLOCA(basevar, sizevar, needed_size, allocap, type) do	\
+#define DO_REALLOC(basevar, sizevar, needed_size, type)	do			\
 {										\
   /* Avoid side-effectualness.  */						\
   long do_realloc_needed_size = (needed_size);					\
-  long do_realloc_newsize = (sizevar);						\
-  while (do_realloc_newsize < do_realloc_needed_size) {				\
-    do_realloc_newsize <<= 1;							\
-    if (do_realloc_newsize < 16)						\
-      do_realloc_newsize = 16;							\
+  long do_realloc_newsize = 0;							\
+  while ((sizevar) < (do_realloc_needed_size)) {				\
+    do_realloc_newsize = 2*(sizevar);						\
+    if (do_realloc_newsize < 32)						\
+      do_realloc_newsize = 32;							\
+    (sizevar) = do_realloc_newsize;						\
   }										\
-  if (do_realloc_newsize != (sizevar))						\
-    {										\
-      if (!allocap)								\
-	XREALLOC_ARRAY (basevar, type, do_realloc_newsize);			\
-      else									\
-	{									\
-	  void *drfa_new_basevar =						\
-		xmalloc (do_realloc_newsize * sizeof (type));			\
-	  memcpy (drfa_new_basevar, basevar, (sizevar) * sizeof (type));	\
-	  (basevar) = drfa_new_basevar;						\
-	  allocap = 0;								\
-	}									\
-      (sizevar) = do_realloc_newsize;						\
-    }										\
+  if (do_realloc_newsize)							\
+    basevar = (type *)xrealloc (basevar, do_realloc_newsize * sizeof (type));	\
 } while (0)
 
 /* Free FOO if it is non-NULL.  */
 #define FREE_MAYBE(foo) do { if (foo) xfree (foo); } while (0)
 
-/* #### Hack: OPTIONS_DEFINED_HERE is defined in main.c.  */
-/* [Is this weird hack really necessary on any compilers?  No ANSI C compiler
-    should complain about "extern const char *exec_name;" followed by
-    "const char *exec_name;".  Are we doing this for K&R compilers, or...??
-    -- Dan Harkless <wget@harkless.org>] */
-#ifndef OPTIONS_DEFINED_HERE
 extern const char *exec_name;
-#endif
-
 
 /* Document type ("dt") flags */
 enum
 {
-  TEXTHTML             = 0x0001,	/* document is of type text/html */
+  TEXTHTML             = 0x0001,	/* document is of type text/html
+                                           or application/xhtml+xml */
   RETROKF              = 0x0002,	/* retrieval was OK */
   HEAD_ONLY            = 0x0004,	/* only send the HEAD request */
   SEND_NOCACHE         = 0x0008,	/* send Pragma: no-cache directive */
@@ -295,8 +270,9 @@ enum
   ADDED_HTML_EXTENSION = 0x0020         /* added ".html" extension due to -E */
 };
 
-/* Universal error type -- used almost everywhere.
-   This is, of course, utter crock.  */
+/* Universal error type -- used almost everywhere.  Error reporting of
+   this detail is not generally used or needed and should be
+   simplified.  */
 typedef enum
 {
   NOCONERROR, HOSTERR, CONSOCKERR, CONERROR, CONSSLERR,
@@ -333,5 +309,8 @@ typedef unsigned char  boolean;
    -l, but internally infinite recursion is specified by -1 and 0 means to only
    retrieve the requisites of a single document. */
 #define INFINITE_RECURSION -1
+
+#define CONNECT_ERROR(x) ((x) == ECONNREFUSED && !opt.retry_connrefused	\
+			  ? CONREFUSED : CONERROR)
 
 #endif /* WGET_H */

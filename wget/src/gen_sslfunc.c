@@ -60,8 +60,6 @@ so, delete this exception statement from your version.  */
 extern int errno;
 #endif
 
-static int verify_callback PARAMS ((int, X509_STORE_CTX *));
-
 void
 ssl_init_prng (void)
 {
@@ -122,67 +120,6 @@ ssl_init_prng (void)
 #endif /* SSLEAY_VERSION_NUMBER >= 0x00905100 */
 }
 
-/* Creates a SSL Context and sets some defaults for it */
-uerr_t
-init_ssl (SSL_CTX **ctx)
-{
-  SSL_METHOD *meth = NULL;
-  int verify = SSL_VERIFY_NONE;
-  SSL_library_init ();
-  SSL_load_error_strings ();
-  SSLeay_add_all_algorithms ();
-  SSLeay_add_ssl_algorithms ();
-  meth = SSLv23_client_method ();
-  *ctx = SSL_CTX_new (meth);
-  SSL_CTX_set_verify (*ctx, verify, verify_callback);
-  if (*ctx == NULL) return SSLERRCTXCREATE;
-  if (opt.sslcertfile)
-    {
-      if (SSL_CTX_use_certificate_file (*ctx, opt.sslcertfile,
-					SSL_FILETYPE_PEM) <= 0)
-	return SSLERRCERTFILE;
-      if (opt.sslcertkey == NULL) 
-	opt.sslcertkey=opt.sslcertfile;
-      if (SSL_CTX_use_PrivateKey_file (*ctx, opt.sslcertkey,
-				       SSL_FILETYPE_PEM) <= 0)
-	return SSLERRCERTKEY;
-  }
-  return 0; /* Succeded */
-}
-
-/* Sets up a SSL structure and performs the handshake on fd 
-   Returns 0 if everything went right
-   Returns 1 if something went wrong ----- TODO: More exit codes
-*/
-int
-connect_ssl (SSL **con, SSL_CTX *ctx, int fd) 
-{
-  *con = (SSL *)SSL_new (ctx);
-  SSL_set_fd (*con, fd);
-  SSL_set_connect_state (*con); 
-  SSL_connect (*con);  
-  if ((*con)->state != SSL_ST_OK)
-    return 1;
-  /*while((SSLerror=ERR_get_error())!=0)
-    printf("%s\n", ERR_error_string(SSLerror,NULL));*/
-
-  return 0;
-}
-
-void
-shutdown_ssl (SSL* con)
-{
-  SSL_shutdown (con);
-  if (con != NULL)
-    SSL_free (con);
-}
-
-void
-free_ssl_ctx (SSL_CTX * ctx)
-{
-  SSL_CTX_free (ctx);
-}
-
 int
 verify_callback (int ok, X509_STORE_CTX *ctx)
 {
@@ -192,8 +129,13 @@ verify_callback (int ok, X509_STORE_CTX *ctx)
     switch (ctx->error) {
     case X509_V_ERR_CERT_NOT_YET_VALID:
     case X509_V_ERR_CERT_HAS_EXPIRED:
+      /* This mean the CERT is not valid !!! */
+      ok = 0;
+      break;
     case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
+      /* Unsure if we should handle that this way */
       ok = 1;
+      break;
     }
   }
   return ok;
@@ -208,7 +150,7 @@ ssl_printerrors (void)
   unsigned long curerr = 0;
   char errbuff[1024];
   memset(errbuff, 0, sizeof(errbuff));
-  for (curerr = ERR_get_error (); curerr; curerr = ERR_get_error ())
+  while ( 0 != (curerr = ERR_get_error ()))
     {
       DEBUGP (("OpenSSL: %s\n", ERR_error_string (curerr, errbuff)));
       ++ocerr;
@@ -216,56 +158,183 @@ ssl_printerrors (void)
   return ocerr;
 }
 
-/* SSL version of iread. Only exchanged read for SSL_read 
-   Read at most LEN bytes from FD, storing them to BUF.  This is
-   virtually the same as read(), but takes care of EINTR braindamage
-   and uses select() to timeout the stale connections (a connection is
-   stale if more than OPT.TIMEOUT time is spent in select() or
-   read()).  */
+/* Creates a SSL Context and sets some defaults for it */
+uerr_t
+init_ssl (SSL_CTX **ctx)
+{
+  SSL_METHOD *meth = NULL;
+  int verify;
+  int can_validate;
+  SSL_library_init ();
+  SSL_load_error_strings ();
+  SSLeay_add_all_algorithms ();
+  SSLeay_add_ssl_algorithms ();
+  switch (opt.sslprotocol)
+    {
+      default:
+	meth = SSLv23_client_method ();
+	break;
+      case 1 :
+	meth = SSLv2_client_method ();
+	break;
+      case 2 :
+	meth = SSLv3_client_method ();
+	break;
+      case 3 :
+	meth = TLSv1_client_method ();
+	break;
+    }
+  if (meth == NULL)
+    {
+      ssl_printerrors ();
+      return SSLERRCTXCREATE;
+    }
+
+  *ctx = SSL_CTX_new (meth);
+  if (meth == NULL)
+    {
+      ssl_printerrors ();
+      return SSLERRCTXCREATE;
+    }
+  /* Can we validate the server Cert ? */
+  if (opt.sslcadir != NULL || opt.sslcafile != NULL)
+    {
+      SSL_CTX_load_verify_locations (*ctx, opt.sslcafile, opt.sslcadir);
+      can_validate = 1;
+    }
+  else
+    {
+      can_validate = 0;
+    }
+
+  if (!opt.sslcheckcert)
+    {
+      /* check cert but ignore error, do not break handshake on error */
+      verify = SSL_VERIFY_NONE;
+    }
+  else
+    {
+      if (!can_validate)
+	{
+	  logprintf (LOG_NOTQUIET, "Warrining validation of Server Cert not possible!\n");
+	  verify = SSL_VERIFY_NONE;
+	}
+     else
+	{
+	  /* break handshake if server cert is not valid but allow NO-Cert mode */
+	  verify = SSL_VERIFY_PEER;
+	}
+    }
+
+  SSL_CTX_set_verify (*ctx, verify, verify_callback);
+
+  if (opt.sslcertfile != NULL || opt.sslcertkey != NULL)
+    {
+      int ssl_cert_type;
+      if (!opt.sslcerttype)
+	ssl_cert_type = SSL_FILETYPE_PEM;
+      else
+	ssl_cert_type = SSL_FILETYPE_ASN1;
+
+      if (opt.sslcertkey == NULL) 
+	opt.sslcertkey = opt.sslcertfile;
+      if (opt.sslcertfile == NULL)
+	opt.sslcertfile = opt.sslcertkey; 
+
+      if (SSL_CTX_use_certificate_file (*ctx, opt.sslcertfile, ssl_cert_type) <= 0)
+	{
+	  ssl_printerrors ();
+  	  return SSLERRCERTFILE;
+	}
+      if (SSL_CTX_use_PrivateKey_file  (*ctx, opt.sslcertkey , ssl_cert_type) <= 0)
+	{
+	  ssl_printerrors ();
+	  return SSLERRCERTKEY;
+	}
+    }
+
+  return 0; /* Succeded */
+}
+
+void
+shutdown_ssl (SSL* con)
+{
+  if (con == NULL)
+    return;
+  if (0==SSL_shutdown (con))
+    SSL_shutdown (con);
+  SSL_free (con);
+}
+
+/* Sets up a SSL structure and performs the handshake on fd 
+   Returns 0 if everything went right
+   Returns 1 if something went wrong ----- TODO: More exit codes
+*/
+int
+connect_ssl (SSL **con, SSL_CTX *ctx, int fd) 
+{
+  if (NULL == (*con = SSL_new (ctx)))
+    {
+      ssl_printerrors ();
+      return 1;
+    }
+  if (!SSL_set_fd (*con, fd))
+    {
+      ssl_printerrors ();
+      return 1;
+    }
+  SSL_set_connect_state (*con);
+  switch (SSL_connect (*con))
+    {
+      case 1 : 
+	return (*con)->state != SSL_ST_OK;
+      default:
+        ssl_printerrors ();
+	shutdown_ssl (*con);
+	*con = NULL;
+	return 1;
+      case 0 :
+        ssl_printerrors ();
+	SSL_free (*con);
+       	*con = NULL;
+ 	return 1;
+    }
+  return 0;
+}
+
+void
+free_ssl_ctx (SSL_CTX * ctx)
+{
+  SSL_CTX_free (ctx);
+}
+
+/* SSL version of iread.  Only exchanged read for SSL_read Read at
+   most LEN bytes from FD, storing them to BUF. */
+
 int
 ssl_iread (SSL *con, char *buf, int len)
 {
-  int res;
-  int fd;
+  int res, fd;
   BIO_get_fd (con->rbio, &fd);
-  do
-    {
 #ifdef HAVE_SELECT
-      if (opt.timeout && !SSL_pending (con))
-	{
-	  do
-	    {
-	      res = select_fd (fd, opt.timeout, 0);
-	    }
-	  while (res == -1 && errno == EINTR);
-	  if (res <= 0)
-	    {
-	      /* Set errno to ETIMEDOUT on timeout.  */
-	      if (res == 0)
-		/* #### Potentially evil!  */
-		errno = ETIMEDOUT;
-	      return -1;
-	    }
-	}
+  if (opt.read_timeout && !SSL_pending (con))
+    if (select_fd (fd, opt.read_timeout, 0) <= 0)
+      return -1;
 #endif
-      res = SSL_read (con, buf, len);
-    }
+  do
+    res = SSL_read (con, buf, len);
   while (res == -1 && errno == EINTR);
 
   return res;
 }
 
-/* SSL version of iwrite. Only exchanged write for SSL_write 
-   Write LEN bytes from BUF to FD.  This is similar to iread(), but
-   doesn't bother with select().  Unlike iread(), it makes sure that
-   all of BUF is actually written to FD, so callers needn't bother
-   with checking that the return value equals to LEN.  Instead, you
-   should simply check for -1.  */
+/* SSL version of iwrite.  Only exchanged write for SSL_write Write
+   LEN bytes from BUF to FD.  */
+
 int
 ssl_iwrite (SSL *con, char *buf, int len)
 {
-  int res = 0;
-  int fd;
+  int res = 0, fd;
   BIO_get_fd (con->rbio, &fd);
   /* `write' may write less than LEN bytes, thus the outward loop
      keeps trying it until all was written, or an error occurred.  The
@@ -273,28 +342,13 @@ ssl_iwrite (SSL *con, char *buf, int len)
      innermost loop deals with the same during select().  */
   while (len > 0)
     {
-      do
-	{
 #ifdef HAVE_SELECT
-	  if (opt.timeout)
-	    {
-	      do
-		{
-		  res = select_fd (fd, opt.timeout, 1);
-		}
-	      while (res == -1 && errno == EINTR);
-	      if (res <= 0)
-		{
-		  /* Set errno to ETIMEDOUT on timeout.  */
-		  if (res == 0)
-		    /* #### Potentially evil!  */
-		    errno = ETIMEDOUT;
-		  return -1;
-		}
-	    }
+      if (opt.read_timeout)
+	if (select_fd (fd, opt.read_timeout, 1) <= 0)
+	  return -1;
 #endif
-	  res = SSL_write (con, buf, len);
-	}
+      do
+	res = SSL_write (con, buf, len);
       while (res == -1 && errno == EINTR);
       if (res <= 0)
 	break;

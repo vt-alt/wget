@@ -33,6 +33,8 @@ so, delete this exception statement from your version.  */
 /* Need it for struct rbuf.  */
 #include "rbuf.h"
 
+#include "host.h"
+
 /* System types. */
 enum stype
 {
@@ -40,13 +42,18 @@ enum stype
   ST_VMS,
   ST_WINNT,
   ST_MACOS,
+  ST_OS400,
   ST_OTHER
 };
   
 uerr_t ftp_response PARAMS ((struct rbuf *, char **));
 uerr_t ftp_login PARAMS ((struct rbuf *, const char *, const char *));
 uerr_t ftp_port PARAMS ((struct rbuf *));
-uerr_t ftp_pasv PARAMS ((struct rbuf *, unsigned char *));
+uerr_t ftp_pasv PARAMS ((struct rbuf *, ip_address *, unsigned short *));
+#ifdef ENABLE_IPV6
+uerr_t ftp_epsv PARAMS ((struct rbuf *, ip_address *, unsigned short *,
+			 char *));
+#endif
 uerr_t ftp_type PARAMS ((struct rbuf *, int));
 uerr_t ftp_cwd PARAMS ((struct rbuf *, const char *));
 uerr_t ftp_retr PARAMS ((struct rbuf *, const char *));
@@ -109,7 +116,7 @@ enum wget_ftp_fstatus
 };
 
 struct fileinfo *ftp_parse_ls PARAMS ((const char *, const enum stype));
-uerr_t ftp_loop PARAMS ((struct url *, int *));
+uerr_t ftp_loop PARAMS ((struct url *, int *, struct url *));
 
 uerr_t ftp_index PARAMS ((const char *, struct url *, struct fileinfo *));
 

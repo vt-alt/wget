@@ -1,5 +1,5 @@
 /* Command line parsing.
-   Copyright (C) 1995, 1996, 1997, 1998, 2000, 2001
+   Copyright (C) 1995, 1996, 1997, 1998, 2000, 2001, 2002
    Free Software Foundation, Inc.
 
 This file is part of GNU Wget.
@@ -50,8 +50,9 @@ so, delete this exception statement from your version.  */
 #endif /* HAVE_LOCALE_H */
 #endif /* HAVE_NLS */
 #include <errno.h>
-
-#define OPTIONS_DEFINED_HERE	/* for options.h */
+#ifndef errno
+extern int errno;
+#endif
 
 #include "wget.h"
 #include "utils.h"
@@ -62,6 +63,7 @@ so, delete this exception statement from your version.  */
 #include "cookies.h"
 #include "url.h"
 #include "progress.h"		/* for progress_handle_sigwinch */
+#include "convert.h"
 
 #ifdef HAVE_SSL
 # include "gen_sslfunc.h"
@@ -74,13 +76,12 @@ so, delete this exception statement from your version.  */
 # define PATH_SEPARATOR '/'
 #endif
 
+struct options opt;
+
+extern LARGE_INT total_downloaded_bytes;
 extern char *version_string;
 
-#ifndef errno
-extern int errno;
-#endif
-
-struct options opt;
+extern struct cookie_jar *wget_cookie_jar;
 
 /* From log.c.  */
 void log_init PARAMS ((const char *, int));
@@ -158,14 +159,11 @@ Logging and input file:\n\
   -i,  --input-file=FILE      download URLs found in FILE.\n\
   -F,  --force-html           treat input file as HTML.\n\
   -B,  --base=URL             prepends URL to relative links in -F -i file.\n\
-       --sslcertfile=FILE     optional client certificate.\n\
-       --sslcertkey=KEYFILE   optional keyfile for this certificate.\n\
-       --egd-file=FILE        file name of the EGD socket.\n\
-\n"), stdout);
+\n"),stdout);
   fputs (_("\
 Download:\n\
-       --bind-address=ADDRESS   bind to ADDRESS (hostname or IP) on local host.\n\
   -t,  --tries=NUMBER           set number of retries to NUMBER (0 unlimits).\n\
+       --retry-connrefused      retry even if connection is refused.\n\
   -O   --output-document=FILE   write documents to FILE.\n\
   -nc, --no-clobber             don\'t clobber existing files or use .# suffixes.\n\
   -c,  --continue               resume getting a partially-downloaded file.\n\
@@ -173,17 +171,23 @@ Download:\n\
   -N,  --timestamping           don\'t re-retrieve files unless newer than local.\n\
   -S,  --server-response        print server response.\n\
        --spider                 don\'t download anything.\n\
-  -T,  --timeout=SECONDS        set the read timeout to SECONDS.\n\
+  -T,  --timeout=SECONDS        set all timeout values to SECONDS.\n\
+       --dns-timeout=SECS       set the DNS lookup timeout to SECS.\n\
+       --connect-timeout=SECS   set the connect timeout to SECS.\n\
+       --read-timeout=SECS      set the read timeout to SECS.\n\
   -w,  --wait=SECONDS           wait SECONDS between retrievals.\n\
        --waitretry=SECONDS      wait 1...SECONDS between retries of a retrieval.\n\
        --random-wait            wait from 0...2*WAIT secs between retrievals.\n\
   -Y,  --proxy=on/off           turn proxy on or off.\n\
   -Q,  --quota=NUMBER           set retrieval quota to NUMBER.\n\
+       --bind-address=ADDRESS   bind to ADDRESS (hostname or IP) on local host.\n\
        --limit-rate=RATE        limit download rate to RATE.\n\
+       --dns-cache=off          disable caching DNS lookups.\n\
+       --restrict-file-names=OS restrict chars in file names to ones OS allows.\n\
 \n"), stdout);
   fputs (_("\
 Directories:\n\
-  -nd  --no-directories            don\'t create directories.\n\
+  -nd, --no-directories            don\'t create directories.\n\
   -x,  --force-directories         force creation of directories.\n\
   -nH, --no-host-directories       don\'t create host directories.\n\
   -P,  --directory-prefix=PREFIX   save files to PREFIX/...\n\
@@ -206,7 +210,23 @@ HTTP options:\n\
        --cookies=off         don't use cookies.\n\
        --load-cookies=FILE   load cookies from FILE before session.\n\
        --save-cookies=FILE   save cookies to FILE after session.\n\
+       --post-data=STRING    use the POST method; send STRING as the data.\n\
+       --post-file=FILE      use the POST method; send contents of FILE.\n\
 \n"), stdout);
+#ifdef HAVE_SSL
+  fputs (_("\
+HTTPS (SSL) options:\n\
+       --sslcertfile=FILE     optional client certificate.\n\
+       --sslcertkey=KEYFILE   optional keyfile for this certificate.\n\
+       --egd-file=FILE        file name of the EGD socket.\n\
+       --sslcadir=DIR         dir where hash list of CA's are stored.\n\
+       --sslcafile=FILE       file with bundle of CA's\n\
+       --sslcerttype=0/1      Client-Cert type 0=PEM (default) / 1=ASN1 (DER)\n\
+       --sslcheckcert=0/1     Check the server cert agenst given CA\n\
+       --sslprotocol=0-3      choose SSL protocol; 0=automatic,\n\
+                              1=SSLv2 2=SSLv3 3=TLSv1\n\
+\n"), stdout);
+#endif
   fputs (_("\
 FTP options:\n\
   -nr, --dont-remove-listing   don\'t remove `.listing\' files.\n\
@@ -216,13 +236,14 @@ FTP options:\n\
 \n"), stdout);
   fputs (_("\
 Recursive retrieval:\n\
-  -r,  --recursive          recursive web-suck -- use with care!\n\
+  -r,  --recursive          recursive download.\n\
   -l,  --level=NUMBER       maximum recursion depth (inf or 0 for infinite).\n\
        --delete-after       delete files locally after downloading them.\n\
   -k,  --convert-links      convert non-relative links to relative.\n\
   -K,  --backup-converted   before converting file X, back up as X.orig.\n\
   -m,  --mirror             shortcut option equivalent to -r -N -l inf -nr.\n\
   -p,  --page-requisites    get all images, etc. needed to display HTML page.\n\
+       --strict-comments    turn on strict (SGML) handling of HTML comments.\n\
 \n"), stdout);
   fputs (_("\
 Recursive accept/reject:\n\
@@ -281,10 +302,12 @@ main (int argc, char *const *argv)
     { "recursive", no_argument, NULL, 'r' },
     { "relative", no_argument, NULL, 'L' },
     { "retr-symlinks", no_argument, NULL, 137 },
+    { "retry-connrefused", no_argument, NULL, 174 },
     { "save-headers", no_argument, NULL, 's' },
     { "server-response", no_argument, NULL, 'S' },
     { "span-hosts", no_argument, NULL, 'H' },
     { "spider", no_argument, NULL, 132 },
+    { "strict-comments", no_argument, NULL, 177 },
     { "timestamping", no_argument, NULL, 'N' },
     { "verbose", no_argument, NULL, 'v' },
     { "version", no_argument, NULL, 'V' },
@@ -296,9 +319,12 @@ main (int argc, char *const *argv)
     { "base", required_argument, NULL, 'B' },
     { "bind-address", required_argument, NULL, 155 },
     { "cache", required_argument, NULL, 'C' },
+    { "connect-timeout", required_argument, NULL, 180 },
     { "cookies", required_argument, NULL, 160 },
     { "cut-dirs", required_argument, NULL, 145 },
+    { "dns-timeout", required_argument, NULL, 178 },
     { "directory-prefix", required_argument, NULL, 'P' },
+    { "dns-cache", required_argument, NULL, 175 },
     { "domains", required_argument, NULL, 'D' },
     { "dot-style", required_argument, NULL, 134 },
     { "execute", required_argument, NULL, 'e' },
@@ -319,12 +345,16 @@ main (int argc, char *const *argv)
     { "no", required_argument, NULL, 'n' },
     { "output-document", required_argument, NULL, 'O' },
     { "output-file", required_argument, NULL, 'o' },
+    { "post-data", required_argument, NULL, 167 },
+    { "post-file", required_argument, NULL, 168 },
     { "progress", required_argument, NULL, 163 },
     { "proxy", required_argument, NULL, 'Y' },
     { "proxy-passwd", required_argument, NULL, 144 },
     { "proxy-user", required_argument, NULL, 143 },
     { "quota", required_argument, NULL, 'Q' },
+    { "read-timeout", required_argument, NULL, 179 },
     { "reject", required_argument, NULL, 'R' },
+    { "restrict-file-names", required_argument, NULL, 176 },
     { "save-cookies", required_argument, NULL, 162 },
     { "timeout", required_argument, NULL, 'T' },
     { "tries", required_argument, NULL, 't' },
@@ -335,6 +365,11 @@ main (int argc, char *const *argv)
     { "sslcertfile", required_argument, NULL, 158 },
     { "sslcertkey", required_argument, NULL, 159 },
     { "egd-file", required_argument, NULL, 166 },
+    { "sslcadir",         required_argument, NULL, 169},
+    { "sslcafile",        required_argument, NULL, 170},
+    { "sslcerttype",      required_argument, NULL, 171},
+    { "sslcheckcert",     required_argument, NULL, 172},
+    { "sslprotocol",      required_argument, NULL, 173},
 #endif /* HAVE_SSL */
     { "wait", required_argument, NULL, 'w' },
     { "waitretry", required_argument, NULL, 152 },
@@ -370,75 +405,75 @@ hpVqvdkKsxmNWrHSLcFbEY:G:g:T:U:O:l:n:i:o:a:t:D:A:R:P:B:e:Q:X:I:w:C:",
 	{
 	  /* Options without arguments: */
 	case 132:
-	  setval ("spider", "on");
+	  setoptval ("spider", "on");
 	  break;
 	case 133:
-	  setval ("noparent", "on");
+	  setoptval ("noparent", "on");
 	  break;
 	case 136:
-	  setval ("deleteafter", "on");
+	  setoptval ("deleteafter", "on");
 	  break;
 	case 137:
-	  setval ("retrsymlinks", "on");
+	  setoptval ("retrsymlinks", "on");
 	  break;
 	case 138:
-	  setval ("ignorelength", "on");
+	  setoptval ("ignorelength", "on");
 	  break;
 	case 139:
-	  setval ("passiveftp", "on");
+	  setoptval ("passiveftp", "on");
 	  break;
 	case 141:
-	  setval ("noclobber", "on");
+	  setoptval ("noclobber", "on");
 	  break;
 	case 142:
-	  setval ("followftp", "on");
+	  setoptval ("followftp", "on");
 	  break;
 	case 145:
-	  setval ("cutdirs", optarg);
+	  setoptval ("cutdirs", optarg);
 	  break;
 	case 146:
-	  setval ("verbose", "off");
+	  setoptval ("verbose", "off");
 	  break;
 	case 147:
-	  setval ("dirstruct", "off");
+	  setoptval ("dirstruct", "off");
 	  break;
 	case 148:
-	  setval ("addhostdir", "off");
+	  setoptval ("addhostdir", "off");
 	  break;
 	case 149:
-	  setval ("removelisting", "off");
+	  setoptval ("removelisting", "off");
 	  break;
 	case 155:
-	  setval ("bindaddress", optarg);
+	  setoptval ("bindaddress", optarg);
  	  break;
 	case 156:
-	  setval ("httpkeepalive", "off");
+	  setoptval ("httpkeepalive", "off");
 	  break;
 	case 165:
-	  setval ("randomwait", "on");
+	  setoptval ("randomwait", "on");
 	  break;
 	case 'b':
-	  setval ("background", "on");
+	  setoptval ("background", "on");
 	  break;
 	case 'c':
-	  setval ("continue", "on");
+	  setoptval ("continue", "on");
 	  break;
 	case 'd':
-#ifdef DEBUG
-	  setval ("debug", "on");
-#else  /* not DEBUG */
+#ifdef ENABLE_DEBUG
+	  setoptval ("debug", "on");
+#else
 	  fprintf (stderr, _("%s: debug support not compiled in.\n"),
 		   exec_name);
-#endif /* not DEBUG */
+#endif
 	  break;
 	case 'E':
-	  setval ("htmlextension", "on");
+	  setoptval ("htmlextension", "on");
 	  break;
 	case 'F':
-	  setval ("forcehtml", "on");
+	  setoptval ("forcehtml", "on");
 	  break;
 	case 'H':
-	  setval ("spanhosts", "on");
+	  setoptval ("spanhosts", "on");
 	  break;
 	case 'h':
 	  print_help ();
@@ -448,165 +483,192 @@ hpVqvdkKsxmNWrHSLcFbEY:G:g:T:U:O:l:n:i:o:a:t:D:A:R:P:B:e:Q:X:I:w:C:",
 	  exit (0);
 	  break;
 	case 'K':
-	  setval ("backupconverted", "on");
+	  setoptval ("backupconverted", "on");
 	  break;
 	case 'k':
-	  setval ("convertlinks", "on");
+	  setoptval ("convertlinks", "on");
 	  break;
 	case 'L':
-	  setval ("relativeonly", "on");
+	  setoptval ("relativeonly", "on");
 	  break;
 	case 'm':
-	  setval ("mirror", "on");
+	  setoptval ("mirror", "on");
 	  break;
 	case 'N':
-	  setval ("timestamping", "on");
+	  setoptval ("timestamping", "on");
 	  break;
 	case 'p':
-	  setval ("pagerequisites", "on");
+	  setoptval ("pagerequisites", "on");
 	  break;
 	case 'S':
-	  setval ("serverresponse", "on");
+	  setoptval ("serverresponse", "on");
 	  break;
 	case 's':
-	  setval ("saveheaders", "on");
+	  setoptval ("saveheaders", "on");
 	  break;
 	case 'q':
-	  setval ("quiet", "on");
+	  setoptval ("quiet", "on");
 	  break;
 	case 'r':
-	  setval ("recursive", "on");
+	  setoptval ("recursive", "on");
 	  break;
 	case 'V':
 	  printf ("GNU Wget %s\n\n", version_string);
 	  printf ("%s", _("\
-Copyright (C) 1995, 1996, 1997, 1998, 2000, 2001 Free Software Foundation, Inc.\n"));
+Copyright (C) 2003 Free Software Foundation, Inc.\n"));
 	  printf ("%s", _("\
 This program is distributed in the hope that it will be useful,\n\
 but WITHOUT ANY WARRANTY; without even the implied warranty of\n\
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n\
 GNU General Public License for more details.\n"));
-	  printf (_("\nOriginally written by Hrvoje Niksic <hniksic@arsdigita.com>.\n"));
+	  printf (_("\nOriginally written by Hrvoje Niksic <hniksic@xemacs.org>.\n"));
 	  exit (0);
 	  break;
 	case 'v':
-	  setval ("verbose", "on");
+	  setoptval ("verbose", "on");
 	  break;
 	case 'x':
-	  setval ("dirstruct", "on");
+	  setoptval ("dirstruct", "on");
+	  break;
+	case 174:
+	  setoptval ("retryconnrefused", "on");
+	  break;
+	case 177:
+	  setoptval ("strictcomments", "on");
 	  break;
 
 	  /* Options accepting an argument: */
 	case 129:
-	  setval ("httpuser", optarg);
+	  setoptval ("httpuser", optarg);
 	  break;
 	case 130:
-	  setval ("httppasswd", optarg);
+	  setoptval ("httppasswd", optarg);
 	  break;
 	case 131:
-	  setval ("header", optarg);
+	  setoptval ("header", optarg);
 	  break;
 	case 134:
-	  setval ("dotstyle", optarg);
+	  setoptval ("dotstyle", optarg);
 	  break;
 	case 135:
-	  setval ("htmlify", optarg);
+	  setoptval ("htmlify", optarg);
 	  break;
 	case 140:
-	  setval ("excludedomains", optarg);
+	  setoptval ("excludedomains", optarg);
 	  break;
 	case 143:
-	  setval ("proxyuser", optarg);
+	  setoptval ("proxyuser", optarg);
 	  break;
 	case 144:
-	  setval ("proxypasswd", optarg);
+	  setoptval ("proxypasswd", optarg);
 	  break;
 	case 151:
-	  setval ("backups", optarg);
+	  setoptval ("backups", optarg);
 	  break;
 	case 152:
-	  setval ("waitretry", optarg);
+	  setoptval ("waitretry", optarg);
 	  break;
 	case 153:
-	  setval ("followtags", optarg);
+	  setoptval ("followtags", optarg);
 	  break;
 	case 160:
-	  setval ("cookies", optarg);
+	  setoptval ("cookies", optarg);
 	  break;
 	case 161:
-	  setval ("loadcookies", optarg);
+	  setoptval ("loadcookies", optarg);
 	  break;
 	case 162:
-	  setval ("savecookies", optarg);
+	  setoptval ("savecookies", optarg);
 	  break;
 	case 163:
-	  setval ("progress", optarg);
+	  setoptval ("progress", optarg);
 	  break;
 	case 164:
-	  setval ("limitrate", optarg);
+	  setoptval ("limitrate", optarg);
 	  break;
 	case 157:
-	  setval ("referer", optarg);
+	  setoptval ("referer", optarg);
 	  break;
 #ifdef HAVE_SSL
 	case 158:
-	  setval ("sslcertfile", optarg);
+	  setoptval ("sslcertfile", optarg);
 	  break;
 	case 159:
-	  setval ("sslcertkey", optarg);
+	  setoptval ("sslcertkey", optarg);
 	  break;
 	case 166:
-	  setval ("egdfile", optarg);
+	  setoptval ("egdfile", optarg);
+	  break;
+	case 169:
+	  setoptval ("sslcadir", optarg);
+	  break;
+	case 170:
+	  setoptval ("sslcafile", optarg);
+	  break;
+	case 171:
+	  setoptval ("sslcerttype", optarg);
+	  break;
+	case 172:
+	  setoptval ("sslcheckcert", optarg);
+	  break;
+	case 173:
+	  setoptval ("sslprotocol", optarg);
 	  break;
 #endif /* HAVE_SSL */
+	case 167:
+	  setoptval ("postdata", optarg);
+	  break;
+	case 168:
+	  setoptval ("postfile", optarg);
+	  break;
+	case 175:
+	  setoptval ("dnscache", optarg);
+	  break;
+	case 176:
+	  setoptval ("restrictfilenames", optarg);
+	  break;
+	case 178:
+	  setoptval ("dnstimeout", optarg);
+	  break;
+	case 179:
+	  setoptval ("readtimeout", optarg);
+	  break;
+	case 180:
+	  setoptval ("connecttimeout", optarg);
+	  break;
 	case 'A':
-	  setval ("accept", optarg);
+	  setoptval ("accept", optarg);
 	  break;
 	case 'a':
-	  setval ("logfile", optarg);
+	  setoptval ("logfile", optarg);
 	  append_to_log = 1;
 	  break;
 	case 'B':
-	  setval ("base", optarg);
+	  setoptval ("base", optarg);
 	  break;
 	case 'C':
-	  setval ("cache", optarg);
+	  setoptval ("cache", optarg);
 	  break;
 	case 'D':
-	  setval ("domains", optarg);
+	  setoptval ("domains", optarg);
 	  break;
 	case 'e':
-	  {
-	    char *com, *val;
-	    if (parse_line (optarg, &com, &val))
-	      {
-		if (!setval (com, val))
-		  exit (1);
-	      }
-	    else
-	      {
-		fprintf (stderr, _("%s: %s: invalid command\n"), exec_name,
-			 optarg);
-		exit (1);
-	      }
-	    xfree (com);
-	    xfree (val);
-	  }
+	  run_command (optarg);
 	  break;
 	case 'G':
-	  setval ("ignoretags", optarg);
+	  setoptval ("ignoretags", optarg);
 	  break;
 	case 'g':
-	  setval ("glob", optarg);
+	  setoptval ("glob", optarg);
 	  break;
 	case 'I':
-	  setval ("includedirectories", optarg);
+	  setoptval ("includedirectories", optarg);
 	  break;
 	case 'i':
-	  setval ("input", optarg);
+	  setoptval ("input", optarg);
 	  break;
 	case 'l':
-	  setval ("reclevel", optarg);
+	  setoptval ("reclevel", optarg);
 	  break;
 	case 'n':
 	  {
@@ -617,25 +679,25 @@ GNU General Public License for more details.\n"));
 	      switch (*p)
 		{
 		case 'v':
-		  setval ("verbose", "off");
+		  setoptval ("verbose", "off");
 		  break;
 		case 'H':
-		  setval ("addhostdir", "off");
+		  setoptval ("addhostdir", "off");
 		  break;
 		case 'd':
-		  setval ("dirstruct", "off");
+		  setoptval ("dirstruct", "off");
 		  break;
 		case 'c':
-		  setval ("noclobber", "on");
+		  setoptval ("noclobber", "on");
 		  break;
 		case 'r':
-		  setval ("removelisting", "off");
+		  setoptval ("removelisting", "off");
 		  break;
 		case 'p':
-		  setval ("noparent", "on");
+		  setoptval ("noparent", "on");
 		  break;
 		case 'k':
-		  setval ("httpkeepalive", "off");
+		  setoptval ("httpkeepalive", "off");
 		  break;
 		default:
 		  printf (_("%s: illegal option -- `-n%c'\n"), exec_name, *p);
@@ -647,37 +709,37 @@ GNU General Public License for more details.\n"));
 	    break;
 	  }
 	case 'O':
-	  setval ("outputdocument", optarg);
+	  setoptval ("outputdocument", optarg);
 	  break;
 	case 'o':
-	  setval ("logfile", optarg);
+	  setoptval ("logfile", optarg);
 	  break;
 	case 'P':
-	  setval ("dirprefix", optarg);
+	  setoptval ("dirprefix", optarg);
 	  break;
 	case 'Q':
-	  setval ("quota", optarg);
+	  setoptval ("quota", optarg);
 	  break;
 	case 'R':
-	  setval ("reject", optarg);
+	  setoptval ("reject", optarg);
 	  break;
 	case 'T':
-	  setval ("timeout", optarg);
+	  setoptval ("timeout", optarg);
 	  break;
 	case 't':
-	  setval ("tries", optarg);
+	  setoptval ("tries", optarg);
 	  break;
 	case 'U':
-	  setval ("useragent", optarg);
+	  setoptval ("useragent", optarg);
 	  break;
 	case 'w':
-	  setval ("wait", optarg);
+	  setoptval ("wait", optarg);
 	  break;
 	case 'X':
-	  setval ("excludedirectories", optarg);
+	  setoptval ("excludedirectories", optarg);
 	  break;
 	case 'Y':
-	  setval ("useproxy", optarg);
+	  setoptval ("useproxy", optarg);
 	  break;
 
 	case '?':
@@ -741,9 +803,8 @@ Can't timestamp and not clobber old files at the same time.\n"));
   if (opt.verbose)
     set_progress_implementation (opt.progress_type);
 
-  /* Allocate basic pointer.  */
-  url = ALLOCA_ARRAY (char *, nurl + 1);
   /* Fill in the arguments.  */
+  url = alloca_array (char *, nurl + 1);
   for (i = 0; i < nurl; i++, optind++)
     {
       char *rewritten = rewrite_shorthand_url (argv[optind]);
@@ -847,28 +908,24 @@ Can't timestamp and not clobber old files at the same time.\n"));
   /* Print the downloaded sum.  */
   if (opt.recursive
       || nurl > 1
-      || (opt.input_filename && opt.downloaded != 0))
+      || (opt.input_filename && total_downloaded_bytes != 0))
     {
       logprintf (LOG_NOTQUIET,
 		 _("\nFINISHED --%s--\nDownloaded: %s bytes in %d files\n"),
-		 time_str (NULL),
-		 (opt.downloaded_overflow ?
-		  "<overflow>" : legible_very_long (opt.downloaded)),
+		 time_str (NULL), legible_large_int (total_downloaded_bytes),
 		 opt.numurls);
       /* Print quota warning, if exceeded.  */
-      if (downloaded_exceeds_quota ())
+      if (opt.quota && total_downloaded_bytes > opt.quota)
 	logprintf (LOG_NOTQUIET,
 		   _("Download quota (%s bytes) EXCEEDED!\n"),
 		   legible (opt.quota));
     }
 
-  if (opt.cookies_output)
-    save_cookies (opt.cookies_output);
+  if (opt.cookies_output && wget_cookie_jar)
+    cookie_jar_save (wget_cookie_jar, opt.cookies_output);
 
   if (opt.convert_links && !opt.delete_after)
-    {
-      convert_all_links ();
-    }
+    convert_all_links ();
 
   log_close ();
   for (i = 0; i < nurl; i++)

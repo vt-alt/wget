@@ -112,11 +112,17 @@ install.mo:
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck
 
+# Create configure.bat from configure.bat.in by DOS-ifying the lines.
+# This is invoked by `make dist' and deleted by `make realclean' (not
+# `make distclean' because we want to preserve it for distribution).
+configure.bat: $(srcdir)/configure.bat.in
+	awk '{ print $$0 ($$0 ~ /\r$$/ ? "" : "\r") }' $< > $@
+
 # create tag files for Emacs
 TAGS:
 	cd src && $(MAKE) $@
 
-dist: $(srcdir)/configure DISTFILES
+dist: $(srcdir)/configure $(srcdir)/configure.bat DISTFILES
 	mkdir $(DISTNAME)
 	for d in `$(FIND) . -type d ! -name CVS -a ! -name RCS -print`; do \
 		if [ "$$d" != "." -a "$$d" != "./$(DISTNAME)" ]; then \
@@ -151,12 +157,14 @@ realclean:	realclean-recursive	realclean-top
 
 clean-top:
 	$(RM) *~ *.bak $(DISTNAME).tar.gz
+	$(RM) -r .libs
 
 distclean-top: clean-top
-	$(RM) Makefile config.status config.log config.cache stamp-h
+	$(RM) Makefile config.status config.log config.cache libtool stamp-h
+	$(RM) -r autom4te.cache
 
 realclean-top: distclean-top
-	$(RM) configure
+	$(RM) configure configure.bat
 
 clean-recursive distclean-recursive realclean-recursive:
 	for subdir in $(SUBDIRS); do \
