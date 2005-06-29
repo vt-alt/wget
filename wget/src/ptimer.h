@@ -1,5 +1,5 @@
-/* Declarations for `headers.c'.
-   Copyright (C) 1995, 1996, 1997, 1998 Free Software Foundation, Inc.
+/* Declarations for ptimer.c.
+   Copyright (C) 2005 Free Software Foundation, Inc.
 
 This file is part of GNU Wget.
 
@@ -27,25 +27,19 @@ modify this file, you may extend this exception to your version of the
 file, but you are not obligated to do so.  If you do not wish to do
 so, delete this exception statement from your version.  */
 
-#ifndef HEADERS_H
-#define HEADERS_H
+#ifndef PTIMER_H
+#define PTIMER_H
 
-enum {
-  HG_OK, HG_ERROR, HG_EOF
-};
+struct ptimer;			/* forward declaration; all struct
+                                   members are private */
 
-enum header_get_flags { HG_NONE = 0,
-			HG_NO_CONTINUATIONS = 0x2 };
+struct ptimer *ptimer_new PARAMS ((void));
+void ptimer_destroy PARAMS ((struct ptimer *));
 
-int header_get PARAMS ((struct rbuf *, char **, enum header_get_flags));
-int header_process PARAMS ((const char *, const char *,
-			    int (*) (const char *, void *),
-			    void *));
+void ptimer_reset PARAMS ((struct ptimer *));
+double ptimer_measure PARAMS ((struct ptimer *));
+double ptimer_read PARAMS ((const struct ptimer *));
 
-int header_extract_number PARAMS ((const char *, void *));
-int header_strdup PARAMS ((const char *, void *));
-int header_exists PARAMS ((const char *, void *));
+double ptimer_resolution PARAMS ((void));
 
-int skip_lws PARAMS ((const char *));
-
-#endif /* HEADERS_H */
+#endif /* PTIMER_H */

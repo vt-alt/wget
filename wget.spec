@@ -2,25 +2,33 @@
 # $Id: wget,v 1.1 2004/03/19 10:48:41 grigory Exp $
 
 Name: wget
-Version: 1.9.1
-Release: alt1.1
+Version: 1.10
+Release: alt1
 
 Summary: An utility for retrieving files using the HTTP, HTTPS or FTP protocols
 License: GPL
 Group: Networking/WWW
-Url: http://www.gnu.org/directory/GNU/%name.html
+Url: http://www.gnu.org/directory/GNU/wget.html
 
 Source: ftp://ftp.gnu.org/gnu/%name/%name-%version.tar.bz2
 
 Patch1: %name-1.9.1-alt-texinfo.patch
 Patch2: %name-1.6-mdk-passive_ftp.patch
 Patch3: %name-1.7-alt-locale.patch
-Patch4: %name-1.8.1-alt-quiet.patch
+#Patch4: %name-1.8.1-alt-quiet.patch
 
 Requires(post,preun): %__install_info
 
-# Automatically added by buildreq on Wed Dec 11 2002
-BuildRequires: glibc-devel-static libssl-devel
+# Automatically added by buildreq on Wed Jun 29 2005
+BuildRequires: gcc-c++ hostinfo libssl-devel libstdc++-devel
+
+Summary(es):	Cliente en lМnea de comando para bajar archivos WWW/FTP con recursiСn opcional
+Summary(fr):	Un utilitaire pour recuperer des fichiers en utilisant les protocoles HTTP ou FTP
+Summary(pl):	Wsadowy klient HTTP/FTP
+Summary(pt_BR):	Cliente na linha de comando para baixar arquivos WWW/FTP com recursЦo opcional
+Summary(ru):	Утилита для получения файлов по протоколам HTTP и FTP
+Summary(uk):	Утил╕та для отримання файл╕в по протоколам HTTP та FTP
+Summary(zh_CN):	[м╗я╤]╧╕дэг©╢С╣добтьЁлпР,ж╖Ёж╤о╣ЦпЬ╢╚
 
 %description
 GNU Wget is a file retrieval utility which can use either the HTTP,
@@ -35,6 +43,67 @@ Install wget if you need to retrieve large numbers of files with HTTP,
 HTTPS or FTP, or if you need a utility for mirroring web sites or FTP
 directories.
 
+%description -l es
+GNU wget es una herramienta de red para bajar archivos usando HTTP y
+FTP. Funciona en modo no interactivo, pudiendo trabajar en background.
+Funciona muy bien, incluso en conexiones lentas o inestables, bajando
+el archivo hasta que sea completamente recibido.
+
+%description -l fr
+GNU Wget est un utilitaire pour rИcupИrer des fichiers qui peut
+utiliser indiffИremment les protocoles HTTP ou FTP. Parmi les
+caractИristiques de Wget, citons la capacitИ Ю rИcupИrer des fichiers
+en arriХre-plan alors que vous n'Йtes pas connectИ, la rИcupИration
+rИcursive de rИpertoires, la capacitИ de rИcupИrer des fichiers en
+appliquant un filtre sur le nom ou sur la date, la gestion de Rest
+avec les serveurs FTP et de Range avec les serveurs HTTP pour
+rИcupИrer des fichiers avec une connexion lente ou instable, le
+support des serveurs Proxy... Wget est particuliХrement configurable.
+
+%description -l ja
+GNU wget ╓о HTTP ╓╚ FTP ╔в╔М╔х╔Ё╔К╓н╓и╓а╓И╓╚╓Р╩хмя╓╧╓К╓Ё╓х╓╛╓г╓╜╓К
+╔у╔║╔╓╔К╓Р╪Хфю╓╧╓К╔Ф║╪╔ф╔ё╔Й╔ф╔ё╓г╓╧║ёwget ╓о╔М╔╟╔╒╔╕╔х╓╥╓ф╓╓╓К
+╢ж╓к╔п╔ц╔╞╔╟╔И╔╕╔С╔и╓гф╞╓╞фцд╖╓Р╓Б╓ц╓ф╓╓╓К╓Ё╓х║╒╔г╔ё╔Л╔╞╔х╔Й╓н╨ф╣╒е╙
+╪Хфю║╒╔у╔║╔╓╔К╔м║╪╔Ю╓н╔О╔╓╔К╔и╔╚║╪╔и╔ч╔ц╔а╔С╔╟║╒╔у╔║╔╓╔К╓н╔©╔╓╔Ю╔╧╔©╔С╔в╓н
+йщб╦╓ххФЁс║╒цы╓╞ит╟бдЙ╓йюэбЁ╓г FTP ╔╣║╪╔п╓н Rest ╓х HTTP ╔╣║╪╔п╓н
+Range ╓н╩хмя║╒╔в╔М╔╜╔╥║╪╔╣║╪╔п╓н╔╣╔щ║╪╔х╓хюъдЙ╓нмф╟в╓╣╓Р╢ч╓С╓юфцд╖╓Р
+╓Б╓ц╓ф╓╓╓ч╓╧║ё
+
+%description -l pl
+Wget jest klientem FTP/HTTP przeznaczonym do ╤ci╠gania zasobСw
+wsadowo. Umo©liwia ╤ci╠ganie zasobСw z podkatalogami, a tak©e ma opcje
+umo©liwiaj╠ce wykonanie lokalnej kopii zasobСw (mirror). W razie
+niemo©no╤ci dostania siЙ do zasobСw lub gdy poЁ╠czenie z serwerem
+FTP/HTTP zostanie zerwane, mo©e automatycznie ponawiaФ prСby
+kopiowania. Jest tak©e dobrze przystosowany do tego, ©eby uruchamiaФ
+go jako zadanie z crona.
+
+%description -l pt_BR
+O GNU wget И uma ferramenta de rede para baixar arquivos usando HTTP e
+FTP. Ele funciona em modo nЦo interativo, podendo trabalhar em
+background. Funciona muito bem, mesmo em conexУes lentas ou instАveis,
+baixando o arquivo atИ que ele seja completamente recebido.
+
+%description -l ru_RU.KOI8-R
+GNU Wget - это утилита командной строки для получения файлов по
+протоколам FTP и HTTP. Среди возможностей Wget - работа в фоновом
+режиме после выхода из системы, рекурсивное извлечение каталогов,
+выбор файлов по шаблону, сравнение времени удаленных и локальных
+файлов, сохранение времени удаленных файлов при загрузке,
+использование REST с FTP серверами и Range с HTTP серверами для
+загрузки файлов по медленным или нестабильным каналам, поддержка 
+прокси-серверов, конфигурируемость.
+
+%description -l uk_UA.KOI8-U
+GNU Wget - це утил╕та командного рядка для отримання файл╕в по
+протоколам FTP та HTTP. Серед можливостей Wget - робота в фоновому
+режим╕ п╕сля виходу ╕з системи, рекурсивне отримання каталог╕в,
+виб╕р файл╕в по шаблону, пор╕вняння часу в╕ддалених та локальних
+файл╕в, збереження часу в╕ддалених файл╕в при завантаженн╕,
+використання REST з FTP серверами та Range з HTTP серверами для
+завантаження файл╕в по пов╕льним чи нестаб╕льним каналам, п╕дтримка
+прокс╕-сервер╕в, налаштовуван╕сть.
+
 %prep
 %setup -q
 
@@ -47,7 +116,7 @@ find doc -type f -print0 |
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
+#%patch4 -p1
 
 %build
 %configure --with-ssl
@@ -72,6 +141,11 @@ find doc -type f -print0 |
 %doc AUTHORS MACHINES MAILING-LIST NEWS README* TODO
 
 %changelog
+* Wed Jun 29 2005 Michael Shigorin <mike@altlinux.org> 1.10-alt1
+- 1.10 (thanks Grigory Fateyev <greg anastasia.ru> for testing)
+- merged description translations from PLD's 1.9.1-19 spec
+- updated buildrequires
+
 * Mon May 10 2004 ALT QA Team Robot <qa-robot@altlinux.org> 1.9.1-alt1.1
 - Rebuilt with openssl-0.9.7d.
 

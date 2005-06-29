@@ -1,6 +1,86 @@
+2005-04-08  Larry Jones  <lawrence.jones@ugsplm.com>
+
+	* Makefile.in (wget.info): Don't use $< in an explicit rule.
+
+2005-03-22  Joseph Caretto  <jcaretto@pitt.edu>
+
+	* texi2pod.pl.in: Handle asis again.  It used to work (see the
+	2001-12-11 entry), but the local change was lost in the upgrade
+	to 1.4.
+
+2005-02-11  Mauro Tortonesi  <mauro@ferrara.linux.it>
+	
+	* wget.texi: Added Simone Piunno as new contributor.
+	
+2005-01-01  Mauro Tortonesi  <mauro@ferrara.linux.it>
+
+	* wget.texi: Updated copyright information, added new contributors.
+
+2004-11-20  Hans-Andreas Engel  <engel@node.ch>
+	
+	* wget.texi: Describe limitations of combining `-O' with `-k'.
+
+2004-05-13  Nico R.  <n-roeser@gmx.net>
+
+	* Makefile.in: Allow building in a separate tree with source tree
+	write-protected.
+
+2004-02-22  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* wget.texi (Contributors): Updated.
+
+2004-02-12  Jens Roesner  <jens.roesner@gmx.de>
+
+	* wget.texi (Wgetrc Commands): Document `-e' here.
+
+2004-02-08  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* wget.texi (Security Considerations): Put @item contents on a
+	separate line.
+	Reported by Ted Rodriguez-Bell.
+
+2004-02-06  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* wget.texi (Wgetrc Commands): Document --no-http-keep-alive and
+	the corresponding Wgetrc command.
+
+2003-12-06  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* wget.texi (Download Options): Don't incorrectly claim that `-O'
+	sets the number of retries to 1.
+
+2003-12-06  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* wget.texi: Document the new option `--protocol-directories'.
+
+2003-11-15  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* wget.texi (Portability): Update slightly.
+
+2003-11-15  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* wget.texi: Documented that --dont-remove-listing is now
+	--no-remove-listing.
+
+2003-11-14  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* fdl.texi: New file.
+
+	* wget.texi: Upgrade to GNU Free Documentation License 1.2.
+
 2003-11-09  Hrvoje Niksic  <hniksic@xemacs.org>
 
-	* wget.texi (Contributors): Update my email address.
+	* wget.texi: Remove next/previous/up node links.  Makeinfo doesn't
+	require them, and they make the document harder to modify.
+
+2003-11-09  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* wget.texi: No longer document options -s, -C, -g, and -G.
+	(Contributors): Update my email address.
+
+2003-11-05  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* wget.texi (HTTP Options): Document `--keep-session-cookies'.
 
 2003-10-26  Hrvoje Niksic  <hniksic@xemacs.org>
 

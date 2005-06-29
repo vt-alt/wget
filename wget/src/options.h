@@ -27,9 +27,6 @@ modify this file, you may extend this exception to your version of the
 file, but you are not obligated to do so.  If you do not wish to do
 so, delete this exception statement from your version.  */
 
-/* Needed for FDP.  */
-#include <stdio.h>
-
 struct options
 {
   int verbose;			/* Are we verbose? */
@@ -53,6 +50,7 @@ struct options
   int no_dirstruct;		/* Do we hate dirstruct? */
   int cut_dirs;			/* Number of directory components to cut. */
   int add_hostdir;		/* Do we add hostname directory? */
+  int protocol_directories;	/* Whether to prepend "http"/"ftp" to dirs. */
   int noclobber;		/* Disables clobbering of existing
 				   data. */
   char *dir_prefix;		/* The top of directory tree */
@@ -81,11 +79,6 @@ struct options
 				   FTP. */
   char *output_document;	/* The output file to which the
 				   documents will be printed.  */
-  int od_known_regular;		/* whether output_document is a
-                                   regular file we can manipulate,
-                                   i.e. not `-' or a device file. */
-  FILE *dfp;			/* The file pointer to the output
-				   document. */
 
   int always_rest;		/* Always use REST. */
   char *ftp_acc;		/* FTP username */
@@ -96,7 +89,7 @@ struct options
 
   char *http_user;		/* HTTP user. */
   char *http_passwd;		/* HTTP password. */
-  char *user_header;		/* User-defined header(s). */
+  char **user_headers;		/* User-defined header(s). */
   int http_keep_alive;		/* whether we use keep-alive */
 
   int use_proxy;		/* Do we use proxy? */
@@ -117,7 +110,7 @@ struct options
   double waitretry;		/* The wait period between retries. - HEH */
   int use_robots;		/* Do we heed robots.txt? */
 
-  long limit_rate;		/* Limit the download rate to this
+  wgint limit_rate;		/* Limit the download rate to this
 				   many bps. */
   LARGE_INT quota;		/* Maximum file size to download and
 				   store. */
@@ -151,7 +144,7 @@ struct options
 				   listings? */
 
   char *dot_style;
-  long dot_bytes;		/* How many bytes in a printing
+  wgint dot_bytes;		/* How many bytes in a printing
 				   dot. */
   int dots_in_line;		/* How many dots in one line. */
   int dot_spacing;		/* How many dots between spacings. */
@@ -177,9 +170,11 @@ struct options
   int   sslprotocol;		/* 0 = auto / 1 = v2 / 2 = v3 / 3 = TLSv1 */
 #endif /* HAVE_SSL */
 
-  int   cookies;
-  char *cookies_input;
-  char *cookies_output;
+  int   cookies;		/* whether cookies are used. */
+  char *cookies_input;		/* file we're loading the cookies from. */
+  char *cookies_output;		/* file we're saving the cookies to. */
+  int   keep_session_cookies;	/* whether session cookies should be
+				   saved and loaded. */
 
   char *post_data;		/* POST query string */
   char *post_file_name;		/* File to post */
@@ -194,6 +189,14 @@ struct options
 
   int strict_comments;		/* whether strict SGML comments are
 				   enforced.  */
+
+  int preserve_perm;           /* whether remote permissions are used
+				  or that what is set by umask. */
+
+#ifdef ENABLE_IPV6
+  int ipv4_only;		/* IPv4 connections have been requested. */
+  int ipv6_only;		/* IPv4 connections have been requested. */
+#endif
 };
 
 extern struct options opt;

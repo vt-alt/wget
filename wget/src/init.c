@@ -1,6 +1,5 @@
 /* Reading/parsing the initialization file.
-   Copyright (C) 1995, 1996, 1997, 1998, 2000, 2001, 2003
-   Free Software Foundation, Inc.
+   Copyright (C) 2005 Free Software Foundation, Inc.
 
 This file is part of GNU Wget.
 
@@ -43,16 +42,6 @@ so, delete this exception statement from your version.  */
 #endif
 #include <errno.h>
 
-#ifdef WINDOWS
-# include <winsock.h>
-#else
-# include <sys/socket.h>
-# include <netinet/in.h>
-#ifndef __BEOS__
-# include <arpa/inet.h>
-#endif
-#endif
-
 #ifdef HAVE_PWD_H
 # include <pwd.h>
 #endif
@@ -63,14 +52,14 @@ so, delete this exception statement from your version.  */
 #include "init.h"
 #include "host.h"
 #include "netrc.h"
-#include "cookies.h"		/* for cookie_jar_delete */
 #include "progress.h"
+#include "recur.h"		/* for INFINITE_RECURSION */
+#include "convert.h"		/* for convert_cleanup */
+#include "res.h"		/* for res_cleanup */
 
 #ifndef errno
 extern int errno;
 #endif
-
-extern struct cookie_jar *wget_cookie_jar;
 
 /* We want tilde expansion enabled only when reading `.wgetrc' lines;
    otherwise, it will be performed by the shell.  This variable will
@@ -105,13 +94,15 @@ CMD_DECLARE (cmd_spec_restrict_file_names);
 CMD_DECLARE (cmd_spec_timeout);
 CMD_DECLARE (cmd_spec_useragent);
 
-/* List of recognized commands, each consisting of name, closure and function.
-   When adding a new command, simply add it to the list, but be sure to keep the
-   list sorted alphabetically, as findcmd() depends on it.  Also, be sure to add
-   any entries that allocate memory (e.g. cmd_string and cmd_vector guys) to the
+/* List of recognized commands, each consisting of name, closure and
+   function.  When adding a new command, simply add it to the list,
+   but be sure to keep the list sorted alphabetically, as
+   command_by_name depends on it.  Also, be sure to add any entries
+   that allocate memory (e.g. cmd_string and cmd_vector guys) to the
    cleanup() function below. */
+
 static struct {
-  char *name;
+  const char *name;
   void *closure;
   int (*action) PARAMS ((const char *, const char *, void *));
 } commands[] = {
@@ -150,9 +141,10 @@ static struct {
   { "followftp",	&opt.follow_ftp,	cmd_boolean },
   { "followtags",	&opt.follow_tags,	cmd_vector },
   { "forcehtml",	&opt.force_html,	cmd_boolean },
+  { "ftppasswd",	&opt.ftp_pass,		cmd_string },
   { "ftpproxy",		&opt.ftp_proxy,		cmd_string },
   { "glob",		&opt.ftp_glob,		cmd_boolean },
-  { "header",		NULL,			cmd_spec_header },
+  { "header",		&opt.user_headers,	cmd_spec_header },
   { "htmlextension",	&opt.html_extension,	cmd_boolean },
   { "htmlify",		NULL,			cmd_spec_htmlify },
   { "httpkeepalive",	&opt.http_keep_alive,	cmd_boolean },
@@ -163,7 +155,12 @@ static struct {
   { "ignorelength",	&opt.ignore_length,	cmd_boolean },
   { "ignoretags",	&opt.ignore_tags,	cmd_vector },
   { "includedirectories", &opt.includes,	cmd_directory_vector },
+#ifdef ENABLE_IPV6
+  { "inet4only",	&opt.ipv4_only,		cmd_boolean },
+  { "inet6only",	&opt.ipv6_only,		cmd_boolean },
+#endif
   { "input",		&opt.input_filename,	cmd_file },
+  { "keepsessioncookies", &opt.keep_session_cookies, cmd_boolean },
   { "killlonger",	&opt.kill_longer,	cmd_boolean },
   { "limitrate",	&opt.limit_rate,	cmd_bytes },
   { "loadcookies",	&opt.cookies_input,	cmd_file },
@@ -178,10 +175,11 @@ static struct {
   { "outputdocument",	&opt.output_document,	cmd_file },
   { "pagerequisites",	&opt.page_requisites,	cmd_boolean },
   { "passiveftp",	&opt.ftp_pasv,		cmd_lockable_boolean },
-  { "passwd",		&opt.ftp_pass,		cmd_string },
   { "postdata",		&opt.post_data,		cmd_string },
   { "postfile",		&opt.post_file_name,	cmd_file },
+  { "preservepermissions", &opt.preserve_perm,	cmd_boolean },
   { "progress",		&opt.progress_type,	cmd_spec_progress },
+  { "protocoldirectories", &opt.protocol_directories, cmd_boolean },
   { "proxypasswd",	&opt.proxy_passwd,	cmd_string },
   { "proxyuser",	&opt.proxy_user,	cmd_string },
   { "quiet",		&opt.quiet,		cmd_boolean },
@@ -223,18 +221,20 @@ static struct {
   { "waitretry",	&opt.waitretry,		cmd_time }
 };
 
-/* Look up COM in the commands[] array and return its index.  If COM
-   is not found, -1 is returned.  This function uses binary search.  */
+/* Look up CMDNAME in the commands[] and return its position in the
+   array.  If CMDNAME is not found, return -1.  */
 
 static int
-findcmd (const char *com)
+command_by_name (const char *cmdname)
 {
+  /* Use binary search for speed.  Wget has ~100 commands, which
+     guarantees a worst case performance of 7 string comparisons.  */
   int lo = 0, hi = countof (commands) - 1;
 
   while (lo <= hi)
     {
       int mid = (lo + hi) >> 1;
-      int cmp = strcasecmp (com, commands[mid].name);
+      int cmp = strcasecmp (cmdname, commands[mid].name);
       if (cmp < 0)
 	hi = mid - 1;
       else if (cmp > 0)
@@ -256,10 +256,9 @@ defaults (void)
      NULL this way is technically illegal, but porting Wget to a
      machine where NULL is not all-zero bit pattern will be the least
      of the implementors' worries.  */
-  memset (&opt, 0, sizeof (opt));
+  xzero (opt);
 
   opt.cookies = 1;
-
   opt.verbose = -1;
   opt.ntry = 20;
   opt.reclevel = 5;
@@ -286,6 +285,7 @@ defaults (void)
   opt.dots_in_line = 50;
 
   opt.dns_cache = 1;
+  opt.ftp_pasv = 1;
 
   /* The default for file name restriction defaults to the OS type. */
 #if !defined(WINDOWS) && !defined(__CYGWIN__)
@@ -313,9 +313,9 @@ home_dir (void)
 	return NULL;
       home = pwd->pw_dir;
 #else  /* WINDOWS */
-      home = "C:\\";
-      /* #### Maybe I should grab home_dir from registry, but the best
-	 that I could get from there is user's Start menu.  It sucks!  */
+      /* Under Windows, if $HOME isn't defined, use the directory where
+         `wget.exe' resides.  */
+      home = ws_mypath ();
 #endif /* WINDOWS */
     }
 
@@ -346,27 +346,24 @@ wgetrc_file_name (void)
       return xstrdup (env);
     }
 
-#ifndef WINDOWS
   /* If that failed, try $HOME/.wgetrc.  */
   home = home_dir ();
   if (home)
-    {
-      file = (char *)xmalloc (strlen (home) + 1 + strlen (".wgetrc") + 1);
-      sprintf (file, "%s/.wgetrc", home);
-    }
-  FREE_MAYBE (home);
-#else  /* WINDOWS */
-  /* Under Windows, "home" is (for the purposes of this function) the
-     directory where `wget.exe' resides, and `wget.ini' will be used
-     as file name.  SYSTEM_WGETRC should not be defined under WINDOWS.
+    file = aprintf ("%s/.wgetrc", home);
+  xfree_null (home);
 
-     It is not as trivial as I assumed, because on 95 argv[0] is full
-     path, but on NT you get what you typed in command line.  --dbudor */
-  home = ws_mypath ();
-  if (home)
+#ifdef WINDOWS
+  /* Under Windows, if we still haven't found .wgetrc, look for the file
+     `wget.ini' in the directory where `wget.exe' resides; we do this for
+     backward compatibility with previous versions of Wget.
+     SYSTEM_WGETRC should not be defined under WINDOWS.  */
+  if (!file || !file_exists_p (file))
     {
-      file = (char *)xmalloc (strlen (home) + strlen ("wget.ini") + 1);
-      sprintf (file, "%swget.ini", home);
+      xfree_null (file);
+      file = NULL;
+      home = ws_mypath ();
+      if (home)
+	file = aprintf ("%s/wget.ini", home);
     }
 #endif /* WINDOWS */
 
@@ -401,7 +398,7 @@ run_wgetrc (const char *file)
     }
   enable_tilde_expansion = 1;
   ln = 1;
-  while ((line = read_whole_line (fp)))
+  while ((line = read_whole_line (fp)) != NULL)
     {
       char *com, *val;
       int comind, status;
@@ -536,7 +533,7 @@ parse_line (const char *line, char **com, char **val, int *comind)
      the command is valid.  */
   BOUNDED_TO_ALLOCA (cmdstart, cmdend, cmdcopy);
   dehyphen (cmdcopy);
-  ind = findcmd (cmdcopy);
+  ind = command_by_name (cmdcopy);
   if (ind == -1)
     return 0;
 
@@ -554,21 +551,25 @@ static int
 setval_internal (int comind, const char *com, const char *val)
 {
   assert (0 <= comind && comind < countof (commands));
+  DEBUGP (("Setting %s (%d) to %s\n", com, comind, val));
   return ((*commands[comind].action) (com, val, commands[comind].closure));
 }
 
 /* Run command COM with value VAL.  If running the command produces an
    error, report the error and exit.
 
-   This is intended to be called from main() with commands not
-   provided by the user, therefore it aborts when an unknown command
-   is encountered.  Once the COMIND's are exported to init.h, this
-   function will be changed to accept COMIND directly.  */
+   This is intended to be called from main() to modify Wget's behavior
+   through command-line switches.  Since COM is hard-coded in main(),
+   it is not canonicalized, and this aborts when COM is not found.
+
+   If COMIND's are exported to init.h, this function will be changed
+   to accept COMIND directly.  */
 
 void
 setoptval (const char *com, const char *val)
 {
-  if (!setval_internal (findcmd (com), com, val))
+  assert (val != NULL);
+  if (!setval_internal (command_by_name (com), com, val))
     exit (2);
 }
 
@@ -686,7 +687,8 @@ static int simple_atoi PARAMS ((const char *, const char *, int *));
 static int
 cmd_number (const char *com, const char *val, void *closure)
 {
-  if (!simple_atoi (val, val + strlen (val), closure))
+  if (!simple_atoi (val, val + strlen (val), closure)
+      || *(int *) closure < 0)
     {
       fprintf (stderr, _("%s: %s: Invalid number `%s'.\n"),
 	       exec_name, com, val);
@@ -714,7 +716,7 @@ cmd_string (const char *com, const char *val, void *closure)
 {
   char **pstring = (char **)closure;
 
-  FREE_MAYBE (*pstring);
+  xfree_null (*pstring);
   *pstring = xstrdup (val);
   return 1;
 }
@@ -733,7 +735,7 @@ cmd_file (const char *com, const char *val, void *closure)
 {
   char **pstring = (char **)closure;
 
-  FREE_MAYBE (*pstring);
+  xfree_null (*pstring);
 
   /* #### If VAL is empty, perhaps should set *CLOSURE to NULL.  */
 
@@ -744,7 +746,6 @@ cmd_file (const char *com, const char *val, void *closure)
     }
   else
     {
-      char *result;
       int homelen;
       char *home = home_dir ();
       if (!home)
@@ -758,12 +759,7 @@ cmd_file (const char *com, const char *val, void *closure)
       for (++val; ISSEP (*val); val++)
 	;
 
-      result = xmalloc (homelen + 1 + strlen (val) + 1);
-      memcpy (result, home, homelen);
-      result[homelen] = '/';
-      strcpy (result + homelen + 1, val);
-
-      *pstring = result;
+      *pstring = concat_strings (home, "/", val, (char *) 0);
     }
 
 #ifdef WINDOWS
@@ -850,8 +846,8 @@ cmd_directory_vector (const char *com, const char *val, void *closure)
 
 static int simple_atof PARAMS ((const char *, const char *, double *));
 
-/* Enginge for cmd_bytes and cmd_bytes_large: converts a string such
-   as "100k" or "2.5G" to a floating point number.  */
+/* Engine for cmd_bytes and cmd_bytes_large: converts a string such as
+   "100k" or "2.5G" to a floating point number.  */
 
 static int
 parse_bytes_helper (const char *val, double *result)
@@ -900,7 +896,7 @@ parse_bytes_helper (const char *val, double *result)
   if (val == end)
     return 0;
 
-  if (!simple_atof (val, end, &number))
+  if (!simple_atof (val, end, &number) || number < 0)
     return 0;
 
   *result = number * mult;
@@ -908,7 +904,7 @@ parse_bytes_helper (const char *val, double *result)
 }
 
 /* Parse VAL as a number and set its value to CLOSURE (which should
-   point to a long int).
+   point to a wgint).
 
    By default, the value is assumed to be in bytes.  If "K", "M", or
    "G" are appended, the value is multiplied with 1<<10, 1<<20, or
@@ -931,7 +927,7 @@ cmd_bytes (const char *com, const char *val, void *closure)
 	       exec_name, com, val);
       return 0;
     }
-  *(long *)closure = (long)byte_value;
+  *(wgint *)closure = (wgint)byte_value;
   return 1;
 }
 
@@ -1036,32 +1032,13 @@ cmd_spec_dirstruct (const char *com, const char *val, void *closure)
 static int
 cmd_spec_header (const char *com, const char *val, void *closure)
 {
-  if (!*val)
+  if (!check_user_specified_header (val))
     {
-      /* Empty header means reset headers.  */
-      FREE_MAYBE (opt.user_header);
-      opt.user_header = NULL;
+      fprintf (stderr, _("%s: %s: Invalid header `%s'.\n"),
+	       exec_name, com, val);
+      return 0;
     }
-  else
-    {
-      int i;
-
-      if (!check_user_specified_header (val))
-	{
-	  fprintf (stderr, _("%s: %s: Invalid header `%s'.\n"),
-		   exec_name, com, val);
-	  return 0;
-	}
-      i = opt.user_header ? strlen (opt.user_header) : 0;
-      opt.user_header = (char *)xrealloc (opt.user_header, i + strlen (val)
-					  + 2 + 1);
-      strcpy (opt.user_header + i, val);
-      i += strlen (val);
-      opt.user_header[i++] = '\r';
-      opt.user_header[i++] = '\n';
-      opt.user_header[i] = '\0';
-    }
-  return 1;
+  return cmd_vector (com, val, closure);
 }
 
 static int
@@ -1107,7 +1084,7 @@ cmd_spec_progress (const char *com, const char *val, void *closure)
 	       exec_name, com, val);
       return 0;
     }
-  FREE_MAYBE (opt.progress_type);
+  xfree_null (opt.progress_type);
 
   /* Don't call set_progress_implementation here.  It will be called
      in main() when it becomes clear what the log output is.  */
@@ -1205,21 +1182,46 @@ cmd_spec_useragent (const char *com, const char *val, void *closure)
 
 /* Miscellaneous useful routines.  */
 
-/* A very simple atoi clone, more portable than strtol and friends,
-   but reports errors, unlike atoi.  Returns 1 on success, 0 on
-   failure.  In case of success, stores result to *DEST.  */
+/* A very simple atoi clone, more useful than atoi because it works on
+   delimited strings, and has error reportage.  Returns 1 on success,
+   0 on failure.  If successful, stores result to *DEST.  */
 
 static int
 simple_atoi (const char *beg, const char *end, int *dest)
 {
   int result = 0;
-  const char *p;
+  int negative = 0;
+  const char *p = beg;
 
-  if (beg == end)
+  while (p < end && ISSPACE (*p))
+    ++p;
+  if (p < end && (*p == '-' || *p == '+'))
+    {
+      negative = (*p == '-');
+      ++p;
+    }
+  if (p == end)
     return 0;
 
-  for (p = beg; p < end && ISDIGIT (*p); p++)
-    result = (10 * result) + (*p - '0');
+  /* Read negative numbers in a separate loop because the most
+     negative integer cannot be represented as a positive number.  */
+
+  if (!negative)
+    for (; p < end && ISDIGIT (*p); p++)
+      {
+	int next = (10 * result) + (*p - '0');
+	if (next < result)
+	  return 0;		/* overflow */
+	result = next;
+      }
+  else
+    for (; p < end && ISDIGIT (*p); p++)
+      {
+	int next = (10 * result) - (*p - '0');
+	if (next > result)
+	  return 0;		/* underflow */
+	result = next;
+      }
 
   if (p != end)
     return 0;
@@ -1237,13 +1239,22 @@ simple_atof (const char *beg, const char *end, double *dest)
 {
   double result = 0;
 
+  int negative = 0;
   int seen_dot = 0;
   int seen_digit = 0;
   double divider = 1;
 
-  const char *p;
+  const char *p = beg;
 
-  for (p = beg; p < end; p++)
+  while (p < end && ISSPACE (*p))
+    ++p;
+  if (p < end && (*p == '-' || *p == '+'))
+    {
+      negative = (*p == '-');
+      ++p;
+    }
+
+  for (; p < end; p++)
     {
       char ch = *p;
       if (ISDIGIT (ch))
@@ -1266,6 +1277,8 @@ simple_atof (const char *beg, const char *end, double *dest)
     }
   if (!seen_digit)
     return 0;
+  if (negative)
+    result = -result;
 
   *dest = result;
   return 1;
@@ -1288,8 +1301,6 @@ check_user_specified_header (const char *s)
 }
 
 void cleanup_html_url PARAMS ((void));
-void res_cleanup PARAMS ((void));
-void downloaded_files_free PARAMS ((void));
 void http_cleanup PARAMS ((void));
 
 
@@ -1299,8 +1310,13 @@ cleanup (void)
 {
   /* Free external resources, close files, etc. */
 
-  if (opt.dfp)
-    fclose (opt.dfp);
+  {
+    extern FILE *output_stream;
+    if (output_stream)
+      fclose (output_stream);
+    /* No need to check for error because Wget flushes its output (and
+       checks for errors) after any data arrives.  */
+  }
 
   /* We're exiting anyway so there's no real need to call free()
      hundreds of times.  Skipping the frees will make Wget exit
@@ -1315,18 +1331,17 @@ cleanup (void)
   res_cleanup ();
   http_cleanup ();
   cleanup_html_url ();
-  downloaded_files_free ();
   host_cleanup ();
-  cookie_jar_delete (wget_cookie_jar);
+  log_cleanup ();
 
   {
     extern acc_t *netrc_list;
     free_netrc (netrc_list);
   }
-  FREE_MAYBE (opt.lfilename);
-  FREE_MAYBE (opt.dir_prefix);
-  FREE_MAYBE (opt.input_filename);
-  FREE_MAYBE (opt.output_document);
+  xfree_null (opt.lfilename);
+  xfree_null (opt.dir_prefix);
+  xfree_null (opt.input_filename);
+  xfree_null (opt.output_document);
   free_vec (opt.accepts);
   free_vec (opt.rejects);
   free_vec (opt.excludes);
@@ -1334,24 +1349,24 @@ cleanup (void)
   free_vec (opt.domains);
   free_vec (opt.follow_tags);
   free_vec (opt.ignore_tags);
-  FREE_MAYBE (opt.progress_type);
+  xfree_null (opt.progress_type);
   xfree (opt.ftp_acc);
-  FREE_MAYBE (opt.ftp_pass);
-  FREE_MAYBE (opt.ftp_proxy);
-  FREE_MAYBE (opt.https_proxy);
-  FREE_MAYBE (opt.http_proxy);
+  xfree_null (opt.ftp_pass);
+  xfree_null (opt.ftp_proxy);
+  xfree_null (opt.https_proxy);
+  xfree_null (opt.http_proxy);
   free_vec (opt.no_proxy);
-  FREE_MAYBE (opt.useragent);
-  FREE_MAYBE (opt.referer);
-  FREE_MAYBE (opt.http_user);
-  FREE_MAYBE (opt.http_passwd);
-  FREE_MAYBE (opt.user_header);
+  xfree_null (opt.useragent);
+  xfree_null (opt.referer);
+  xfree_null (opt.http_user);
+  xfree_null (opt.http_passwd);
+  free_vec (opt.user_headers);
 #ifdef HAVE_SSL
-  FREE_MAYBE (opt.sslcertkey);
-  FREE_MAYBE (opt.sslcertfile);
+  xfree_null (opt.sslcertkey);
+  xfree_null (opt.sslcertfile);
 #endif /* HAVE_SSL */
-  FREE_MAYBE (opt.bind_address);
-  FREE_MAYBE (opt.cookies_input);
-  FREE_MAYBE (opt.cookies_output);
+  xfree_null (opt.bind_address);
+  xfree_null (opt.cookies_input);
+  xfree_null (opt.cookies_output);
 #endif
 }

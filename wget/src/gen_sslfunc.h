@@ -31,19 +31,7 @@ so, delete this exception statement from your version.  */
 #ifndef GEN_SSLFUNC_H
 #define GEN_SSLFUNC_H
 
-#ifdef HAVE_SSL
-# include <openssl/ssl.h>
-#endif
-
-void ssl_init_prng PARAMS ((void));
-int init_ssl PARAMS ((SSL_CTX **));
-
-int connect_ssl PARAMS ((SSL **, SSL_CTX *, int));
-void shutdown_ssl PARAMS ((SSL*));
-void free_ssl_ctx PARAMS ((SSL_CTX *));
-int verify_callback PARAMS ((int, X509_STORE_CTX *));
-int ssl_iread PARAMS ((SSL *, char *, int));
-int ssl_iwrite PARAMS ((SSL *, char *, int));
-int ssl_printerrors PARAMS ((void)); 
+uerr_t ssl_init PARAMS ((void));
+int ssl_connect PARAMS ((int));
 
 #endif /* GEN_SSLFUNC_H */

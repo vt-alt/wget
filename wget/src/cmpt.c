@@ -792,7 +792,9 @@ strptime_internal (rp, fmt, tm, decided)
      struct tm *tm;
      enum locale_status *decided;
 {
+#ifdef _NL_CURRENT
   const char *rp_backup;
+#endif
   int cnt;
   size_t val;
   int have_I, is_pm;
@@ -832,8 +834,10 @@ strptime_internal (rp, fmt, tm, decided)
     start_over:
 #endif
 
+#ifdef _NL_CURRENT
       /* Make back up of current processing pointer.  */
       rp_backup = rp;
+#endif
 
       switch (*fmt++)
 	{
@@ -1430,26 +1434,6 @@ const unsigned short int __mon_yday[2][13] =
     { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 }
   };
 #endif
-
-#ifndef HAVE_USLEEP
-#ifndef WINDOWS
-
-/* A simple usleep implementation based on select().  For Unix and
-   Unix-like systems.  */
-
-int
-usleep (unsigned long usec)
-{
-  struct timeval tm;
-  tm.tv_sec = 0;
-  tm.tv_usec = usec;
-  select (0, NULL, NULL, NULL, &tm);
-  return 0;
-}
-
-#endif /* not WINDOWS */
-#endif /* not HAVE_USLEEP */
-
 
 /* Currently unused in Wget.  Uncomment if we start using memmove
    again. */

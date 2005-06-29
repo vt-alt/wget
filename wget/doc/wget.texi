@@ -3,7 +3,7 @@
 @c %**start of header
 @setfilename wget.info
 @include version.texi
-@set UPDATED May 2003
+@set UPDATED Jan 2005
 @settitle GNU Wget @value{VERSION} Manual
 @c Disable the monstrous rectangles beside overfull hbox-es.
 @finalout
@@ -31,8 +31,8 @@ This file documents the the GNU Wget utility for downloading network
 data.
 
 @c man begin COPYRIGHT
-Copyright @copyright{} 1996, 1997, 1998, 2000, 2001, 2002, 2003 Free
-Software Foundation, Inc.
+Copyright @copyright{} 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005
+Free Software Foundation, Inc.
 
 Permission is granted to make and distribute verbatim copies of
 this manual provided the copyright notice and this permission notice
@@ -71,11 +71,11 @@ GNU Info entry for @file{wget}.
 
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 1996, 1997, 1998, 2000, 2001, 2003 Free Software
-Foundation, Inc.
+Copyright @copyright{} 1996, 1997, 1998, 2000, 2001, 2003, 2004, 2005,
+Free Software Foundation, Inc.
 
 Permission is granted to copy, distribute and/or modify this document
-under the terms of the GNU Free Documentation License, Version 1.1 or
+under the terms of the GNU Free Documentation License, Version 1.2 or
 any later version published by the Free Software Foundation; with the
 Invariant Sections being ``GNU General Public License'' and ``GNU Free
 Documentation License'', with no Front-Cover Texts, and with no
@@ -84,19 +84,19 @@ entitled ``GNU Free Documentation License''.
 @end titlepage
 
 @ifnottex
-@node Top, Overview, (dir), (dir)
+@node Top
 @top Wget @value{VERSION}
 
 This manual documents version @value{VERSION} of GNU Wget, the freely
 available utility for network downloads.
 
-Copyright @copyright{} 1996, 1997, 1998, 2000, 2001, 2003 Free Software
-Foundation, Inc.
+Copyright @copyright{} 1996, 1997, 1998, 2000, 2001, 2003, 2004, 2005
+Free Software Foundation, Inc.
 
 @menu
 * Overview::            Features of Wget.
 * Invoking::            Wget command-line arguments.
-* Recursive Retrieval:: Description of recursive retrieval.
+* Recursive Download::  Downloading interlinked pages.
 * Following Links::     The available methods of chasing links.
 * Time-Stamping::       Mirroring according to time-stamps.
 * Startup File::        Wget's initialization file.
@@ -108,7 +108,7 @@ Foundation, Inc.
 @end menu
 @end ifnottex
 
-@node Overview, Invoking, Top, Top
+@node Overview
 @chapter Overview
 @cindex overview
 @cindex features
@@ -177,9 +177,10 @@ download from where it left off.
 @item
 Wget supports proxy servers, which can lighten the network load, speed
 up retrieval and provide access behind firewalls.  However, if you are
-behind a firewall that requires that you use a socks style gateway, you
-can get the socks library and build Wget with support for socks.  Wget
-also supports the passive @sc{ftp} downloading as an option.
+behind a firewall that requires that you use a socks style gateway,
+you can get the socks library and build Wget with support for socks.
+Wget uses the passive @sc{ftp} downloading by default, active @sc{ftp}
+being an option.
 
 @sp 1
 @item
@@ -219,7 +220,7 @@ Public License, as published by the Free Software Foundation
 (@pxref{Copying}).
 @end itemize
 
-@node Invoking, Recursive Retrieval, Overview, Top
+@node Invoking
 @chapter Invoking
 @cindex invoking
 @cindex command line
@@ -255,7 +256,7 @@ the command line.
 * Recursive Accept/Reject Options::
 @end menu
 
-@node URL Format, Option Syntax, Invoking, Invoking
+@node URL Format
 @section URL Format
 @cindex URL
 @cindex URL syntax
@@ -331,7 +332,7 @@ If you do not understand the difference between these notations, or do
 not know which one to use, just use the plain ordinary format you use
 with your favorite browser, like @code{Lynx} or @code{Netscape}.
 
-@node Option Syntax, Basic Startup Options, URL Format, Invoking
+@node Option Syntax
 @section Option Syntax
 @cindex option syntax
 @cindex syntax of options
@@ -384,7 +385,7 @@ wget -X '' -X /~nobody,/~somebody
 
 @c man begin OPTIONS
 
-@node Basic Startup Options, Logging and Input File Options, Option Syntax, Invoking
+@node Basic Startup Options
 @section Basic Startup Options
 
 @table @samp
@@ -407,10 +408,12 @@ specified via the @samp{-o}, output is redirected to @file{wget-log}.
 Execute @var{command} as if it were a part of @file{.wgetrc}
 (@pxref{Startup File}).  A command thus invoked will be executed
 @emph{after} the commands in @file{.wgetrc}, thus taking precedence over
-them.
+them.  If you need to specify more than one wgetrc command, use multiple
+instances of @samp{-e}.
+
 @end table
 
-@node Logging and Input File Options, Download Options, Basic Startup Options, Invoking
+@node Logging and Input File Options
 @section Logging and Input File Options
 
 @table @samp
@@ -489,7 +492,7 @@ When used in conjunction with @samp{-F}, prepends @var{URL} to relative
 links in the file specified by @samp{-i}.
 @end table
 
-@node Download Options, Directory Options, Logging and Input File Options, Invoking
+@node Download Options
 @section Download Options
 
 @table @samp
@@ -516,9 +519,11 @@ which are not retried.
 @itemx --output-document=@var{file}
 The documents will not be written to the appropriate files, but all will
 be concatenated together and written to @var{file}.  If @var{file}
-already exists, it will be overwritten.  If the @var{file} is @samp{-},
-the documents will be written to standard output.  Including this option
-automatically sets the number of tries to 1.
+already exists, it will be overwritten.  If the @var{file} is @samp{-}, 
+the documents will be written to standard output (disabling @samp{-k}).
+ 
+Note that a combination with @samp{-k} is only well-defined for downloading
+a single document.
 
 @cindex clobbering, file
 @cindex downloading multiple times
@@ -555,8 +560,8 @@ on the local and remote timestamp and size of the file
 time as @samp{-N}.
 
 Note that when @samp{-nc} is specified, files with the suffixes
-@samp{.html} or (yuck) @samp{.htm} will be loaded from the local disk
-and parsed as if they had been retrieved from the Web.
+@samp{.html} or @samp{.htm} will be loaded from the local disk and
+parsed as if they had been retrieved from the Web.
 
 @cindex continue retrieval
 @cindex incomplete downloads
@@ -866,7 +871,7 @@ turn off escaping of control characters without affecting the choice of
 the OS to use as file name restriction mode.
 @end table
 
-@node Directory Options, HTTP Options, Download Options, Invoking
+@node Directory Options
 @section Directory Options
 
 @table @samp
@@ -886,6 +891,16 @@ http://fly.srk.fer.hr/robots.txt} will save the downloaded file to
 
 @item -nH
 @itemx --no-host-directories
+Disable generation of host-prefixed directories.  By default, invoking
+Wget with @samp{-r http://fly.srk.fer.hr/} will create a structure of
+directories beginning with @file{fly.srk.fer.hr/}.  This option disables
+such behavior.
+
+@item --protocol-directories
+Use the protocol name as a directory component of local file names.  For
+example, with this option, @samp{wget -r http://@var{host}} will save to
+@samp{http/@var{host}/...} rather than just to @samp{@var{host}/...}.
+
 Disable generation of host-prefixed directories.  By default, invoking
 Wget with @samp{-r http://fly.srk.fer.hr/} will create a structure of
 directories beginning with @file{fly.srk.fer.hr/}.  This option disables
@@ -933,7 +948,7 @@ i.e. the top of the retrieval tree.  The default is @samp{.} (the
 current directory).
 @end table
 
-@node HTTP Options, FTP Options, Directory Options, Invoking
+@node HTTP Options
 @section HTTP Options
 
 @table @samp
@@ -982,25 +997,24 @@ Considerations}.
 
 @cindex proxy
 @cindex cache
-@item -C on/off
-@itemx --cache=on/off
-When set to off, disable server-side cache.  In this case, Wget will
-send the remote server an appropriate directive (@samp{Pragma:
-no-cache}) to get the file from the remote service, rather than
-returning the cached version.  This is especially useful for retrieving
-and flushing out-of-date documents on proxy servers.
+@item --no-cache
+Disable server-side cache.  In this case, Wget will send the remote
+server an appropriate directive (@samp{Pragma: no-cache}) to get the
+file from the remote service, rather than returning the cached version.
+This is especially useful for retrieving and flushing out-of-date
+documents on proxy servers.
 
 Caching is allowed by default.
 
 @cindex cookies
-@item --cookies=on/off
-When set to off, disable the use of cookies.  Cookies are a mechanism
-for maintaining server-side state.  The server sends the client a cookie
-using the @code{Set-Cookie} header, and the client responds with the
-same cookie upon further requests.  Since cookies allow the server
-owners to keep track of visitors and for sites to exchange this
-information, some consider them a breach of privacy.  The default is to
-use cookies; however, @emph{storing} cookies is not on by default.
+@item --no-cookies
+Disable the use of cookies.  Cookies are a mechanism for maintaining
+server-side state.  The server sends the client a cookie using the
+@code{Set-Cookie} header, and the client responds with the same cookie
+upon further requests.  Since cookies allow the server owners to keep
+track of visitors and for sites to exchange this information, some
+consider them a breach of privacy.  The default is to use cookies;
+however, @emph{storing} cookies is not on by default.
 
 @cindex loading cookies
 @cindex cookies, loading
@@ -1057,9 +1071,28 @@ wget --cookies=off --header "Cookie: @var{name}=@var{value}"
 @cindex saving cookies
 @cindex cookies, saving
 @item --save-cookies @var{file}
-Save cookies to @var{file} at the end of session.  Cookies whose expiry
-time is not specified, or those that have already expired, are not
-saved.
+Save cookies to @var{file} before exiting.  This will not save cookies
+that have expired or that have no expiry time (so-called ``session
+cookies''), but also see @samp{--keep-session-cookies}.
+
+@cindex cookies, session
+@cindex session cookies
+@item --keep-session-cookies
+
+When specified, causes @samp{--save-cookies} to also save session
+cookies.  Session cookies are normally not save because they are
+supposed to be forgotten when you exit the browser.  Saving them is
+useful on sites that require you to log in or to visit the home page
+before you can access some pages.  With this option, multiple Wget runs
+are considered a single browser session as far as the site is concerned.
+
+Since the cookie file format does not normally carry session cookies,
+Wget marks them with an expiry timestamp of 0.  Wget's
+@samp{--load-cookies} recognizes those as session cookies, but it might
+confuse other browsers.  Also note that cookies so loaded will be
+treated as other session cookies, which means that if you want
+@samp{--save-cookies} to preserve them again, you must use
+@samp{--keep-session-cookies} again.
 
 @cindex Content-Length, ignore
 @cindex ignore length
@@ -1115,8 +1148,7 @@ always being retrieved by interactive web browsers and only come out
 properly when Referer is set to one of the pages that point to them.
 
 @cindex server response, save
-@item -s
-@itemx --save-headers
+@item --save-headers
 Save the headers sent by the @sc{http} server to the file, preceding the
 actual contents, with an empty line as the separator.
 
@@ -1183,13 +1215,12 @@ wget --load-cookies cookies.txt \
 @end example
 @end table
 
-@node FTP Options, Recursive Retrieval Options, HTTP Options, Invoking
+@node FTP Options
 @section FTP Options
 
 @table @samp
 @cindex .listing files, removing
-@item -nr
-@itemx --dont-remove-listing
+@item --no-remove-listing
 Don't remove the temporary @file{.listing} files generated by @sc{ftp}
 retrievals.  Normally, these files contain the raw directory listings
 received from @sc{ftp} servers.  Not removing them can be useful for
@@ -1214,12 +1245,11 @@ and asking @code{root} to run Wget with @samp{-N} or @samp{-r} so the file
 will be overwritten.
 
 @cindex globbing, toggle
-@item -g on/off
-@itemx --glob=on/off
-Turn @sc{ftp} globbing on or off.  Globbing means you may use the
-shell-like special characters (@dfn{wildcards}), like @samp{*},
-@samp{?}, @samp{[} and @samp{]} to retrieve more than one file from the
-same directory at once, like:
+@item --no-glob
+Turn off @sc{ftp} globbing.  Globbing refers to the use of shell-like
+special characters (@dfn{wildcards}), like @samp{*}, @samp{?}, @samp{[}
+and @samp{]} to retrieve more than one file from the same directory at
+once, like:
 
 @example
 wget ftp://gnjilux.srk.fer.hr/*.msg
@@ -1235,10 +1265,17 @@ system-specific.  This is why it currently works only with Unix @sc{ftp}
 servers (and the ones emulating Unix @code{ls} output).
 
 @cindex passive ftp
-@item --passive-ftp
-Use the @dfn{passive} @sc{ftp} retrieval scheme, in which the client
-initiates the data connection.  This is sometimes required for @sc{ftp}
-to work behind firewalls.
+@item --no-passive-ftp
+Disable the use of the @dfn{passive} FTP transfer mode.  Passive FTP
+mandates that the client connect to the server to establish the data
+connection rather than the other way around.
+
+If the machine is connected to the Internet directly, both passive and
+active FTP should work equally well.  Behind most firewall and NAT
+configurations passive FTP has a better chance of working.  However,
+in some rare firewall configurations, active FTP actually works when
+passive FTP doesn't.  If you suspect this to be the case, use this
+option, or set @code{passive_ftp=off} in your init file.
 
 @cindex symbolic links, retrieving
 @item --retr-symlinks
@@ -1258,21 +1295,34 @@ Note that when retrieving a file (not a directory) because it was
 specified on the command-line, rather than because it was recursed to,
 this option has no effect.  Symbolic links are always traversed in this
 case.
+
+@cindex Keep-Alive, turning off
+@cindex Persistent Connections, disabling
+@item --no-http-keep-alive
+Turn off the ``keep-alive'' feature for HTTP downloads.  Normally, Wget
+asks the server to keep the connection open so that, when you download
+more than one document from the same server, they get transferred over
+the same TCP connection.  This saves time and at the same time reduces
+the load on the server.
+
+This option is useful when, for some reason, persistent (keep-alive)
+connections don't work for you, for example due to a server bug or due
+to the inability of server-side scripts to cope with the connections.
 @end table
 
-@node Recursive Retrieval Options, Recursive Accept/Reject Options, FTP Options, Invoking
+@node Recursive Retrieval Options
 @section Recursive Retrieval Options
 
 @table @samp
 @item -r
 @itemx --recursive
-Turn on recursive retrieving.  @xref{Recursive Retrieval}, for more
+Turn on recursive retrieving.  @xref{Recursive Download}, for more
 details.
 
 @item -l @var{depth}
 @itemx --level=@var{depth}
 Specify recursion maximum depth level @var{depth} (@pxref{Recursive
-Retrieval}).  The default maximum depth is 5.
+Download}).  The default maximum depth is 5.
 
 @cindex proxy filling
 @cindex delete after retrieval
@@ -1350,7 +1400,7 @@ Internals}).
 Turn on options suitable for mirroring.  This option turns on recursion
 and time-stamping, sets infinite recursion depth and keeps @sc{ftp}
 directory listings.  It is currently equivalent to
-@samp{-r -N -l inf -nr}.
+@samp{-r -N -l inf --no-remove-listing}.
 
 @cindex page requisites
 @cindex required images, downloading
@@ -1465,7 +1515,7 @@ If, for whatever reason, you want strict comment parsing, use this
 option to turn it on.
 @end table
 
-@node Recursive Accept/Reject Options,  , Recursive Retrieval Options, Invoking
+@node Recursive Accept/Reject Options
 @section Recursive Accept/Reject Options
 
 @table @samp
@@ -1496,24 +1546,23 @@ retrieval.  If a user wants only a subset of those tags to be
 considered, however, he or she should be specify such tags in a
 comma-separated @var{list} with this option.
 
-@item -G @var{list}
-@itemx --ignore-tags=@var{list}
+@item --ignore-tags=@var{list}
 This is the opposite of the @samp{--follow-tags} option.  To skip
 certain @sc{html} tags when recursively looking for documents to download,
 specify them in a comma-separated @var{list}.  
 
-In the past, the @samp{-G} option was the best bet for downloading a
-single page and its requisites, using a command-line like:
+In the past, this option was the best bet for downloading a single page
+and its requisites, using a command-line like:
 
 @example
-wget -Ga,area -H -k -K -r http://@var{site}/@var{document}
+wget --ignore-tags=a,area -H -k -K -r http://@var{site}/@var{document}
 @end example
 
 However, the author of this option came across a page with tags like
 @code{<LINK REL="home" HREF="/">} and came to the realization that
-@samp{-G} was not enough.  One can't just tell Wget to ignore
-@code{<LINK>}, because then stylesheets will not be downloaded.  Now the
-best bet for downloading a single page and its requisites is the
+specifying tags to ignore was not enough.  One can't just tell Wget to
+ignore @code{<LINK>}, because then stylesheets will not be downloaded.
+Now the best bet for downloading a single page and its requisites is the
 dedicated @samp{--page-requisites} option.
 
 @item -H
@@ -1549,11 +1598,11 @@ This is a useful option, since it guarantees that only the files
 
 @c man end
 
-@node Recursive Retrieval, Following Links, Invoking, Top
-@chapter Recursive Retrieval
+@node Recursive Download
+@chapter Recursive Download
 @cindex recursion
 @cindex retrieving
-@cindex recursive retrieval
+@cindex recursive download
 
 GNU Wget is capable of traversing parts of the Web (or a single
 @sc{http} or @sc{ftp} server), following links and directory structure.
@@ -1616,7 +1665,7 @@ about this.
 Recursive retrieval should be used with care.  Don't say you were not
 warned.
 
-@node Following Links, Time-Stamping, Recursive Retrieval, Top
+@node Following Links
 @chapter Following Links
 @cindex links
 @cindex following links
@@ -1640,7 +1689,7 @@ links it will follow.
 * FTP Links::              Following FTP links.
 @end menu
 
-@node Spanning Hosts, Types of Files, Following Links, Following Links
+@node Spanning Hosts
 @section Spanning Hosts
 @cindex spanning hosts
 @cindex hosts, spanning
@@ -1697,7 +1746,7 @@ wget -rH -Dfoo.edu --exclude-domains sunsite.foo.edu \
 
 @end table
 
-@node Types of Files, Directory-Based Limits, Spanning Hosts, Following Links
+@node Types of Files
 @section Types of Files
 @cindex types of files
 
@@ -1761,7 +1810,7 @@ Note that these two options do not affect the downloading of @sc{html}
 files; Wget must load all the @sc{html}s to know where to go at
 all---recursive retrieval would make no sense otherwise.
 
-@node Directory-Based Limits, Relative Links, Types of Files, Following Links
+@node Directory-Based Limits
 @section Directory-Based Limits
 @cindex directories
 @cindex directory limits
@@ -1837,7 +1886,7 @@ Essentially, @samp{--no-parent} is similar to
 intelligent fashion.
 @end table
 
-@node Relative Links, FTP Links, Directory-Based Limits, Following Links
+@node Relative Links
 @section Relative Links
 @cindex relative links
 
@@ -1866,7 +1915,7 @@ to ``just work'' without having to convert links.
 This option is probably not very useful and might be removed in a future
 release.
 
-@node FTP Links,  , Relative Links, Following Links
+@node FTP Links
 @section Following FTP Links
 @cindex following ftp links
 
@@ -1886,7 +1935,7 @@ effect on such downloads.  On the other hand, domain acceptance
 Also note that followed links to @sc{ftp} directories will not be
 retrieved recursively further.
 
-@node Time-Stamping, Startup File, Following Links, Top
+@node Time-Stamping
 @chapter Time-Stamping
 @cindex time-stamping
 @cindex timestamping
@@ -1936,7 +1985,7 @@ say.
 * FTP Time-Stamping Internals::
 @end menu
 
-@node Time-Stamping Usage, HTTP Time-Stamping Internals, Time-Stamping, Time-Stamping
+@node Time-Stamping Usage
 @section Time-Stamping Usage
 @cindex time-stamping usage
 @cindex usage, time-stamping
@@ -1992,7 +2041,7 @@ gives a timestamp.  For @sc{http}, this depends on getting a
 directory listing with dates in a format that Wget can parse
 (@pxref{FTP Time-Stamping Internals}).
 
-@node HTTP Time-Stamping Internals, FTP Time-Stamping Internals, Time-Stamping Usage, Time-Stamping
+@node HTTP Time-Stamping Internals
 @section HTTP Time-Stamping Internals
 @cindex http time-stamping
 
@@ -2024,7 +2073,7 @@ with @samp{-N}, server file @samp{@var{X}} is compared to local file
 Arguably, @sc{http} time-stamping should be implemented using the
 @code{If-Modified-Since} request.
 
-@node FTP Time-Stamping Internals,  , HTTP Time-Stamping Internals, Time-Stamping
+@node FTP Time-Stamping Internals
 @section FTP Time-Stamping Internals
 @cindex ftp time-stamping
 
@@ -2053,7 +2102,7 @@ that is supported by some @sc{ftp} servers (including the popular
 @code{wu-ftpd}), which returns the exact time of the specified file.
 Wget may support this command in the future.
 
-@node Startup File, Examples, Time-Stamping, Top
+@node Startup File
 @chapter Startup File
 @cindex startup file
 @cindex wgetrc
@@ -2081,7 +2130,7 @@ commands.
 * Sample Wgetrc::     A wgetrc example.
 @end menu
 
-@node Wgetrc Location, Wgetrc Syntax, Startup File, Startup File
+@node Wgetrc Location
 @section Wgetrc Location
 @cindex wgetrc location
 @cindex location of wgetrc
@@ -2102,7 +2151,7 @@ means that in case of collision user's wgetrc @emph{overrides} the
 system-wide wgetrc (in @file{/usr/local/etc/wgetrc} by default).
 Fascist admins, away!
 
-@node Wgetrc Syntax, Wgetrc Commands, Wgetrc Location, Startup File
+@node Wgetrc Syntax
 @section Wgetrc Syntax
 @cindex wgetrc syntax
 @cindex syntax of wgetrc
@@ -2129,7 +2178,7 @@ global @file{wgetrc}, you can do it with:
 reject =
 @end example
 
-@node Wgetrc Commands, Sample Wgetrc, Wgetrc Syntax, Startup File
+@node Wgetrc Commands
 @section Wgetrc Commands
 @cindex wgetrc commands
 
@@ -2147,8 +2196,9 @@ hostnames or dotted-quad IP addresses.  @var{n} can be any positive
 integer, or @samp{inf} for infinity, where appropriate.  @var{string}
 values can be any non-empty string.
 
-Most of these commands have command-line equivalents (@pxref{Invoking}),
-though some of the more obscure or rarely used ones do not.
+Most of these commands have direct command-line equivalents.  Also, any
+wgetrc command can be specified on the command line using the
+@samp{--execute} switch (@pxref{Basic Startup Options}.)
 
 @table @asis
 @item accept/reject = @var{string}
@@ -2181,7 +2231,8 @@ interpreted as @sc{html} as being relative to @var{string}---the same as
 Bind to @var{address}, like the @samp{--bind-address} option.
 
 @item cache = on/off
-When set to off, disallow server-caching.  See the @samp{-C} option.
+When set to off, disallow server-caching.  See the @samp{--no-cache}
+option.
 
 @item convert_links = on/off
 Convert non-relative links locally.  The same as @samp{-k}.
@@ -2263,7 +2314,7 @@ Use @var{string} as @sc{ftp} proxy, instead of the one specified in
 environment.
 
 @item glob = on/off
-Turn globbing on/off---the same as @samp{-g}.
+Turn globbing on/off---the same as @samp{--glob} and @samp{--no-glob}.
 
 @item header = @var{string}
 Define an additional header, like @samp{--header}.
@@ -2272,6 +2323,10 @@ Define an additional header, like @samp{--header}.
 Add a @samp{.html} extension to @samp{text/html} or 
 @samp{application/xhtml+xml} files without it, like
 @samp{-E}.
+
+@item http_keep_alive = on/off
+Turn the keep-alive feature on or off (defaults to on).  The same as
+`--http-keep-alive'.
 
 @item http_passwd = @var{string}
 Set @sc{http} password.
@@ -2289,7 +2344,7 @@ When set to on, ignore @code{Content-Length} header; the same as
 
 @item ignore_tags = @var{string}
 Ignore certain @sc{html} tags when doing a recursive retrieval, just like
-@samp{-G} / @samp{--ignore-tags}.
+@samp{--ignore-tags}.
 
 @item include_directories = @var{string}
 Specify a comma-separated list of directories you wish to follow when
@@ -2340,10 +2395,11 @@ Download all ancillary documents necessary for a single @sc{html} page to
 display properly---the same as @samp{-p}.
 
 @item passive_ftp = on/off/always/never
-Set passive @sc{ftp}---the same as @samp{--passive-ftp}.  Some scripts
-and @samp{.pm} (Perl module) files download files using @samp{wget
---passive-ftp}.  If your firewall does not allow this, you can set
-@samp{passive_ftp = never} to override the command-line.
+Change setting of passive @sc{ftp}, equivalent to the
+@samp{--passive-ftp} option.  Some scripts and @samp{.pm} (Perl
+module) files download files using @samp{wget --passive-ftp}.  If your
+firewall does not allow this, you can set @samp{passive_ftp = never}
+to override the command-line.
 
 @item passwd = @var{string}
 Set your @sc{ftp} password to @var{password}.  Without this setting, the
@@ -2360,6 +2416,10 @@ Use POST as the method for all HTTP requests and send the contents of
 @item progress = @var{string}
 Set the type of the progress indicator.  Legal types are ``dot'' and
 ``bar''.
+
+@item protocol_directories = on/off
+When set, use the protocol name as a directory component of local file
+names.  The same as @samp{--protocol-directories}.
 
 @item proxy_user = @var{string}
 Set proxy authentication user name to @var{string}, like @samp{--proxy-user}.
@@ -2399,7 +2459,7 @@ Links}).
 
 @item remove_listing = on/off
 If set to on, remove @sc{ftp} listings downloaded by Wget.  Setting it
-to off is the same as @samp{-nr}.
+to off is the same as @samp{--no-remove-listing}.
 
 @item restrict_file_names = unix/windows
 Restrict the file names generated by Wget from URLs.  See
@@ -2454,7 +2514,7 @@ Turn random between-request wait times on or off. The same as
 @samp{--random-wait}.
 @end table
 
-@node Sample Wgetrc,  , Wgetrc Commands, Startup File
+@node Sample Wgetrc
 @section Sample Wgetrc
 @cindex sample wgetrc
 
@@ -2471,7 +2531,7 @@ its line.
 @include sample.wgetrc.munged_for_texi_inclusion
 @end example
 
-@node Examples, Various, Startup File, Top
+@node Examples
 @chapter Examples
 @cindex examples
 
@@ -2485,7 +2545,7 @@ complexity.
 * Very Advanced Usage::  The hairy stuff.
 @end menu
 
-@node Simple Usage, Advanced Usage, Examples, Examples
+@node Simple Usage
 @section Simple Usage
 
 @itemize @bullet
@@ -2538,7 +2598,7 @@ links index.html
 @end example
 @end itemize
 
-@node Advanced Usage, Very Advanced Usage, Simple Usage, Examples
+@node Advanced Usage
 @section Advanced Usage
 
 @itemize @bullet
@@ -2630,7 +2690,7 @@ wget -r -l1 --no-parent -A.gif http://www.server.com/dir/
 @end example
 
 More verbose, but the effect is the same.  @samp{-r -l1} means to
-retrieve recursively (@pxref{Recursive Retrieval}), with maximum depth
+retrieve recursively (@pxref{Recursive Download}), with maximum depth
 of 1.  @samp{--no-parent} means that references to the parent directory
 are ignored (@pxref{Directory-Based Limits}), and @samp{-A.gif} means to
 download only the @sc{gif} files.  @samp{-A "*.gif"} would have worked
@@ -2674,7 +2734,7 @@ wget -O - http://cool.list.com/ | wget --force-html -i -
 @end example
 @end itemize
 
-@node Very Advanced Usage,  , Advanced Usage, Examples
+@node Very Advanced Usage
 @section Very Advanced Usage
 
 @cindex mirroring
@@ -2723,7 +2783,7 @@ wget -m -k -K -E http://www.gnu.org/ -o /home/me/weeklog
 @end itemize
 @c man end
 
-@node Various, Appendices, Examples, Top
+@node Various
 @chapter Various
 @cindex various
 
@@ -2738,7 +2798,7 @@ This chapter contains all the stuff that could not fit anywhere else.
 * Signals::             Signal-handling performed by Wget.
 @end menu
 
-@node Proxies, Distribution, Various, Various
+@node Proxies
 @section Proxies
 @cindex proxies
 
@@ -2813,7 +2873,7 @@ Alternatively, you may use the @samp{proxy-user} and
 settings @code{proxy_user} and @code{proxy_passwd} to set the proxy
 username and password.
 
-@node Distribution, Mailing List, Proxies, Various
+@node Distribution
 @section Distribution
 @cindex latest version
 
@@ -2822,7 +2882,7 @@ master GNU archive site ftp.gnu.org, and its mirrors.  For example,
 Wget @value{VERSION} can be found at
 @url{ftp://ftp.gnu.org/pub/gnu/wget/wget-@value{VERSION}.tar.gz}
 
-@node Mailing List, Reporting Bugs, Distribution, Various
+@node Mailing List
 @section Mailing List
 @cindex mailing list
 @cindex list
@@ -2840,7 +2900,7 @@ The mailing list is archived at @url{http://fly.srk.fer.hr/archive/wget}.
 Alternative archive is available at
 @url{http://www.mail-archive.com/wget%40sunsite.auc.dk/}.
  
-@node Reporting Bugs, Portability, Mailing List, Various
+@node Reporting Bugs
 @section Reporting Bugs
 @cindex bugs
 @cindex reporting bugs
@@ -2887,35 +2947,38 @@ wget` core} and type @code{where} to get the backtrace.
 @end enumerate
 @c man end
 
-@node Portability, Signals, Reporting Bugs, Various
+@node Portability
 @section Portability
 @cindex portability
 @cindex operating systems
 
-Since Wget uses GNU Autoconf for building and configuring, and avoids
-using ``special'' ultra--mega--cool features of any particular Unix, it
-should compile (and work) on all common Unix flavors.
+Like all GNU software, Wget works on the GNU system.  However, since it
+uses GNU Autoconf for building and configuring, and mostly avoids using
+``special'' features of any particular Unix, it should compile (and
+work) on all common Unix flavors.
 
 Various Wget versions have been compiled and tested under many kinds of
-Unix systems, including Solaris, Linux, SunOS, OSF (aka Digital Unix),
-Ultrix, *BSD, IRIX, and others; refer to the file @file{MACHINES} in the
-distribution directory for a comprehensive list.  If you compile it on
-an architecture not listed there, please let me know so I can update it.
+Unix systems, including Solaris, GNU/Linux, SunOS, OSF (aka Digital Unix
+or Tru64), Ultrix, *BSD, IRIX, AIX, and others; refer to the file
+@file{MACHINES} in the distribution directory for a comprehensive list.
+If you compile it on an architecture not listed there, please let me
+know so I can update it.
 
 Wget should also compile on the other Unix systems, not listed in
 @file{MACHINES}.  If it doesn't, please let me know.
 
 Thanks to kind contributors, this version of Wget compiles and works on
 Microsoft Windows 95 and Windows NT platforms.  It has been compiled
-successfully using MS Visual C++ 4.0, Watcom, and Borland C compilers,
+successfully using MS Visual C++ 6.0, Watcom, and Borland C compilers,
 with Winsock as networking software.  Naturally, it is crippled of some
 features available on Unix, but it should work as a substitute for
 people stuck with Windows.  Note that the Windows port is
 @strong{neither tested nor maintained} by me---all questions and
-problems should be reported to Wget mailing list at
-@email{wget@@sunsite.dk} where the maintainers will look at them.
+problems in Windows usage should be reported to Wget mailing list at
+@email{wget@@sunsite.dk} where the volunteers who maintain the
+Windows-related features might look at them.
 
-@node Signals,  , Portability, Various
+@node Signals
 @section Signals
 @cindex signal handling
 @cindex hangup
@@ -2934,7 +2997,7 @@ $ kill -HUP %%     # Redirect the output to wget-log
 Other than that, Wget will not try to interfere with signals in any way.
 @kbd{C-c}, @code{kill -TERM} and @code{kill -KILL} should kill it alike.
 
-@node Appendices, Copying, Various, Top
+@node Appendices
 @chapter Appendices
 
 This chapter contains some references I consider useful.
@@ -2945,7 +3008,7 @@ This chapter contains some references I consider useful.
 * Contributors::            People who helped.
 @end menu
 
-@node Robot Exclusion, Security Considerations, Appendices, Appendices
+@node Robot Exclusion
 @section Robot Exclusion
 @cindex robot exclusion
 @cindex robots.txt
@@ -3028,7 +3091,7 @@ robot exclusion, set the @code{robots} variable to @samp{off} in your
 @file{.wgetrc}.  You can achieve the same effect from the command line
 using the @code{-e} switch, e.g. @samp{wget -e robots=off @var{url}...}.
 
-@node Security Considerations, Contributors, Robot Exclusion, Appendices
+@node Security Considerations
 @section Security Considerations
 @cindex security
 
@@ -3037,12 +3100,12 @@ through the network, which may present a security problem.  Here are the
 main issues, and some solutions.
 
 @enumerate
-@item The passwords on the command line are visible using @code{ps}.
-The best way around it is to use @code{wget -i -} and feed the @sc{url}s
-to Wget's standard input, each on a separate line, terminated by
-@kbd{C-d}.  Another workaround is to use @file{.netrc} to store
-passwords; however, storing unencrypted passwords is also considered a
-security risk.
+@item
+The passwords on the command line are visible using @code{ps}.  The best
+way around it is to use @code{wget -i -} and feed the @sc{url}s to
+Wget's standard input, each on a separate line, terminated by @kbd{C-d}.
+Another workaround is to use @file{.netrc} to store passwords; however,
+storing unencrypted passwords is also considered a security risk.
 
 @item
 Using the insecure @dfn{basic} authentication scheme, unencrypted
@@ -3059,7 +3122,7 @@ being careful when you send debug logs (yes, even when you send them to
 me).
 @end enumerate
 
-@node Contributors,  , Security Considerations, Appendices
+@node Contributors
 @section Contributors
 @cindex contributors
 
@@ -3149,6 +3212,7 @@ Dieter Baron,
 Roger Beeman,
 Dan Berger,
 T. Bharath,
+Christian Biere,
 Paul Bludov,
 Daniel Bodea,
 Mark Boyns,
@@ -3184,6 +3248,7 @@ Aleksandar Erkalovic,
 @end ifnottex
 Andy Eskilsson,
 Christian Fraenkel,
+David Fritz,
 Masashi Fujita,
 Howard Gayle,
 Marcel Gerrits,
@@ -3281,6 +3346,7 @@ Maciej W. Rozycki,
 Edward J. Sabol,
 Heinz Salzmann,
 Robert Schmidt,
+Nicolas Schodet,
 Andreas Schwab,
 Chris Seawood,
 Toomas Soome,
@@ -3304,35 +3370,41 @@ Bojan @v{Z}drnja,
 @ifnottex
 Bojan Zdrnja,
 @end ifnottex
-Kristijan Zimmer.
+Kristijan Zimmer,
+YAMAZAKI Makoto,
+Leonid Petrov,
+Hans-Andreas Engel,
+Ulf Harnhammar,
+Jan Minar,
+Simone Piunno.
 
 Apologies to all who I accidentally left out, and many thanks to all the
 subscribers of the Wget mailing list.
 
-@node Copying, Concept Index, Appendices, Top
+@node Copying
 @chapter Copying
 @cindex copying
 @cindex GPL
 @cindex GFDL
 @cindex free software
 
-GNU Wget is licensed under the GNU GPL, which makes it @dfn{free
-software}.
+GNU Wget is licensed under the GNU General Public License (GNU GPL),
+which makes it @dfn{free software}.  Please note that ``free'' in ``free
+software'' refers to liberty, not price.  As some people like to point
+out, it's the ``free'' of ``free speech'', not the ``free'' of ``free
+beer''.
 
-Please note that ``free'' in ``free software'' refers to liberty, not
-price.  As some GNU project advocates like to point out, think of ``free
-speech'' rather than ``free beer''.  The exact and legally binding
-distribution terms are spelled out below; in short, you have the right
-(freedom) to run and change Wget and distribute it to other people, and
-even---if you want---charge money for doing either.  The important
-restriction is that you have to grant your recipients the same rights
-and impose the same restrictions.
+The exact and legally binding distribution terms are spelled out below.
+The GPL guarantees that you have the right (freedom) to run and change
+GNU Wget and distribute it to others, and even---if you want---charge
+money for doing any of those things.  With these rights comes the
+obligation to distribute the source code along with the software and to
+grant your recipients the same rights and impose the same restrictions.
 
-This method of licensing software is also known as @dfn{open source}
-because, among other things, it makes sure that all recipients will
-receive the source code along with the program, and be able to improve
-it.  The GNU project prefers the term ``free software'' for reasons
-outlined at
+This licensing model is also known as @dfn{open source} because it,
+among other things, makes sure that all recipients will receive the
+source code along with the program, and be able to improve it.  The GNU
+project prefers the term ``free software'' for reasons outlined at
 @url{http://www.gnu.org/philosophy/free-software-for-freedom.html}.
 
 The exact license terms are defined by this paragraph and the GNU
@@ -3358,7 +3430,7 @@ In addition to this, this manual is free in the same sense:
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
-under the terms of the GNU Free Documentation License, Version 1.1 or
+under the terms of the GNU Free Documentation License, Version 1.2 or
 any later version published by the Free Software Foundation; with the
 Invariant Sections being ``GNU General Public License'' and ``GNU Free
 Documentation License'', with no Front-Cover Texts, and with no
@@ -3379,7 +3451,7 @@ Documentation License are available below.
 * GNU Free Documentation License::
 @end menu
 
-@node GNU General Public License, GNU Free Documentation License, Copying, Copying
+@node GNU General Public License
 @section GNU General Public License
 @center Version 2, June 1991
 
@@ -3718,7 +3790,7 @@ the ``copyright'' line and a pointer to where the full notice is found.
 
 @smallexample
 @var{one line to give the program's name and an idea of what it does.}
-Copyright (C) 19@var{yy}  @var{name of author}
+Copyright (C) 20@var{yy}  @var{name of author}
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -3741,7 +3813,7 @@ If the program is interactive, make it output a short notice like this
 when it starts in an interactive mode:
 
 @smallexample
-Gnomovision version 69, Copyright (C) 19@var{yy} @var{name of author}
+Gnomovision version 69, Copyright (C) 20@var{yy} @var{name of author}
 Gnomovision comes with ABSOLUTELY NO WARRANTY; for details
 type `show w'.  This is free software, and you are welcome
 to redistribute it under certain conditions; type `show c'
@@ -3776,375 +3848,9 @@ consider it more useful to permit linking proprietary applications with the
 library.  If this is what you want to do, use the GNU Library General
 Public License instead of this License.
 
-@node GNU Free Documentation License,  , GNU General Public License, Copying
-@section GNU Free Documentation License
-@center Version 1.1, March 2000
+@include fdl.texi
 
-@display
-Copyright (C) 2000  Free Software Foundation, Inc.
-59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-Everyone is permitted to copy and distribute verbatim copies
-of this license document, but changing it is not allowed.
-@end display
-@sp 1
-@enumerate 0
-@item
-PREAMBLE
-
-The purpose of this License is to make a manual, textbook, or other
-written document ``free'' in the sense of freedom: to assure everyone
-the effective freedom to copy and redistribute it, with or without
-modifying it, either commercially or noncommercially.  Secondarily,
-this License preserves for the author and publisher a way to get
-credit for their work, while not being considered responsible for
-modifications made by others.
-
-This License is a kind of ``copyleft'', which means that derivative
-works of the document must themselves be free in the same sense.  It
-complements the GNU General Public License, which is a copyleft
-license designed for free software.
-
-We have designed this License in order to use it for manuals for free
-software, because free software needs free documentation: a free
-program should come with manuals providing the same freedoms that the
-software does.  But this License is not limited to software manuals;
-it can be used for any textual work, regardless of subject matter or
-whether it is published as a printed book.  We recommend this License
-principally for works whose purpose is instruction or reference.
-
-@sp 1
-@item
-APPLICABILITY AND DEFINITIONS
-
-This License applies to any manual or other work that contains a
-notice placed by the copyright holder saying it can be distributed
-under the terms of this License.  The ``Document'', below, refers to any
-such manual or work.  Any member of the public is a licensee, and is
-addressed as ``you''.
-
-A ``Modified Version'' of the Document means any work containing the
-Document or a portion of it, either copied verbatim, or with
-modifications and/or translated into another language.
-
-A ``Secondary Section'' is a named appendix or a front-matter section of
-the Document that deals exclusively with the relationship of the
-publishers or authors of the Document to the Document's overall subject
-(or to related matters) and contains nothing that could fall directly
-within that overall subject.  (For example, if the Document is in part a
-textbook of mathematics, a Secondary Section may not explain any
-mathematics.)  The relationship could be a matter of historical
-connection with the subject or with related matters, or of legal,
-commercial, philosophical, ethical or political position regarding
-them.
-
-The ``Invariant Sections'' are certain Secondary Sections whose titles
-are designated, as being those of Invariant Sections, in the notice
-that says that the Document is released under this License.
-
-The ``Cover Texts'' are certain short passages of text that are listed,
-as Front-Cover Texts or Back-Cover Texts, in the notice that says that
-the Document is released under this License.
-
-A ``Transparent'' copy of the Document means a machine-readable copy,
-represented in a format whose specification is available to the
-general public, whose contents can be viewed and edited directly and
-straightforwardly with generic text editors or (for images composed of
-pixels) generic paint programs or (for drawings) some widely available
-drawing editor, and that is suitable for input to text formatters or
-for automatic translation to a variety of formats suitable for input
-to text formatters.  A copy made in an otherwise Transparent file
-format whose markup has been designed to thwart or discourage
-subsequent modification by readers is not Transparent.  A copy that is
-not ``Transparent'' is called ``Opaque''.
-
-Examples of suitable formats for Transparent copies include plain
-@sc{ascii} without markup, Texinfo input format, LaTeX input format, @sc{sgml}
-or @sc{xml} using a publicly available @sc{dtd}, and standard-conforming simple
-@sc{html} designed for human modification.  Opaque formats include
-PostScript, @sc{pdf}, proprietary formats that can be read and edited only
-by proprietary word processors, @sc{sgml} or @sc{xml} for which the @sc{dtd} and/or
-processing tools are not generally available, and the
-machine-generated @sc{html} produced by some word processors for output
-purposes only.
-
-The ``Title Page'' means, for a printed book, the title page itself,
-plus such following pages as are needed to hold, legibly, the material
-this License requires to appear in the title page.  For works in
-formats which do not have any title page as such, ``Title Page'' means
-the text near the most prominent appearance of the work's title,
-preceding the beginning of the body of the text.
-@sp 1
-@item
-VERBATIM COPYING
-
-You may copy and distribute the Document in any medium, either
-commercially or noncommercially, provided that this License, the
-copyright notices, and the license notice saying this License applies
-to the Document are reproduced in all copies, and that you add no other
-conditions whatsoever to those of this License.  You may not use
-technical measures to obstruct or control the reading or further
-copying of the copies you make or distribute.  However, you may accept
-compensation in exchange for copies.  If you distribute a large enough
-number of copies you must also follow the conditions in section 3.
-
-You may also lend copies, under the same conditions stated above, and
-you may publicly display copies.
-@sp 1
-@item
-COPYING IN QUANTITY
-
-If you publish printed copies of the Document numbering more than 100,
-and the Document's license notice requires Cover Texts, you must enclose
-the copies in covers that carry, clearly and legibly, all these Cover
-Texts: Front-Cover Texts on the front cover, and Back-Cover Texts on
-the back cover.  Both covers must also clearly and legibly identify
-you as the publisher of these copies.  The front cover must present
-the full title with all words of the title equally prominent and
-visible.  You may add other material on the covers in addition.
-Copying with changes limited to the covers, as long as they preserve
-the title of the Document and satisfy these conditions, can be treated
-as verbatim copying in other respects.
-
-If the required texts for either cover are too voluminous to fit
-legibly, you should put the first ones listed (as many as fit
-reasonably) on the actual cover, and continue the rest onto adjacent
-pages.
-
-If you publish or distribute Opaque copies of the Document numbering
-more than 100, you must either include a machine-readable Transparent
-copy along with each Opaque copy, or state in or with each Opaque copy
-a publicly-accessible computer-network location containing a complete
-Transparent copy of the Document, free of added material, which the
-general network-using public has access to download anonymously at no
-charge using public-standard network protocols.  If you use the latter
-option, you must take reasonably prudent steps, when you begin
-distribution of Opaque copies in quantity, to ensure that this
-Transparent copy will remain thus accessible at the stated location
-until at least one year after the last time you distribute an Opaque
-copy (directly or through your agents or retailers) of that edition to
-the public.
-
-It is requested, but not required, that you contact the authors of the
-Document well before redistributing any large number of copies, to give
-them a chance to provide you with an updated version of the Document.
-@sp 1
-@item
-MODIFICATIONS
-
-You may copy and distribute a Modified Version of the Document under
-the conditions of sections 2 and 3 above, provided that you release
-the Modified Version under precisely this License, with the Modified
-Version filling the role of the Document, thus licensing distribution
-and modification of the Modified Version to whoever possesses a copy
-of it.  In addition, you must do these things in the Modified Version:
-
-A. Use in the Title Page (and on the covers, if any) a title distinct
-   from that of the Document, and from those of previous versions
-   (which should, if there were any, be listed in the History section
-   of the Document).  You may use the same title as a previous version
-   if the original publisher of that version gives permission.@*
-B. List on the Title Page, as authors, one or more persons or entities
-   responsible for authorship of the modifications in the Modified
-   Version, together with at least five of the principal authors of the
-   Document (all of its principal authors, if it has less than five).@*
-C. State on the Title page the name of the publisher of the
-   Modified Version, as the publisher.@*
-D. Preserve all the copyright notices of the Document.@*
-E. Add an appropriate copyright notice for your modifications
-   adjacent to the other copyright notices.@*
-F. Include, immediately after the copyright notices, a license notice
-   giving the public permission to use the Modified Version under the
-   terms of this License, in the form shown in the Addendum below.@*
-G. Preserve in that license notice the full lists of Invariant Sections
-   and required Cover Texts given in the Document's license notice.@*
-H. Include an unaltered copy of this License.@*
-I. Preserve the section entitled ``History'', and its title, and add to
-   it an item stating at least the title, year, new authors, and
-   publisher of the Modified Version as given on the Title Page.  If
-   there is no section entitled ``History'' in the Document, create one
-   stating the title, year, authors, and publisher of the Document as
-   given on its Title Page, then add an item describing the Modified
-   Version as stated in the previous sentence.@*
-J. Preserve the network location, if any, given in the Document for
-   public access to a Transparent copy of the Document, and likewise
-   the network locations given in the Document for previous versions
-   it was based on.  These may be placed in the ``History'' section.
-   You may omit a network location for a work that was published at
-   least four years before the Document itself, or if the original
-   publisher of the version it refers to gives permission.@*
-K. In any section entitled ``Acknowledgements'' or ``Dedications'',
-   preserve the section's title, and preserve in the section all the
-   substance and tone of each of the contributor acknowledgements
-   and/or dedications given therein.@*
-L. Preserve all the Invariant Sections of the Document,
-   unaltered in their text and in their titles.  Section numbers
-   or the equivalent are not considered part of the section titles.@*
-M. Delete any section entitled ``Endorsements''.  Such a section
-   may not be included in the Modified Version.@*
-N. Do not retitle any existing section as ``Endorsements''
-   or to conflict in title with any Invariant Section.@*
-@sp 1
-If the Modified Version includes new front-matter sections or
-appendices that qualify as Secondary Sections and contain no material
-copied from the Document, you may at your option designate some or all
-of these sections as invariant.  To do this, add their titles to the
-list of Invariant Sections in the Modified Version's license notice.
-These titles must be distinct from any other section titles.
-
-You may add a section entitled ``Endorsements'', provided it contains
-nothing but endorsements of your Modified Version by various
-parties--for example, statements of peer review or that the text has
-been approved by an organization as the authoritative definition of a
-standard.
-
-You may add a passage of up to five words as a Front-Cover Text, and a
-passage of up to 25 words as a Back-Cover Text, to the end of the list
-of Cover Texts in the Modified Version.  Only one passage of
-Front-Cover Text and one of Back-Cover Text may be added by (or
-through arrangements made by) any one entity.  If the Document already
-includes a cover text for the same cover, previously added by you or
-by arrangement made by the same entity you are acting on behalf of,
-you may not add another; but you may replace the old one, on explicit
-permission from the previous publisher that added the old one.
-
-The author(s) and publisher(s) of the Document do not by this License
-give permission to use their names for publicity for or to assert or
-imply endorsement of any Modified Version.
-@sp 1
-@item
-COMBINING DOCUMENTS
-
-You may combine the Document with other documents released under this
-License, under the terms defined in section 4 above for modified
-versions, provided that you include in the combination all of the
-Invariant Sections of all of the original documents, unmodified, and
-list them all as Invariant Sections of your combined work in its
-license notice.
-
-The combined work need only contain one copy of this License, and
-multiple identical Invariant Sections may be replaced with a single
-copy.  If there are multiple Invariant Sections with the same name but
-different contents, make the title of each such section unique by
-adding at the end of it, in parentheses, the name of the original
-author or publisher of that section if known, or else a unique number.
-Make the same adjustment to the section titles in the list of
-Invariant Sections in the license notice of the combined work.
-
-In the combination, you must combine any sections entitled ``History''
-in the various original documents, forming one section entitled
-``History''; likewise combine any sections entitled ``Acknowledgements'',
-and any sections entitled ``Dedications''.  You must delete all sections
-entitled ``Endorsements.''
-@sp 1
-@item
-COLLECTIONS OF DOCUMENTS
-
-You may make a collection consisting of the Document and other documents
-released under this License, and replace the individual copies of this
-License in the various documents with a single copy that is included in
-the collection, provided that you follow the rules of this License for
-verbatim copying of each of the documents in all other respects.
-
-You may extract a single document from such a collection, and distribute
-it individually under this License, provided you insert a copy of this
-License into the extracted document, and follow this License in all
-other respects regarding verbatim copying of that document.
-@sp 1
-@item
-AGGREGATION WITH INDEPENDENT WORKS
-
-A compilation of the Document or its derivatives with other separate
-and independent documents or works, in or on a volume of a storage or
-distribution medium, does not as a whole count as a Modified Version
-of the Document, provided no compilation copyright is claimed for the
-compilation.  Such a compilation is called an ``aggregate'', and this
-License does not apply to the other self-contained works thus compiled
-with the Document, on account of their being thus compiled, if they
-are not themselves derivative works of the Document.
-
-If the Cover Text requirement of section 3 is applicable to these
-copies of the Document, then if the Document is less than one quarter
-of the entire aggregate, the Document's Cover Texts may be placed on
-covers that surround only the Document within the aggregate.
-Otherwise they must appear on covers around the whole aggregate.
-@sp 1
-@item
-TRANSLATION
-
-Translation is considered a kind of modification, so you may
-distribute translations of the Document under the terms of section 4.
-Replacing Invariant Sections with translations requires special
-permission from their copyright holders, but you may include
-translations of some or all Invariant Sections in addition to the
-original versions of these Invariant Sections.  You may include a
-translation of this License provided that you also include the
-original English version of this License.  In case of a disagreement
-between the translation and the original English version of this
-License, the original English version will prevail.
-@sp 1
-@item
-TERMINATION
-
-You may not copy, modify, sublicense, or distribute the Document except
-as expressly provided for under this License.  Any other attempt to
-copy, modify, sublicense or distribute the Document is void, and will
-automatically terminate your rights under this License.  However,
-parties who have received copies, or rights, from you under this
-License will not have their licenses terminated so long as such
-parties remain in full compliance.
-@sp 1
-@item
-FUTURE REVISIONS OF THIS LICENSE
-
-The Free Software Foundation may publish new, revised versions
-of the GNU Free Documentation License from time to time.  Such new
-versions will be similar in spirit to the present version, but may
-differ in detail to address new problems or concerns.  See
-http://www.gnu.org/copyleft/.
-
-Each version of the License is given a distinguishing version number.
-If the Document specifies that a particular numbered version of this
-License ``or any later version'' applies to it, you have the option of
-following the terms and conditions either of that specified version or
-of any later version that has been published (not as a draft) by the
-Free Software Foundation.  If the Document does not specify a version
-number of this License, you may choose any version ever published (not
-as a draft) by the Free Software Foundation.
-
-@end enumerate
-
-@unnumberedsec ADDENDUM: How to use this License for your documents
-
-To use this License in a document you have written, include a copy of
-the License in the document and put the following copyright and
-license notices just after the title page:
-
-@smallexample
-@group
-
-  Copyright (C)  @var{year}  @var{your name}.
-  Permission is granted to copy, distribute and/or modify this document
-  under the terms of the GNU Free Documentation License, Version 1.1
-  or any later version published by the Free Software Foundation;
-  with the Invariant Sections being @var{list their titles}, with the
-  Front-Cover Texts being @var{list}, and with the Back-Cover Texts being @var{list}.
-  A copy of the license is included in the section entitled ``GNU
-  Free Documentation License''.
-@end group
-@end smallexample
-If you have no Invariant Sections, write ``with no Invariant Sections''
-instead of saying which ones are invariant.  If you have no
-Front-Cover Texts, write ``no Front-Cover Texts'' instead of
-``Front-Cover Texts being @var{list}''; likewise for Back-Cover Texts.
-
-If your document contains nontrivial examples of program code, we
-recommend releasing these examples in parallel under your choice of
-free software license, such as the GNU General Public License,
-to permit their use in free software.
-
-
-@node Concept Index,  , Copying, Top
+@node Concept Index
 @unnumbered Concept Index
 @printindex cp
 

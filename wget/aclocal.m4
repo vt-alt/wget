@@ -2,17 +2,17 @@ dnl
 dnl Check for `struct utimbuf'.
 dnl
 
-AC_DEFUN([WGET_STRUCT_UTIMBUF],
-[AC_MSG_CHECKING([for struct utimbuf])
-if test x"$ac_cv_header_utime_h" = xyes; then
-  AC_EGREP_CPP([struct[ 	]+utimbuf],
-    [#include <utime.h>],
-    [AC_DEFINE(HAVE_STRUCT_UTIMBUF)
-      AC_MSG_RESULT(yes)],
-    AC_MSG_RESULT(no))
-else
-  AC_MSG_RESULT(no)
-fi])
+AC_DEFUN([WGET_STRUCT_UTIMBUF], [
+  AC_CHECK_TYPES([struct utimbuf], [], [], [
+#include <stdio.h>
+#if HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+#if HAVE_UTIME_H
+# include <utime.h>
+#endif
+  ])
+])
 
 
 dnl Check for socklen_t.  The third argument of accept, getsockname,
@@ -23,23 +23,23 @@ dnl size_t *, we use that, else we use int.
 
 AC_DEFUN([WGET_SOCKLEN_T], [
   AC_MSG_CHECKING(for socklen_t)
-  AC_TRY_COMPILE([
+  AC_COMPILE_IFELSE([
 #include <sys/types.h>
 #include <sys/socket.h>
 socklen_t x;
-],
-    [], [AC_MSG_RESULT(yes)], [
-      AC_TRY_COMPILE([
+  ], [AC_MSG_RESULT(socklen_t)], [
+    AC_COMPILE_IFELSE([
 #include <sys/types.h>
 #include <sys/socket.h>
 int accept (int, struct sockaddr *, size_t *);
-],
-      [], [
+    ], [
       AC_MSG_RESULT(size_t)
-      AC_DEFINE(socklen_t, size_t)
+      AC_DEFINE([socklen_t], [size_t],
+                [Define to int or size_t on systems without socklen_t.])
     ], [
       AC_MSG_RESULT(int)
-      AC_DEFINE(socklen_t, int)
+      AC_DEFINE([socklen_t], [int],
+                [Define to int or size_t on systems without socklen_t.])
     ])
   ])
 ])
@@ -55,33 +55,59 @@ AC_DEFUN([WGET_FNMATCH], [
   AC_COMPILE_IFELSE([#include <fnmatch.h>
                     ], [
     AC_MSG_RESULT(yes)
-    AC_DEFINE(HAVE_WORKING_FNMATCH_H)
+    AC_DEFINE([HAVE_WORKING_FNMATCH_H], 1,
+              [Define if fnmatch.h can be included.])
   ], [
     AC_MSG_RESULT(no)
   ])
 ])
 
-dnl
-dnl ansi2knr support: check whether C prototypes are available.
-dnl
+dnl Check for nanosleep.  For nanosleep to work on Solaris, we must
+dnl link with -lrt (recently) or with -lposix4 (older releases).
 
-AC_DEFUN(AM_C_PROTOTYPES,
-[AC_REQUIRE([AM_PROG_CC_STDC])
-AC_BEFORE([$0], [AC_C_INLINE])
-AC_MSG_CHECKING([for function prototypes])
-if test "$am_cv_prog_cc_stdc" != no; then
-  AC_MSG_RESULT(yes)
-  AC_DEFINE(PROTOTYPES)
-  U= ANSI2KNR=
-else
-  AC_MSG_RESULT(no)
-  U=_ ANSI2KNR=./ansi2knr
-  # Ensure some checks needed by ansi2knr itself.
-  AC_HEADER_STDC
-  AC_CHECK_HEADERS(string.h)
-fi
-AC_SUBST(U)dnl
-AC_SUBST(ANSI2KNR)dnl
+AC_DEFUN([WGET_NANOSLEEP], [
+  AC_CHECK_FUNCS(nanosleep, [], [
+    AC_CHECK_LIB(rt, nanosleep, [
+      AC_DEFINE([HAVE_NANOSLEEP], 1,
+                [Define if you have the nanosleep function.])
+      LIBS="-lrt $LIBS"
+    ], [
+      AC_CHECK_LIB(posix4, nanosleep, [
+	AC_DEFINE([HAVE_NANOSLEEP], 1,
+		  [Define if you have the nanosleep function.])
+	LIBS="-lposix4 $LIBS"
+      ])
+    ])
+  ])
+])
+
+AC_DEFUN([WGET_POSIX_CLOCK], [
+  AC_CHECK_FUNCS(clock_gettime, [], [
+    AC_CHECK_LIB(rt, clock_gettime)
+  ])
+])
+
+dnl Check whether we need to link with -lnsl and -lsocket, as is the
+dnl case on e.g. Solaris.
+
+AC_DEFUN([WGET_NSL_SOCKET], [
+  dnl On Solaris, -lnsl is needed to use gethostbyname.  But checking
+  dnl for gethostbyname is not enough because on "NCR MP-RAS 3.0"
+  dnl gethostbyname is in libc, but -lnsl is still needed to use
+  dnl -lsocket, as well as for functions such as inet_ntoa.  We look
+  dnl for such known offenders and if one of them is not found, we
+  dnl check if -lnsl is needed.
+  wget_check_in_nsl=NONE
+  AC_CHECK_FUNCS(gethostbyname, [], [
+    wget_check_in_nsl=gethostbyname
+  ])
+  AC_CHECK_FUNCS(inet_ntoa, [], [
+    wget_check_in_nsl=inet_ntoa
+  ])
+  if test $wget_check_in_nsl != NONE; then
+    AC_CHECK_LIB(nsl, $wget_check_in_nsl)
+  fi
+  AC_CHECK_LIB(socket, socket)
 ])
 
 
@@ -147,18 +173,18 @@ dnl START OF IPv6 AUTOCONFIGURATION SUPPORT MACROS
 dnl ************************************************************
 
 AC_DEFUN([TYPE_STRUCT_SOCKADDR_IN6],[
-  ds6_have_sockaddr_in6=
+  wget_have_sockaddr_in6=
   AC_CHECK_TYPES([struct sockaddr_in6],[
-    ds6_have_sockaddr_in6=yes
+    wget_have_sockaddr_in6=yes
   ],[
-    ds6_have_sockaddr_in6=no
+    wget_have_sockaddr_in6=no
   ],[
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
   ])
 
-  if test "X$ds6_have_sockaddr_in6" = "Xyes"; then :
+  if test "X$wget_have_sockaddr_in6" = "Xyes"; then :
     $1
   else :
     $2
@@ -169,12 +195,12 @@ AC_DEFUN([TYPE_STRUCT_SOCKADDR_IN6],[
 AC_DEFUN([MEMBER_SIN6_SCOPE_ID],[
   AC_REQUIRE([TYPE_STRUCT_SOCKADDR_IN6])
   
-  ds6_member_sin6_scope_id=
-  if test "X$ds6_have_sockaddr_in6" = "Xyes"; then
+  wget_member_sin6_scope_id=
+  if test "X$wget_have_sockaddr_in6" = "Xyes"; then
     AC_CHECK_MEMBER([struct sockaddr_in6.sin6_scope_id],[
-      ds6_member_sin6_scope_id=yes
+      wget_member_sin6_scope_id=yes
     ],[
-      ds6_member_sin6_scope_id=no
+      wget_member_sin6_scope_id=no
     ],[
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -182,7 +208,7 @@ AC_DEFUN([MEMBER_SIN6_SCOPE_ID],[
     ])
   fi
 
-  if test "X$ds6_member_sin6_scope_id" = "Xyes"; then
+  if test "X$wget_member_sin6_scope_id" = "Xyes"; then
     AC_DEFINE([HAVE_SOCKADDR_IN6_SCOPE_ID], 1,
       [Define if struct sockaddr_in6 has the sin6_scope_id member])
     $1
@@ -193,7 +219,7 @@ AC_DEFUN([MEMBER_SIN6_SCOPE_ID],[
 
 
 AC_DEFUN([PROTO_INET6],[
-  AC_CACHE_CHECK([for INET6 protocol support], [ds6_cv_proto_inet6],[
+  AC_CACHE_CHECK([for INET6 protocol support], [wget_cv_proto_inet6],[
     AC_TRY_CPP([
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -205,13 +231,13 @@ AC_DEFUN([PROTO_INET6],[
 #error Mlssing AF_INET6
 #endif
     ],[
-      ds6_cv_proto_inet6=yes
+      wget_cv_proto_inet6=yes
     ],[
-      ds6_cv_proto_inet6=no
+      wget_cv_proto_inet6=no
     ])
   ])
 
-  if test "X$ds6_cv_proto_inet6" = "Xyes"; then :
+  if test "X$wget_cv_proto_inet6" = "Xyes"; then :
     $1
   else :
     $2
@@ -219,73 +245,11 @@ AC_DEFUN([PROTO_INET6],[
 ])
 
 
-AC_DEFUN([GETADDRINFO_AI_ADDRCONFIG],[
-  AC_CACHE_CHECK([if getaddrinfo supports AI_ADDRCONFIG],
-    [ds6_cv_gai_ai_addrconfig],[
-    AC_TRY_CPP([
-#include <netdb.h>
-
-#ifndef AI_ADDRCONFIG
-#error Missing AI_ADDRCONFIG
-#endif
-    ],[
-      ds6_cv_gai_ai_addrconfig=yes
-    ],[
-      ds6_cv_gai_ai_addrconfig=no
-    ])
+AC_DEFUN([WGET_STRUCT_SOCKADDR_STORAGE],[
+  AC_CHECK_TYPES([struct sockaddr_storage],[], [], [
+#include <sys/types.h>
+#include <sys/socket.h>
   ])
-
-  if test "X$ds6_cv_gai_ai_addrconfig" = "Xyes"; then :
-    $1
-  else :
-    $2
-  fi
-])
-
-
-AC_DEFUN([GETADDRINFO_AI_ALL],[
-  AC_CACHE_CHECK([if getaddrinfo supports AI_ALL],[ds6_cv_gai_ai_all],[
-    AC_TRY_CPP([
-#include <netdb.h>
-
-#ifndef AI_ALL
-#error Missing AI_ALL
-#endif
-    ],[
-      ds6_cv_gai_ai_all=yes
-    ],[
-      ds6_cv_gai_ai_all=no
-    ])
-  ])
-
-  if test "X$ds6_cv_gai_ai_all" = "Xyes"; then :
-    $1
-  else :
-    $2
-  fi
-])
-
-
-AC_DEFUN([GETADDRINFO_AI_V4MAPPED],[
-  AC_CACHE_CHECK([if getaddrinfo supports AI_V4MAPPED],[ds6_cv_gai_ai_v4mapped],[
-    AC_TRY_CPP([
-#include <netdb.h>
-
-#ifndef AI_V4MAPPED
-#error Missing AI_V4MAPPED
-#endif
-    ],[
-      ds6_cv_gai_ai_v4mapped=yes
-    ],[
-      ds6_cv_gai_ai_v4mapped=no
-    ])
-  ])
-
-  if test "X$ds6_cv_gai_ai_v4mapped" = "Xyes"; then :
-    $1
-  else :
-    $2
-  fi
 ])
 
 dnl ************************************************************
@@ -294,7 +258,7 @@ dnl ************************************************************
 
 # This code originates from Ulrich Drepper's AM_WITH_NLS.
 
-AC_DEFUN(WGET_WITH_NLS,
+AC_DEFUN([WGET_WITH_NLS],
   [AC_MSG_CHECKING([whether NLS is requested])
     dnl Default is enabled NLS
     AC_ARG_ENABLE(nls,
@@ -307,7 +271,21 @@ AC_DEFUN(WGET_WITH_NLS,
     dnl last moment.
 
     if test x"$HAVE_NLS" = xyes; then
-      AC_MSG_RESULT([language catalogs: $ALL_LINGUAS])
+      dnl If LINGUAS is specified, use only those languages.  In fact,
+      dnl compute an intersection of languages in LINGUAS and
+      dnl ALL_LINGUAS, and use that.
+      if test x"$LINGUAS" != x; then
+        new_linguas=
+        for lang1 in $ALL_LINGUAS; do
+          for lang2 in $LINGUAS; do
+            if test "$lang1" = "$lang2"; then
+              new_linguas="$new_linguas $lang1"
+            fi
+          done
+        done
+        ALL_LINGUAS=$new_linguas
+      fi
+      AC_MSG_NOTICE([language catalogs: $ALL_LINGUAS])
       AM_PATH_PROG_WITH_TEST(MSGFMT, msgfmt,
 	[test -z "`$ac_dir/$ac_word -h 2>&1 | grep 'dv '`"], msgfmt)
       AM_PATH_PROG_WITH_TEST(XGETTEXT, xgettext,
@@ -342,7 +320,8 @@ AC_DEFUN(WGET_WITH_NLS,
       AC_CHECK_LIB(intl, gettext, [
         dnl gettext is in libintl; announce the fact manually.
         LIBS="-lintl $LIBS"
-	AC_DEFINE(HAVE_GETTEXT)
+	AC_DEFINE([HAVE_GETTEXT], 1,
+                  [Define if you have the gettext function.])
       ], [
         AC_CHECK_FUNCS(gettext, [], [
           AC_MSG_RESULT([gettext not found; disabling NLS])
@@ -350,9 +329,6 @@ AC_DEFUN(WGET_WITH_NLS,
         ])
       ])
 
-      dnl These rules are solely for the distribution goal.  While doing this
-      dnl we only have to keep exactly one list of the available catalogs
-      dnl in configure.in.
       for lang in $ALL_LINGUAS; do
 	GMOFILES="$GMOFILES $lang.gmo"
 	POFILES="$POFILES $lang.po"
@@ -377,7 +353,7 @@ AC_DEFUN(WGET_WITH_NLS,
     USE_NLS=$HAVE_NLS
     AC_SUBST(USE_NLS)
     if test "x$HAVE_NLS" = xyes; then
-      AC_DEFINE(HAVE_NLS)
+      AC_DEFINE([HAVE_NLS], 1, [Define this if you want the NLS support.])
     fi
   ])
 

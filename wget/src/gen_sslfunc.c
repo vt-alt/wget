@@ -30,8 +30,6 @@ so, delete this exception statement from your version.  */
 
 #include <config.h>
 
-#ifdef HAVE_SSL
-
 #include <assert.h>
 #include <errno.h>
 #ifdef HAVE_UNISTD_H
@@ -55,12 +53,15 @@ so, delete this exception statement from your version.  */
 #include "utils.h"
 #include "connect.h"
 #include "url.h"
+#include "gen_sslfunc.h"
 
 #ifndef errno
 extern int errno;
 #endif
 
-void
+SSL_CTX *ssl_ctx;
+
+static void
 ssl_init_prng (void)
 {
   /* It is likely that older versions of OpenSSL will fail on
@@ -98,29 +99,24 @@ ssl_init_prng (void)
     return;
 #endif
 
-  /* Still not enough randomness, presumably because neither random
-     file nor EGD have been available.  Use the stupidest possible
-     method -- seed OpenSSL's PRNG with the system's PRNG.  This is
-     insecure in the cryptographic sense, but people who care about
-     security will use /dev/random or their own source of randomness
-     anyway.  */
+  /* Still not enough randomness, most likely because neither
+     /dev/random nor EGD were available.  Resort to a simple and
+     stupid method -- seed OpenSSL's PRNG with libc PRNG.  This is
+     cryptographically weak, but people who care about strong
+     cryptography should install /dev/random (default on Linux) or
+     specify their own source of randomness anyway.  */
+
+  logprintf (LOG_VERBOSE, _("Warning: using a weak random seed.\n"));
 
   while (RAND_status () == 0 && maxrand-- > 0)
     {
       unsigned char rnd = random_number (256);
       RAND_seed (&rnd, sizeof (rnd));
     }
-
-  if (RAND_status () == 0)
-    {
-      logprintf (LOG_NOTQUIET,
-		 _("Could not seed OpenSSL PRNG; disabling SSL.\n"));
-      scheme_disable (SCHEME_HTTPS);
-    }
 #endif /* SSLEAY_VERSION_NUMBER >= 0x00905100 */
 }
 
-int
+static int
 verify_callback (int ok, X509_STORE_CTX *ctx)
 {
   char *s, buf[256];
@@ -141,30 +137,37 @@ verify_callback (int ok, X509_STORE_CTX *ctx)
   return ok;
 }
 
-/* pass all ssl errors to DEBUGP
-   returns the number of printed errors */
-int
-ssl_printerrors (void) 
+/* Print SSL errors. */
+
+static void
+ssl_print_errors (void) 
 {
-  int ocerr = 0;
   unsigned long curerr = 0;
-  char errbuff[1024];
-  memset(errbuff, 0, sizeof(errbuff));
-  while ( 0 != (curerr = ERR_get_error ()))
-    {
-      DEBUGP (("OpenSSL: %s\n", ERR_error_string (curerr, errbuff)));
-      ++ocerr;
-    }
-  return ocerr;
+  while ((curerr = ERR_get_error ()) != 0)
+    logprintf (LOG_NOTQUIET, "OpenSSL: %s\n", ERR_error_string (curerr, NULL));
 }
 
 /* Creates a SSL Context and sets some defaults for it */
 uerr_t
-init_ssl (SSL_CTX **ctx)
+ssl_init ()
 {
   SSL_METHOD *meth = NULL;
   int verify;
   int can_validate;
+
+  if (ssl_ctx)
+    return 0;
+
+  /* Init the PRNG.  If that fails, bail out.  */
+  ssl_init_prng ();
+  if (RAND_status () == 0)
+    {
+      logprintf (LOG_NOTQUIET,
+		 _("Could not seed OpenSSL PRNG; disabling SSL.\n"));
+      scheme_disable (SCHEME_HTTPS);
+      return SSLERRCTXCREATE;
+    }
+
   SSL_library_init ();
   SSL_load_error_strings ();
   SSLeay_add_all_algorithms ();
@@ -186,20 +189,20 @@ init_ssl (SSL_CTX **ctx)
     }
   if (meth == NULL)
     {
-      ssl_printerrors ();
+      ssl_print_errors ();
       return SSLERRCTXCREATE;
     }
 
-  *ctx = SSL_CTX_new (meth);
+  ssl_ctx = SSL_CTX_new (meth);
   if (meth == NULL)
     {
-      ssl_printerrors ();
+      ssl_print_errors ();
       return SSLERRCTXCREATE;
     }
   /* Can we validate the server Cert ? */
   if (opt.sslcadir != NULL || opt.sslcafile != NULL)
     {
-      SSL_CTX_load_verify_locations (*ctx, opt.sslcafile, opt.sslcadir);
+      SSL_CTX_load_verify_locations (ssl_ctx, opt.sslcafile, opt.sslcadir);
       can_validate = 1;
     }
   else
@@ -226,7 +229,7 @@ init_ssl (SSL_CTX **ctx)
 	}
     }
 
-  SSL_CTX_set_verify (*ctx, verify, verify_callback);
+  SSL_CTX_set_verify (ssl_ctx, verify, verify_callback);
 
   if (opt.sslcertfile != NULL || opt.sslcertkey != NULL)
     {
@@ -241,14 +244,16 @@ init_ssl (SSL_CTX **ctx)
       if (opt.sslcertfile == NULL)
 	opt.sslcertfile = opt.sslcertkey; 
 
-      if (SSL_CTX_use_certificate_file (*ctx, opt.sslcertfile, ssl_cert_type) <= 0)
+      if (SSL_CTX_use_certificate_file (ssl_ctx, opt.sslcertfile,
+					ssl_cert_type) <= 0)
 	{
-	  ssl_printerrors ();
+	  ssl_print_errors ();
   	  return SSLERRCERTFILE;
 	}
-      if (SSL_CTX_use_PrivateKey_file  (*ctx, opt.sslcertkey , ssl_cert_type) <= 0)
+      if (SSL_CTX_use_PrivateKey_file  (ssl_ctx, opt.sslcertkey,
+					ssl_cert_type) <= 0)
 	{
-	  ssl_printerrors ();
+	  ssl_print_errors ();
 	  return SSLERRCERTKEY;
 	}
     }
@@ -256,105 +261,107 @@ init_ssl (SSL_CTX **ctx)
   return 0; /* Succeded */
 }
 
-void
-shutdown_ssl (SSL* con)
+static int
+ssl_read (int fd, char *buf, int bufsize, void *ctx)
 {
-  if (con == NULL)
-    return;
-  if (0==SSL_shutdown (con))
-    SSL_shutdown (con);
-  SSL_free (con);
+  int ret;
+  SSL *ssl = (SSL *) ctx;
+  do
+    ret = SSL_read (ssl, buf, bufsize);
+  while (ret == -1
+	 && SSL_get_error (ssl, ret) == SSL_ERROR_SYSCALL
+	 && errno == EINTR);
+  return ret;
 }
 
-/* Sets up a SSL structure and performs the handshake on fd 
-   Returns 0 if everything went right
-   Returns 1 if something went wrong ----- TODO: More exit codes
-*/
-int
-connect_ssl (SSL **con, SSL_CTX *ctx, int fd) 
+static int
+ssl_write (int fd, char *buf, int bufsize, void *ctx)
 {
-  if (NULL == (*con = SSL_new (ctx)))
-    {
-      ssl_printerrors ();
-      return 1;
-    }
-  if (!SSL_set_fd (*con, fd))
-    {
-      ssl_printerrors ();
-      return 1;
-    }
-  SSL_set_connect_state (*con);
-  switch (SSL_connect (*con))
-    {
-      case 1 : 
-	return (*con)->state != SSL_ST_OK;
-      default:
-        ssl_printerrors ();
-	shutdown_ssl (*con);
-	*con = NULL;
-	return 1;
-      case 0 :
-        ssl_printerrors ();
-	SSL_free (*con);
-       	*con = NULL;
- 	return 1;
-    }
+  int ret = 0;
+  SSL *ssl = (SSL *) ctx;
+  do
+    ret = SSL_write (ssl, buf, bufsize);
+  while (ret == -1
+	 && SSL_get_error (ssl, ret) == SSL_ERROR_SYSCALL
+	 && errno == EINTR);
+  return ret;
+}
+
+static int
+ssl_poll (int fd, double timeout, int wait_for, void *ctx)
+{
+  SSL *ssl = (SSL *) ctx;
+  if (timeout == 0)
+    return 1;
+  if (SSL_pending (ssl))
+    return 1;
+  return select_fd (fd, timeout, wait_for);
+}
+
+static int
+ssl_peek (int fd, char *buf, int bufsize, void *ctx)
+{
+  int ret;
+  SSL *ssl = (SSL *) ctx;
+  do
+    ret = SSL_peek (ssl, buf, bufsize);
+  while (ret == -1
+	 && SSL_get_error (ssl, ret) == SSL_ERROR_SYSCALL
+	 && errno == EINTR);
+  return ret;
+}
+
+static void
+ssl_close (int fd, void *ctx)
+{
+  SSL *ssl = (SSL *) ctx;
+  SSL_shutdown (ssl);
+  SSL_free (ssl);
+
+#ifdef WINDOWS
+  closesocket (fd);
+#else
+  close (fd);
+#endif
+
+  DEBUGP (("Closed %d/SSL 0x%0lx\n", fd, (unsigned long) ssl));
+}
+
+/* Sets up a SSL structure and performs the handshake on fd.  The
+   resulting SSL structure is registered with the file descriptor FD
+   using fd_register_transport.  That way subsequent calls to xread,
+   xwrite, etc., will use the appropriate SSL functions.
+
+   Returns 1 on success, 0 on failure.  */
+
+int
+ssl_connect (int fd) 
+{
+  SSL *ssl;
+
+  assert (ssl_ctx != NULL);
+  ssl = SSL_new (ssl_ctx);
+  if (!ssl)
+    goto err;
+  if (!SSL_set_fd (ssl, fd))
+    goto err;
+  SSL_set_connect_state (ssl);
+  if (SSL_connect (ssl) <= 0 || ssl->state != SSL_ST_OK)
+    goto err;
+
+  /* Register FD with Wget's transport layer, i.e. arrange that
+     SSL-enabled functions are used for reading, writing, and polling.
+     That way the rest of Wget can keep using xread, xwrite, and
+     friends and not care what happens underneath.  */
+  fd_register_transport (fd, ssl_read, ssl_write, ssl_poll, ssl_peek,
+			 ssl_close, ssl);
+  DEBUGP (("Connected %d to SSL 0x%0*lx\n", fd, 2 * sizeof (void *),
+	   (unsigned long) ssl));
+  return 1;
+
+ err:
+  ssl_print_errors ();
+  if (ssl)
+    SSL_free (ssl);
   return 0;
 }
-
-void
-free_ssl_ctx (SSL_CTX * ctx)
-{
-  SSL_CTX_free (ctx);
-}
-
-/* SSL version of iread.  Only exchanged read for SSL_read Read at
-   most LEN bytes from FD, storing them to BUF. */
-
-int
-ssl_iread (SSL *con, char *buf, int len)
-{
-  int res, fd;
-  BIO_get_fd (con->rbio, &fd);
-#ifdef HAVE_SELECT
-  if (opt.read_timeout && !SSL_pending (con))
-    if (select_fd (fd, opt.read_timeout, 0) <= 0)
-      return -1;
-#endif
-  do
-    res = SSL_read (con, buf, len);
-  while (res == -1 && errno == EINTR);
-
-  return res;
-}
-
-/* SSL version of iwrite.  Only exchanged write for SSL_write Write
-   LEN bytes from BUF to FD.  */
-
-int
-ssl_iwrite (SSL *con, char *buf, int len)
-{
-  int res = 0, fd;
-  BIO_get_fd (con->rbio, &fd);
-  /* `write' may write less than LEN bytes, thus the outward loop
-     keeps trying it until all was written, or an error occurred.  The
-     inner loop is reserved for the usual EINTR f*kage, and the
-     innermost loop deals with the same during select().  */
-  while (len > 0)
-    {
-#ifdef HAVE_SELECT
-      if (opt.read_timeout)
-	if (select_fd (fd, opt.read_timeout, 1) <= 0)
-	  return -1;
-#endif
-      do
-	res = SSL_write (con, buf, len);
-      while (res == -1 && errno == EINTR);
-      if (res <= 0)
-	break;
-      buf += res;
-      len -= res;
-    }
-  return res;
-}
-#endif /* HAVE_SSL */

@@ -47,6 +47,9 @@ so, delete this exception statement from your version.  */
 #include "utils.h"
 #include "ftp.h"
 #include "url.h"
+#include "convert.h"		/* for html_quote_string prototype */
+
+extern FILE *output_stream;
 
 /* Converts symbolic permissions to number-style ones, e.g. string
    rwxr-xr-x to 755.  For now, it knows nothing of
@@ -119,7 +122,7 @@ ftp_parse_unix_ls (const char *file, int ignore_perms)
   dir = l = NULL;
 
   /* Line loop to end of file: */
-  while ((line = read_whole_line (fp)))
+  while ((line = read_whole_line (fp)) != NULL)
     {
       len = clean_line (line);
       /* Skip if total...  */
@@ -198,7 +201,7 @@ ftp_parse_unix_ls (const char *file, int ignore_perms)
 	 This tactic is quite dubious when it comes to
 	 internationalization issues (non-English month names), but it
 	 works for now.  */
-      while ((tok = strtok (NULL, " ")))
+      while ((tok = strtok (NULL, " ")) != NULL)
 	{
 	  --next;
 	  if (next < 0)		/* a month name was not encountered */
@@ -210,17 +213,28 @@ ftp_parse_unix_ls (const char *file, int ignore_perms)
 		 size, and the filename is three tokens away.  */
 	      if (i != 12)
 		{
-		  char *t = tok - 2;
-		  long mul = 1;
+		  wgint size;
 
-		  for (cur.size = 0; t > line && ISDIGIT (*t); mul *= 10, t--)
-		    cur.size += mul * (*t - '0');
+		  /* Back up to the beginning of the previous token
+		     and parse it with str_to_wgint.  */
+		  char *t = tok - 2;
+		  while (t > line && ISDIGIT (*t))
+		    --t;
 		  if (t == line)
 		    {
-		      /* Something is seriously wrong.  */
+		      /* Something has gone wrong during parsing. */
 		      error = 1;
 		      break;
 		    }
+		  errno = 0;
+		  size = str_to_wgint (t, NULL, 10);
+		  if (size == WGINT_MAX && errno == ERANGE)
+		    /* Out of range -- ignore the size.  #### Should
+		       we refuse to start the download.  */
+		    cur.size = 0;
+		  else
+		    cur.size = size;
+
 		  month = i;
 		  next = 5;
 		  DEBUGP (("month: %s; ", months[month]));
@@ -358,22 +372,22 @@ ftp_parse_unix_ls (const char *file, int ignore_perms)
       if (error || ignore)
 	{
 	  DEBUGP (("Skipping.\n"));
-	  FREE_MAYBE (cur.name);
-	  FREE_MAYBE (cur.linkto);
+	  xfree_null (cur.name);
+	  xfree_null (cur.linkto);
 	  xfree (line);
 	  continue;
 	}
 
       if (!dir)
 	{
-	  l = dir = (struct fileinfo *)xmalloc (sizeof (struct fileinfo));
+	  l = dir = xnew (struct fileinfo);
 	  memcpy (l, &cur, sizeof (cur));
 	  l->prev = l->next = NULL;
 	}
       else
 	{
 	  cur.prev = l;
-	  l->next = (struct fileinfo *)xmalloc (sizeof (struct fileinfo));
+	  l->next = xnew (struct fileinfo);
 	  l = l->next;
 	  memcpy (l, &cur, sizeof (cur));
 	  l->next = NULL;
@@ -436,7 +450,7 @@ ftp_parse_winnt_ls (const char *file)
   dir = l = NULL;
 
   /* Line loop to end of file: */
-  while ((line = read_whole_line (fp)))
+  while ((line = read_whole_line (fp)) != NULL)
     {
       len = clean_line (line);
 
@@ -454,11 +468,14 @@ ftp_parse_winnt_ls (const char *file)
       /* First column: mm-dd-yy. Should atoi() on the month fail, january
 	 will be assumed.  */
       tok = strtok(line, "-");
+      if (tok == NULL) continue;
       month = atoi(tok) - 1;
       if (month < 0) month = 0;
       tok = strtok(NULL, "-");
+      if (tok == NULL) continue;
       day = atoi(tok);
       tok = strtok(NULL, " ");
+      if (tok == NULL) continue;
       year = atoi(tok);
       /* Assuming the epoch starting at 1.1.1970 */
       if (year <= 70) year += 100;
@@ -466,8 +483,10 @@ ftp_parse_winnt_ls (const char *file)
       /* Second column: hh:mm[AP]M, listing does not contain value for
          seconds */
       tok = strtok(NULL,  ":");
+      if (tok == NULL) continue;
       hour = atoi(tok);
       tok = strtok(NULL,  "M");
+      if (tok == NULL) continue;
       min = atoi(tok);
       /* Adjust hour from AM/PM. Just for the record, the sequence goes
          11:00AM, 12:00PM, 01:00PM ... 11:00PM, 12:00AM, 01:00AM . */
@@ -497,7 +516,9 @@ ftp_parse_winnt_ls (const char *file)
          directories as the listing does not give us a clue) and filetype
          here. */
       tok = strtok(NULL, " ");
-      while (*tok == '\0')  tok = strtok(NULL, " ");
+      if (tok == NULL) continue;
+      while ((tok != NULL) && (*tok == '\0'))  tok = strtok(NULL, " ");
+      if (tok == NULL) continue;
       if (*tok == '<')
 	{
 	  cur.type  = FT_DIRECTORY;
@@ -507,10 +528,16 @@ ftp_parse_winnt_ls (const char *file)
 	}
       else
 	{
+	  wgint size;
 	  cur.type  = FT_PLAINFILE;
-	  cur.size  = atoi(tok);
+	  errno = 0;
+	  size = str_to_wgint (tok, NULL, 10);
+	  if (size == WGINT_MAX && errno == ERANGE)
+	    cur.size = 0;	/* overflow */
+	  else
+	    cur.size = size;
 	  cur.perms = 0644;
-	  DEBUGP(("File, size %ld bytes\n", cur.size));
+	  DEBUGP(("File, size %s bytes\n", number_to_static_string (cur.size)));
 	}
 
       cur.linkto = NULL;
@@ -518,20 +545,20 @@ ftp_parse_winnt_ls (const char *file)
       /* And put everything into the linked list */
       if (!dir)
 	{
-	  l = dir = (struct fileinfo *)xmalloc (sizeof (struct fileinfo));
+	  l = dir = xnew (struct fileinfo);
 	  memcpy (l, &cur, sizeof (cur));
 	  l->prev = l->next = NULL;
 	}
       else
 	{
 	  cur.prev = l;
-	  l->next = (struct fileinfo *)xmalloc (sizeof (struct fileinfo));
+	  l->next = xnew (struct fileinfo);
 	  l = l->next;
 	  memcpy (l, &cur, sizeof (cur));
 	  l->next = NULL;
 	}
 
-      xfree(line);
+      xfree (line);
     }
 
   fclose(fp);
@@ -589,21 +616,18 @@ ftp_parse_vms_ls (const char *file)
 
   /* Skip empty line. */
   line = read_whole_line (fp);
-  if (line)
-    xfree (line);
+  xfree_null (line);
 
   /* Skip "Directory PUB$DEVICE[PUB]" */
   line = read_whole_line (fp);
-  if (line)
-    xfree (line);
+  xfree_null (line);
 
   /* Skip empty line. */
   line = read_whole_line (fp);
-  if (line)
-    xfree (line);
+  xfree_null (line);
 
   /* Line loop to end of file: */
-  while ((line = read_whole_line (fp)))
+  while ((line = read_whole_line (fp)) != NULL)
     {
       char *p;
       i = clean_line (line);
@@ -678,6 +702,7 @@ ftp_parse_vms_ls (const char *file)
       /* Third/Second column: Date DD-MMM-YYYY. */
 
       tok = strtok(NULL, "-");
+      if (tok == NULL) continue;
       DEBUGP(("day: '%s'\n",tok));
       day = atoi(tok);
       tok = strtok(NULL, "-");
@@ -695,12 +720,14 @@ ftp_parse_vms_ls (const char *file)
       /* Uknown months are mapped to January */
       month = i % 12 ; 
       tok = strtok (NULL, " ");
+      if (tok == NULL) continue;
       year = atoi (tok) - 1900;
       DEBUGP(("date parsed\n"));
 
       /* Fourth/Third column: Time hh:mm[:ss] */
       tok = strtok (NULL, " ");
-      hour = min = sec = 0;
+      if (tok == NULL) continue;
+      min = sec = 0;
       p = tok;
       hour = atoi (p);
       for (; *p && *p != ':'; ++p);
@@ -730,10 +757,12 @@ ftp_parse_vms_ls (const char *file)
       /* Skip the fifth column */
 
       tok = strtok(NULL, " ");
+      if (tok == NULL) continue;
 
       /* Sixth column: Permissions */
 
       tok = strtok(NULL, ","); /* Skip the VMS-specific SYSTEM permissons */
+      if (tok == NULL) continue;
       tok = strtok(NULL, ")");
       if (tok == NULL)
         {
@@ -783,7 +812,7 @@ ftp_parse_ls (const char *file, const enum stype system_type)
   switch (system_type)
     {
     case ST_UNIX:
-      return ftp_parse_unix_ls (file, FALSE);
+      return ftp_parse_unix_ls (file, 0);
     case ST_WINNT:
       {
 	/* Detect whether the listing is simulating the UNIX format */
@@ -802,16 +831,16 @@ ftp_parse_ls (const char *file, const enum stype system_type)
 	if (c >= '0' && c <='9')
 	  return ftp_parse_winnt_ls (file);
         else
-          return ftp_parse_unix_ls (file, TRUE);
+          return ftp_parse_unix_ls (file, 1);
       }
     case ST_VMS:
       return ftp_parse_vms_ls (file);
     case ST_MACOS:
-      return ftp_parse_unix_ls (file, TRUE);
+      return ftp_parse_unix_ls (file, 1);
     default:
       logprintf (LOG_NOTQUIET, _("\
 Unsupported listing type, trying Unix listing parser.\n"));
-      return ftp_parse_unix_ls (file, FALSE);
+      return ftp_parse_unix_ls (file, 0);
     }
 }
 
@@ -827,7 +856,7 @@ ftp_index (const char *file, struct url *u, struct fileinfo *f)
   char *upwd;
   char *htclfile;		/* HTML-clean file name */
 
-  if (!opt.dfp)
+  if (!output_stream)
     {
       fp = fopen (file, "wb");
       if (!fp)
@@ -837,18 +866,19 @@ ftp_index (const char *file, struct url *u, struct fileinfo *f)
 	}
     }
   else
-    fp = opt.dfp;
+    fp = output_stream;
   if (u->user)
     {
       char *tmpu, *tmpp;        /* temporary, clean user and passwd */
 
       tmpu = url_escape (u->user);
       tmpp = u->passwd ? url_escape (u->passwd) : NULL;
-      upwd = (char *)xmalloc (strlen (tmpu)
-			     + (tmpp ? (1 + strlen (tmpp)) : 0) + 2);
-      sprintf (upwd, "%s%s%s@", tmpu, tmpp ? ":" : "", tmpp ? tmpp : "");
+      if (tmpp)
+	upwd = concat_strings (tmpu, ":", tmpp, "@", (char *) 0);
+      else
+	upwd = concat_strings (tmpu, "@", (char *) 0);
       xfree (tmpu);
-      FREE_MAYBE (tmpp);
+      xfree_null (tmpp);
     }
   else
     upwd = xstrdup ("");
@@ -865,7 +895,7 @@ ftp_index (const char *file, struct url *u, struct fileinfo *f)
 	{
 	  /* #### Should we translate the months?  Or, even better, use
 	     ISO 8601 dates?  */
-	  static char *months[] = {
+	  static const char *months[] = {
 	    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
 	    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 	  };
@@ -910,7 +940,7 @@ ftp_index (const char *file, struct url *u, struct fileinfo *f)
 	putc ('/', fp);
       fprintf (fp, "</a> ");
       if (f->type == FT_PLAINFILE)
-	fprintf (fp, _(" (%s bytes)"), legible (f->size));
+	fprintf (fp, _(" (%s bytes)"), with_thousand_seps (f->size));
       else if (f->type == FT_SYMLINK)
 	fprintf (fp, "-> %s", f->linkto ? f->linkto : "(nil)");
       putc ('\n', fp);
@@ -919,7 +949,7 @@ ftp_index (const char *file, struct url *u, struct fileinfo *f)
     }
   fprintf (fp, "</pre>\n</body>\n</html>\n");
   xfree (upwd);
-  if (!opt.dfp)
+  if (!output_stream)
     fclose (fp);
   else
     fflush (fp);

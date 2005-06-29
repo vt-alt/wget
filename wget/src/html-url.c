@@ -81,6 +81,7 @@ enum {
   TAG_LAYER,
   TAG_LINK,
   TAG_META,
+  TAG_OBJECT,
   TAG_OVERLAY,
   TAG_SCRIPT,
   TAG_TABLE,
@@ -111,6 +112,7 @@ static struct known_tag {
   { TAG_LAYER,	 "layer",	tag_find_urls },
   { TAG_LINK,	 "link",	tag_handle_link },
   { TAG_META,	 "meta",	tag_handle_meta },
+  { TAG_OBJECT,  "object",	tag_find_urls },
   { TAG_OVERLAY, "overlay",	tag_find_urls },
   { TAG_SCRIPT,	 "script",	tag_find_urls },
   { TAG_TABLE,	 "table",	tag_find_urls },
@@ -157,6 +159,7 @@ static struct {
   { TAG_IMG,		"src",		ATTR_INLINE },
   { TAG_INPUT,		"src",		ATTR_INLINE },
   { TAG_LAYER,		"src",		ATTR_INLINE | ATTR_HTML },
+  { TAG_OBJECT,		"data",		ATTR_INLINE },
   { TAG_OVERLAY,	"src",		ATTR_INLINE | ATTR_HTML },
   { TAG_SCRIPT,		"src",		ATTR_INLINE },
   { TAG_TABLE,		"background",	ATTR_INLINE },
@@ -227,9 +230,10 @@ init_interesting (void)
   /* Add the attributes we care about. */
   interesting_attributes = make_nocase_string_hash_table (10);
   for (i = 0; i < countof (additional_attributes); i++)
-    string_set_add (interesting_attributes, additional_attributes[i]);
+    hash_table_put (interesting_attributes, additional_attributes[i], "1");
   for (i = 0; i < countof (tag_url_attributes); i++)
-    string_set_add (interesting_attributes, tag_url_attributes[i].attr_name);
+    hash_table_put (interesting_attributes,
+		    tag_url_attributes[i].attr_name, "1");
 }
 
 /* Find the value of attribute named NAME in the taginfo TAG.  If the
@@ -327,10 +331,7 @@ append_url (const char *link_uri,
 
   DEBUGP (("appending \"%s\" to urlpos.\n", url->url));
 
-  newel = (struct urlpos *)xmalloc (sizeof (struct urlpos));
-  memset (newel, 0, sizeof (*newel));
-
-  newel->next = NULL;
+  newel = xnew0 (struct urlpos);
   newel->url = url;
   newel->pos = tag->attrs[attrind].value_raw_beginning - ctx->text;
   newel->size = tag->attrs[attrind].value_raw_size;
@@ -598,7 +599,7 @@ get_urls_html (const char *file, const char *url, int *meta_disallow_follow)
       logprintf (LOG_NOTQUIET, "%s: %s\n", file, strerror (errno));
       return NULL;
     }
-  DEBUGP (("Loaded %s (size %ld).\n", file, fm->length));
+  DEBUGP (("Loaded %s (size %s).\n", file, number_to_static_string (fm->length)));
 
   ctx.text = fm->content;
   ctx.head = ctx.tail = NULL;
@@ -611,9 +612,12 @@ get_urls_html (const char *file, const char *url, int *meta_disallow_follow)
     init_interesting ();
 
   /* Specify MHT_TRIM_VALUES because of buggy HTML generators that
-     generate <a href=" foo"> instead of <a href="foo"> (Netscape
-     ignores spaces as well.)  If you really mean space, use &32; or
-     %20.  */
+     generate <a href=" foo"> instead of <a href="foo"> (browsers
+     ignore spaces as well.)  If you really mean space, use &32; or
+     %20.  MHT_TRIM_VALUES also causes squashing of embedded newlines,
+     e.g. in <img src="foo.[newline]html">.  Such newlines are also
+     ignored by IE and Mozilla and are presumably introduced by
+     writing HTML with editors that force word wrap.  */
   flags = MHT_TRIM_VALUES;
   if (opt.strict_comments)
     flags |= MHT_STRICT_COMMENTS;
@@ -625,7 +629,7 @@ get_urls_html (const char *file, const char *url, int *meta_disallow_follow)
   if (meta_disallow_follow)
     *meta_disallow_follow = ctx.nofollow;
 
-  FREE_MAYBE (ctx.base);
+  xfree_null (ctx.base);
   read_file_free (fm);
   return ctx.head;
 }
@@ -647,7 +651,7 @@ get_urls_file (const char *file)
       logprintf (LOG_NOTQUIET, "%s: %s\n", file, strerror (errno));
       return NULL;
     }
-  DEBUGP (("Loaded %s (size %ld).\n", file, fm->length));
+  DEBUGP (("Loaded %s (size %s).\n", file, number_to_static_string (fm->length)));
 
   head = tail = NULL;
   text = fm->content;
@@ -700,8 +704,7 @@ get_urls_file (const char *file)
 	}
       xfree (url_text);
 
-      entry = (struct urlpos *)xmalloc (sizeof (struct urlpos));
-      memset (entry, 0, sizeof (*entry));
+      entry = xnew0 (struct urlpos);
       entry->next = NULL;
       entry->url = url;
 
@@ -718,6 +721,10 @@ get_urls_file (const char *file)
 void
 cleanup_html_url (void)
 {
-  FREE_MAYBE (interesting_tags);
-  FREE_MAYBE (interesting_attributes);
+  /* Destroy the hash tables.  The hash table keys and values are not
+     allocated by this code, so we don't need to free them here.  */
+  if (interesting_tags)
+    hash_table_destroy (interesting_tags);
+  if (interesting_attributes)
+    hash_table_destroy (interesting_attributes);
 }

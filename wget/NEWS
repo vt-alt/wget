@@ -1,9 +1,74 @@
 GNU Wget NEWS -- history of user-visible changes.
 
-Copyright (C) 1997, 1998, 2000, 2001, 2002, 2003 Free Software Foundation, Inc.
+Copyright (C) 2005 Free Software Foundation, Inc.
 See the end for copying conditions.
 
 Please send GNU Wget bug reports to <bug-wget@gnu.org>.
+
+* Changes in Wget 1.10.
+
+** Downloading files greater than 2GB, also known as "large files",
+now works on systems that support them.  This includes most modern
+Unix variants, as well as Windows.
+
+** IPv6 is now supported by Wget.  Unlike the experimental code in
+1.9, this version has no problems with dual-family systems.  The new
+flags `--inet4' and `--inet6' (or `-4' and `-6' for short) force the
+use of IPv4 and IPv6 respectively.
+
+** Talking to SSL servers over proxies now actually works.
+
+** Wget no longer truncates partially downloaded files when download
+has to start over because the server doesn't support Range.  Instead,
+with such servers Wget now simply ignores the data up to the byte
+where the last attempt left off, and only then continues appending to
+the file.  That way the downloaded file never shrinks, and "start
+over" retries work correctly even when downloading to stdout.
+
+** Passive FTP is now the default FTP transfer mode.  Use
+`--no-passive-ftp' or specify `passive_ftp = off' in your init file to
+revert to the old behavior.
+
+** The `--header' option can now be used to override generated
+headers.  For example, `wget --header="Host: foo.bar"
+http://127.0.0.1' tells Wget to connect to localhost, but to specify
+"foo.bar" in the `Host' header.  In previous versions such use of
+`--header' lead to duplicate headers in HTTP requests.
+
+** The responses without headers, aka "HTTP 0.9" responses, are
+detected and handled.  Although HTTP 0.9 has long been obsolete, it is
+still occasionally used, sometimes by accident.
+
+** The progress bar is now updated regularly even when the data does
+not arrive from the network.
+
+** Wget no longer preserves permissions of files retrieved by FTP by
+default.  Anonymous FTP servers frequently use permissions like "664",
+which might not be what the user wants.  The new option
+`--preserve-permissions' and the corresponding `.wgetrc' variable can
+be used to revert to the old behavior.
+
+** The new option `--protocol-directories' instructs Wget to also use
+the protocol name as a directory component of local file names.
+
+** Many options that previously unconditionally set or unset various
+flags are now boolean options that can be invoked as either `--OPTION'
+or `--no-OPTION'.  Options that required an argument "on" or "off"
+have also been changed this way, but they still accept the old syntax
+for backward compatibility.  For example, instead of `--glob=off' you
+can write `--no-glob'.
+
+Allowing `--no-OPTION' for every `--OPTION' and the other way around
+is useful because it allows the user to override non-default behavior
+specified via `.wgetrc'.
+
+** The new option `--keep-session-cookies' causes `--save-cookies' to
+save session cookies along with the permanent ones.  This is useful on
+sites that require you to log in before you can access some pages.
+With this option, multiple Wget runs will be treated as a single
+browser session.
+
+* `wget -b' now works correctly under Windows.
 
 * Wget 1.9.1 is a bugfix release with no user-visible changes.
 
@@ -438,7 +503,7 @@ geturl -vo log http://fly.cc.fer.hr/
 ----------------------------------------------------------------------
 Copyright information:
 
-Copyright (C) 1997, 1998, 2000, 2001 Free Software Foundation, Inc.
+Copyright (C) 2005 Free Software Foundation, Inc.
 
    Permission is granted to anyone to make or distribute verbatim
    copies of this document as received, in any medium, provided that
