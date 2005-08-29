@@ -66,8 +66,8 @@ so, delete this exception statement from your version.  */
 #endif
 #include <assert.h>
 
-/* Cygwin currently (as of 2005-04-08, Cygwin 1.5.14) lack clock_getres,
-   but still define _POSIX_TIMERS!  Because of that we simply use the
+/* Cygwin currently (as of 2005-04-08, Cygwin 1.5.14) lacks clock_getres,
+   but still defines _POSIX_TIMERS!  Because of that we simply use the
    Windows timers under Cygwin.  */
 #ifdef __CYGWIN__
 # include <windows.h>
@@ -92,7 +92,7 @@ extern int errno;
 #if defined(WINDOWS) || defined(__CYGWIN__)
 # define PTIMER_WINDOWS		/* use Windows timers */
 #else
-# if _POSIX_TIMERS > 0
+# if _POSIX_TIMERS - 0 > 0
 #  define PTIMER_POSIX		/* use POSIX timers (clock_gettime) */
 # else
 #  ifdef HAVE_GETTIMEOFDAY
@@ -139,7 +139,7 @@ posix_init (void)
     int id;
     int sysconf_name;
   } clocks[] = {
-#if defined(_POSIX_MONOTONIC_CLOCK) && _POSIX_MONOTONIC_CLOCK >= 0
+#if defined(_POSIX_MONOTONIC_CLOCK) && _POSIX_MONOTONIC_CLOCK - 0 >= 0
     { CLOCK_MONOTONIC, _SC_MONOTONIC_CLOCK },
 #endif
 #ifdef CLOCK_HIGHRES
@@ -388,7 +388,7 @@ ptimer_destroy (struct ptimer *pt)
 }
 
 /* Reset timer PT.  This establishes the starting point from which
-   ptimer_read() will return the number of elapsed milliseconds.
+   ptimer_measure() will return the number of elapsed milliseconds.
    It is allowed to reset a previously used timer.  */
 
 void
@@ -400,13 +400,11 @@ ptimer_reset (struct ptimer *pt)
   pt->elapsed_pre_start = 0;
 }
 
-/* Measure the elapsed time since timer creation/reset and return it
-   to the caller.  The value remains stored for further reads by
-   ptimer_read.
-
-   This function causes the timer to call gettimeofday (or time(),
-   etc.) to update its idea of current time.  To get the elapsed
-   interval in milliseconds, use ptimer_read.
+/* Measure the elapsed time since timer creation/reset.  This causes
+   the timer to internally call clock_gettime (or gettimeofday, etc.) 
+   to update its idea of current time.  The time in milliseconds is
+   returned, but is also stored for later access through
+   ptimer_read().
 
    This function handles clock skew, i.e. time that moves backwards is
    ignored.  */
@@ -447,8 +445,9 @@ ptimer_measure (struct ptimer *pt)
   return elapsed;
 }
 
-/* Return the elapsed time in milliseconds between the last call to
-   ptimer_reset and the last call to ptimer_update.  */
+/* Return the most recent elapsed time in milliseconds, as measured
+   with ptimer_measure.  If ptimer_measure has not yet been called
+   since the timer was created or reset, this returns 0.  */
 
 double
 ptimer_read (const struct ptimer *pt)

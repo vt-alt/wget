@@ -6,7 +6,7 @@ CC=bcc32
 LINK=ilink32
 
 LFLAGS=
-WARN=-w-8057 -w-8027 -w-8066 -w-8008 -w-8065
+WARN=-w-8057 -w-8027 -w-8008 -w-8065
 CFLAGS=-DWINDOWS -DHAVE_CONFIG_H -I. -O2 -6 -d -q $(WARN)
 
 ## variables
@@ -58,9 +58,13 @@ $<,$*,+
 $(LIBDIR)\import32.lib+
 $(LIBDIR)\cw32.lib
 
-
-
 |
+
+$(OBJS): config-post.h connect.h convert.h cookies.h ftp.h gen-md5.h \
+         getopt.h gnu-md5.h hash.h host.h html-parse.h http-ntlm.h   \
+         init.h log.h mswindows.h netrc.h options.h progress.h       \
+         ptimer.h recur.h res.h retr.h safe-ctype.h ssl.h sysdep.h   \
+         url.h utils.h wget.h xmalloc.h
 
 
 #
@@ -70,10 +74,12 @@ $(LIBDIR)\cw32.lib
 clean:
 	$(RM) *.bak
 	$(RM) *.obj
-	$(RM) *.exe
-	$(RM) *.map
-	$(RM) *.tds
+	$(RM) wget.exe
+	$(RM) wget.ilc
+	$(RM) wget.ild
+	$(RM) wget.ilf
+	$(RM) wget.ils
+	$(RM) wget.map
+	$(RM) wget.tds
 
 o = .obj
-
-!include "..\windows\wget.dep"

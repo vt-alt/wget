@@ -61,15 +61,15 @@ realclean-top: distclean-top
 
 clean-recursive distclean-recursive realclean-recursive:
 	cd src
-	$(MAKE) $(@:-recursive=)
-	cd ..\\doc
-	$(MAKE) $(@:-recursive=)
+	$(MAKEDIR)\$(MAKE) $(@:-recursive=)
+	cd ..\doc
+	$(MAKEDIR)\$(MAKE) $(@:-recursive=)
 	cd ..
 
 bindist: wget.zip
 
 wget.zip: $(SUBDIRS)
 	$(RM) wget.zip
-	zip -Djl9 wget.zip AUTHORS COPYING INSTALL MACHINES MAILING-LIST NEWS README doc/sample.wgetrc
+	zip -Djl9 wget.zip AUTHORS COPYING INSTALL MAILING-LIST NEWS README doc/sample.wgetrc
 	zip -Dj9 wget.zip src/wget.exe doc/wget.hlp
 

@@ -29,10 +29,6 @@ so, delete this exception statement from your version.  */
 
 #include <config.h>
 
-#ifndef WINDOWS
-#include <netdb.h>
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #ifdef HAVE_STRING_H
@@ -62,7 +58,6 @@ so, delete this exception statement from your version.  */
 #include "host.h"
 #include "url.h"
 #include "hash.h"
-#include "connect.h"		/* for socket_has_inet6 */
 
 #ifndef errno
 extern int errno;
@@ -148,7 +143,6 @@ address_list_contains (const struct address_list *al, const ip_address *ip)
 #endif /* ENABLE_IPV6 */
     default:
       abort ();
-      return 0;
     }
 }
 
@@ -239,6 +233,32 @@ address_list_from_addrinfo (const struct addrinfo *ai)
   return al;
 }
 
+#define IS_IPV4(addr) (((const ip_address *) addr)->type == IPV4_ADDRESS)
+
+/* Compare two IP addresses by type, giving preference to the IPv4
+   address (sorting it first).  In other words, return -1 if ADDR1 is
+   IPv4 and ADDR2 is IPv6, +1 if ADDR1 is IPv6 and ADDR2 is IPv4, and
+   0 otherwise.
+
+   This is intended to be used as the comparator arg to a qsort-like
+   sorting function, which is why it accepts generic pointers.  */
+
+static int
+cmp_prefer_ipv4 (const void *addr1, const void *addr2)
+{
+  return !IS_IPV4 (addr1) - !IS_IPV4 (addr2);
+}
+
+#define IS_IPV6(addr) (((const ip_address *) addr)->type == IPV6_ADDRESS)
+
+/* Like the above, but give preference to the IPv6 address.  */
+
+static int
+cmp_prefer_ipv6 (const void *addr1, const void *addr2)
+{
+  return !IS_IPV6 (addr1) - !IS_IPV6 (addr2);
+}
+
 #else  /* not ENABLE_IPV6 */
 
 /* Create an address_list from a NULL-terminated vector of IPv4
@@ -286,10 +306,11 @@ void
 address_list_release (struct address_list *al)
 {
   --al->refcount;
-  DEBUGP (("Releasing %p (new refcount %d).\n", al, al->refcount));
+  DEBUGP (("Releasing 0x%0*lx (new refcount %d).\n", PTR_FORMAT (al),
+	   al->refcount));
   if (al->refcount <= 0)
     {
-      DEBUGP (("Deleting unused %p.\n", al));
+      DEBUGP (("Deleting unused 0x%0*lx.\n", PTR_FORMAT (al)));
       address_list_delete (al);
     }
 }
@@ -425,7 +446,6 @@ pretty_print_address (const ip_address *addr)
 #endif
     }
   abort ();
-  return NULL;
 }
 
 /* The following two functions were adapted from glibc. */
@@ -473,10 +493,11 @@ is_valid_ipv4_address (const char *str, const char *end)
 int
 is_valid_ipv6_address (const char *str, const char *end)
 {
+  /* Use lower-case for these to avoid clash with system headers.  */
   enum {
-    NS_INADDRSZ  = 4,
-    NS_IN6ADDRSZ = 16,
-    NS_INT16SZ   = 2
+    ns_inaddrsz  = 4,
+    ns_in6addrsz = 16,
+    ns_int16sz   = 2
   };
 
   const char *curtok;
@@ -531,19 +552,19 @@ is_valid_ipv6_address (const char *str, const char *end)
 	    }
 	  else if (str == end)
 	    return 0;
-	  if (tp > NS_IN6ADDRSZ - NS_INT16SZ)
+	  if (tp > ns_in6addrsz - ns_int16sz)
 	    return 0;
-	  tp += NS_INT16SZ;
+	  tp += ns_int16sz;
 	  saw_xdigit = 0;
 	  val = 0;
 	  continue;
 	}
 
       /* if ch is a dot ... */
-      if (ch == '.' && (tp <= NS_IN6ADDRSZ - NS_INADDRSZ)
+      if (ch == '.' && (tp <= ns_in6addrsz - ns_inaddrsz)
 	  && is_valid_ipv4_address (curtok, end) == 1)
 	{
-	  tp += NS_INADDRSZ;
+	  tp += ns_inaddrsz;
 	  saw_xdigit = 0;
 	  break;
 	}
@@ -553,19 +574,19 @@ is_valid_ipv6_address (const char *str, const char *end)
 
   if (saw_xdigit == 1)
     {
-      if (tp > NS_IN6ADDRSZ - NS_INT16SZ) 
+      if (tp > ns_in6addrsz - ns_int16sz) 
 	return 0;
-      tp += NS_INT16SZ;
+      tp += ns_int16sz;
     }
 
   if (colonp != NULL)
     {
-      if (tp == NS_IN6ADDRSZ) 
+      if (tp == ns_in6addrsz) 
 	return 0;
-      tp = NS_IN6ADDRSZ;
+      tp = ns_in6addrsz;
     }
 
-  if (tp != NS_IN6ADDRSZ)
+  if (tp != ns_in6addrsz)
     return 0;
 
   return 1;
@@ -640,14 +661,19 @@ cache_remove (const char *host)
     }
 }
 
-/* Look up HOST in DNS and return a list of IP addresses.  The
-   addresses in the list are in the same order in which
-   gethostbyname/getaddrinfo returned them.
+/* Look up HOST in DNS and return a list of IP addresses.
 
    This function caches its result so that, if the same host is passed
    the second time, the addresses are returned without DNS lookup.
    (Use LH_REFRESH to force lookup, or set opt.dns_cache to 0 to
    globally disable caching.)
+
+   The order of the returned addresses is affected by the setting of
+   opt.prefer_family: if it is set to prefer_ipv4, IPv4 addresses are
+   placed at the beginning; if it is prefer_ipv6, IPv6 ones are placed
+   at the beginning; otherwise, the order is left intact.  The
+   relative order of addresses with the same family is left
+   undisturbed in either case.
 
    FLAGS can be a combination of:
      LH_SILENT  - don't print the "resolving ... done" messages.
@@ -736,17 +762,11 @@ lookup_host (const char *host, int flags)
     else if (opt.ipv6_only)
       hints.ai_family = AF_INET6;
     else
-      {
+      /* We tried using AI_ADDRCONFIG, but removed it because: it
+	 misinterprets IPv6 loopbacks, it is broken on AIX 5.1, and
+	 it's unneeded since we sort the addresses anyway.  */
 	hints.ai_family = AF_UNSPEC;
-#ifdef AI_ADDRCONFIG
-	hints.ai_flags |= AI_ADDRCONFIG;
-#else
-	/* On systems without AI_ADDRCONFIG, emulate it by manually
-	   checking whether the system supports IPv6 sockets.  */
-	if (!socket_has_inet6 ())
-	  hints.ai_family = AF_INET;
-#endif
-      }
+
     if (flags & LH_BIND)
       hints.ai_flags |= AI_PASSIVE;
 
@@ -778,6 +798,14 @@ lookup_host (const char *host, int flags)
 		   _("failed: No IPv4/IPv6 addresses for host.\n"));
 	return NULL;
       }
+
+    /* Reorder addresses so that IPv4 ones (or IPv6 ones, as per
+       --prefer-family) come first.  Sorting is stable so the order of
+       the addresses with the same family is undisturbed.  */
+    if (al->count > 1 && opt.prefer_family != prefer_none)
+      stable_sort (al->addresses, al->count, sizeof (ip_address),
+		   opt.prefer_family == prefer_ipv4
+		   ? cmp_prefer_ipv4 : cmp_prefer_ipv6);
   }
 #else  /* not ENABLE_IPV6 */
   {

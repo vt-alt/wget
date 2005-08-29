@@ -1,3 +1,134 @@
+2005-08-11  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* configure.in: Check for strtoll and strtoimax.
+
+2005-07-05  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* configure.in: Check for timegm.
+
+2005-07-03  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* po/POTFILES.in: Include src/ptimer.c.
+
+2005-06-29  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* configure.in: Test for $LIBSSL instead of the old $ssl_success
+	when deciding which MD5 to use.
+
+2005-06-29  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* configure.in: Require Autoconf 2.59.
+
+2005-06-27  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* configure.in: Replace libtool with AC_LIB_HAVE_LINKFLAGS.
+	Modify makefiles accordingly.  (Imported from the trunk.)
+
+2005-06-23  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* util/dist-wget: Port to subversion.
+
+2005-06-22  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* README.svn: Renamed to README.checkout.  Edited to mention the
+	autogen.sh script.
+
+2005-06-22  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* autogen.sh: New file.
+
+	* Makefile.svn: Deleted, replaced with the even simpler (and more
+	standard) `autogen.sh' script.
+
+2005-06-22  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* MAILING-LIST: Remove reference to the obsolete `wget-cvs'
+	mailing list.
+
+2005-06-22  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* config.sub, config.guess: Updated from canonical location.
+
+2005-06-21  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* Makefile.cvs: Renamed to Makefile.svn.
+
+	* README.cvs: Renamed to README.svn.
+
+2005-05-10  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* configure.in: Test for OpenSSL includes we actually need.
+
+2005-05-06  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* Makefile.in ($(srcdir)/stamp-h.in): Don't print the line with
+	the comment about running autoheader.
+
+2005-05-06  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* configure.in: Set MAKEINFO to "true" so build doesn't fail for
+	users without either makeinfo or the pre-packaged info files.
+
+2005-05-02  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* INSTALL: Document environment variables affecting configure,
+	especially $CC.
+
+	* INSTALL: Mention that make install requires root.
+
+2005-04-29  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* configure.in: Don't set ipv6 to yes only because struct
+	sockaddr_in6 was found.  Stop the rest of the IPv6 checks when one
+	check fails.  Abort if IPv6 was explicitly requested, but not
+	found.
+
+2005-04-28  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* windows/Makefile.top.bor: Use MAKEDIR for make clean too.
+
+2005-04-28  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* windows/Makefile.src.bor: Don't delete executables other than
+	wget.exe.  Delete various auxilliary files created by the Borland
+	build process.
+
+2005-04-28  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* NEWS: Advertise new-style syntax for --no-dns-cache instead
+	of --dns-cache=off.
+
+2005-04-28  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* windows/Makefile.src.bor: Don't suppress unreachable code
+	warning.
+
+2005-04-28  Herold Heiko  <Heiko.Herold@previnet.it>
+
+	* windows/wget.dep: Rename gen_sslfunc.c to openssl.c.
+
+2005-04-28  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* INSTALL: Mention --disable-ntlm.
+
+2005-04-27  Mauro Tortonesi  <mauro@ferrara.linux.it>
+
+	* NEWS: Mention the new --ftp-user, --ftp-password, --user and
+	--password options, the name changes for --http-passwd and
+	--proxy-passwd and the deprecation of login and passwd commands.
+
+2005-04-22  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* po/eo.po: Added Esperanto translation.
+
+2005-04-21  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* po/vi.po: Added Vietnamese translation.
+
+2005-04-18  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* MACHINES: Removed.
+
 2005-04-08  Hrvoje Niksic  <hniksic@xemacs.org>
 
 	* configure.in: When checking for OpenSSL headers, check for all

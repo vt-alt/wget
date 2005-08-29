@@ -74,7 +74,7 @@ extern int errno;
 
 struct options opt;
 
-extern LARGE_INT total_downloaded_bytes;
+extern SUM_SIZE_INT total_downloaded_bytes;
 extern char *version_string;
 
 extern struct cookie_jar *wget_cookie_jar;
@@ -83,25 +83,27 @@ static RETSIGTYPE redirect_output_signal PARAMS ((int));
 
 const char *exec_name;
 
-/* Initialize I18N.  The initialization amounts to invoking
-   setlocale(), bindtextdomain() and textdomain().
-   Does nothing if NLS is disabled or missing.  */
+/* Initialize I18N/L10N.  That amounts to invoking setlocale, and
+   setting up gettext's message catalog using bindtextdomain and
+   textdomain.  Does nothing if NLS is disabled or missing.  */
+
 static void
 i18n_initialize (void)
 {
-  /* If HAVE_NLS is defined, assume the existence of the three
-     functions invoked here.  */
+  /* HAVE_NLS implies existence of functions invoked here.  */
 #ifdef HAVE_NLS
   /* Set the current locale.  */
-  /* Here we use LC_MESSAGES instead of LC_ALL, for two reasons.
-     First, message catalogs are all of I18N Wget uses anyway.
-     Second, setting LC_ALL has a dangerous potential of messing
-     things up.  For example, when in a foreign locale, Solaris
-     strptime() fails to handle international dates correctly, which
-     makes http_atotm() malfunction.  */
-#ifdef LC_MESSAGES
+  /* Where possible, sets only LC_MESSAGES and LC_CTYPE.  Other
+     categories, such as numeric, time, or collation, break code that
+     parses data received from the network and relies on C-locale
+     behavior of libc functions.  For example, Solaris strptime fails
+     to recognize English month names in non-English locales, which
+     breaks http_atotm.  Some implementations of fnmatch perform
+     unwanted case folding in non-C locales.  ctype macros, while they
+     were used, provided another example against LC_ALL.  */
+#if defined(LC_MESSAGES) && defined(LC_CTYPE)
   setlocale (LC_MESSAGES, "");
-  setlocale (LC_CTYPE, "");
+  setlocale (LC_CTYPE, "");	/* safe because we use safe-ctype */
 #else
   setlocale (LC_ALL, "");
 #endif
@@ -142,7 +144,7 @@ struct cmdline_option {
     OPT__DONT_REMOVE_LISTING,
     OPT__EXECUTE,
     OPT__NO,
-    OPT__PARENT,
+    OPT__PARENT
   } type;
   const void *data;		/* for standard options */
   int argtype;			/* for non-standard options */
@@ -157,7 +159,12 @@ struct cmdline_option option_data[] =
     { "backups", 0, OPT_BOOLEAN, "backups", -1 },
     { "base", 'B', OPT_VALUE, "base", -1 },
     { "bind-address", 0, OPT_VALUE, "bindaddress", -1 },
+    { IF_SSL ("ca-certificate"), 0, OPT_VALUE, "cacertificate", -1 },
+    { IF_SSL ("ca-directory"), 0, OPT_VALUE, "cadirectory", -1 },
     { "cache", 0, OPT_BOOLEAN, "cache", -1 },
+    { IF_SSL ("certificate"), 0, OPT_VALUE, "certificate", -1 },
+    { IF_SSL ("certificate-type"), 0, OPT_VALUE, "certificatetype", -1 },
+    { IF_SSL ("check-certificate"), 0, OPT_BOOLEAN, "checkcertificate", -1 },
     { "clobber", 0, OPT__CLOBBER, NULL, optional_argument },
     { "connect-timeout", 0, OPT_VALUE, "connecttimeout", -1 },
     { "continue", 'c', OPT_BOOLEAN, "continue", -1 },
@@ -181,7 +188,8 @@ struct cmdline_option option_data[] =
     { "follow-tags", 0, OPT_VALUE, "followtags", -1 },
     { "force-directories", 'x', OPT_BOOLEAN, "dirstruct", -1 },
     { "force-html", 'F', OPT_BOOLEAN, "forcehtml", -1 },
-    { "ftp-passwd", 0, OPT_VALUE, "ftppasswd", -1 },
+    { "ftp-password", 0, OPT_VALUE, "ftppassword", -1 },
+    { "ftp-user", 0, OPT_VALUE, "ftpuser", -1 },
     { "glob", 0, OPT_BOOLEAN, "glob", -1 },
     { "header", 0, OPT_VALUE, "header", -1 },
     { "help", 'h', OPT_FUNCALL, (void *)print_help, no_argument },
@@ -189,7 +197,8 @@ struct cmdline_option option_data[] =
     { "html-extension", 'E', OPT_BOOLEAN, "htmlextension", -1 },
     { "htmlify", 0, OPT_BOOLEAN, "htmlify", -1 },
     { "http-keep-alive", 0, OPT_BOOLEAN, "httpkeepalive", -1 },
-    { "http-passwd", 0, OPT_VALUE, "httppasswd", -1 },
+    { "http-passwd", 0, OPT_VALUE, "httppassword", -1 }, /* deprecated */
+    { "http-password", 0, OPT_VALUE, "httppassword", -1 },
     { "http-user", 0, OPT_VALUE, "httpuser", -1 },
     { "ignore-length", 0, OPT_BOOLEAN, "ignorelength", -1 },
     { "ignore-tags", 0, OPT_VALUE, "ignoretags", -1 },
@@ -212,16 +221,23 @@ struct cmdline_option option_data[] =
     { "page-requisites", 'p', OPT_BOOLEAN, "pagerequisites", -1 },
     { "parent", 0, OPT__PARENT, NULL, optional_argument },
     { "passive-ftp", 0, OPT_BOOLEAN, "passiveftp", -1 },
+    { "password", 0, OPT_VALUE, "password", -1 },
     { "post-data", 0, OPT_VALUE, "postdata", -1 },
     { "post-file", 0, OPT_VALUE, "postfile", -1 },
+    { "prefer-family", 0, OPT_VALUE, "preferfamily", -1 },
     { "preserve-permissions", 0, OPT_BOOLEAN, "preservepermissions", -1 },
+    { IF_SSL ("private-key"), 0, OPT_VALUE, "privatekey", -1 },
+    { IF_SSL ("private-key-type"), 0, OPT_VALUE, "privatekeytype", -1 },
     { "progress", 0, OPT_VALUE, "progress", -1 },
     { "protocol-directories", 0, OPT_BOOLEAN, "protocoldirectories", -1 },
-    { "proxy", 'Y', OPT_BOOLEAN, "useproxy", -1 },
-    { "proxy-passwd", 0, OPT_VALUE, "proxypasswd", -1 },
+    { "proxy", 0, OPT_BOOLEAN, "useproxy", -1 },
+    { "proxy__compat", 'Y', OPT_VALUE, "useproxy", -1 }, /* back-compatible */
+    { "proxy-passwd", 0, OPT_VALUE, "proxypassword", -1 }, /* deprecated */
+    { "proxy-password", 0, OPT_VALUE, "proxypassword", -1 },
     { "proxy-user", 0, OPT_VALUE, "proxyuser", -1 },
     { "quiet", 'q', OPT_BOOLEAN, "quiet", -1 },
     { "quota", 'Q', OPT_VALUE, "quota", -1 },
+    { "random-file", 0, OPT_VALUE, "randomfile", -1 },
     { "random-wait", 0, OPT_BOOLEAN, "randomwait", -1 },
     { "read-timeout", 0, OPT_VALUE, "readtimeout", -1 },
     { "recursive", 'r', OPT_BOOLEAN, "recursive", -1 },
@@ -234,21 +250,15 @@ struct cmdline_option option_data[] =
     { "retry-connrefused", 0, OPT_BOOLEAN, "retryconnrefused", -1 },
     { "save-cookies", 0, OPT_VALUE, "savecookies", -1 },
     { "save-headers", 0, OPT_BOOLEAN, "saveheaders", -1 },
+    { IF_SSL ("secure-protocol"), 0, OPT_VALUE, "secureprotocol", -1 },
     { "server-response", 'S', OPT_BOOLEAN, "serverresponse", -1 },
     { "span-hosts", 'H', OPT_BOOLEAN, "spanhosts", -1 },
     { "spider", 0, OPT_BOOLEAN, "spider", -1 },
-    { IF_SSL ("sslcadir"), 0, OPT_VALUE, "sslcadir", -1 },
-    { IF_SSL ("sslcafile"), 0, OPT_VALUE, "sslcafile", -1 },
-    { IF_SSL ("sslcertfile"), 0, OPT_VALUE, "sslcertfile", -1 },
-    { IF_SSL ("sslcertkey"), 0, OPT_VALUE, "sslcertkey", -1 },
-    { IF_SSL ("sslcerttype"), 0, OPT_VALUE, "sslcerttype", -1 },
-    { IF_SSL ("sslcheckcert"), 0, OPT_VALUE, "sslcheckcert", -1 },
-    { IF_SSL ("sslprotocol"), 0, OPT_VALUE, "sslprotocol", -1 },
     { "strict-comments", 0, OPT_BOOLEAN, "strictcomments", -1 },
     { "timeout", 'T', OPT_VALUE, "timeout", -1 },
     { "timestamping", 'N', OPT_BOOLEAN, "timestamping", -1 },
     { "tries", 't', OPT_VALUE, "tries", -1 },
-    { "use-proxy", 'Y', OPT_BOOLEAN, "useproxy", -1 },
+    { "user", 0, OPT_VALUE, "user", -1 },
     { "user-agent", 'U', OPT_VALUE, "useragent", -1 },
     { "verbose", 'v', OPT_BOOLEAN, "verbose", -1 },
     { "verbose", 0, OPT_BOOLEAN, "verbose", -1 },
@@ -324,9 +334,11 @@ init_switches (void)
 	    *p++ = ':';
 	  break;
 	case OPT_BOOLEAN:
-	  /* Don't specify optional arguments for boolean short
-	     options.  They are evil because they prevent combining of
-	     short options.  */
+	  /* Specify an optional argument for long options, so that
+	     --option=off works the same as --no-option, for
+	     compatibility with pre-1.10 Wget.  However, don't specify
+	     optional arguments short-option booleans because they
+	     prevent combining of short options.  */
 	  longopt->has_arg = optional_argument;
 	  /* For Boolean options, add the "--no-FOO" variant, which is
 	     identical to "--foo", except it has opposite meaning and
@@ -465,7 +477,14 @@ Download:\n"),
   -4,  --inet4-only              connect only to IPv4 addresses.\n"),
     N_("\
   -6,  --inet6-only              connect only to IPv6 addresses.\n"),
+    N_("\
+       --prefer-family=FAMILY    connect first to addresses of specified family,\n\
+                                 one of IPv6, IPv4, or none.\n"),
 #endif
+    N_("\
+       --user=USER               set both ftp and http user to USER.\n"),
+    N_("\
+       --password=PASS           set both ftp and http password to PASS.\n"),
     "\n",
 
     N_("\
@@ -489,7 +508,7 @@ HTTP options:\n"),
     N_("\
        --http-user=USER        set http user to USER.\n"),
     N_("\
-       --http-passwd=PASS      set http password to PASS.\n"),
+       --http-password=PASS    set http password to PASS.\n"),
     N_("\
        --no-cache              disallow server-cached data.\n"),
     N_("\
@@ -501,7 +520,7 @@ HTTP options:\n"),
     N_("\
        --proxy-user=USER       set USER as proxy username.\n"),
     N_("\
-       --proxy-passwd=PASS     set PASS as proxy password.\n"),
+       --proxy-password=PASS   set PASS as proxy password.\n"),
     N_("\
        --referer=URL           include `Referer: URL' header in HTTP request.\n"),
     N_("\
@@ -526,29 +545,37 @@ HTTP options:\n"),
 
 #ifdef HAVE_SSL
     N_("\
-HTTPS (SSL) options:\n"),
+HTTPS (SSL/TLS) options:\n"),
     N_("\
-       --sslcertfile=FILE    optional client certificate.\n"),
+       --secure-protocol=PR     choose secure protocol, one of auto, SSLv2,\n\
+                                SSLv3, and TLSv1.\n"),
     N_("\
-       --sslcertkey=KEYFILE  optional keyfile for this certificate.\n"),
+       --no-check-certificate   don't validate the server's certificate.\n"),
     N_("\
-       --egd-file=FILE       file name of the EGD socket.\n"),
+       --certificate=FILE       client certificate file.\n"),
     N_("\
-       --sslcadir=DIR        dir where hash list of CA's are stored.\n"),
+       --certificate-type=TYPE  client certificate type, PEM or DER.\n"),
     N_("\
-       --sslcafile=FILE      file with bundle of CA's.\n"),
+       --private-key=FILE       private key file.\n"),
     N_("\
-       --sslcerttype=0/1     Client-Cert type 0=PEM (default) / 1=ASN1 (DER).\n"),
+       --private-key-type=TYPE  private key type, PEM or DER.\n"),
     N_("\
-       --sslcheckcert=0/1    Check the server cert against given CA.\n"),
+       --ca-certificate=FILE    file with the bundle of CA's.\n"),
     N_("\
-       --sslprotocol=0-3     choose SSL protocol; 0=automatic,\n\
-                             1=SSLv2 2=SSLv3 3=TLSv1.\n"),
+       --ca-directory=DIR       directory where hash list of CA's is stored.\n"),
+    N_("\
+       --random-file=FILE       file with random data for seeding the SSL PRNG.\n"),
+    N_("\
+       --egd-file=FILE          file naming the EGD socket with random data.\n"),
     "\n",
 #endif /* HAVE_SSL */
 
     N_("\
 FTP options:\n"),
+    N_("\
+       --ftp-user=USER         set ftp user to USER.\n"),
+    N_("\
+       --ftp-password=PASS     set ftp password to PASS.\n"),
     N_("\
        --no-remove-listing     don't remove `.listing' files.\n"),
     N_("\
@@ -574,7 +601,7 @@ Recursive download:\n"),
     N_("\
   -K,  --backup-converted   before converting file X, back up as X.orig.\n"),
     N_("\
-  -m,  --mirror             shortcut option equivalent to -r -N -l inf -nr.\n"),
+  -m,  --mirror             shortcut for -N -r -l inf --no-remove-listing.\n"),
     N_("\
   -p,  --page-requisites    get all images, etc. needed to display HTML page.\n"),
     N_("\
@@ -696,17 +723,17 @@ main (int argc, char *const *argv)
       switch (opt->type)
 	{
 	case OPT_VALUE:
-	  setoptval (opt->data, optarg);
+	  setoptval (opt->data, optarg, opt->long_name);
 	  break;
 	case OPT_BOOLEAN:
 	  if (optarg)
 	    /* The user has specified a value -- use it. */
-	    setoptval (opt->data, optarg);
+	    setoptval (opt->data, optarg, opt->long_name);
 	  else
 	    {
 	      /* NEG is true for `--no-FOO' style boolean options. */
 	      int neg = val & BOOLEAN_NEG_MARKER;
-	      setoptval (opt->data, neg ? "0" : "1");
+	      setoptval (opt->data, neg ? "0" : "1", opt->long_name);
 	    }
 	  break;
 	case OPT_FUNCALL:
@@ -716,7 +743,7 @@ main (int argc, char *const *argv)
 	  }
 	  break;
 	case OPT__APPEND_OUTPUT:
-	  setoptval ("logfile", optarg);
+	  setoptval ("logfile", optarg, opt->long_name);
 	  append_to_log = 1;
 	  break;
 	case OPT__EXECUTE:
@@ -732,19 +759,19 @@ main (int argc, char *const *argv)
 	      switch (*p)
 		{
 		case 'v':
-		  setoptval ("verbose", "0");
+		  setoptval ("verbose", "0", opt->long_name);
 		  break;
 		case 'H':
-		  setoptval ("addhostdir", "0");
+		  setoptval ("addhostdir", "0", opt->long_name);
 		  break;
 		case 'd':
-		  setoptval ("dirstruct", "0");
+		  setoptval ("dirstruct", "0", opt->long_name);
 		  break;
 		case 'c':
-		  setoptval ("noclobber", "1");
+		  setoptval ("noclobber", "1", opt->long_name);
 		  break;
 		case 'p':
-		  setoptval ("noparent", "1");
+		  setoptval ("noparent", "1", opt->long_name);
 		  break;
 		default:
 		  printf (_("%s: illegal option -- `-n%c'\n"), exec_name, *p);
@@ -767,11 +794,11 @@ main (int argc, char *const *argv)
 		      || (TOLOWER (optarg[0]) == 'o'
 			  && TOLOWER (optarg[1]) == 'n'));
 	    setoptval (opt->type == OPT__PARENT ? "noparent" : "noclobber",
-		       flag ? "0" : "1");
+		       flag ? "0" : "1", opt->long_name);
 	    break;
 	  }
 	case OPT__DONT_REMOVE_LISTING:
-	  setoptval ("removelisting", "0");
+	  setoptval ("removelisting", "0", opt->long_name);
 	  break;
 	}
 
@@ -782,7 +809,7 @@ main (int argc, char *const *argv)
      interoption dependency checks. */
 
   if (opt.reclevel == 0)
-    opt.reclevel = INFINITE_RECURSION;  /* see wget.h for commentary on this */
+    opt.reclevel = INFINITE_RECURSION; /* see recur.h for commentary on this */
 
   if (opt.page_requisites && !opt.recursive)
     {
@@ -869,7 +896,7 @@ Can't timestamp and not clobber old files at the same time.\n"));
 	output_stream = stdout;
       else
 	{
-	  struct_stat st;
+	  struct_fstat st;
 	  output_stream = fopen (opt.output_document,
 				 opt.always_rest ? "ab" : "wb");
 	  if (output_stream == NULL)
@@ -943,13 +970,14 @@ Can't timestamp and not clobber old files at the same time.\n"));
     {
       logprintf (LOG_NOTQUIET,
 		 _("\nFINISHED --%s--\nDownloaded: %s bytes in %d files\n"),
-		 time_str (NULL), with_thousand_seps_large (total_downloaded_bytes),
+		 time_str (NULL),
+		 with_thousand_seps_sum (total_downloaded_bytes),
 		 opt.numurls);
       /* Print quota warning, if exceeded.  */
       if (opt.quota && total_downloaded_bytes > opt.quota)
 	logprintf (LOG_NOTQUIET,
 		   _("Download quota (%s bytes) EXCEEDED!\n"),
-		   with_thousand_seps_large (opt.quota));
+		   with_thousand_seps_sum (opt.quota));
     }
 
   if (opt.cookies_output)

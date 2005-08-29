@@ -92,6 +92,7 @@ void read_file_free PARAMS ((struct file_memory *));
 
 void free_vec PARAMS ((char **));
 char **merge_vecs PARAMS ((char **, char **));
+char **vec_append PARAMS ((char **, const char *));
 
 void string_set_add PARAMS ((struct hash_table *, const char *));
 int string_set_contains PARAMS ((struct hash_table *, const char *));
@@ -100,7 +101,9 @@ void string_set_free PARAMS ((struct hash_table *));
 void free_keys_and_values PARAMS ((struct hash_table *));
 
 char *with_thousand_seps PARAMS ((wgint));
-char *with_thousand_seps_large PARAMS ((LARGE_INT));
+#ifndef with_thousand_seps_sum
+char *with_thousand_seps_sum PARAMS ((SUM_SIZE_INT));
+#endif
 char *human_readable PARAMS ((wgint));
 int numdigit PARAMS ((wgint));
 char *number_to_string PARAMS ((char *, wgint));
@@ -116,7 +119,10 @@ void xsleep PARAMS ((double));
 /* How many bytes it will take to store LEN bytes in base64.  */
 #define BASE64_LENGTH(len) (4 * (((len) + 2) / 3))
 
-void base64_encode PARAMS ((const char *, char *, int));
+int base64_encode PARAMS ((const char *, int, char *));
 int base64_decode PARAMS ((const char *, char *));
+
+void stable_sort PARAMS ((void *, size_t, size_t,
+                          int (*) (const void *, const void *)));
 
 #endif /* UTILS_H */

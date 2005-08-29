@@ -48,7 +48,6 @@ so, delete this exception statement from your version.  */
 
 #include <openssl/des.h>
 #include <openssl/md4.h>
-#include <openssl/ssl.h>
 
 #include "wget.h"
 #include "utils.h"
@@ -71,7 +70,7 @@ so, delete this exception statement from your version.  */
 #endif
 
 /* Define this to make the type-3 message include the NT response message */
-#undef USE_NTRESPONSES
+#define USE_NTRESPONSES 1
 
 /* Flag bits definitions available at on
    http://davenport.sourceforge.net/ntlm.html */
@@ -120,7 +119,8 @@ so, delete this exception statement from your version.  */
 */
 
 /* return 1 on success, 0 otherwise */
-int ntlm_input (struct ntlmdata *ntlm, const char *header)
+int
+ntlm_input (struct ntlmdata *ntlm, const char *header)
 {
   if (0 != strncmp (header, "NTLM", 4))
     return 0;
@@ -147,6 +147,8 @@ int ntlm_input (struct ntlmdata *ntlm, const char *header)
       int size;
       char *buffer = (char *) alloca (strlen (header));
 
+      DEBUGP (("Received a type-2 NTLM message.\n"));
+
       size = base64_decode (header, buffer);
       if (size < 0)
 	return 0;		/* malformed base64 from server */
@@ -162,8 +164,12 @@ int ntlm_input (struct ntlmdata *ntlm, const char *header)
   else
     {
       if (ntlm->state >= NTLMSTATE_TYPE1)
-        return 0; /* this is an error */
+	{
+	  DEBUGP (("Unexpected empty NTLM message.\n"));
+	  return 0; /* this is an error */
+	}
 
+      DEBUGP (("Empty NTLM message, starting transaction.\n"));
       ntlm->state = NTLMSTATE_TYPE1; /* we should sent away a type-1 */
     }
 
@@ -174,8 +180,9 @@ int ntlm_input (struct ntlmdata *ntlm, const char *header)
  * Turns a 56 bit key into the 64 bit, odd parity key and sets the key.  The
  * key schedule ks is also set.
  */
-static void setup_des_key(unsigned char *key_56,
-                          DES_key_schedule DESKEYARG(ks))
+static void
+setup_des_key(unsigned char *key_56,
+	      DES_key_schedule DESKEYARG(ks))
 {
   DES_cblock key;
 
@@ -197,9 +204,8 @@ static void setup_des_key(unsigned char *key_56,
   * 8 byte plaintext is encrypted with each key and the resulting 24
   * bytes are stored in the results array.
   */
-static void calc_resp(unsigned char *keys,
-                      unsigned char *plaintext,
-                      unsigned char *results)
+static void
+calc_resp(unsigned char *keys, unsigned char *plaintext, unsigned char *results)
 {
   DES_key_schedule ks;
 
@@ -219,11 +225,12 @@ static void calc_resp(unsigned char *keys,
 /*
  * Set up lanmanager and nt hashed passwords
  */
-static void mkhash(const char *password,
-                   unsigned char *nonce,  /* 8 bytes */
-                   unsigned char *lmresp  /* must fit 0x18 bytes */
+static void
+mkhash(const char *password,
+       unsigned char *nonce,	/* 8 bytes */
+       unsigned char *lmresp	/* must fit 0x18 bytes */
 #ifdef USE_NTRESPONSES
-                   , unsigned char *ntresp  /* must fit 0x18 bytes */
+       , unsigned char *ntresp  /* must fit 0x18 bytes */
 #endif
   )
 {
@@ -295,8 +302,9 @@ static void mkhash(const char *password,
   (((x) >>16)&0xff), ((x)>>24)
 
 /* this is for creating ntlm header output */
-char *ntlm_output (struct ntlmdata *ntlm, const char *user, const char *passwd,
-		   int *ready)
+char *
+ntlm_output (struct ntlmdata *ntlm, const char *user, const char *passwd,
+	     int *ready)
 {
   const char *domain=""; /* empty */
   const char *host=""; /* empty */
@@ -326,6 +334,8 @@ char *ntlm_output (struct ntlmdata *ntlm, const char *user, const char *passwd,
   default: /* for the weird cases we (re)start here */
     hostoff = 32;
     domoff = hostoff + hostlen;
+
+    DEBUGP (("Creating a type-1 NTLM message.\n"));
     
     /* Create and send a type-1 message:
 
@@ -355,7 +365,7 @@ char *ntlm_output (struct ntlmdata *ntlm, const char *user, const char *passwd,
     */
 
     snprintf(ntlmbuf, sizeof(ntlmbuf),
-	     "NTLMSSP%c\x01%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%s%s",
+	     "NTLMSSP%c\001%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%s%s",
              0,     /* trailing zero */
              0,0,0, /* part of type-1 long */
 
@@ -378,7 +388,7 @@ char *ntlm_output (struct ntlmdata *ntlm, const char *user, const char *passwd,
     size = 32 + hostlen + domlen;
 
     base64 = (char *) alloca (BASE64_LENGTH (size) + 1);
-    base64_encode (ntlmbuf, base64, size);
+    base64_encode (ntlmbuf, size, base64);
 
     output = concat_strings ("NTLM ", base64, (char *) 0);
     break;
@@ -412,12 +422,14 @@ char *ntlm_output (struct ntlmdata *ntlm, const char *user, const char *passwd,
     const char *usr;
     int userlen;
 
+    DEBUGP (("Creating a type-3 NTLM message.\n"));
+
     usr = strchr(user, '\\');
     if(!usr)
       usr = strchr(user, '/');
 
     if (usr) {
-      domain = usr;
+      domain = user;
       domlen = usr - domain;
       usr++;
     }
@@ -472,7 +484,7 @@ char *ntlm_output (struct ntlmdata *ntlm, const char *user, const char *passwd,
 	 "%c%c"   2 zeroes */
 
     size = snprintf(ntlmbuf, sizeof(ntlmbuf),
-		    "NTLMSSP%c\x03%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\xff\xff%c%c\x01\x82%c%c",
+		    "NTLMSSP%c\003%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\377\377%c%c\001\202%c%c",
                     0, /* zero termination */
                     0,0,0, /* type-3 long, the 24 upper bits */
 
@@ -538,7 +550,7 @@ char *ntlm_output (struct ntlmdata *ntlm, const char *user, const char *passwd,
 
     /* convert the binary blob into base64 */
     base64 = (char *) alloca (BASE64_LENGTH (size) + 1);
-    base64_encode (ntlmbuf, base64, size);
+    base64_encode (ntlmbuf, size, base64);
 
     output = concat_strings ("NTLM ", base64, (char *) 0);
 

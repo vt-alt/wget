@@ -171,7 +171,6 @@ sockaddr_size (const struct sockaddr *sa)
 #endif
     default:
       abort ();
-      return 0;			/* so the compiler shuts up. */
     }
 }
 
@@ -283,6 +282,18 @@ connect_to_ip (const ip_address *ip, int port, const char *print)
   if (sock < 0)
     goto err;
 
+#if defined(ENABLE_IPV6) && defined(IPV6_V6ONLY)
+  if (opt.ipv6_only) {
+    int on = 1;
+    /* In case of error, we will go on anyway... */
+    int err = setsockopt (sock, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof (on));
+#ifdef ENABLE_DEBUG
+    if (err < 0) 
+      DEBUGP (("Failed setting IPV6_V6ONLY: %s", strerror (errno)));
+#endif
+  }
+#endif
+
   /* For very small rate limits, set the buffer size (and hence,
      hopefully, the kernel's TCP window size) to the per-second limit.
      That way we should never have to sleep for more than 1s between
@@ -333,7 +344,7 @@ connect_to_ip (const ip_address *ip, int port, const char *print)
     if (sock >= 0)
       fd_close (sock);
     if (print)
-      logprintf (LOG_VERBOSE, "failed: %s.\n", strerror (errno));
+      logprintf (LOG_VERBOSE, _("failed: %s.\n"), strerror (errno));
     errno = save_errno;
     return -1;
   }
@@ -548,8 +559,6 @@ socket_ip_address (int sock, ip_address *ip, int endpoint)
     default:
       abort ();
     }
-
-  return 0;
 }
 
 /* Return non-zero if the error from the connect code can be
@@ -585,42 +594,19 @@ retryable_socket_connect_error (int err)
       )
     return 0;
 
-  if (err == ECONNREFUSED && !opt.retry_connrefused)
-    return 0;
+  if (!opt.retry_connrefused)
+    if (err == ECONNREFUSED
+#ifdef ENETUNREACH
+	|| err == ENETUNREACH	/* network is unreachable */
+#endif
+#ifdef EHOSTUNREACH
+	|| err == EHOSTUNREACH	/* host is unreachable */
+#endif
+	)
+      return 0;
 
   return 1;
 }
-
-#ifdef ENABLE_IPV6
-# ifndef HAVE_GETADDRINFO_AI_ADDRCONFIG
-
-/* Return non-zero if the INET6 socket family is supported on the
-   system.
-
-   This doesn't guarantee that we're able to connect to IPv6 hosts,
-   but it's better than nothing.  It is only used on systems where
-   getaddrinfo doesn't support AI_ADDRCONFIG.  (See lookup_host.)  */
-
-int
-socket_has_inet6 (void)
-{
-  static int supported = -1;
-  if (supported == -1)
-    {
-      int sock = socket (AF_INET6, SOCK_STREAM, 0);
-      if (sock < 0)
-	supported = 0;
-      else
-	{
-	  fd_close (sock);
-	  supported = 1;
-	}
-    }
-  return supported;
-}
-
-# endif/* not HAVE_GETADDRINFO_AI_ADDRCONFIG */
-#endif /* ENABLE_IPV6 */
 
 /* Wait for a single descriptor to become available, timing out after
    MAXTIME seconds.  Returns 1 if FD is available, 0 for timeout and
@@ -808,6 +794,17 @@ fd_register_transport (int fd, fd_reader_t reader, fd_writer_t writer,
     transport_map = hash_table_new (0, NULL, NULL);
   hash_table_put (transport_map, (void *) fd, info);
   ++transport_map_modified_tick;
+}
+
+/* Return context of the transport registered with
+   fd_register_transport.  This assumes fd_register_transport was
+   previously called on FD.  */
+
+void *
+fd_transport_context (int fd)
+{
+  struct transport_info *info = hash_table_get (transport_map, (void *) fd);
+  return info->ctx;
 }
 
 /* When fd_read/fd_write are called multiple times in a loop, they should

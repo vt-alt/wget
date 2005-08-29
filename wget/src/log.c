@@ -618,11 +618,7 @@ log_dump_context (void)
 /* String escape functions. */
 
 /* Return the number of non-printable characters in SOURCE.
-
-   Non-printable characters are determined as per safe-ctype.h,
-   i.e. the non-printable characters of the "C" locale.  This code is
-   meant to be used to protect the user from binary characters in
-   (normally ASCII) server messages. */
+   Non-printable characters are determined as per safe-ctype.c.  */
 
 static int
 count_nonprint (const char *source)
@@ -635,46 +631,64 @@ count_nonprint (const char *source)
   return cnt;
 }
 
-/* Copy SOURCE to DEST, escaping non-printable characters.  If FOR_URI
-   is 0, they are escaped as \ooo; otherwise, they are escaped as
-   %xx.
+/* Copy SOURCE to DEST, escaping non-printable characters.
+
+   Non-printable refers to anything outside the non-control ASCII
+   range (32-126) which means that, for example, CR, LF, and TAB are
+   considered non-printable along with ESC, BS, and other control
+   chars.  This is by design: it makes sure that messages from remote
+   servers cannot be easily used to deceive the users by mimicking
+   Wget's output.  Disallowing non-ASCII characters is another
+   necessary security measure, which makes sure that remote servers
+   cannot garble the screen or guess the local charset and perform
+   homographic attacks.
+
+   Of course, the above mandates that escnonprint only be used in
+   contexts expected to be ASCII, such as when printing host names,
+   URL components, HTTP headers, FTP server messages, and the like.
+
+   ESCAPE is the leading character of the escape sequence.  BASE
+   should be the base of the escape sequence, and must be either 8 for
+   octal or 16 for hex.
 
    DEST must point to a location with sufficient room to store an
    encoded version of SOURCE.  */
 
 static void
-copy_and_escape (const char *source, char *dest, int for_uri)
+copy_and_escape (const char *source, char *dest, char escape, int base)
 {
-  const char *from;
-  char *to;
+  const char *from = source;
+  char *to = dest;
+  unsigned char c;
 
-  /* Copy the string, escaping non-printable chars. */
-  if (!for_uri)
+  /* Copy chars from SOURCE to DEST, escaping non-printable ones. */
+  switch (base)
     {
-      for (from = source, to = dest; *from; from++)
-	if (ISPRINT (*from))
-	  *to++ = *from;
+    case 8:
+      while ((c = *from++) != '\0')
+	if (ISPRINT (c))
+	  *to++ = c;
 	else
 	  {
-	    const unsigned char c = *from;
-	    *to++ = '\\';
+	    *to++ = escape;
 	    *to++ = '0' + (c >> 6);
 	    *to++ = '0' + ((c >> 3) & 7);
 	    *to++ = '0' + (c & 7);
 	  }
-    }
-  else
-    {
-      for (from = source, to = dest; *from; from++)
-	if (ISPRINT (*from))
-	  *to++ = *from;
+      break;
+    case 16:
+      while ((c = *from++) != '\0')
+	if (ISPRINT (c))
+	  *to++ = c;
 	else
 	  {
-	    const unsigned char c = *from;
-	    *to++ = '%';
+	    *to++ = escape;
 	    *to++ = XNUM_TO_DIGIT (c >> 4);
 	    *to++ = XNUM_TO_DIGIT (c & 0xf);
 	  }
+      break;
+    default:
+      abort ();
     }
   *to = '\0';
 }
@@ -687,11 +701,14 @@ struct ringel {
 static struct ringel ring[RING_SIZE];	/* ring data */
 
 static const char *
-escnonprint_internal (const char *str, int for_uri)
+escnonprint_internal (const char *str, char escape, int base)
 {
   static int ringpos;		        /* current ring position */
+  int nprcnt;
 
-  int nprcnt = count_nonprint (str);
+  assert (base == 8 || base == 16);
+
+  nprcnt = count_nonprint (str);
   if (nprcnt == 0)
     /* If there are no non-printable chars in STR, don't bother
        copying anything, just return STR.  */
@@ -702,11 +719,11 @@ escnonprint_internal (const char *str, int for_uri)
        simply r->X instead of ring[ringpos].X. */
     struct ringel *r = ring + ringpos;
 
-    /* Every non-printable character is replaced with "\ooo",
-       i.e. with three *additional* chars (two in URI-mode).  Size
-       must also include the length of the original string and an
+    /* Every non-printable character is replaced with the escape char
+       and three (or two, depending on BASE) *additional* chars.  Size
+       must also include the length of the original string and one
        additional char for the terminating \0. */
-    int needed_size = strlen (str) + 1 + (for_uri ? 2 * nprcnt : 3 * nprcnt);
+    int needed_size = strlen (str) + 1 + (base == 8 ? 3 * nprcnt : 2 * nprcnt);
 
     /* If the current buffer is uninitialized or too small,
        (re)allocate it.  */
@@ -716,7 +733,7 @@ escnonprint_internal (const char *str, int for_uri)
 	r->size = needed_size;
       }
 
-    copy_and_escape (str, r->buffer, for_uri);
+    copy_and_escape (str, r->buffer, escape, base);
     ringpos = (ringpos + 1) % RING_SIZE;
     return r->buffer;
   }
@@ -724,7 +741,20 @@ escnonprint_internal (const char *str, int for_uri)
 
 /* Return a pointer to a static copy of STR with the non-printable
    characters escaped as \ooo.  If there are no non-printable
-   characters in STR, STR is returned.
+   characters in STR, STR is returned.  See copy_and_escape for more
+   information on which characters are considered non-printable.
+
+   DON'T call this function on translated strings because escaping
+   will break them.  Don't call it on literal strings from the source,
+   which are by definition trusted.  If newlines are allowed in the
+   string, escape and print it line by line because escaping the whole
+   string will convert newlines to \012.  (This is so that expectedly
+   single-line messages cannot use embedded newlines to mimic Wget's
+   output and deceive the user.)
+
+   escnonprint doesn't quote its escape character because it is notf
+   meant as a general and reversible quoting mechanism, but as a quick
+   way to defang binary junk sent by malicious or buggy servers.
 
    NOTE: since this function can return a pointer to static data, be
    careful to copy its result before calling it again.  However, to be
@@ -736,20 +766,19 @@ escnonprint_internal (const char *str, int for_uri)
 const char *
 escnonprint (const char *str)
 {
-  return escnonprint_internal (str, 0);
+  return escnonprint_internal (str, '\\', 8);
 }
 
 /* Return a pointer to a static copy of STR with the non-printable
    characters escaped as %XX.  If there are no non-printable
    characters in STR, STR is returned.
 
-   This function returns a pointer to static data which will be
-   overwritten by subsequent calls -- see escnonprint for details.  */
+   See escnonprint for usage details.  */
 
 const char *
 escnonprint_uri (const char *str)
 {
-  return escnonprint_internal (str, 1);
+  return escnonprint_internal (str, '%', 16);
 }
 
 void

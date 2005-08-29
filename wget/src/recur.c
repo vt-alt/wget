@@ -59,7 +59,7 @@ extern int errno;
 #endif
 
 extern char *version_string;
-extern LARGE_INT total_downloaded_bytes;
+extern SUM_SIZE_INT total_downloaded_bytes;
 
 extern struct hash_table *dl_url_file_map;
 extern struct hash_table *downloaded_html_set;

@@ -2,7 +2,7 @@
 # $Id: wget,v 1.1 2004/03/19 10:48:41 grigory Exp $
 
 Name: wget
-Version: 1.10
+Version: 1.10.1
 Release: alt1
 
 Summary: An utility for retrieving files using the HTTP, HTTPS or FTP protocols
@@ -10,7 +10,7 @@ License: GPL
 Group: Networking/WWW
 Url: http://www.gnu.org/directory/GNU/wget.html
 
-Source: ftp://ftp.gnu.org/gnu/%name/%name-%version.tar.bz2
+Source: ftp://ftp.gnu.org/gnu/%name/%name-%version.tar.gz
 
 Patch1: %name-1.9.1-alt-texinfo.patch
 Patch2: %name-1.6-mdk-passive_ftp.patch
@@ -115,7 +115,7 @@ find doc -type f -print0 |
 
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
+#patch3 -p1
 #%patch4 -p1
 
 %build
@@ -138,9 +138,13 @@ find doc -type f -print0 |
 %_bindir/*
 %_mandir/man?/*
 %_infodir/*.info*
-%doc AUTHORS MACHINES MAILING-LIST NEWS README* TODO
+%doc AUTHORS MAILING-LIST NEWS README* TODO
 
 %changelog
+* Mon Aug 29 2005 Michael Shigorin <mike@altlinux.org> 1.10.1-alt1
+- 1.10.1 (#7789, #7512)
+- removed patch3 (merged upstream with minor changes)
+
 * Wed Jun 29 2005 Michael Shigorin <mike@altlinux.org> 1.10-alt1
 - 1.10 (thanks Grigory Fateyev <greg anastasia.ru> for testing)
 - merged description translations from PLD's 1.9.1-19 spec

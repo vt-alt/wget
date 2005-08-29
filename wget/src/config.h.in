@@ -39,9 +39,6 @@
 /* Define to 1 if you have the `clock_gettime' function. */
 #undef HAVE_CLOCK_GETTIME
 
-/* Define to 1 if you have the <dlfcn.h> header file. */
-#undef HAVE_DLFCN_H
-
 /* Define to 1 if fseeko (and presumably ftello) exists and is declared. */
 #undef HAVE_FSEEKO
 
@@ -72,9 +69,6 @@
 /* Define to 1 if you have the `isatty' function. */
 #undef HAVE_ISATTY
 
-/* Define to 1 if you have the `crypto' library (-lcrypto). */
-#undef HAVE_LIBCRYPTO
-
 /* Define to 1 if you have the `dl' library (-ldl). */
 #undef HAVE_LIBDL
 
@@ -90,7 +84,7 @@
 /* Define to 1 if you have the `socket' library (-lsocket). */
 #undef HAVE_LIBSOCKET
 
-/* Define to 1 if you have the `ssl' library (-lssl). */
+/* Define if you have the ssl library. */
 #undef HAVE_LIBSSL
 
 /* Define to 1 if you have the <limits.h> header file. */
@@ -156,7 +150,7 @@
 /* Define to use Solaris MD5. */
 #undef HAVE_SOLARIS_MD5
 
-/* Define if SSL support should be compiled in. */
+/* Define if SSL support is being compiled in. */
 #undef HAVE_SSL
 
 /* Define to 1 if you have the <stdarg.h> header file. */
@@ -195,6 +189,12 @@
 /* Define to 1 if you have the `strstr' function. */
 #undef HAVE_STRSTR
 
+/* Define to 1 if you have the `strtoimax' function. */
+#undef HAVE_STRTOIMAX
+
+/* Define to 1 if you have the `strtoll' function. */
+#undef HAVE_STRTOLL
+
 /* Define to 1 if the system has the type `struct sockaddr_in6'. */
 #undef HAVE_STRUCT_SOCKADDR_IN6
 
@@ -227,6 +227,9 @@
 
 /* Define to 1 if you have the <termios.h> header file. */
 #undef HAVE_TERMIOS_H
+
+/* Define to 1 if you have the `timegm' function. */
+#undef HAVE_TIMEGM
 
 /* Define to 1 if the system has the type `uint32_t'. */
 #undef HAVE_UINT32_T

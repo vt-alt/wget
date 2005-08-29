@@ -54,7 +54,9 @@ so, delete this exception statement from your version.  */
 # define _(string) gettext (string)
 # ifdef HAVE_LIBINTL_H
 #  include <libintl.h>
-# endif /* HAVE_LIBINTL_H */
+# else  /* not HAVE_LIBINTL_H */
+   const char *gettext ();
+# endif /* not HAVE_LIBINTL_H */
 #else  /* not HAVE_NLS */
 # define _(string) (string)
 #endif /* not HAVE_NLS */
@@ -127,9 +129,43 @@ typedef off_t wgint;
 #  define str_to_wgint strtol
 #  define WGINT_MAX LONG_MAX
 # else
-#  define str_to_wgint strtoll
 #  define WGINT_MAX LLONG_MAX
+#  ifdef HAVE_STRTOLL
+#   define str_to_wgint strtoll
+#  else
+#   ifdef HAVE_STRTOIMAX
+#    define str_to_wgint strtoimax
+#   else
+#    define str_to_wgint strtoll
+#    define NEED_STRTOLL
+#    define strtoll_return long long
+#   endif
+#  endif
 # endif
+#endif
+
+/* Declare our strtoll replacement. */
+#ifdef NEED_STRTOLL
+strtoll_return strtoll PARAMS ((const char *, char **, int));
+#endif
+
+/* Now define a large integral type useful for storing sizes of *sums*
+   of downloads, such as the value of the --quota option.  This should
+   be a type able to hold 2G+ values even on systems without large
+   file support.  (It is useful to limit Wget's download quota to say
+   10G even if a single file cannot be that large.)
+
+   To make sure we get the largest size possible, we use `double' on
+   systems without a 64-bit integral type.  (Since it is used in very
+   few places in Wget, this is acceptable.)  */
+
+#if SIZEOF_WGINT >= 8
+/* just use wgint, which we already know how to print */
+typedef wgint SUM_SIZE_INT;
+# define with_thousand_seps_sum with_thousand_seps
+#else
+/* On systems without LFS, use double, which buys us integers up to 2^53. */
+typedef double SUM_SIZE_INT;
 #endif
 
 #include "options.h"
@@ -222,6 +258,12 @@ typedef off_t wgint;
     basevar = (type *)xrealloc (basevar, DR_newsize * sizeof (type));	\
 } while (0)
 
+/* Used to print pointers (usually for debugging).  Print pointers
+   using printf ("%0*lx", PTR_FORMAT (p)).  (%p is too unpredictable;
+   some implementations prepend 0x, while some don't, and most don't
+   0-pad the address.)  */
+#define PTR_FORMAT(p) 2 * sizeof (void *), (unsigned long) (p)
+
 extern const char *exec_name;
 
 /* Document type ("dt") flags */
@@ -252,8 +294,7 @@ typedef enum
   CONTNOTSUPPORTED, RETRUNNEEDED, RETRFINISHED, READERR, TRYLIMEXC,
   URLBADPATTERN, FILEBADFILE, RANGEERR, RETRBADPATTERN,
   RETNOTSUP, ROBOTSOK, NOROBOTS, PROXERR, AUTHFAILED,
-  QUOTEXC, WRITEFAILED,
-  SSLERRCERTFILE,SSLERRCERTKEY,SSLERRCTXCREATE
+  QUOTEXC, WRITEFAILED, SSLINITFAILED
 } uerr_t;
 
 #endif /* WGET_H */

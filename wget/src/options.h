@@ -34,9 +34,6 @@ struct options
   int ntry;			/* Number of tries per URL */
   int retry_connrefused;	/* Treat CONNREFUSED as non-fatal. */
   int background;		/* Whether we should work in background. */
-  int kill_longer;		/* Do we reject messages with *more*
-				   data than specified in
-				   content-length? */
   int ignore_length;		/* Do we heed content-length at all?  */
   int recursive;		/* Are we recursive? */
   int spanhost;			/* Do we span across hosts in
@@ -80,14 +77,17 @@ struct options
   char *output_document;	/* The output file to which the
 				   documents will be printed.  */
 
+  char *user;			/* Generic username */
+  char *passwd;			/* Generic password */
+  
   int always_rest;		/* Always use REST. */
-  char *ftp_acc;		/* FTP username */
-  char *ftp_pass;		/* FTP password */
+  char *ftp_user;		/* FTP username */
+  char *ftp_passwd;		/* FTP password */
   int netrc;			/* Whether to read .netrc. */
   int ftp_glob;			/* FTP globbing */
   int ftp_pasv;			/* Passive FTP. */
 
-  char *http_user;		/* HTTP user. */
+  char *http_user;		/* HTTP username. */
   char *http_passwd;		/* HTTP password. */
   char **user_headers;		/* User-defined header(s). */
   int http_keep_alive;		/* whether we use keep-alive */
@@ -112,7 +112,7 @@ struct options
 
   wgint limit_rate;		/* Limit the download rate to this
 				   many bps. */
-  LARGE_INT quota;		/* Maximum file size to download and
+  SUM_SIZE_INT quota;		/* Maximum file size to download and
 				   store. */
   int numurls;			/* Number of successfully downloaded
 				   URLs */
@@ -157,17 +157,30 @@ struct options
   int page_requisites;		/* Whether we need to download all files
 				   necessary to display a page properly. */
   char *bind_address;		/* What local IP address to bind to. */
+
 #ifdef HAVE_SSL
-  char *sslcadir;		/* CA directory (hash files) */
-  char *sslcafile;		/* CA File to use */
-  char *sslcertfile;		/* external client cert to use. */
-  char *sslcertkey;		/* the keyfile for this certificate
-				   (if not internal) included in the
-				   certfile. */
-  int   sslcerttype;		/* 0 = PEM / 1=ASN1 (DER) */
-  int   sslcheckcert;		/* 0 do not check / 1 check server cert */
-  char *sslegdsock;             /* optional socket of the egd daemon */
-  int   sslprotocol;		/* 0 = auto / 1 = v2 / 2 = v3 / 3 = TLSv1 */
+  enum {
+    secure_protocol_auto,
+    secure_protocol_sslv2,
+    secure_protocol_sslv3,
+    secure_protocol_tlsv1
+  } secure_protocol;		/* type of secure protocol to use. */
+  int check_cert;		/* whether to validate the server's cert */
+  char *cert_file;		/* external client certificate to use. */
+  char *private_key;		/* private key file (if not internal). */
+  enum keyfile_type {
+    keyfile_pem,
+    keyfile_asn1
+  } cert_type;			/* type of client certificate file */
+  enum keyfile_type
+    private_key_type;		/* type of private key file */
+
+  char *ca_directory;		/* CA directory (hash files) */
+  char *ca_cert;		/* CA certificate file to use */
+
+
+  char *random_file;		/* file with random data to seed the PRNG */
+  char *egd_file;		/* file name of the egd daemon socket */
 #endif /* HAVE_SSL */
 
   int   cookies;		/* whether cookies are used. */
@@ -197,6 +210,12 @@ struct options
   int ipv4_only;		/* IPv4 connections have been requested. */
   int ipv6_only;		/* IPv4 connections have been requested. */
 #endif
+  enum {
+    prefer_ipv4,
+    prefer_ipv6,
+    prefer_none
+  } prefer_family;		/* preferred address family when more
+				   than one type is available */
 };
 
 extern struct options opt;

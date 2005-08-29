@@ -27,20 +27,20 @@ modify this file, you may extend this exception to your version of the
 file, but you are not obligated to do so.  If you do not wish to do
 so, delete this exception statement from your version.  */
 
-/* Written by Hrvoje Niksic.  Parts are loosely inspired by cookie
-   code submitted by Tomasz Wegrzanowski.
+/* Written by Hrvoje Niksic.  Parts are loosely inspired by the
+   cookie patch submitted by Tomasz Wegrzanowski.
 
-   Ideas for future work:
+   This implements the client-side cookie support, as specified
+   (loosely) by Netscape's "preliminary specification", currently
+   available at:
 
-   * Implement limits on cookie-related sizes, such as max. cookie
-     size, max. number of cookies, etc.
+       http://wp.netscape.com/newsref/std/cookie_spec.html
 
-   * Add more "cookie jar" methods, such as methods to iterate over
-     stored cookies, to clear temporary cookies, to perform
-     intelligent auto-saving, etc.
-
-   * Support `Set-Cookie2' and `Cookie2' headers?  Does anyone really
-     use them?  */
+   rfc2109 is not supported because of its incompatibilities with the
+   above widely-used specification.  rfc2965 is entirely ignored,
+   since popular client software doesn't implement it, and even the
+   sites that do send Set-Cookie2 also emit Set-Cookie for
+   compatibility.  */
 
 #include <config.h>
 
@@ -85,7 +85,7 @@ struct cookie_jar {
 
 /* Value set by entry point functions, so that the low-level
    routines don't need to call time() all the time.  */
-time_t cookies_now;
+static time_t cookies_now;
 
 struct cookie_jar *
 cookie_jar_new (void)
@@ -264,7 +264,7 @@ store_cookie (struct cookie_jar *jar, struct cookie *cookie)
 #ifdef ENABLE_DEBUG
   if (opt.debug)
     {
-      time_t exptime = (time_t) cookie->expiry_time;
+      time_t exptime = cookie->expiry_time;
       DEBUGP (("\nStored cookie %s %d%s %s <%s> <%s> [expiry %s] %s %s\n",
 	       cookie->domain, cookie->port,
 	       cookie->port == PORT_ANY ? " (ANY)" : "",
@@ -394,10 +394,10 @@ update_cookie_field (struct cookie *cookie,
       BOUNDED_TO_ALLOCA (value_b, value_e, value_copy);
 
       expires = http_atotm (value_copy);
-      if (expires != -1)
+      if (expires != (time_t) -1)
 	{
 	  cookie->permanent = 1;
-	  cookie->expiry_time = (time_t)expires;
+	  cookie->expiry_time = expires;
 	}
       else
 	/* Error in expiration spec.  Assume default (cookie doesn't
@@ -641,7 +641,7 @@ parse_set_cookies (const char *sc,
   if (!silent)
     logprintf (LOG_NOTQUIET,
 	       _("Syntax error in Set-Cookie: %s at position %d.\n"),
-	       escnonprint (sc), p - sc);
+	       escnonprint (sc), (int) (p - sc));
   return NULL;
 }
 
@@ -827,6 +827,17 @@ check_path_match (const char *cookie_path, const char *path)
 {
   return path_matches (path, cookie_path);
 }
+
+/* Prepend '/' to string S.  S is copied to fresh stack-allocated
+   space and its value is modified to point to the new location.  */
+
+#define PREPEND_SLASH(s) do {					\
+  char *PS_newstr = (char *) alloca (1 + strlen (s) + 1);	\
+  *PS_newstr = '/';						\
+  strcpy (PS_newstr + 1, s);					\
+  s = PS_newstr;						\
+} while (0)
+
 
 /* Process the HTTP `Set-Cookie' header.  This results in storing the
    cookie or discarding a matching one, or ignoring it completely, all
@@ -839,6 +850,11 @@ cookie_handle_set_cookie (struct cookie_jar *jar,
 {
   struct cookie *cookie;
   cookies_now = time (NULL);
+
+  /* Wget's paths don't begin with '/' (blame rfc1808), but cookie
+     usage assumes /-prefixed paths.  Until the rest of Wget is fixed,
+     simply prepend slash to PATH.  */
+  PREPEND_SLASH (path);
 
   cookie = parse_set_cookies (set_cookie, update_cookie_field, 0);
   if (!cookie)
@@ -862,7 +878,7 @@ cookie_handle_set_cookie (struct cookie_jar *jar,
       if (!check_domain_match (cookie->domain, host))
 	{
 	  logprintf (LOG_NOTQUIET,
-		     "Cookie coming from %s attempted to set domain to %s\n",
+		     _("Cookie coming from %s attempted to set domain to %s\n"),
 		     escnonprint (host), escnonprint (cookie->domain));
 	  xfree (cookie->domain);
 	  goto copy_domain;
@@ -870,9 +886,19 @@ cookie_handle_set_cookie (struct cookie_jar *jar,
     }
 
   if (!cookie->path)
-    cookie->path = xstrdup (path);
+    {
+      /* The cookie doesn't set path: set it to the URL path, sans the
+	 file part ("/dir/file" truncated to "/dir/").  */
+      char *trailing_slash = strrchr (path, '/');
+      if (trailing_slash)
+	cookie->path = strdupdelim (path, trailing_slash + 1);
+      else
+	/* no slash in the string -- can this even happen? */
+	cookie->path = xstrdup (path);
+    }
   else
     {
+      /* The cookie sets its own path; verify that it is legal. */
       if (!check_path_match (cookie->path, path))
 	{
 	  DEBUGP (("Attempt to fake the path: %s, %s\n",
@@ -880,6 +906,9 @@ cookie_handle_set_cookie (struct cookie_jar *jar,
 	  goto out;
 	}
     }
+
+  /* Now store the cookie, or discard an existing cookie, if
+     discarding was requested.  */
 
   if (cookie->discard_requested)
     {
@@ -969,16 +998,7 @@ find_chains_of_host (struct cookie_jar *jar, const char *host,
 static int
 path_matches (const char *full_path, const char *prefix)
 {
-  int len;
-
-  if (*prefix != '/')
-    /* Wget's HTTP paths do not begin with '/' (the URL code treats it
-       as a mere separator, inspired by rfc1808), but the '/' is
-       assumed when matching against the cookie stuff.  */
-    return 0;
-
-  ++prefix;
-  len = strlen (prefix);
+  int len = strlen (prefix);
 
   if (0 != strncmp (full_path, prefix, len))
     /* FULL_PATH doesn't begin with PREFIX. */
@@ -1141,6 +1161,7 @@ cookie_header (struct cookie_jar *jar, const char *host,
   int count, i, ocnt;
   char *result;
   int result_size, pos;
+  PREPEND_SLASH (path);		/* see cookie_handle_set_cookie */
 
   /* First, find the cookie chains whose domains match HOST. */
 
@@ -1304,7 +1325,7 @@ cookie_jar_load (struct cookie_jar *jar, const char *file)
   FILE *fp = fopen (file, "r");
   if (!fp)
     {
-      logprintf (LOG_NOTQUIET, "Cannot open cookies file `%s': %s\n",
+      logprintf (LOG_NOTQUIET, _("Cannot open cookies file `%s': %s\n"),
 		 file, strerror (errno));
       return;
     }
@@ -1391,7 +1412,7 @@ cookie_jar_load (struct cookie_jar *jar, const char *file)
       else
 	{
 	  if (expiry < cookies_now)
-	    goto abort;		/* ignore stale cookie. */
+	    goto abort_cookie;	/* ignore stale cookie. */
 	  cookie->expiry_time = expiry;
 	  cookie->permanent = 1;
 	}
@@ -1401,7 +1422,7 @@ cookie_jar_load (struct cookie_jar *jar, const char *file)
     next:
       continue;
 
-    abort:
+    abort_cookie:
       delete_cookie (cookie);
     }
   fclose (fp);

@@ -240,7 +240,6 @@ prime_size (int size, int *prime_offset)
       }
 
   abort ();
-  return 0;
 }
 
 static int cmp_pointer PARAMS ((const void *, const void *));
@@ -551,7 +550,7 @@ hash_table_count (const struct hash_table *ht)
    don't strictly belong to this file.  However, this is as good a
    place for them as any.  */
 
-/* Rules for creating custom hash and test functions:
+/* Guidelines for creating custom hash and test functions:
 
    - The test function returns non-zero for keys that are considered
      "equal", zero otherwise.

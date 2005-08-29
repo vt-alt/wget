@@ -64,7 +64,7 @@ extern int errno;
 #include "connect.h"
 #include "netrc.h"
 #ifdef HAVE_SSL
-# include "gen_sslfunc.h"
+# include "ssl.h"
 #endif
 #ifdef ENABLE_NTLM
 # include "http-ntlm.h"
@@ -76,7 +76,7 @@ extern int errno;
 #include "convert.h"
 
 extern char *version_string;
-extern LARGE_INT total_downloaded_bytes;
+extern SUM_SIZE_INT total_downloaded_bytes;
 
 extern FILE *output_stream;
 extern int output_stream_regular;
@@ -148,7 +148,7 @@ struct request {
    called before the request can be used.  */
 
 static struct request *
-request_new ()
+request_new (void)
 {
   struct request *req = xnew0 (struct request);
   req->hcapacity = 8;
@@ -202,7 +202,7 @@ release_header (struct request_header *hdr)
 /* Set the request named NAME to VALUE.  Specifically, this means that
    a "NAME: VALUE\r\n" header line will be used in the request.  If a
    header with the same name previously existed in the request, its
-   value will be replaced by this one.
+   value will be replaced by this one.  A NULL value means do nothing.
 
    RELEASE_POLICY determines whether NAME and VALUE should be released
    (freed) with request_free.  Allowed values are:
@@ -233,8 +233,16 @@ request_set_header (struct request *req, char *name, char *value,
 {
   struct request_header *hdr;
   int i;
+
   if (!value)
-    return;
+    {
+      /* A NULL value is a no-op; if freeing the name is requested,
+	 free it now to avoid leaks.  */
+      if (release_policy == rel_name || release_policy == rel_both)
+	xfree (name);
+      return;
+    }
+
   for (i = 0; i < req->hcount; i++)
     {
       hdr = &req->headers[i];
@@ -251,11 +259,10 @@ request_set_header (struct request *req, char *name, char *value,
 
   /* Install new header. */
 
-  if (req->hcount >= req->hcount)
+  if (req->hcount >= req->hcapacity)
     {
       req->hcapacity <<= 1;
-      req->headers = xrealloc (req->headers,
-			       req->hcapacity * sizeof (struct request_header));
+      req->headers = xrealloc (req->headers, req->hcapacity * sizeof (*hdr));
     }
   hdr = &req->headers[req->hcount++];
   hdr->name = name;
@@ -280,6 +287,29 @@ request_set_user_header (struct request *req, const char *header)
   while (ISSPACE (*p))
     ++p;
   request_set_header (req, xstrdup (name), (char *) p, rel_name);
+}
+
+/* Remove the header with specified name from REQ.  Returns 1 if the
+   header was actually removed, 0 otherwise.  */
+
+static int
+request_remove_header (struct request *req, char *name)
+{
+  int i;
+  for (i = 0; i < req->hcount; i++)
+    {
+      struct request_header *hdr = &req->headers[i];
+      if (0 == strcasecmp (name, hdr->name))
+	{
+	  release_header (hdr);
+	  /* Move the remaining headers by one. */
+	  if (i < req->hcount - 1)
+	    memmove (hdr, hdr + 1, (req->hcount - i - 1) * sizeof (*hdr));
+	  --req->hcount;
+	  return 1;
+	}
+    }
+  return 0;
 }
 
 #define APPEND(p, str) do {			\
@@ -338,7 +368,7 @@ request_send (const struct request *req, int fd)
 
   /* Send the request to the server. */
 
-  write_error = fd_write (fd, request_string, size - 1, -1);
+  write_error = fd_write (fd, request_string, size - 1, -1.0);
   if (write_error < 0)
     logprintf (LOG_VERBOSE, _("Failed writing HTTP request: %s.\n"),
 	       strerror (errno));
@@ -382,7 +412,7 @@ post_file (int sock, const char *file_name, wgint promised_size)
       if (length == 0)
 	break;
       towrite = MIN (promised_size - written, length);
-      write_error = fd_write (sock, chunk, towrite, -1);
+      write_error = fd_write (sock, chunk, towrite, -1.0);
       if (write_error < 0)
 	{
 	  fclose (fp);
@@ -711,22 +741,8 @@ resp_free (struct response *resp)
   xfree (resp);
 }
 
-/* Print [b, e) to the log, omitting the trailing CRLF.  */
-
-static void
-print_server_response_1 (const char *prefix, const char *b, const char *e)
-{
-  char *ln;
-  if (b < e && e[-1] == '\n')
-    --e;
-  if (b < e && e[-1] == '\r')
-    --e;
-  BOUNDED_TO_ALLOCA (b, e, ln);
-  logprintf (LOG_VERBOSE, "%s%s\n", prefix, escnonprint (ln));
-}
-
-/* Print the server response, line by line, omitting the trailing CR
-   characters, prefixed with PREFIX.  */
+/* Print the server response, line by line, omitting the trailing CRLF
+   from individual header lines, and prefixed with PREFIX.  */
 
 static void
 print_server_response (const struct response *resp, const char *prefix)
@@ -735,7 +751,18 @@ print_server_response (const struct response *resp, const char *prefix)
   if (!resp->headers)
     return;
   for (i = 0; resp->headers[i + 1]; i++)
-    print_server_response_1 (prefix, resp->headers[i], resp->headers[i + 1]);
+    {
+      const char *b = resp->headers[i];
+      const char *e = resp->headers[i + 1];
+      /* Skip CRLF */
+      if (b < e && e[-1] == '\n')
+	--e;
+      if (b < e && e[-1] == '\r')
+	--e;
+      /* This is safe even on printfs with broken handling of "%.<n>s"
+	 because resp->headers ends with \0.  */
+      logprintf (LOG_VERBOSE, "%s%.*s\n", prefix, e - b, b);
+    }
 }
 
 /* Parse the `Content-Range' header and extract the information it
@@ -782,30 +809,54 @@ parse_content_range (const char *hdr, wgint *first_byte_ptr,
 }
 
 /* Read the body of the request, but don't store it anywhere and don't
-   display a progress gauge.  This is useful for reading the error
-   responses whose bodies don't need to be displayed or logged, but
-   which need to be read anyway.  */
+   display a progress gauge.  This is useful for reading the bodies of
+   administrative responses to which we will soon issue another
+   request.  The response is not useful to the user, but reading it
+   allows us to continue using the same connection to the server.
 
-static void
+   If reading fails, 0 is returned, non-zero otherwise.  In debug
+   mode, the body is displayed for debugging purposes.  */
+
+static int
 skip_short_body (int fd, wgint contlen)
 {
-  /* Skipping the body doesn't make sense if the content length is
-     unknown because, in that case, persistent connections cannot be
-     used.  (#### This is not the case with HTTP/1.1 where they can
-     still be used with the magic of the "chunked" transfer!)  */
-  if (contlen == -1)
-    return;
-  DEBUGP (("Skipping %s bytes of body data... ", number_to_static_string (contlen)));
+  enum {
+    SKIP_SIZE = 512,		/* size of the download buffer */
+    SKIP_THRESHOLD = 4096	/* the largest size we read */
+  };
+  char dlbuf[SKIP_SIZE + 1];
+  dlbuf[SKIP_SIZE] = '\0';	/* so DEBUGP can safely print it */
+
+  /* We shouldn't get here with unknown contlen.  (This will change
+     with HTTP/1.1, which supports "chunked" transfer.)  */
+  assert (contlen != -1);
+
+  /* If the body is too large, it makes more sense to simply close the
+     connection than to try to read the body.  */
+  if (contlen > SKIP_THRESHOLD)
+    return 0;
+
+  DEBUGP (("Skipping %s bytes of body: [", number_to_static_string (contlen)));
 
   while (contlen > 0)
     {
-      char dlbuf[512];
-      int ret = fd_read (fd, dlbuf, MIN (contlen, sizeof (dlbuf)), -1);
+      int ret = fd_read (fd, dlbuf, MIN (contlen, SKIP_SIZE), -1.0);
       if (ret <= 0)
-	return;
+	{
+	  /* Don't normally report the error since this is an
+	     optimization that should be invisible to the user.  */
+	  DEBUGP (("] aborting (%s).\n",
+		   ret < 0 ? strerror (errno) : "EOF received"));
+	  return 0;
+	}
       contlen -= ret;
+      /* Safe even if %.*s bogusly expects terminating \0 because
+	 we've zero-terminated dlbuf above.  */
+      DEBUGP (("%.*s", ret, dlbuf));
     }
-  DEBUGP (("done.\n"));
+
+  DEBUGP (("] done.\n"));
+  return 1;
 }
 
 /* Persistent connections.  Currently, we cache the most recently used
@@ -827,6 +878,12 @@ static struct {
 
   /* Whether a ssl handshake has occoured on this connection.  */
   int ssl;
+
+  /* Whether the connection was authorized.  This is only done by
+     NTLM, which authorizes *connections* rather than individual
+     requests.  (That practice is peculiar for HTTP, but it is a
+     useful optimization.)  */
+  int authorized;
 
 #ifdef ENABLE_NTLM
   /* NTLM data of the current connection.  */
@@ -882,6 +939,7 @@ register_persistent (const char *host, int port, int fd, int ssl)
   pconn.host = xstrdup (host);
   pconn.port = port;
   pconn.ssl = ssl;
+  pconn.authorized = 0;
 
   DEBUGP (("Registered socket %d for persistent reuse.\n", fd));
 }
@@ -911,12 +969,12 @@ persistent_available_p (const char *host, int port, int ssl,
      still hope -- read below.  */
   if (0 != strcasecmp (host, pconn.host))
     {
-      /* If pconn.socket is already talking to HOST, we needn't
-	 reconnect.  This happens often when both sites are virtual
-	 hosts distinguished only by name and served by the same
-	 network interface, and hence the same web server (possibly
-	 set up by the ISP and serving many different web sites).
-	 This admittedly non-standard optimization does not contradict
+      /* Check if pconn.socket is talking to HOST under another name.
+	 This happens often when both sites are virtual hosts
+	 distinguished only by name and served by the same network
+	 interface, and hence the same web server (possibly set up by
+	 the ISP and serving many different web sites).  This
+	 admittedly unconventional optimization does not contradict
 	 HTTP and works well with popular server software.  */
 
       int found;
@@ -925,8 +983,8 @@ persistent_available_p (const char *host, int port, int ssl,
 
       if (ssl)
 	/* Don't try to talk to two different SSL sites over the same
-	   secure connection!  (Besides, it's not clear if name-based
-	   virtual hosting is even possible with SSL.)  */
+	   secure connection!  (Besides, it's not clear that
+	   name-based virtual hosting is even possible with SSL.)  */
 	return 0;
 
       /* If pconn.socket's peer is one of the IP addresses HOST
@@ -1044,9 +1102,9 @@ free_hstat (struct http_stat *hs)
 
 static char *create_authorization_line PARAMS ((const char *, const char *,
 						const char *, const char *,
-						const char *));
+						const char *, int *));
 static char *basic_authentication_encode PARAMS ((const char *, const char *));
-static int known_authentication_scheme_p PARAMS ((const char *));
+static int known_authentication_scheme_p PARAMS ((const char *, const char *));
 
 time_t http_atotm PARAMS ((const char *));
 
@@ -1054,6 +1112,20 @@ time_t http_atotm PARAMS ((const char *));
   (!strncasecmp (line, string_constant, sizeof (string_constant) - 1)	\
    && (ISSPACE (line[sizeof (string_constant) - 1])			\
        || !line[sizeof (string_constant) - 1]))
+
+#define SET_USER_AGENT(req) do {					\
+  if (!opt.useragent)							\
+    request_set_header (req, "User-Agent",				\
+			aprintf ("Wget/%s", version_string), rel_value); \
+  else if (*opt.useragent)						\
+    request_set_header (req, "User-Agent", opt.useragent, rel_none);	\
+} while (0)
+
+/* The flags that allow clobbering the file (opening with "wb").
+   Defined here to avoid repetition later.  #### This will require
+   rework.  */
+#define ALLOW_CLOBBER (opt.noclobber || opt.always_rest || opt.timestamping \
+		       || opt.dirstruct || opt.output_document)
 
 /* Retrieve a document through HTTP protocol.  It recognizes status
    code, and correctly handles redirections.  It closes the network
@@ -1082,11 +1154,19 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
   int sock = -1;
   int flags;
 
-  /* Whether authorization has been already tried. */
-  int auth_tried_already;
+  /* Set to 1 when the authorization has failed permanently and should
+     not be tried again. */
+  int auth_finished = 0;
+
+  /* Whether NTLM authentication is used for this request. */
+  int ntlm_seen = 0;
 
   /* Whether our connection to the remote host is through SSL.  */
   int using_ssl = 0;
+
+  /* Whether a HEAD request will be issued (as opposed to GET or
+     POST). */
+  int head_only = *dt & HEAD_ONLY;
 
   char *head;
   struct response *resp;
@@ -1105,7 +1185,7 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
      causing it to not close the connection and leave both the proxy
      and the client hanging.  */
   int inhibit_keep_alive =
-    !opt.http_keep_alive || opt.ignore_length /*|| proxy != NULL*/;
+    !opt.http_keep_alive || opt.ignore_length || proxy != NULL;
 
   /* Headers sent when using POST. */
   wgint post_data_size = 0;
@@ -1117,39 +1197,20 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
     {
       /* Initialize the SSL context.  After this has once been done,
 	 it becomes a no-op.  */
-      switch (ssl_init ())
+      if (!ssl_init ())
 	{
-	case SSLERRCTXCREATE:
-	  /* this is fatal */
-	  logprintf (LOG_NOTQUIET, _("Failed to set up an SSL context\n"));
-	  return SSLERRCTXCREATE;
-	case SSLERRCERTFILE:
-	  /* try without certfile */
+	  scheme_disable (SCHEME_HTTPS);
 	  logprintf (LOG_NOTQUIET,
-		     _("Failed to load certificates from %s\n"),
-		     opt.sslcertfile);
-	  logprintf (LOG_NOTQUIET,
-		     _("Trying without the specified certificate\n"));
-	  break;
-	case SSLERRCERTKEY:
-	  logprintf (LOG_NOTQUIET,
-		     _("Failed to get certificate key from %s\n"),
-		     opt.sslcertkey);
-	  logprintf (LOG_NOTQUIET,
-		     _("Trying without the specified certificate\n"));
-	  break;
-	default:
-	  break;
+		     _("Disabling SSL due to encountered errors.\n"));
+	  return SSLINITFAILED;
 	}
     }
 #endif /* HAVE_SSL */
 
-  if (!(*dt & HEAD_ONLY))
+  if (!head_only)
     /* If we're doing a GET on the URL, as opposed to just a HEAD, we need to
        know the local filename so we can save to it. */
     assert (*hs->local_file != NULL);
-
-  auth_tried_already = 0;
 
   /* Initialize certain elements of struct http_stat.  */
   hs->len = 0;
@@ -1165,16 +1226,27 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
 
   req = request_new ();
   {
+    char *meth_arg;
     const char *meth = "GET";
-    if (*dt & HEAD_ONLY)
+    if (head_only)
       meth = "HEAD";
     else if (opt.post_file_name || opt.post_data)
       meth = "POST";
     /* Use the full path, i.e. one that includes the leading slash and
        the query string.  E.g. if u->path is "foo/bar" and u->query is
        "param=value", full_path will be "/foo/bar?param=value".  */
-    request_set_method (req, meth,
-			proxy ? xstrdup (u->url) : url_full_path (u));
+    if (proxy
+#ifdef HAVE_SSL
+	/* When using SSL over proxy, CONNECT establishes a direct
+	   connection to the HTTPS server.  Therefore use the same
+	   argument as when talking to the server directly. */
+	&& u->scheme != SCHEME_HTTPS
+#endif
+	)
+      meth_arg = xstrdup (u->url);
+    else
+      meth_arg = url_full_path (u);
+    request_set_method (req, meth, meth_arg);
   }
 
   request_set_header (req, "Referer", (char *) hs->referer, rel_none);
@@ -1185,19 +1257,15 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
 			aprintf ("bytes=%s-",
 				 number_to_static_string (hs->restval)),
 			rel_value);
-  if (opt.useragent)
-    request_set_header (req, "User-Agent", opt.useragent, rel_none);
-  else
-    request_set_header (req, "User-Agent",
-			aprintf ("Wget/%s", version_string), rel_value);
+  SET_USER_AGENT (req);
   request_set_header (req, "Accept", "*/*", rel_none);
 
   /* Find the username and password for authentication. */
   user = u->user;
   passwd = u->passwd;
   search_netrc (u->host, (const char **)&user, (const char **)&passwd, 0);
-  user = user ? user : opt.http_user;
-  passwd = passwd ? passwd : opt.http_passwd;
+  user = user ? user : (opt.http_user ? opt.http_user : opt.user);
+  passwd = passwd ? passwd : (opt.http_passwd ? opt.http_passwd : opt.passwd);
 
   if (user && passwd)
     {
@@ -1303,8 +1371,8 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
 	  post_data_size = file_size (opt.post_file_name);
 	  if (post_data_size == -1)
 	    {
-	      logprintf (LOG_NOTQUIET, "POST data file missing: %s\n",
-			 opt.post_file_name);
+	      logprintf (LOG_NOTQUIET, _("POST data file `%s' missing: %s\n"),
+			 opt.post_file_name, strerror (errno));
 	      post_data_size = 0;
 	    }
 	}
@@ -1355,6 +1423,11 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
 	  logprintf (LOG_VERBOSE, _("Reusing existing connection to %s:%d.\n"),
 		     escnonprint (pconn.host), pconn.port);
 	  DEBUGP (("Reusing fd %d.\n", sock));
+	  if (pconn.authorized)
+	    /* If the connection is already authorized, the "Basic"
+	       authorization added by code above is unnecessary and
+	       only hurts us.  */
+	    request_remove_header (req, "Authorization");
 	}
     }
 
@@ -1390,6 +1463,7 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
 	  struct request *connreq = request_new ();
 	  request_set_method (connreq, "CONNECT",
 			      aprintf ("%s:%d", u->host, u->port));
+	  SET_USER_AGENT (connreq);
 	  if (proxyauth)
 	    {
 	      request_set_header (connreq, "Proxy-Authorization",
@@ -1399,13 +1473,15 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
 		 the regular request below.  */
 	      proxyauth = NULL;
 	    }
+	  /* Examples in rfc2817 use the Host header in CONNECT
+	     requests.  I don't see how that gains anything, given
+	     that the contents of Host would be exactly the same as
+	     the contents of CONNECT.  */
 
 	  write_error = request_send (connreq, sock);
 	  request_free (connreq);
 	  if (write_error < 0)
 	    {
-	      logprintf (LOG_VERBOSE, _("Failed writing to proxy: %s.\n"),
-			 strerror (errno));
 	      CLOSE_INVALIDATE (sock);
 	      return WRITEFAILED;
 	    }
@@ -1448,7 +1524,7 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
 
       if (conn->scheme == SCHEME_HTTPS)
 	{
-	  if (!ssl_connect (sock))
+	  if (!ssl_connect (sock) || !ssl_check_certificate (sock, u->host))
 	    {
 	      fd_close (sock);
 	      return CONSSLERR;
@@ -1466,7 +1542,7 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
       if (opt.post_data)
 	{
 	  DEBUGP (("[POST data: %s]\n", opt.post_data));
-	  write_error = fd_write (sock, opt.post_data, post_data_size, -1);
+	  write_error = fd_write (sock, opt.post_data, post_data_size, -1.0);
 	}
       else if (opt.post_file_name && post_data_size != 0)
 	write_error = post_file (sock, opt.post_file_name, post_data_size);
@@ -1474,8 +1550,6 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
 
   if (write_error < 0)
     {
-      logprintf (LOG_VERBOSE, _("Failed writing HTTP request: %s.\n"),
-		 strerror (errno));
       CLOSE_INVALIDATE (sock);
       request_free (req);
       return WRITEFAILED;
@@ -1557,46 +1631,65 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
   if (statcode == HTTP_STATUS_UNAUTHORIZED)
     {
       /* Authorization is required.  */
-      skip_short_body (sock, contlen);
-      CLOSE_FINISH (sock);
-      if (auth_tried_already || !(user && passwd))
-	{
-	  /* If we have tried it already, then there is not point
-	     retrying it.  */
-	  logputs (LOG_NOTQUIET, _("Authorization failed.\n"));
-	}
+      if (keep_alive && !head_only && skip_short_body (sock, contlen))
+	CLOSE_FINISH (sock);
       else
+	CLOSE_INVALIDATE (sock);
+      pconn.authorized = 0;
+      if (!auth_finished && (user && passwd))
 	{
-	  char *www_authenticate = resp_header_strdup (resp,
-						       "WWW-Authenticate");
-	  /* If the authentication scheme is unknown or if it's the
-	     "Basic" authentication (which we try by default), there's
-	     no sense in retrying.  */
-	  if (!www_authenticate
-	      || !known_authentication_scheme_p (www_authenticate)
-	      || BEGINS_WITH (www_authenticate, "Basic"))
-	    {
-	      xfree_null (www_authenticate);
-	      logputs (LOG_NOTQUIET, _("Unknown authentication scheme.\n"));
-	    }
+	  /* IIS sends multiple copies of WWW-Authenticate, one with
+	     the value "negotiate", and other(s) with data.  Loop over
+	     all the occurrences and pick the one we recognize.  */
+	  int wapos;
+	  const char *wabeg, *waend;
+	  char *www_authenticate = NULL;
+	  for (wapos = 0;
+	       (wapos = resp_header_locate (resp, "WWW-Authenticate", wapos,
+					    &wabeg, &waend)) != -1;
+	       ++wapos)
+	    if (known_authentication_scheme_p (wabeg, waend))
+	      {
+		BOUNDED_TO_ALLOCA (wabeg, waend, www_authenticate);
+		break;
+	      }
+
+	  if (!www_authenticate)
+	    /* If the authentication header is missing or
+	       unrecognized, there's no sense in retrying.  */
+	    logputs (LOG_NOTQUIET, _("Unknown authentication scheme.\n"));
+	  else if (BEGINS_WITH (www_authenticate, "Basic"))
+	    /* If the authentication scheme is "Basic", which we send
+	       by default, there's no sense in retrying either.  (This
+	       should be changed when we stop sending "Basic" data by
+	       default.)  */
+	    ;
 	  else
 	    {
 	      char *pth;
-	      auth_tried_already = 1;
 	      pth = url_full_path (u);
 	      request_set_header (req, "Authorization",
 				  create_authorization_line (www_authenticate,
 							     user, passwd,
 							     request_method (req),
-							     pth),
+							     pth,
+							     &auth_finished),
 				  rel_value);
+	      if (BEGINS_WITH (www_authenticate, "NTLM"))
+		ntlm_seen = 1;
 	      xfree (pth);
-	      xfree (www_authenticate);
 	      goto retry_with_auth;
 	    }
 	}
+      logputs (LOG_NOTQUIET, _("Authorization failed.\n"));
       request_free (req);
       return AUTHFAILED;
+    }
+  else /* statcode != HTTP_STATUS_UNAUTHORIZED */
+    {
+      /* Kludge: if NTLM is used, mark the TCP connection as authorized. */
+      if (ntlm_seen)
+	pconn.authorized = 1;
     }
   request_free (req);
 
@@ -1607,7 +1700,7 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
     hs->error = xstrdup (_("(no description)"));
   else
     hs->error = xstrdup (message);
-  xfree (message);
+  xfree_null (message);
 
   type = resp_header_strdup (resp, "Content-Type");
   if (type)
@@ -1624,22 +1717,22 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
   hs->remote_time = resp_header_strdup (resp, "Last-Modified");
 
   /* Handle (possibly multiple instances of) the Set-Cookie header. */
-  {
-    int scpos;
-    const char *scbeg, *scend;
-    /* The jar should have been created by now. */
-    assert (wget_cookie_jar != NULL);
-    for (scpos = 0;
-	 (scpos = resp_header_locate (resp, "Set-Cookie", scpos,
-				      &scbeg, &scend)) != -1;
-	 ++scpos)
-      {
-	char *set_cookie = strdupdelim (scbeg, scend);
-	cookie_handle_set_cookie (wget_cookie_jar, u->host, u->port, u->path,
-				  set_cookie);
-	xfree (set_cookie);
-      }
-  }
+  if (opt.cookies)
+    {
+      int scpos;
+      const char *scbeg, *scend;
+      /* The jar should have been created by now. */
+      assert (wget_cookie_jar != NULL);
+      for (scpos = 0;
+	   (scpos = resp_header_locate (resp, "Set-Cookie", scpos,
+					&scbeg, &scend)) != -1;
+	   ++scpos)
+	{
+	  char *set_cookie; BOUNDED_TO_ALLOCA (scbeg, scend, set_cookie);
+	  cookie_handle_set_cookie (wget_cookie_jar, u->host, u->port,
+				    u->path, set_cookie);
+	}
+    }
 
   if (resp_header_copy (resp, "Content-Range", hdrval, sizeof (hdrval)))
     {
@@ -1649,7 +1742,6 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
 	contrange = first_byte_pos;
     }
   resp_free (resp);
-  xfree (head);
 
   /* 20x responses are counted among successful by default.  */
   if (H_20X (statcode))
@@ -1671,9 +1763,10 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
 		     _("Location: %s%s\n"),
 		     hs->newloc ? escnonprint_uri (hs->newloc) : _("unspecified"),
 		     hs->newloc ? _(" [following]") : "");
-	  if (keep_alive)
-	    skip_short_body (sock, contlen);
-	  CLOSE_FINISH (sock);
+	  if (keep_alive && !head_only && skip_short_body (sock, contlen))
+	    CLOSE_FINISH (sock);
+	  else
+	    CLOSE_INVALIDATE (sock);
 	  xfree_null (type);
 	  return NEWLOCATION;
 	}
@@ -1694,18 +1787,28 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
        text/html file.  If some case-insensitive variation on ".htm[l]" isn't
        already the file's suffix, tack on ".html". */
     {
-      char*  last_period_in_local_filename = strrchr(*hs->local_file, '.');
+      char *last_period_in_local_filename = strrchr (*hs->local_file, '.');
 
       if (last_period_in_local_filename == NULL
 	  || !(0 == strcasecmp (last_period_in_local_filename, ".htm")
 	       || 0 == strcasecmp (last_period_in_local_filename, ".html")))
 	{
-	  size_t  local_filename_len = strlen(*hs->local_file);
-	  
-	  *hs->local_file = xrealloc(*hs->local_file,
-				     local_filename_len + sizeof(".html"));
+	  int local_filename_len = strlen (*hs->local_file);
+	  /* Resize the local file, allowing for ".html" preceded by
+	     optional ".NUMBER".  */
+	  *hs->local_file = xrealloc (*hs->local_file,
+				      local_filename_len + 24 + sizeof (".html"));
 	  strcpy(*hs->local_file + local_filename_len, ".html");
-
+	  /* If clobbering is not allowed and the file, as named,
+	     exists, tack on ".NUMBER.html" instead. */
+	  if (!ALLOW_CLOBBER)
+	    {
+	      int ext_num = 1;
+	      do
+		sprintf (*hs->local_file + local_filename_len,
+			 ".%d.html", ext_num++);
+	      while (file_exists_p (*hs->local_file));
+	    }
 	  *dt |= ADDED_HTML_EXTENSION;
 	}
     }
@@ -1776,17 +1879,23 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
   type = NULL;			/* We don't need it any more.  */
 
   /* Return if we have no intention of further downloading.  */
-  if (!(*dt & RETROKF) || (*dt & HEAD_ONLY))
+  if (!(*dt & RETROKF) || head_only)
     {
       /* In case the caller cares to look...  */
       hs->len = 0;
       hs->res = 0;
       xfree_null (type);
-      /* Pre-1.10 Wget used CLOSE_INVALIDATE here.  Now we trust the
-	 servers not to send body in response to a HEAD request.  If
-	 you encounter such a server (more likely a broken CGI), use
-	 `--no-http-keep-alive'.  */
-      CLOSE_FINISH (sock);
+      if (head_only)
+	/* Pre-1.10 Wget used CLOSE_INVALIDATE here.  Now we trust the
+	   servers not to send body in response to a HEAD request.  If
+	   you encounter such a server (more likely a broken CGI), use
+	   `--no-http-keep-alive'.  */
+	CLOSE_FINISH (sock);
+      else if (keep_alive && skip_short_body (sock, contlen))
+	/* Successfully skipped the body; also keep using the socket. */
+	CLOSE_FINISH (sock);
+      else
+	CLOSE_INVALIDATE (sock);
       return RETRFINISHED;
     }
 
@@ -1798,8 +1907,7 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
 	rotate_backups (*hs->local_file);
       if (hs->restval)
 	fp = fopen (*hs->local_file, "ab");
-      else if (opt.noclobber || opt.always_rest || opt.timestamping || opt.dirstruct
-	       || opt.output_document)
+      else if (ALLOW_CLOBBER)
 	fp = fopen (*hs->local_file, "wb");
       else
 	{
@@ -1832,9 +1940,15 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
   if (opt.save_headers)
     fwrite (head, 1, strlen (head), fp);
 
+  /* Now we no longer need to store the response header. */
+  xfree (head);
+
   /* Download the request body.  */
   flags = 0;
-  if (keep_alive)
+  if (contlen != -1)
+    /* If content-length is present, read that much; otherwise, read
+       until EOF.  The HTTP spec doesn't require the server to
+       actually close the connection when it's done sending data. */
     flags |= rb_read_exactly;
   if (hs->restval > 0 && contrange == 0)
     /* If the server ignored our range request, instruct fd_read_body
@@ -1903,10 +2017,8 @@ http_loop (struct url *u, char **newloc, char **local_file, const char *referer,
 
   *newloc = NULL;
 
-  /* Warn on (likely bogus) wildcard usage in HTTP.  Don't use
-     has_wildcards_p because it would also warn on `?', and we know that
-     shows up in CGI paths a *lot*.  */
-  if (strchr (u->url, '*'))
+  /* Warn on (likely bogus) wildcard usage in HTTP.  */
+  if (opt.ftp_glob && has_wildcards_p (u->path))
     logputs (LOG_VERBOSE, _("Warning: wildcards not supported in HTTP.\n"));
 
   xzero (hstat);
@@ -1943,7 +2055,7 @@ http_loop (struct url *u, char **newloc, char **local_file, const char *referer,
       /* If opt.noclobber is turned on and file already exists, do not
 	 retrieve the file */
       logprintf (LOG_VERBOSE, _("\
-File `%s' already there, will not retrieve.\n"), *hstat.local_file);
+File `%s' already there; not retrieving.\n\n"), *hstat.local_file);
       /* If the file is there, we suppose it's retrieved OK.  */
       *dt |= RETROKF;
 
@@ -2048,13 +2160,18 @@ File `%s' already there, will not retrieve.\n"), *hstat.local_file);
 	*dt &= ~HEAD_ONLY;
 
       /* Decide whether or not to restart.  */
-      hstat.restval = 0;
-      if (count > 1)
-	hstat.restval = hstat.len; /* continue where we left off */
-      else if (opt.always_rest
-	       && stat (locf, &st) == 0
-	       && S_ISREG (st.st_mode))
+      if (opt.always_rest
+	  && stat (locf, &st) == 0
+	  && S_ISREG (st.st_mode))
+	/* When -c is used, continue from on-disk size.  (Can't use
+	   hstat.len even if count>1 because we don't want a failed
+	   first attempt to clobber existing data.)  */
 	hstat.restval = st.st_size;
+      else if (count > 1)
+	/* otherwise, continue where the previous try left off */
+	hstat.restval = hstat.len;
+      else
+	hstat.restval = 0;
 
       /* Decide whether to send the no-cache directive.  We send it in
 	 two cases:
@@ -2118,14 +2235,12 @@ File `%s' already there, will not retrieve.\n"), *hstat.local_file);
 		locf = opt.output_document;
 	    }
 	  continue;
-	  break;
 	case HOSTERR: case CONIMPOSSIBLE: case PROXERR: case AUTHFAILED: 
-	case SSLERRCTXCREATE: case CONTNOTSUPPORTED:
+	case SSLINITFAILED: case CONTNOTSUPPORTED:
 	  /* Fatal errors just return from the function.  */
 	  free_hstat (&hstat);
 	  xfree_null (dummy);
 	  return err;
-	  break;
 	case FWRITEERR: case FOPENERR:
 	  /* Another fatal error.  */
 	  logputs (LOG_VERBOSE, "\n");
@@ -2134,15 +2249,12 @@ File `%s' already there, will not retrieve.\n"), *hstat.local_file);
 	  free_hstat (&hstat);
 	  xfree_null (dummy);
 	  return err;
-	  break;
 	case CONSSLERR:
 	  /* Another fatal error.  */
-	  logputs (LOG_VERBOSE, "\n");
 	  logprintf (LOG_NOTQUIET, _("Unable to establish SSL connection.\n"));
 	  free_hstat (&hstat);
 	  xfree_null (dummy);
 	  return err;
-	  break;
 	case NEWLOCATION:
 	  /* Return the new location to the caller.  */
 	  if (!hstat.newloc)
@@ -2157,13 +2269,11 @@ File `%s' already there, will not retrieve.\n"), *hstat.local_file);
 	  free_hstat (&hstat);
 	  xfree_null (dummy);
 	  return NEWLOCATION;
-	  break;
 	case RETRUNNEEDED:
 	  /* The file was already fully retrieved. */
 	  free_hstat (&hstat);
 	  xfree_null (dummy);
 	  return RETROK;
-	  break;
 	case RETRFINISHED:
 	  /* Deal with you later.  */
 	  break;
@@ -2245,9 +2355,7 @@ The sizes do not match (local %s) -- retrieving.\n"),
       if ((tmr != (time_t) (-1))
 	  && !opt.spider
 	  && ((hstat.len == hstat.contlen) ||
-	      ((hstat.res == 0) &&
-	       ((hstat.contlen == -1) ||
-		(hstat.len >= hstat.contlen && !opt.kill_longer)))))
+	      ((hstat.res == 0) && (hstat.contlen == -1))))
 	{
 	  /* #### This code repeats in http.c and ftp.c.  Move it to a
              function!  */
@@ -2342,43 +2450,10 @@ The sizes do not match (local %s) -- retrieving.\n"),
 	      free_hstat (&hstat);
 	      continue;
 	    }
-	  else if (!opt.kill_longer) /* meaning we got more than expected */
-	    {
-	      logprintf (LOG_VERBOSE,
-			 _("%s (%s) - `%s' saved [%s/%s])\n\n"),
-			 tms, tmrate, locf,
-			 number_to_static_string (hstat.len),
-			 number_to_static_string (hstat.contlen));
-	      logprintf (LOG_NONVERBOSE,
-			 "%s URL:%s [%s/%s] -> \"%s\" [%d]\n",
-			 tms, u->url,
-			 number_to_static_string (hstat.len),
-			 number_to_static_string (hstat.contlen),
-			 locf, count);
-	      ++opt.numurls;
-	      total_downloaded_bytes += hstat.len;
-
-	      /* Remember that we downloaded the file for later ".orig" code. */
-	      if (*dt & ADDED_HTML_EXTENSION)
-		downloaded_file(FILE_DOWNLOADED_AND_HTML_EXTENSION_ADDED, locf);
-	      else
-		downloaded_file(FILE_DOWNLOADED_NORMALLY, locf);
-	      
-	      free_hstat (&hstat);
-	      xfree_null (dummy);
-	      return RETROK;
-	    }
-	  else			/* the same, but not accepted */
-	    {
-	      logprintf (LOG_VERBOSE,
-			 _("%s (%s) - Connection closed at byte %s/%s. "),
-			 tms, tmrate,
-			 number_to_static_string (hstat.len),
-			 number_to_static_string (hstat.contlen));
-	      printwhat (count, opt.ntry);
-	      free_hstat (&hstat);
-	      continue;
-	    }
+	  else
+	    /* Getting here would mean reading more data than
+	       requested with content-length, which we never do.  */
+	    abort ();
 	}
       else			/* now hstat.res can only be -1 */
 	{
@@ -2406,80 +2481,11 @@ The sizes do not match (local %s) -- retrieving.\n"),
 	    }
 	}
       /* not reached */
-      break;
     }
   while (!opt.ntry || (count < opt.ntry));
   return TRYLIMEXC;
 }
 
-/* Converts struct tm to time_t, assuming the data in tm is UTC rather
-   than local timezone.
-
-   mktime is similar but assumes struct tm, also known as the
-   "broken-down" form of time, is in local time zone.  mktime_from_utc
-   uses mktime to make the conversion understanding that an offset
-   will be introduced by the local time assumption.
-
-   mktime_from_utc then measures the introduced offset by applying
-   gmtime to the initial result and applying mktime to the resulting
-   "broken-down" form.  The difference between the two mktime results
-   is the measured offset which is then subtracted from the initial
-   mktime result to yield a calendar time which is the value returned.
-
-   tm_isdst in struct tm is set to 0 to force mktime to introduce a
-   consistent offset (the non DST offset) since tm and tm+o might be
-   on opposite sides of a DST change.
-
-   Some implementations of mktime return -1 for the nonexistent
-   localtime hour at the beginning of DST.  In this event, use
-   mktime(tm - 1hr) + 3600.
-
-   Schematically
-     mktime(tm)   --> t+o
-     gmtime(t+o)  --> tm+o
-     mktime(tm+o) --> t+2o
-     t+o - (t+2o - t+o) = t
-
-   Note that glibc contains a function of the same purpose named
-   `timegm' (reverse of gmtime).  But obviously, it is not universally
-   available, and unfortunately it is not straightforwardly
-   extractable for use here.  Perhaps configure should detect timegm
-   and use it where available.
-
-   Contributed by Roger Beeman <beeman@cisco.com>, with the help of
-   Mark Baushke <mdb@cisco.com> and the rest of the Gurus at CISCO.
-   Further improved by Roger with assistance from Edward J. Sabol
-   based on input by Jamie Zawinski.  */
-
-static time_t
-mktime_from_utc (struct tm *t)
-{
-  time_t tl, tb;
-  struct tm *tg;
-
-  tl = mktime (t);
-  if (tl == -1)
-    {
-      t->tm_hour--;
-      tl = mktime (t);
-      if (tl == -1)
-	return -1; /* can't deal with output from strptime */
-      tl += 3600;
-    }
-  tg = gmtime (&tl);
-  tg->tm_isdst = 0;
-  tb = mktime (tg);
-  if (tb == -1)
-    {
-      tg->tm_hour--;
-      tb = mktime (tg);
-      if (tb == -1)
-	return -1; /* can't deal with output from gmtime */
-      tb += 3600;
-    }
-  return (tl - (tb - tl));
-}
-
 /* Check whether the result of strptime() indicates success.
    strptime() returns the pointer to how far it got to in the string.
    The processing has been successful if the string is at `GMT' or
@@ -2506,8 +2512,9 @@ check_end (const char *p)
 /* Convert the textual specification of time in TIME_STRING to the
    number of seconds since the Epoch.
 
-   TIME_STRING can be in any of the three formats RFC2068 allows the
-   HTTP servers to emit -- RFC1123-date, RFC850-date or asctime-date.
+   TIME_STRING can be in any of the three formats RFC2616 allows the
+   HTTP servers to emit -- RFC1123-date, RFC850-date or asctime-date,
+   as well as the time format used in the Set-Cookie header.
    Timezones are ignored, and should be GMT.
 
    Return the computed time_t representation, or -1 if the conversion
@@ -2539,64 +2546,68 @@ http_atotm (const char *time_string)
      implementations I've tested.  */
 
   static const char *time_formats[] = {
-    "%a, %d %b %Y %T",		/* RFC1123: Thu, 29 Jan 1998 22:12:57 */
-    "%A, %d-%b-%y %T",		/* RFC850:  Thursday, 29-Jan-98 22:12:57 */
-    "%a, %d-%b-%Y %T",		/* pseudo-RFC850:  Thu, 29-Jan-1998 22:12:57
-				   (google.com uses this for their cookies.) */
-    "%a %b %d %T %Y"		/* asctime: Thu Jan 29 22:12:57 1998 */
+    "%a, %d %b %Y %T",		/* rfc1123: Thu, 29 Jan 1998 22:12:57 */
+    "%A, %d-%b-%y %T",		/* rfc850:  Thursday, 29-Jan-98 22:12:57 */
+    "%a %b %d %T %Y",		/* asctime: Thu Jan 29 22:12:57 1998 */
+    "%a, %d-%b-%Y %T"		/* cookies: Thu, 29-Jan-1998 22:12:57
+				   (used in Set-Cookie, defined in the
+				   Netscape cookie specification.) */
   };
-
   int i;
-  struct tm t;
-
-  /* According to Roger Beeman, we need to initialize tm_isdst, since
-     strptime won't do it.  */
-  t.tm_isdst = 0;
-
-  /* Note that under foreign locales Solaris strptime() fails to
-     recognize English dates, which renders this function useless.  We
-     solve this by being careful not to affect LC_TIME when
-     initializing locale.
-
-     Another solution would be to temporarily set locale to C, invoke
-     strptime(), and restore it back.  This is slow and dirty,
-     however, and locale support other than LC_MESSAGES can mess other
-     things, so I rather chose to stick with just setting LC_MESSAGES.
-
-     GNU strptime does not have this problem because it recognizes
-     both international and local dates.  */
 
   for (i = 0; i < countof (time_formats); i++)
-    if (check_end (strptime (time_string, time_formats[i], &t)))
-      return mktime_from_utc (&t);
+    {
+      struct tm t;
+
+      /* Some versions of strptime use the existing contents of struct
+	 tm to recalculate the date according to format.  Zero it out
+	 to prevent garbage from the stack influencing strptime.  */
+      xzero (t);
+
+      /* Solaris strptime fails to recognize English month names in
+	 non-English locales, which we work around by not setting the
+	 LC_TIME category.  Another way would be to temporarily set
+	 locale to C before invoking strptime, but that's slow and
+	 messy.  GNU strptime does not have this problem because it
+	 recognizes English month names along with the local ones.  */
+
+      if (check_end (strptime (time_string, time_formats[i], &t)))
+	return timegm (&t);
+    }
 
   /* All formats have failed.  */
   return -1;
 }
 
-/* Authorization support: We support two authorization schemes:
+/* Authorization support: We support three authorization schemes:
 
    * `Basic' scheme, consisting of base64-ing USER:PASSWORD string;
 
    * `Digest' scheme, added by Junio Hamano <junio@twinsun.com>,
    consisting of answering to the server's challenge with the proper
-   MD5 digests.  */
+   MD5 digests.
+
+   * `NTLM' ("NT Lan Manager") scheme, based on code written by Daniel
+   Stenberg for libcurl.  Like digest, NTLM is based on a
+   challenge-response mechanism, but unlike digest, it is non-standard
+   (authenticates TCP connections rather than requests), undocumented
+   and Microsoft-specific.  */
 
 /* Create the authentication header contents for the `Basic' scheme.
-   This is done by encoding the string `USER:PASS' in base64 and
-   prepending `HEADER: Basic ' to it.  */
+   This is done by encoding the string "USER:PASS" to base64 and
+   prepending the string "Basic " in front of it.  */
+
 static char *
 basic_authentication_encode (const char *user, const char *passwd)
 {
   char *t1, *t2;
   int len1 = strlen (user) + 1 + strlen (passwd);
-  int len2 = BASE64_LENGTH (len1);
 
   t1 = (char *)alloca (len1 + 1);
   sprintf (t1, "%s:%s", user, passwd);
 
-  t2 = (char *)alloca (len2 + 1);
-  base64_encode (t1, t2, len1);
+  t2 = (char *)alloca (BASE64_LENGTH (len1) + 1);
+  base64_encode (t1, len1, t2);
 
   return concat_strings ("Basic ", t2, (char *) 0);
 }
@@ -2794,26 +2805,33 @@ username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s\", response=\"%s\"",
 }
 #endif /* ENABLE_DIGEST */
 
+/* Computing the size of a string literal must take into account that
+   value returned by sizeof includes the terminating \0.  */
+#define STRSIZE(literal) (sizeof (literal) - 1)
 
-#define BEGINS_WITH(line, string_constant)				\
-  (!strncasecmp (line, string_constant, sizeof (string_constant) - 1)	\
-   && (ISSPACE (line[sizeof (string_constant) - 1])			\
-       || !line[sizeof (string_constant) - 1]))
+/* Whether chars in [b, e) begin with the literal string provided as
+   first argument and are followed by whitespace or terminating \0.
+   The comparison is case-insensitive.  */
+#define STARTS(literal, b, e)				\
+  ((e) - (b) >= STRSIZE (literal)			\
+   && 0 == strncasecmp (b, literal, STRSIZE (literal))	\
+   && ((e) - (b) == STRSIZE (literal)			\
+       || ISSPACE (b[STRSIZE (literal)])))
 
 static int
-known_authentication_scheme_p (const char *au)
+known_authentication_scheme_p (const char *hdrbeg, const char *hdrend)
 {
-  return BEGINS_WITH (au, "Basic")
+  return STARTS ("Basic", hdrbeg, hdrend)
 #ifdef ENABLE_DIGEST
-    || BEGINS_WITH (au, "Digest")
+    || STARTS ("Digest", hdrbeg, hdrend)
 #endif
 #ifdef ENABLE_NTLM
-    || BEGINS_WITH (au, "NTLM")
+    || STARTS ("NTLM", hdrbeg, hdrend)
 #endif
     ;
 }
 
-#undef BEGINS_WITH
+#undef STARTS
 
 /* Create the HTTP authorization request header.  When the
    `WWW-Authenticate' response header is seen, according to the
@@ -2823,25 +2841,34 @@ known_authentication_scheme_p (const char *au)
 static char *
 create_authorization_line (const char *au, const char *user,
 			   const char *passwd, const char *method,
-			   const char *path)
+			   const char *path, int *finished)
 {
-  if (0 == strncasecmp (au, "Basic", 5))
-    return basic_authentication_encode (user, passwd);
+  /* We are called only with known schemes, so we can dispatch on the
+     first letter. */
+  switch (TOUPPER (*au))
+    {
+    case 'B':			/* Basic */
+      *finished = 1;
+      return basic_authentication_encode (user, passwd);
 #ifdef ENABLE_DIGEST
-  if (0 == strncasecmp (au, "Digest", 6))
-    return digest_authentication_encode (au, user, passwd, method, path);
+    case 'D':			/* Digest */
+      *finished = 1;
+      return digest_authentication_encode (au, user, passwd, method, path);
 #endif
 #ifdef ENABLE_NTLM
-  if (0 == strncasecmp (au, "NTLM", 4))
-    {
-      int ok = ntlm_input (&pconn.ntlm, au);
-      if (!ok)
-	return NULL;
-      /* #### we shouldn't ignore the OK that ntlm_output returns. */
-      return ntlm_output (&pconn.ntlm, user, passwd, &ok);
-    }
+    case 'N':			/* NTLM */
+      if (!ntlm_input (&pconn.ntlm, au))
+	{
+	  *finished = 1;
+	  return NULL;
+	}
+      return ntlm_output (&pconn.ntlm, user, passwd, finished);
 #endif
-  return NULL;
+    default:
+      /* We shouldn't get here -- this function should be only called
+	 with values approved by known_authentication_scheme_p.  */
+      abort ();
+    }
 }
 
 void

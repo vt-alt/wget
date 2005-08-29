@@ -61,7 +61,7 @@ extern int errno;
 #endif
 
 /* Total size of downloaded files.  Used to enforce quota.  */
-LARGE_INT total_downloaded_bytes;
+SUM_SIZE_INT total_downloaded_bytes;
 
 /* If non-NULL, the stream to which output should be written.  This
    stream is initialized when `-O' is used.  */
@@ -82,6 +82,7 @@ limit_bandwidth_reset (void)
 {
   limit_data.chunk_bytes = 0;
   limit_data.chunk_start = 0;
+  limit_data.sleep_adjust = 0;
 }
 
 /* Limit the bandwidth by pausing the download for an amount of time.
@@ -125,6 +126,12 @@ limit_bandwidth (wgint bytes, struct ptimer *timer)
 	 desired and the actual sleep, and adjust the next sleep by
 	 that amount.  */
       limit_data.sleep_adjust = slp - (t1 - t0);
+      /* If sleep_adjust is very large, it's likely due to suspension
+	 and not clock inaccuracy.  Don't enforce those.  */
+      if (limit_data.sleep_adjust > 500)
+	limit_data.sleep_adjust = 500;
+      else if (limit_data.sleep_adjust < -500)
+	limit_data.sleep_adjust = -500;
     }
 
   limit_data.chunk_bytes = 0;
@@ -281,10 +288,10 @@ fd_read_body (int fd, FILE *out, wgint toread, wgint startpos,
 	}
       ret = fd_read (fd, dlbuf, rdsize, tmout);
 
-      if (ret == 0 || (ret < 0 && errno != ETIMEDOUT))
-	break;			/* read error */
-      else if (ret < 0)
-	ret = 0;		/* read timeout */
+      if (progress_interactive && ret < 0 && errno == ETIMEDOUT)
+	ret = 0;		/* interactive timeout, handled above */
+      else if (ret <= 0)
+	break;			/* EOF or read error */
 
       if (progress || opt.limit_rate)
 	{
@@ -299,7 +306,7 @@ fd_read_body (int fd, FILE *out, wgint toread, wgint startpos,
 	  if (!write_data (out, dlbuf, ret, &skip, &sum_written))
 	    {
 	      ret = -2;
-	      goto out;
+	      goto out_;
 	    }
 	}
 
@@ -317,7 +324,7 @@ fd_read_body (int fd, FILE *out, wgint toread, wgint startpos,
   if (ret < -1)
     ret = -1;
 
- out:
+ out_:
   if (progress)
     progress_finish (progress, ptimer_read (timer));
 
@@ -388,7 +395,7 @@ fd_read_hunk (int fd, hunk_terminator_t terminator, long sizehint, long maxsize)
 
       /* First, peek at the available data. */
 
-      pklen = fd_peek (fd, hunk + tail, bufsize - 1 - tail, -1);
+      pklen = fd_peek (fd, hunk + tail, bufsize - 1 - tail, -1.0);
       if (pklen < 0)
 	{
 	  xfree (hunk);
@@ -421,7 +428,7 @@ fd_read_hunk (int fd, hunk_terminator_t terminator, long sizehint, long maxsize)
 	 how much data we'll get.  (Some TCP stacks are notorious for
 	 read returning less data than the previous MSG_PEEK.)  */
 
-      rdlen = fd_read (fd, hunk + tail, remain, 0);
+      rdlen = fd_read (fd, hunk + tail, remain, 0.0);
       if (rdlen < 0)
 	{
 	  xfree_null (hunk);
@@ -661,14 +668,16 @@ retrieve_url (const char *origurl, char **file, char **newloc,
     }
   else if (u->scheme == SCHEME_FTP)
     {
-      /* If this is a redirection, we must not allow recursive FTP
-	 retrieval, so we save recursion to oldrec, and restore it
-	 later.  */
-      int oldrec = opt.recursive;
+      /* If this is a redirection, temporarily turn off opt.ftp_glob
+	 and opt.recursive, both being undesirable when following
+	 redirects.  */
+      int oldrec = opt.recursive, oldglob = opt.ftp_glob;
       if (redirection_count)
-	opt.recursive = 0;
+	opt.recursive = opt.ftp_glob = 0;
+
       result = ftp_loop (u, dt, proxy_url);
       opt.recursive = oldrec;
+      opt.ftp_glob = oldglob;
 
       /* There is a possibility of having HTTP being redirected to
 	 FTP.  In these cases we must decide whether the text is HTML
@@ -830,8 +839,8 @@ retrieve_from_file (const char *file, int html, int *count)
 
       if (filename && opt.delete_after && file_exists_p (filename))
 	{
-	  DEBUGP (("Removing file due to --delete-after in"
-		   " retrieve_from_file():\n"));
+	  DEBUGP (("\
+Removing file due to --delete-after in retrieve_from_file():\n"));
 	  logprintf (LOG_VERBOSE, _("Removing %s.\n"), filename);
 	  if (unlink (filename))
 	    logprintf (LOG_NOTQUIET, "unlink: %s\n", strerror (errno));
@@ -879,7 +888,7 @@ sleep_between_retrievals (int count)
       /* If opt.waitretry is specified and this is a retry, wait for
 	 COUNT-1 number of seconds, or for opt.waitretry seconds.  */
       if (count <= opt.waitretry)
-	xsleep (count - 1);
+	xsleep (count - 1.0);
       else
 	xsleep (opt.waitretry);
     }
@@ -992,7 +1001,7 @@ getproxy (struct url *u)
 }
 
 /* Should a host be accessed through proxy, concerning no_proxy?  */
-int
+static int
 no_proxy_match (const char *host, const char **no_proxy)
 {
   if (!no_proxy)

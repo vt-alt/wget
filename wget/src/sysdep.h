@@ -108,42 +108,13 @@ so, delete this exception statement from your version.  */
 #endif
 #endif
 
-/* Define a large integral type useful for storing large sizes that
-   exceed sizes of one download, such as when printing the sum of all
-   downloads.  Note that this has nothing to do with large file
-   support, which determines the wgint type.  This should be as large
-   as possible even on systems where when wgint is 32-bit; also,
-   unlike wgint, this can be a floating point type.
-
-   We use a 64-bit integral type where available, `double' otherwise.
-   It's hard to print LARGE_INT's portably, but fortunately it's
-   rarely needed.  */
-
-#if SIZEOF_LONG >= 8
-/* Long is large enough: use it.  */
-typedef long LARGE_INT;
-# define LARGE_INT_FMT "%ld"
-#else
-# if SIZEOF_LONG_LONG >= 8
-/* Long long is large enough: use it.  */
-typedef long long LARGE_INT;
-#  define LARGE_INT_FMT "%lld"
-# else
-#  if _MSC_VER
-/* Use __int64 under Windows. */
-typedef __int64 LARGE_INT;
-#   define LARGE_INT_FMT "%I64"
-#  else
-/* Large integer type unavailable; use `double' instead.  */
-typedef double LARGE_INT;
-#   define LARGE_INT_FMT "%.0f"
-#  endif
-# endif
-#endif
-
-/* Under Windows we #define struct_stat to struct _stati64. */
+/* These are needed so we can #define struct_stat to struct _stati64
+   under Windows. */
 #ifndef struct_stat
 # define struct_stat struct stat
+#endif
+#ifndef struct_fstat
+# define struct_fstat struct stat
 #endif
 
 #ifdef HAVE_LIMITS_H
@@ -186,6 +157,9 @@ int vsnprintf ();
 #endif
 #ifndef HAVE_MEMMOVE
 void *memmove ();
+#endif
+#ifndef HAVE_TIMEGM
+time_t timegm (struct tm *);
 #endif
 
 /* SunOS brain damage -- for some reason, SunOS header files fail to

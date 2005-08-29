@@ -530,7 +530,7 @@ bar_create (wgint initial, wgint total)
 
   logputs (LOG_VERBOSE, "\n");
 
-  create_image (bp, 0);
+  create_image (bp, 0.0);
   display_image (bp->buffer);
 
   return bp;
@@ -828,7 +828,7 @@ create_image (struct bar_progress *bp, double dl_total_time)
     }
 
   /* " 234,567,890" */
-  sprintf (p, " %-11s", with_thousand_seps (size));
+  sprintf (p, " %-11s", size_legible);
   p += strlen (p);
 
   /* " 1012.45K/s" */

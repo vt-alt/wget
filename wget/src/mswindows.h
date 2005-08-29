@@ -90,27 +90,44 @@ typedef __int64 wgint;
 #define WGINT_MAX 9223372036854775807I64
 #endif
 
-#define str_to_wgint str_to_int64
-__int64 str_to_int64 (const char *, char **, int);
+#if defined __MINGW32__
+# define str_to_wgint strtoll
+#elif defined(_MSC_VER) && _MSC_VER >= 1300 && !defined(__BORLANDC__)
+# define str_to_wgint _strtoi64
+#else
+# define str_to_wgint strtoll
+# define NEED_STRTOLL
+# define strtoll_return __int64
+#endif
 
-/* No lstat on Windows.  */
+/* Windows has no symlink, therefore no lstat.  Without symlinks lstat
+   is equivalent to stat anyway.  */
 #define lstat stat
 
-/* Transparently support large files, in spirit similar to the POSIX
-   LFS API.  */
+/* Transparently support statting large files, like POSIX's LFS API
+   does.  All Windows compilers we support use _stati64 (but have
+   different names for 2nd argument type, see below), so we use
+   that.  */
 #define stat(fname, buf) _stati64 (fname, buf)
+
+/* On Windows the 64-bit stat requires an explicitly different type
+   for the 2nd argument, so we define a struct_stat macro that expands
+   to the appropriate type on Windows, and to the regular struct stat
+   on Unix.
+
+   Note that Borland C 5.5 has 64-bit stat (_stati64), but not a
+   64-bit fstat!  Because of that we also need a struct_fstat that
+   points to struct_stat on Unix and on Windows, except under Borland,
+   where it points to the 32-bit struct stat.  */
 
 #ifndef __BORLANDC__
 # define fstat(fd, buf) _fstati64 (fd, buf)
-#endif
-
-#if defined(_MSC_VER) || defined(__MINGW32__)
-# define struct_stat struct _stati64
-#elif defined(__BORLANDC__)
-# define struct_stat struct stati64
-#else
-# define struct_stat struct stat
-#endif
+# define struct_stat  struct _stati64
+# define struct_fstat struct _stati64
+#else  /* __BORLANDC__ */
+# define struct_stat  struct stati64
+# define struct_fstat struct stat
+#endif /* __BORLANDC__ */
 
 #define PATH_SEPARATOR '\\'
 
@@ -134,6 +151,8 @@ __int64 str_to_int64 (const char *, char **, int);
 #define socket wrapped_socket
 #define bind wrapped_bind
 #define connect wrapped_connect
+#define listen wrapped_listen
+#define accept wrapped_accept
 #define recv wrapped_recv
 #define send wrapped_send
 #define select wrapped_select
@@ -147,6 +166,8 @@ __int64 str_to_int64 (const char *, char **, int);
 int wrapped_socket (int, int, int);
 int wrapped_bind (int, struct sockaddr *, int);
 int wrapped_connect (int, const struct sockaddr *, int);
+int wrapped_listen (int s, int backlog);
+int wrapped_accept (int s, struct sockaddr *a, int *alen);
 int wrapped_recv (int, void *, int, int);
 int wrapped_send (int, const void *, int, int);
 int wrapped_select (int, fd_set *, fd_set *, fd_set *, const struct timeval *);
@@ -161,6 +182,13 @@ int wrapped_closesocket (int);
 # define strerror windows_strerror
 #endif
 const char *windows_strerror (int);
+
+/* MingW 3.7 (or older) prototypes gai_strerror(), but is missing
+   from all import libraries. */
+#if defined(__MINGW32__) && defined(ENABLE_IPV6)
+# undef gai_strerror
+# define gai_strerror windows_strerror
+#endif
 
 /* Declarations of various socket errors:  */
 

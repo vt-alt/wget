@@ -45,6 +45,7 @@ so, delete this exception statement from your version.  */
 #include "utils.h"
 #include "hash.h"
 #include "convert.h"
+#include "recur.h"		/* declaration of get_urls_html */
 
 #ifndef errno
 extern int errno;
@@ -480,6 +481,10 @@ tag_handle_link (int tagid, struct taginfo *tag, struct map_context *ctx)
 	      && (0 == strcasecmp (rel, "stylesheet")
 		  || 0 == strcasecmp (rel, "shortcut icon")))
 	    up->link_inline_p = 1;
+	  else
+	    /* The external ones usually point to HTML pages, such as
+	       <link rel="next" href="..."> */
+	    up->link_expect_html = 1;
 	}
     }
 }
@@ -697,7 +702,7 @@ get_urls_file (const char *file)
       url = url_parse (url_text, &up_error_code);
       if (!url)
 	{
-	  logprintf (LOG_NOTQUIET, "%s: Invalid URL %s: %s\n",
+	  logprintf (LOG_NOTQUIET, _("%s: Invalid URL %s: %s\n"),
 		     file, url_text, url_error (up_error_code));
 	  xfree (url_text);
 	  continue;

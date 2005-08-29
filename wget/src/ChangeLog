@@ -1,3 +1,846 @@
+2005-08-11  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* cmpt.c (strtoll): Define it if missing on the system and if Wget
+	needs it.
+
+	* mswindows.c (str_to_int64): Move to cmpt.c and rename to strtoll.
+
+2005-08-09  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (gethttp): Don't read more than the amount of data
+	specified by the content-length header.
+
+2005-08-09  Vasil Dimov  <vd@datamax.bg>
+
+	* ftp.c (getftp): Don't free RESPLINE if ftp_response returns a
+	status other than FTPOK.
+
+2005-08-04  Giuseppe Bonacci  <g.bonacci@libero.it>
+
+	* ftp-ls.c (ftp_parse_unix_ls): Remember the position of the
+	previous token instead of backtracking back to it.
+
+2005-07-06  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (gethttp): When freeing MESSAGE, take into account that
+	it can be NULL.
+
+2005-07-05  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* cmpt.c (timegm): Handle years after 2099.
+
+2005-07-05  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* cmpt.c (timegm): New function, used where timegm is unavailable.
+
+2005-07-05  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (gethttp): Don't print the request write error message
+	twice.
+	(http_atotm): Use timegm instead of mktime_from_utc.
+
+2005-07-04  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* xmalloc.c (debugging_free): Prefix hex pointer value with "0x"
+	when printing.
+
+2005-07-03  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* mswindows.h: Also wrap accept() and listen().
+
+2005-07-02  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* host.c: Don't include "connect.h" now that we no longer have
+	socket_has_inet6.
+
+	* host.c: Remove extraneous include of netdb.h.
+
+2005-07-02  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (gethttp): Skip error message body in the keep-alive
+	case.
+
+2005-07-01  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* url.c (url_parse): Don't crash on []-delimited IPv6 addresses
+	followed by garbage.
+
+2005-07-01  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* main.c (print_help): Don't refer to the non-existent -nr in
+	description of --mirror.
+
+2005-06-28  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* init.c (parse_line): Check for alphanumerics.
+
+2005-06-28  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* ftp.c (getftp): Delete trailing newlines from LIST output so
+	lines don't come out with trailing \015\012 with -S.
+
+2005-06-27  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* cookies.c: Make cookies_now static.
+
+2005-06-27  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* utils.c (human_readable): Remove intermediary cast to long; MSVC
+	has problems casting *unsigned* __int64 to double.
+
+2005-06-27  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	(get_grouping_data): Restore LC_NUMERIC after querying thousand
+	grouping info.
+
+2005-06-27  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* utils.c (get_grouping_data): Would omit separators in C locale.
+
+2005-06-27  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (gethttp): Improve "POST data file missing" error
+	message.
+
+2005-06-27  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* utils.c (add_thousand_seps): Add thousand separators using the
+	character and grouping rules appropriate for the locale, with the
+	exception that "," and 3-digit groups are used in the locales that
+	don't specify thousand separators.  (For compatibility with the
+	output of Wget 1.10.)
+	Based on with_thousand_seps from the trunk.
+
+2005-06-27  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* Makefile.in: Don't remove .libs; adapt to the use of
+	AC_LIB_HAVE_LINKFLAGS.
+
+2005-06-26  Gisle Vanem  <giva@bgnett.no>
+
+	* mswindows.h: Define gai_strerror under MinGW.
+
+2005-06-25  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* cookies.c (parse_set_cookies): Cast pointer subtraction to int
+	before using it with %d; AIX compiler warns on this.
+	Reported by Jens Schleusener.
+
+2005-06-26  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* progress.c (create_image): Don't unnecessarily call
+	with_thousand_seps twice.
+
+2005-06-25  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* utils.c (with_thousand_seps_sum): Decrease buffer size so it
+	cannot overrun add_thousand_seps's buffer.
+
+2005-06-25  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* utils.c (SPRINTF_WGINT): The correct format is %I64d, not just
+	%I64.
+
+2005-06-25  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (http_loop): Don't warn about wildcards in HTTP URLs if
+	globbing isn't requested in the first place.
+
+	* retr.c (retrieve_url): Temporarily turn off globbing when
+	processing HTTP->FTP redirects.
+
+2005-06-25  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* utils.c (with_thousand_seps_sum): Now defined only if
+	SUM_SIZE_INT is double.
+
+	* wget.h (SUM_SIZE_INT): Instead of bothering with long, long
+	long, __int64, and friends, simply either use wgint or double, end
+	of story.  Since we know how to print either, we no longer need
+	LARGE_INT_FMT.
+
+	* sysdeps.h (LARGE_INT): Renamed to SUM_SIZE_INT to better reflect
+	its intent, and moved to wget.h.
+
+2005-06-24  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (gethttp): Don't prepend / here.
+
+	* cookies.c (cookie_handle_set_cookie): Prepend / to PATH.
+	(cookie_header): Ditto.
+
+2005-06-23  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* utils.c (read_file): Ditto.
+
+	* main.c (main): Use struct_fstat.
+
+	* mswindows.h (struct_fstat): Define a struct_fstat to deal with
+	the fact that Borland 5.5 has 64-bit stat, but not 64-bit fstat!
+
+2005-06-22  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (gethttp): Only handle --set-cookies (and assert that
+	cookie jar exists) if opt.cookies is true.  Failure to do so
+	triggered the assert when --no-cookies was used and the server
+	sent a Set-Cookie header.  Ouch!
+
+2005-06-22  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* Makefile.in: Remove the manually maintained dependency list;
+	make all object files depend on every header.
+
+2005-06-19  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* init.c (cmd_lockable_boolean): Don't recognize literal "2" and
+	"-1" values; unlike 0 and 1, those should never be exposed to the
+	user.  Update the error message to be more self-consistent, as
+	proposed by Benno Schulenberg.
+
+2005-06-18  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (gethttp): Don't free "head" before using it to save
+	headers.
+
+2005-06-18  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (gethttp): When -E is in use, check for file existence
+	after appending ".html" to the name and modify the file name if
+	necessary.
+
+2005-06-17  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* connect.c (socket_has_inet6): Removed.
+
+	* host.c (lookup_host): Don't use the AI_ADDRCONFIG getaddrinfo
+	hint.
+
+2005-06-16  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* init.c (cmd_lockable_boolean): Improve the error message so it
+	lists the more useful values first.
+
+2005-06-15  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (gethttp): Also report the system error when the POST
+	data file is missing.
+
+2005-06-15  Benno Schulenberg  <benno@nietvergeten.nl>
+
+	* ftp.c, http.c, connect.c, cookies.c, html-url.c, init.c, res.c:
+	Gettext-ize messages that were previously missed.
+
+2005-06-15  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* host.h (ip_address): Remove the trailing comma from the type
+	enum in the no-IPv6 case.
+
+	* main.c (struct cmdline_option): Remove the trailing comma from
+	the enum.
+
+	Reported by Jens Schleusener.
+
+2005-05-30  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* url.c (strpbrk_or_eos): Check for a recent GCC version before
+	using the statement-as-expression extension.
+
+2005-05-30  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (gethttp): Don't attempt to "skip short body" if we're
+	issuing a HEAD request (in which case the response head is not
+	followed by a body).
+
+2005-05-30  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* init.c (cmd_spec_header): Don't split the string along the
+	commas using cmd_vector; just append the new value using
+	vec_append instead.
+
+	* utils.c (vec_append): New function.
+
+2005-05-27  Andreas Beckmann  <debian@abeckmann.de>
+
+	* html-url.c (tag_handle_link): Mark the content from the <link
+	src="..."> tag as expecting HTML.
+
+2005-05-24  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (http_atotm): Document the origin of the "cookie date"
+	format.
+
+2005-05-21  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* init.c (setval_internal): Report exact command name alongside
+	the "display name".
+
+2005-05-18  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* cookies.c (update_cookie_field): Explicitly cast -1 to time_t to
+	cope with systems where time_t is unsigned.
+
+	* cookies.c: Remove unnecessary casts to time_t from values
+	already of that type.
+
+2005-05-17  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* ftp.c (ftp_loop_internal): Same here.
+
+	* http.c (http_loop): Don't clobber the file when -c is specified
+	and the first attempt to retrieve the file fails.
+
+2005-05-16  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* openssl.c (ssl_check_certificate): Print all issues with a
+	certificate.
+
+2005-05-16  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* ftp-basic.c: Don't xfree() the line returned by ftp_response if
+	the returned code is not FTPOK.
+
+2005-05-16  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* init.c (cleanup): Don't free the non-existent opt.ftp_acc.  Free
+	the SSL-related stuff.
+
+2005-05-16  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* ftp.c (print_length): Consistently print \n at end of the
+	"Length" line.
+
+2005-05-14  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* openssl.c (ssl_connect): Announce the beginning and the end of
+	the SSL handshake when in debug mode.
+
+	* wget.h (PTR_FORMAT): New macro for easier printing of pointer
+	values.  Use %0*lx along with PTR_FORMAT instead of %p.
+
+2005-05-14  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (gethttp): Would forget to close the connection when
+	keep_alive was not used.
+
+2005-05-13  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* openssl.c (pattern_match): Document the code that decides
+	whether "*" matches ".".
+
+2005-05-12  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* ftp-ls.c (ftp_index): Use %d to print the port number, which is
+	now int.
+	From Steven M. Schweda's VMS patches.
+
+2005-05-12  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* url.c (rewrite_shorthand_url): Don't rewrite "https://host" to
+	"ftp://https//host" when SSL is not used.
+
+2005-05-11  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* openssl.c (ssl_check_server_identity): Renamed to
+	ssl_check_certificate because it does more than just checking the
+	server's identity.
+	(ssl_check_certificate): Tell the user about
+	--no-check-certificate.
+
+2005-05-11  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* openssl.c (ssl_init): Always use SSL_VERIFY_NONE, so that the
+	handshake finishes even if the certificate is invalid.  That way
+	ssl_check_server_identity can provide better diagnostics on why
+	the verification failed.
+
+2005-05-11  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* openssl.c (pattern_match): New function.
+	(ssl_check_server_identity): Treat peer certificate common name as
+	wildcard.
+
+2005-05-10  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* openssl.c (ssl_check_server_identity): Print certificate subject
+	and issuer.
+
+2005-05-10  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* res.c (res_register_specs): Correctly pass pointers to
+	hash_table_get_pair.
+
+2005-05-10  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (gethttp): Call ssl_check_server_identity.
+
+	* openssl.c (ssl_check_server_identity): New function, verifies
+	that the host name in the certificate matches the actual host
+	name.
+	(verify_cert_callback): Removed, since it didn't do anything
+	except returning the preverify_ok argument.
+
+	* connect.c (fd_transport_context): Allow retrieval of the context
+	pointer registered with fd_register_transport.
+
+2005-05-09  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* openssl.c (verify_cert_callback): Renamed from verify_callback.
+	Always return the received "ok" value.  Print the X509 name in
+	debug mode.
+	(ssl_init): Enable partial writes in SSL context.
+
+2005-05-08  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (http_loop): Check for wildcards in the URL path
+	component, not in the whole URL.
+
+	* ftp.c (ftp_loop): Check for wildcards in URL path before
+	unescaping, so the users can escape globbing metacharacters with %
+	escapes.
+
+2005-05-08  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* init.c (run_command): Correctly interpret the return value of
+	parse_line.
+	(commands): Re-alphabetize.
+
+2005-05-08  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* netrc.c (parse_netrc): Explicitly check for assignment != NULL
+	to silence warning from Borland C.
+
+	* url.c (sync_path): Don't unnecessarily increment p.
+	(url_parse): Don't unnecessarily set url_encode to NULL just
+	prior to return from the function.
+
+2005-05-08  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* log.c (escnonprint_internal): Place variable declarations
+	before other statements.
+
+2005-05-08  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* html-url.c: Include recur.h.
+
+	* http.c (request_new): Define as accepting no args.
+
+2005-05-07  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* url.c (strpbrk_or_eos): Made inline.  Use strchr(s, '\0') for
+	finding the NUL char position.
+
+2005-05-07  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* url.c (decide_copy_method): Renamed to char_needs_escaping.
+	Since it now returns only two possible values, change it to return
+	boolean (int).
+
+2005-05-07  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* ftp-basic.c (ftp_request): Prevent newlines in VALUE causing
+	inadvertent sending of multiple FTP commands.
+
+2005-05-07  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* url.c (decide_copy_method): Never cause reencode_escapes to
+	decode % escapes; it is too intrusive and breaks some servers.
+
+2005-05-07  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (gethttp): When tunnelling SSL traffic over proxy with
+	CONNECT, we're really talking to the remote server directly.
+	Because of this, the request-line argument must be the URL path
+	rather than the whole URL, as it would be when using regular
+	proxies.
+	Reported by Charles Lane.
+
+2005-05-06  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* init.c (cmd_spec_useragent): Allow empty User-Agent.
+
+	* http.c (gethttp): Don't print "unknown authentication scheme"
+	for failed Basic authentication.
+	(SET_USER_AGENT): Don't set user-agent if opt.useragent is empty.
+	(gethttp): Use alloca for allocation of www_authenticate.
+
+2005-05-06  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* main.c (print_help): Fix wording of --secure-protocol help text.
+
+2005-05-06  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* cmpt.c (strstr): Updated from glibc 2.3.5.
+
+2005-05-05  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (http_atotm): Zero out the whole struct tm being passed
+	to strptime.
+
+2005-05-05  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* main.c (main): Propagate option name to setoptval.
+
+	* init.c (setoptval): Accept another argument, OPTNAME.  Propagate
+	that argument as the option name independently of the actual
+	command, determined by command_by_name(com).
+
+2005-05-05  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* init.c (parse_line): Make the return value indicate whether
+	there was a syntax error or a setter failed.
+	(run_wgetrc): Return an indication on whether an error has been
+	encountered.
+	(initialize): Abort if there have been errors running either
+	.wgetrc file.
+
+2005-05-05  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* log.c (copy_and_escape): Slightly reduce code repetition between
+	the two loops.
+
+2005-05-05  Charles C.Fu  <ccwf@bacchus.com>
+
+	* utils.c (proclist): Strip leading slash when calling fnmatch
+	too, otherwise wildcard comparisons always fail.
+
+2005-05-05  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* utils.c (touch): Set access time to current time.
+
+2005-05-05  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* url.c (url_unescape): Don't unescape %00, it effectively
+	truncates the string.
+
+2005-05-05  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* log.c (copy_and_escape): Replace the FOR_URI argument with a
+	slightly more general mechanism for specifying different kinds of
+	escape.
+
+2005-05-05  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* ftp-basic.c (ftp_response): Fix printing FTP server response.
+
+2005-05-05  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* retr.c (limit_bandwidth_reset): Reset sleep_adjust.
+	(limit_bandwidth): Don't allow huge "adjustment" values that
+	result from being suspended for a while.
+
+2005-05-04  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* wget.h: If gettext was found but libtintl.h wasn't, declare
+	gettext's return type to avoid type mismatches.
+
+2005-05-03  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* url.c (url_parse): Rename label `error' to avoid conflict with
+	identifier.
+
+	* retr.c (fd_read_body): Rename label `out' to avoid conflict with
+	identifier.
+	(fd_read_hunk): Use explicit double constant.
+	(retrieve_from_file): Don't use string concatenation.
+	(sleep_between_retrievals): Make sure xsleep is called with a
+	`double' argument.
+	(no_proxy_match): Define as static, like it is declared.
+
+	* progress.c (bar_create): Use 0.0 instead of 0 because K&R
+	compilers can't automatically promote it.
+
+	* http-ntlm.c (ntlm_output): Replace \xHH sequences with \OOO for
+	the sake of old compilers.
+
+	* ftp.c (ftp_loop_internal): Don't use string concatenation.
+
+	* http.c (request_send): Use explicit double constants when
+	calling fd_read and fd_write.
+	(post_file): Ditto.
+	(gethttp): Ditto.
+	(skip_short_body): Ditto.
+
+	* ftp-basic.c: When calling fd_write, specify the last argument as
+	a `double' constant for the sake of K&R compilers which don't see
+	the prototype and therefore can't promote it to double
+	automatically.
+
+	* cookies.c (cookie_jar_load): Rename abort label to abort_cookie
+	to avoid name conflict in K&R compilers.
+
+2005-04-29  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* ptimer.c (posix_init): Since we allow _POSIX_MONOTONIC_CLOCK==0,
+	it is not enough to check for _POSIX_MONOTONIC_CLOCK-0, we must
+	also check for defined(_POSIX_MONOTONIC_CLOCK).
+
+2005-04-28  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* ftp.c, hash.c, connect.c, host.c, http.c: Remove unreached code,
+	such as "break" following return or abort.
+
+2005-04-28  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* init.c (commands): Wrap the use of opt.random_file in #ifdef
+	HAVE_SSL.
+
+2005-04-28  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (gethttp): Correctly set the user agent.
+
+2005-04-27  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* init.c (cmd_spec_useragent): Free the old value of
+	opt.useragent before setting the new one.
+
+2005-04-27  Mauro Tortonesi  <mauro@ferrara.linux.it>
+
+	* main.c: Map --ftp-password, --http-password and --proxy-password to
+	the new ftppassword, httppassword and proxypassword commands
+	respectively.  Document the --user and --password options in the help
+	string.
+	
+2005-04-27  Mauro Tortonesi  <mauro@ferrara.linux.it>
+
+	* ftp.c: Add support for --user and --password.
+	
+	* http.c: Add support for --user and --password.
+	
+	* init.c: Deprecated ftppasswd, httppasswd, login, passwd and
+	proxypasswd commands.  Added ftppassword, ftpuser, httppassword,
+	password, proxypassword and user commands.
+
+	* main.c: Renamed --ftp-passwd to --ftp-password.  Added --ftp-user,
+	--http-password, --password, --proxy-password and --user.  Deprecated
+	--http-passwd and --proxy-passwd.  Added documentation for new options
+	and removed documentation for deprecated options in the help string.
+	
+	* options.h (struct options): Added user and passwd members to handle
+	--user and --password respectively.  Renamed ftp_acc and ftp_pass
+	members to ftp_user and ftp_passwd for consistency.
+
+2005-04-27  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* main.c (print_help): Advertise "DER", not "ASN1".
+
+2005-04-27  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* openssl.c (init_prng): Disable the weak random seed by default.
+
+	* http.c (gethttp): Simplify SSL initialization; disable SSL when
+	anything goes wrong with the initialization.
+
+	* options.h (struct options): New option opt.random_file.
+
+2005-04-27  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* init.c: Wrap private key commands in IF_SSL.
+
+2005-04-27  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* openssl.c (ssl_init): Ditto.
+
+	* options.h (struct options): Allow separate specification of key
+	type and certificate type.
+
+	* init.c (cmd_spec_cert_type): Provide a "der" synonym for "asn1"
+	certificate encoding.
+
+2005-04-26  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* openssl.c: Renamed "gen_sslfunc.c" to "openssl.c" and
+	"gen_sslfunc.h" to "openssl.h".  This reflects the intent of
+	openssl.c encapsulating the OpenSSL-specific code.
+
+2005-04-26  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* init.c: Renamed "closure" (a synonym for context in some
+	cultures) to "place", which more accurately reflects the usage.
+
+2005-04-26  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* gen_sslfunc.c (ssl_init): Use default locations for loading the
+	certificate bundles.
+	(ssl_init_prng): Disable the cryptographically weak PRNG
+	initialization fallback.
+
+	* init.c: Renamed SSL command-line arguments and wgetrc commands.
+	(defaults): Check the server certificate by default.
+
+2005-04-26  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* cookies.c (cookie_handle_set_cookie): Delete the part of the
+	path after the trailing slash.
+
+	* http.c (gethttp): Call cookie_handle_set_cookie with path that
+	begins with '/'.
+
+2005-04-26  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (gethttp): Call skip_short_body only if keep_alive is in
+	use.
+	(gethttp): Send the User-Agent header with the CONNECT request as
+	well.
+
+2005-04-25  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* main.c (option_data): Removed support for the undocumented flag
+	--use-proxy.
+
+2005-04-25  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* main.c (option_data): Don't treat -Y as a boolean switch; treat
+	it as a value switch instead, so "-Y off" continues to work.
+
+2005-04-24  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* utils.c (aprintf): Delete unreachable statement.
+
+2005-04-24  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* host.c (cmp_prefer_ipv4): New function.
+	(cmp_prefer_ipv6): New function.
+	(lookup_host): Use the appropriate comparator according to
+	opt.prefer_family.
+
+	* init.c: New option prefer_family.
+
+	* host.c (is_valid_ipv6_address): Spell NS_* constants in lower
+	case to avoid clash with system headers.
+	(lookup_host): Reorder the addresses so that IPv4 ones come first.
+
+	* utils.c (stable_sort): New function.
+
+2005-04-24  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* connect.c (retryable_socket_connect_error): Return 0 for
+	ENETUNREACH and EHOSTUNREACH.
+
+2005-04-23  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* cmpt.c: Reenable the memmove implementation for systems that
+	lack it.
+
+	* http.c (gethttp): Store the "authorized" state of the persistent
+	connection.
+	(request_remove_header): New function.
+	(gethttp): Don't send the "Basic" authentication if the connection
+	is already authorized.
+
+2005-04-23  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* utils.c (base64_encode): Treat input as unsigned chars.
+	Required for correct encoding of binary stuff.
+
+2005-04-23  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http-ntlm.c: Format the function definitions in an
+	ansi2knr-friendly fashion.
+
+2005-04-22  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (gethttp): Handle multiple WWW-Authentication headers,
+	only one of which is recognized.  Those are sent by IIS with NTLM
+	authorization.
+	(create_authorization_line): Propagate information whether
+	authorization is finished.
+	(gethttp): Only stop authorization when it's really finished, not
+	after fixed two steps.
+
+2005-04-21  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* gen_sslfunc.c (ssl_init): Fix warning message text; mark the
+	message as translatable.
+
+2005-04-21  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* main.c (print_help): Print the EGD option outside the cluster of
+	SSL options.
+
+2005-04-21  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http-ntlm.c (ntlm_output): Fix setting the domain.
+	Suggested by Sami Krank.
+
+2005-04-20  Mauro Tortonesi  <mauro@ferrara.linux.it>
+
+	* connect.c: Set IPV6_V6ONLY socket option when -6 switch is used.
+
+2005-04-20  FUJISHIMA Satsuki  <sf@FreeBSD.org>
+
+	* http.c (request_set_header): Fix the check whether a new header
+	needs to be allocated.
+
+2005-04-18  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* utils.c (base64_encode): Use the parameter order that makes more
+	sense.  Return the length of the base64 written.  Updated all
+	callers.
+
+2005-04-17  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (request_set_header): Free NAME when VALUE is NULL and
+	freeing the header name is requested.
+
+2005-04-17  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* snprintf.c (fmtstr): Declare VALUE as const char *.
+	Based on patch by Russ Allbery.
+
+2005-04-17  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* snprintf.c (fmtfp): More correct handling of significant digit
+	count with %g -- 0.002 has one significant digit, not three.
+
+2005-04-16  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* retr.c (fd_read_body): Respect read timeout with non-interactive
+	or no progress gauge -- treat ETIMEDOUT specially only when
+	progress_interactive.
+	Reported by FUJISHIMA Satsuki.
+
+2005-04-16  FUJISHIMA Satsuki  <sf@FreeBSD.org>
+
+	* http.c (gethttp): Don't use HTTP/1.0 persistent connections over
+	proxy.
+
+2005-04-16  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* snprintf.c: Use the PARAMS macro to handle prototypes.  Write
+	function definitions in the ansi2knr-friendly way.
+	(fmtstr): If string precision is specified, don't read VALUE past
+	it.
+	(dopr): Actually print %g and %e formats.
+	(fmtfp): Fix a bug that caused 0.01 to be printed as 0.1.
+	(fmtfp): Use LLONG in floating point conversions to be able to
+	convert more digits.
+	(fmtfp): Interpret precision as number of significant digits with
+	%g.
+	(fmtfp): Omit trailing decimal zeros with %g.
+
+	* snprintf.c: Don't include <ctype.h> because none of it is used.
+	Include strings.h/string.h, as per Autoconf.
+
+2005-04-15  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* ptimer.c: Use _POSIX_TIMERS - 0 > 0, which handles the case when
+	_POSIX_TIMERS is defined but empty, as well as the case when it is
+	undefined.  Do the same with the check for _POSIX_MONOTONIC_CLOCK.
+	Suggested by Larry Jones.
+
+2005-04-15  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* ptimer.c: Check that _POSIX_TIMERS is defined as well as > 0.
+	Problem reported by Steven M. Schweda.
+
+2005-04-14  Hrvoje Niksic  <hniksic@xemacs.org>
+
+	* http.c (skip_short_body): Print the skipped body data in debug
+	mode.
+	(skip_short_body): Don't skip more than 4k of body data.
+	(skip_short_body): Return whether the skipping was successful.
+	(gethttp): If skip_short_body failed, invalidate the connection.
+
 2005-04-12  Gisle Vanem  <giva@bgnett.no>
 
 	* ftp.c (getftp): Ditto.

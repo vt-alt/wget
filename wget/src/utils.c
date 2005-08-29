@@ -66,6 +66,9 @@ so, delete this exception statement from your version.  */
 #else
 # include <varargs.h>
 #endif
+#ifdef HAVE_LOCALE_H
+# include <locale.h>
+#endif
 
 /* For TIOCGWINSZ and friends: */
 #ifdef HAVE_SYS_IOCTL_H
@@ -211,7 +214,6 @@ aprintf (const char *fmt, ...)
 	size <<= 1;		/* twice the old size */
       str = xrealloc (str, size);
     }
-  return NULL;			/* unreached */
 }
 
 /* Concatenate the NULL-terminated list of string arguments into
@@ -358,19 +360,23 @@ fork_to_background (void)
 }
 #endif /* not WINDOWS */
 
-/* "Touch" FILE, i.e. make its atime and mtime equal to the time
-   specified with TM.  */
+/* "Touch" FILE, i.e. make its mtime ("modified time") equal the time
+   specified with TM.  The atime ("access time") is set to the current
+   time.  */
+
 void
 touch (const char *file, time_t tm)
 {
 #ifdef HAVE_STRUCT_UTIMBUF
   struct utimbuf times;
-  times.actime = times.modtime = tm;
 #else
-  time_t times[2];
-  times[0] = times[1] = tm;
+  struct {
+    time_t actime;
+    time_t modtime;
+  } times;
 #endif
-
+  times.modtime = tm;
+  times.actime = time (NULL);
   if (utime (file, &times) == -1)
     logprintf (LOG_NOTQUIET, "utime(%s): %s\n", file, strerror (errno));
 }
@@ -678,19 +684,21 @@ static char *
 proclist (char **strlist, const char *s, enum accd flags)
 {
   char **x;
-
   for (x = strlist; *x; x++)
-    if (has_wildcards_p (*x))
-      {
-	if (fnmatch (*x, s, FNM_PATHNAME) == 0)
-	  break;
-      }
-    else
-      {
-	char *p = *x + ((flags & ALLABS) && (**x == '/')); /* Remove '/' */
-	if (frontcmp (p, s))
-	  break;
-      }
+    {
+      /* Remove leading '/' if ALLABS */
+      char *p = *x + ((flags & ALLABS) && (**x == '/'));
+      if (has_wildcards_p (p))
+	{
+	  if (fnmatch (p, s, FNM_PATHNAME) == 0)
+	    break;
+	}
+      else
+	{
+	  if (frontcmp (p, s))
+	    break;
+	}
+    }
   return *x;
 }
 
@@ -937,7 +945,7 @@ read_file (const char *file)
 
 #ifdef HAVE_MMAP
   {
-    struct_stat buf;
+    struct_fstat buf;
     if (fstat (fd, &buf) < 0)
       goto mmap_lose;
     fm->length = buf.st_size;
@@ -1080,6 +1088,30 @@ merge_vecs (char **v1, char **v2)
   xfree (v2);
   return v1;
 }
+
+/* Append a freshly allocated copy of STR to VEC.  If VEC is NULL, it
+   is allocated as needed.  Return the new value of the vector. */
+
+char **
+vec_append (char **vec, const char *str)
+{
+  int cnt;			/* count of vector elements, including
+				   the one we're about to append */
+  if (vec != NULL)
+    {
+      for (cnt = 0; vec[cnt]; cnt++)
+	;
+      ++cnt;
+    }
+  else
+    cnt = 1;
+  /* Reallocate the array to fit the new element and the NULL. */
+  vec = xrealloc (vec, (cnt + 1) * sizeof (char *));
+  /* Append a copy of STR to the vector. */
+  vec[cnt - 1] = xstrdup (str);
+  vec[cnt] = NULL;
+  return vec;
+}
 
 /* Sometimes it's useful to create "sets" of strings, i.e. special
    hash tables where you want to store strings as keys and merely
@@ -1155,50 +1187,99 @@ free_keys_and_values (struct hash_table *ht)
 {
   hash_table_map (ht, free_keys_and_values_mapper, NULL);
 }
-
 
-/* Add thousand separators to a number already in string form.  Used
-   by with_thousand_seps and with_thousand_seps_large.  */
+static void
+get_grouping_data (const char **sep, const char **grouping)
+{
+  static const char *cached_sep;
+  static const char *cached_grouping;
+  static int initialized;
+  if (!initialized)
+    {
+      /* If locale.h is present and defines LC_NUMERIC, assume C89
+	 struct lconv with "thousand_sep" and "grouping" members.  */
+#ifdef LC_NUMERIC
+      /* Get the grouping info from the locale. */
+      struct lconv *lconv;
+      const char *oldlocale = setlocale (LC_NUMERIC, NULL);
+      /* Temporarily switch to the current locale */
+      setlocale (LC_NUMERIC, "");
+      lconv = localeconv ();
+      cached_sep = xstrdup (lconv->thousands_sep);
+      cached_grouping = xstrdup (lconv->grouping);
+      /* Restore the locale to previous setting. */
+      setlocale (LC_NUMERIC, oldlocale);
+      if (!*cached_sep)
+#endif
+	/* Force separator for locales that specify no separators
+	   ("C", "hr", and probably many more.) */
+	cached_sep = ",", cached_grouping = "\x03";
+      initialized = 1;
+    }
+  *sep = cached_sep;
+  *grouping = cached_grouping;
+}
 
-static char *
+/* Add thousand separators to a number already in string form.  Used
+   by with_thousand_seps and with_thousand_seps_sum.  */
+
+char *
 add_thousand_seps (const char *repr)
 {
   static char outbuf[48];
-  int i, i1, mod;
-  char *outptr;
-  const char *inptr;
+  char *p = outbuf + sizeof outbuf;
 
-  /* Reset the pointers.  */
-  outptr = outbuf;
-  inptr = repr;
+  const char *in = strchr (repr, '\0');
+  const char *instart = repr + (*repr == '-'); /* don't group sign */
 
-  /* Ignore the sign for the purpose of adding thousand
-     separators.  */
-  if (*inptr == '-')
+  /* Info received from locale */
+  const char *grouping, *sep;
+  int seplen;
+
+  /* State information */
+  int i = 0, groupsize;
+  const char *atgroup;
+
+  /* Initialize grouping data. */
+  get_grouping_data (&sep, &grouping);
+  seplen = strlen (sep);
+  atgroup = grouping;
+  groupsize = *atgroup++;
+
+  /* Write the number into the buffer, backwards, inserting the
+     separators as necessary.  */
+  *--p = '\0';
+  while (1)
     {
-      *outptr++ = '-';
-      ++inptr;
+      *--p = *--in;
+      if (in == instart)
+	break;
+      /* Prepend SEP to every groupsize'd digit and get new groupsize.  */
+      if (++i == groupsize)
+	{
+	  if (seplen == 1)
+	    *--p = *sep;
+	  else
+	    memcpy (p -= seplen, sep, seplen);
+	  i = 0;
+	  if (*atgroup)
+	    groupsize = *atgroup++;
+	}
     }
-  /* How many digits before the first separator?  */
-  mod = strlen (inptr) % 3;
-  /* Insert them.  */
-  for (i = 0; i < mod; i++)
-    *outptr++ = inptr[i];
-  /* Now insert the rest of them, putting separator before every
-     third digit.  */
-  for (i1 = i, i = 0; inptr[i1]; i++, i1++)
-    {
-      if (i % 3 == 0 && i1 != 0)
-	*outptr++ = ',';
-      *outptr++ = inptr[i1];
-    }
-  /* Zero-terminate the string.  */
-  *outptr = '\0';
-  return outbuf;
+  if (*repr == '-')
+    *--p = '-';
+
+  return p;
 }
 
-/* Return a static pointer to the number printed with thousand
-   separators inserted at the right places.  */
+/* Return a printed representation of N with thousand separators.
+   This should respect locale settings, with the exception of the "C"
+   locale which mandates no separator, but we use one anyway.
+
+   Unfortunately, we cannot use %'d (in fact it would be %'j) to get
+   the separators because it's too non-portable, and it's hard to test
+   for this feature at configure time.  Besides, it wouldn't work in
+   the "C" locale, which many Unix users still work in.  */
 
 char *
 with_thousand_seps (wgint l)
@@ -1209,30 +1290,19 @@ with_thousand_seps (wgint l)
   return add_thousand_seps (inbuf);
 }
 
-/* Write a string representation of LARGE_INT NUMBER into the provided
-   buffer.
+/* When SUM_SIZE_INT is wgint, with_thousand_seps_large is #defined to
+   with_thousand_seps.  The function below is used on non-LFS systems
+   where SUM_SIZE_INT typedeffed to double.  */
 
-   It would be dangerous to use sprintf, because the code wouldn't
-   work on a machine with gcc-provided long long support, but without
-   libc support for "%lld".  However, such old systems platforms
-   typically lack snprintf and will end up using our version, which
-   does support "%lld" whereever long longs are available.  */
-
-static void
-large_int_to_string (char *buffer, int bufsize, LARGE_INT number)
-{
-  snprintf (buffer, bufsize, LARGE_INT_FMT, number);
-}
-
-/* The same as with_thousand_seps, but works on LARGE_INT.  */
-
+#ifndef with_thousand_seps_sum
 char *
-with_thousand_seps_large (LARGE_INT l)
+with_thousand_seps_sum (SUM_SIZE_INT l)
 {
-  char inbuf[48];
-  large_int_to_string (inbuf, sizeof (inbuf), l);
+  char inbuf[32];
+  snprintf (inbuf, sizeof (inbuf), "%.0f", l);
   return add_thousand_seps (inbuf);
 }
+#endif /* not with_thousand_seps_sum */
 
 /* N, a byte quantity, is converted to a human-readable abberviated
    form a la sizes printed by `ls -lh'.  The result is written to a
@@ -1245,11 +1315,11 @@ with_thousand_seps_large (LARGE_INT l)
    usually improves readability."
 
    This intentionally uses kilobyte (KB), megabyte (MB), etc. in their
-   original computer science meaning of "multiples of 1024".
-   Multiples of 1000 would be useless since Wget already adds thousand
-   separators for legibility.  We don't use the "*bibyte" names
-   invented in 1998, and seldom used in practice.  Wikipedia's entry
-   on kilobyte discusses this in some detail.  */
+   original computer science meaning of "powers of 1024".  Powers of
+   1000 would be useless since Wget already displays sizes with
+   thousand separators.  We don't use the "*bibyte" names invented in
+   1998, and seldom used in practice.  Wikipedia's entry on kilobyte
+   discusses this in some detail.  */
 
 char *
 human_readable (wgint n)
@@ -1284,10 +1354,7 @@ human_readable (wgint n)
 	 *this* power.  */
       if ((n >> 10) < 1024 || i == countof (powers) - 1)
 	{
-	  /* Must cast to long first because MS VC can't directly cast
-	     __int64 to double.  (This is safe because N is known to
-	     be <2**20.)  */
-	  double val = (double) (long) n / 1024.0;
+	  double val = n / 1024.0;
 	  /* Print values smaller than 10 with one decimal digits, and
 	     others without any decimals.  */
 	  snprintf (buf, sizeof (buf), "%.*f%c",
@@ -1354,7 +1421,7 @@ numdigit (wgint number)
 #   define SPRINTF_WGINT(buf, n) sprintf (buf, "%lld", (long long) (n))
 # else
 #  ifdef WINDOWS
-#   define SPRINTF_WGINT(buf, n) sprintf (buf, "%I64", (__int64) (n))
+#   define SPRINTF_WGINT(buf, n) sprintf (buf, "%I64d", (__int64) (n))
 #  else
 #   define SPRINTF_WGINT(buf, n) sprintf (buf, "%j", (intmax_t) (n))
 #  endif
@@ -1825,12 +1892,17 @@ xsleep (double seconds)
 
 #endif /* not WINDOWS */
 
-/* Encode the string S of length LENGTH to base64 format and place it
-   to STORE.  STORE will be 0-terminated, and must point to a writable
-   buffer of at least 1+BASE64_LENGTH(length) bytes.  */
+/* Encode the string STR of length LENGTH to base64 format and place it
+   to B64STORE.  The output will be \0-terminated, and must point to a
+   writable buffer of at least 1+BASE64_LENGTH(length) bytes.  It
+   returns the length of the resulting base64 data, not counting the
+   terminating zero.
 
-void
-base64_encode (const char *s, char *store, int length)
+   This implementation will not emit newlines after 76 characters of
+   base64 data.  */
+
+int
+base64_encode (const char *str, int length, char *b64store)
 {
   /* Conversion table.  */
   static char tbl[64] = {
@@ -1844,7 +1916,8 @@ base64_encode (const char *s, char *store, int length)
     '4','5','6','7','8','9','+','/'
   };
   int i;
-  unsigned char *p = (unsigned char *)store;
+  const unsigned char *s = (const unsigned char *) str;
+  char *p = b64store;
 
   /* Transform the 3x8 bits to 4x6 bits, as required by base64.  */
   for (i = 0; i < length; i += 3)
@@ -1855,13 +1928,17 @@ base64_encode (const char *s, char *store, int length)
       *p++ = tbl[s[2] & 0x3f];
       s += 3;
     }
+
   /* Pad the result if necessary...  */
   if (i == length + 1)
     *(p - 1) = '=';
   else if (i == length + 2)
     *(p - 1) = *(p - 2) = '=';
+
   /* ...and zero-terminate it.  */
   *p = '\0';
+
+  return p - b64store;
 }
 
 #define IS_ASCII(c) (((c) & 0x80) == 0)
@@ -1886,7 +1963,8 @@ base64_encode (const char *s, char *store, int length)
 int
 base64_decode (const char *base64, char *to)
 {
-  /* Table of base64 values for first 128 characters.  */
+  /* Table of base64 values for first 128 characters.  Note that this
+     assumes ASCII (but so does Wget in other places).  */
   static short base64_char_to_value[128] =
     {
       -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,	/*   0-  9 */
@@ -1964,3 +2042,49 @@ base64_decode (const char *base64, char *to)
 #undef IS_ASCII
 #undef IS_BASE64
 #undef NEXT_BASE64_CHAR
+
+/* Simple merge sort for use by stable_sort.  Implementation courtesy
+   Zeljko Vrba with additional debugging by Nenad Barbutov.  */
+
+static void
+mergesort_internal (void *base, void *temp, size_t size, size_t from, size_t to,
+		    int (*cmpfun) PARAMS ((const void *, const void *)))
+{
+#define ELT(array, pos) ((char *)(array) + (pos) * size)
+  if (from < to)
+    {
+      size_t i, j, k;
+      size_t mid = (to + from) / 2;
+      mergesort_internal (base, temp, size, from, mid, cmpfun);
+      mergesort_internal (base, temp, size, mid + 1, to, cmpfun);
+      i = from;
+      j = mid + 1;
+      for (k = from; (i <= mid) && (j <= to); k++)
+	if (cmpfun (ELT (base, i), ELT (base, j)) <= 0)
+	  memcpy (ELT (temp, k), ELT (base, i++), size);
+	else
+	  memcpy (ELT (temp, k), ELT (base, j++), size);
+      while (i <= mid)
+	memcpy (ELT (temp, k++), ELT (base, i++), size);
+      while (j <= to)
+	memcpy (ELT (temp, k++), ELT (base, j++), size);
+      for (k = from; k <= to; k++)
+	memcpy (ELT (base, k), ELT (temp, k), size);
+    }
+#undef ELT
+}
+
+/* Stable sort with interface exactly like standard library's qsort.
+   Uses mergesort internally, allocating temporary storage with
+   alloca.  */
+
+void
+stable_sort (void *base, size_t nmemb, size_t size,
+	     int (*cmpfun) PARAMS ((const void *, const void *)))
+{
+  if (size > 1)
+    {
+      void *temp = alloca (nmemb * size * sizeof (void *));
+      mergesort_internal (base, temp, size, 0, nmemb - 1, cmpfun);
+    }
+}
