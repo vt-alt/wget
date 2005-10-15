@@ -10548,6 +10548,11 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
     SSL_OBJ='openssl$o'
+  elif test x"$with_ssl" != x
+  then
+    { { echo "$as_me:$LINENO: error: --with-ssl was given, but OpenSSL is not available." >&5
+echo "$as_me: error: --with-ssl was given, but OpenSSL is not available." >&2;}
+   { (exit 1); exit 1; }; }
   fi
 fi
 

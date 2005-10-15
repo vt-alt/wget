@@ -2,20 +2,23 @@
 # $Id: wget,v 1.1 2004/03/19 10:48:41 grigory Exp $
 
 Name: wget
-Version: 1.10.1
+Version: 1.10.2
 Release: alt1
 
 Summary: An utility for retrieving files using the HTTP, HTTPS or FTP protocols
 License: GPL
 Group: Networking/WWW
+
 Url: http://www.gnu.org/directory/GNU/wget.html
-
 Source: ftp://ftp.gnu.org/gnu/%name/%name-%version.tar.gz
-
 Patch1: %name-1.9.1-alt-texinfo.patch
 Patch2: %name-1.6-mdk-passive_ftp.patch
 Patch3: %name-1.7-alt-locale.patch
 #Patch4: %name-1.8.1-alt-quiet.patch
+
+Patch10: wget-1.10.1-alt-ntlm-buffer.patch
+
+Packager: Michael Shigorin <mike@altlinux.org>
 
 Requires(post,preun): %__install_info
 
@@ -114,9 +117,10 @@ find doc -type f -print0 |
 	xargs -r0 %__subst 's,/usr/local/,/,g' --
 
 %patch1 -p1
-%patch2 -p1
+#patch2 -p1
 #patch3 -p1
 #%patch4 -p1
+%patch10 -p1
 
 %build
 %configure --with-ssl
@@ -141,6 +145,17 @@ find doc -type f -print0 |
 %doc AUTHORS MAILING-LIST NEWS README* TODO
 
 %changelog
+* Sat Oct 15 2005 Michael Shigorin <mike@altlinux.org> 1.10.2-alt1
+- 1.10.2
+- security fix for CAN-2005-3185 (NTLM buffer overflow)
+  provided by upstream vendor
+- disabled patch2
+
+* Thu Oct 13 2005 Michael Shigorin <mike@altlinux.org> 1.10.1-alt2
+- security fix: NTLM buffer overflow
+  + patch by Sergey Ryabchun (sr@)
+  + thanks to Dmitry V.Levin (ldv@) for alerting
+
 * Mon Aug 29 2005 Michael Shigorin <mike@altlinux.org> 1.10.1-alt1
 - 1.10.1 (#7789, #7512)
 - removed patch3 (merged upstream with minor changes)

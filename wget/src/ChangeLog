@@ -1,3 +1,11 @@
+2005-10-13  Daniel Stenberg  <daniel@haxx.se>
+
+	* http-ntlm.c (ntlm_output): Fixed buffer overflow vulnerability.
+
+2005-08-26  Jeremy Shapiro  <jnshapiro@gmail.com>
+
+	* openssl.c (ssl_init): Set SSL_MODE_AUTO_RETRY.
+
 2005-08-11  Hrvoje Niksic  <hniksic@xemacs.org>
 
 	* cmpt.c (strtoll): Define it if missing on the system and if Wget

@@ -1,4 +1,4 @@
-This is wget.info, produced by makeinfo version 4.7 from ./wget.texi.
+This is wget.info, produced by makeinfo version 4.8 from ./wget.texi.
 
 INFO-DIR-SECTION Network Applications
 START-INFO-DIR-ENTRY
@@ -25,10 +25,10 @@ entitled "GNU Free Documentation License".
 
 File: wget.info,  Node: Top,  Next: Overview,  Up: (dir)
 
-Wget 1.10.1
+Wget 1.10.2
 ***********
 
-This manual documents version 1.10.1 of GNU Wget, the freely available
+This manual documents version 1.10.2 of GNU Wget, the freely available
 utility for network downloads.
 
    Copyright (C) 1996-2005 Free Software Foundation, Inc.
@@ -2606,10 +2606,13 @@ its line.
      # the recursive retrieval.  The default is 5.
      #reclevel = 5
 
-     # Many sites are behind firewalls that do not allow initiation of
-     # connections from the outside.  On these sites you have to use the
-     # `passive' feature of FTP.  If you are behind such a firewall, you
-     # can turn this on to make Wget use passive FTP by default.
+     # By default Wget uses "passive FTP" transfer where the client
+     # initiates the data connection to the server rather than the other
+     # way around.  That is required on systems behind NAT where the client
+     # computer cannot be easily reached from the Internet.  However, some
+     # firewalls software explicitly supports active FTP and in fact has
+     # problems supporting passive transfer.  If you are in such
+     # environment, use "passive_ftp = off" to revert to active FTP.
      #passive_ftp = off
 
      # The "wait" command below makes Wget wait between every connection.
@@ -2962,8 +2965,8 @@ File: wget.info,  Node: Distribution,  Next: Mailing List,  Prev: Proxies,  Up: 
 
 Like all GNU utilities, the latest version of Wget can be found at the
 master GNU archive site ftp.gnu.org, and its mirrors.  For example,
-Wget 1.10.1 can be found at
-`ftp://ftp.gnu.org/pub/gnu/wget/wget-1.10.1.tar.gz'
+Wget 1.10.2 can be found at
+`ftp://ftp.gnu.org/pub/gnu/wget/wget-1.10.2.tar.gz'
 
 
 File: wget.info,  Node: Mailing List,  Next: Reporting Bugs,  Prev: Distribution,  Up: Various
@@ -4425,24 +4428,24 @@ Node: Wgetrc Location91177
 Node: Wgetrc Syntax91976
 Node: Wgetrc Commands92696
 Node: Sample Wgetrc106122
-Node: Examples111107
-Node: Simple Usage111447
-Node: Advanced Usage112851
-Node: Very Advanced Usage116552
-Node: Various118047
-Node: Proxies118572
-Node: Distribution121299
-Node: Mailing List121645
-Node: Reporting Bugs123002
-Node: Portability125359
-Node: Signals126801
-Node: Appendices127484
-Node: Robot Exclusion127806
-Node: Security Considerations131583
-Node: Contributors132767
-Node: Copying136464
-Node: GNU General Public License139176
-Node: GNU Free Documentation License158387
-Node: Concept Index180821
+Node: Examples111324
+Node: Simple Usage111664
+Node: Advanced Usage113068
+Node: Very Advanced Usage116769
+Node: Various118264
+Node: Proxies118789
+Node: Distribution121516
+Node: Mailing List121862
+Node: Reporting Bugs123219
+Node: Portability125576
+Node: Signals127018
+Node: Appendices127701
+Node: Robot Exclusion128023
+Node: Security Considerations131800
+Node: Contributors132984
+Node: Copying136681
+Node: GNU General Public License139393
+Node: GNU Free Documentation License158604
+Node: Concept Index181038
 
 End Tag Table

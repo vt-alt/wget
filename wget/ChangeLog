@@ -1,3 +1,7 @@
+2005-08-26  Stepan Kasal  <kasal@ucw.cz>
+
+	* configure.in: Abort if --with-ssl given and OpenSSL unavailable.
+
 2005-08-11  Hrvoje Niksic  <hniksic@xemacs.org>
 
 	* configure.in: Check for strtoll and strtoimax.
