@@ -3,7 +3,7 @@
 
 Name: wget
 Version: 1.10.2
-Release: alt1
+Release: alt1.1
 
 Summary: An utility for retrieving files using the HTTP, HTTPS or FTP protocols
 License: GPL
@@ -145,6 +145,9 @@ find doc -type f -print0 |
 %doc AUTHORS MAILING-LIST NEWS README* TODO
 
 %changelog
+* Fri Dec 29 2006 ALT QA Team Robot <qa-robot@altlinux.org> 1.10.2-alt1.1
+- Rebuilt due to libcrypto.so.4 -> libcrypto.so.6 soname change.
+
 * Sat Oct 15 2005 Michael Shigorin <mike@altlinux.org> 1.10.2-alt1
 - 1.10.2
 - security fix for CAN-2005-3185 (NTLM buffer overflow)
