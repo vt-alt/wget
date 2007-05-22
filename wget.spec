@@ -3,7 +3,7 @@
 
 Name: wget
 Version: 1.10.2
-Release: alt1.1
+Release: alt2
 
 Summary: An utility for retrieving files using the HTTP, HTTPS or FTP protocols
 License: GPL
@@ -15,12 +15,8 @@ Patch1: %name-1.9.1-alt-texinfo.patch
 Patch2: %name-1.6-mdk-passive_ftp.patch
 Patch3: %name-1.7-alt-locale.patch
 #Patch4: %name-1.8.1-alt-quiet.patch
-
 Patch10: wget-1.10.1-alt-ntlm-buffer.patch
-
 Packager: Michael Shigorin <mike@altlinux.org>
-
-Requires(post,preun): %__install_info
 
 # Automatically added by buildreq on Wed Jun 29 2005
 BuildRequires: gcc-c++ hostinfo libssl-devel libstdc++-devel
@@ -29,8 +25,8 @@ Summary(es):	Cliente en lМnea de comando para bajar archivos WWW/FTP con recursi
 Summary(fr):	Un utilitaire pour recuperer des fichiers en utilisant les protocoles HTTP ou FTP
 Summary(pl):	Wsadowy klient HTTP/FTP
 Summary(pt_BR):	Cliente na linha de comando para baixar arquivos WWW/FTP com recursЦo opcional
-Summary(ru):	Утилита для получения файлов по протоколам HTTP и FTP
-Summary(uk):	Утил╕та для отримання файл╕в по протоколам HTTP та FTP
+Summary(ru_RU.KOI8-R):	Утилита для получения файлов по протоколам HTTP и FTP
+Summary(uk_UA.KOI8-U):	Утил╕та для отримання файл╕в по протоколам HTTP та FTP
 Summary(zh_CN):	[м╗я╤]╧╕дэг©╢С╣добтьЁлпР,ж╖Ёж╤о╣ЦпЬ╢╚
 
 %description
@@ -111,10 +107,10 @@ GNU Wget - це утил╕та командного рядка для отримання файл╕в по
 %setup -q
 
 # Fix docs and samples.
-%__rm -f doc/*.info*
+rm -f doc/*.info*
 find doc -type f -print0 |
-	xargs -r0 %__grep -FZl /usr/local/ -- |
-	xargs -r0 %__subst 's,/usr/local/,/,g' --
+	xargs -r0 grep -FZl /usr/local/ -- |
+	xargs -r0 sed -i 's,/usr/local/,/,g' --
 
 %patch1 -p1
 #patch2 -p1
@@ -145,6 +141,10 @@ find doc -type f -print0 |
 %doc AUTHORS MAILING-LIST NEWS README* TODO
 
 %changelog
+* Tue May 22 2007 Michael Shigorin <mike@altlinux.org> 1.10.2-alt2
+- added ru/uk package description charsets (#11848)
+- spec macro abuse cleanup
+
 * Fri Dec 29 2006 ALT QA Team Robot <qa-robot@altlinux.org> 1.10.2-alt1.1
 - Rebuilt due to libcrypto.so.4 -> libcrypto.so.6 soname change.
 
