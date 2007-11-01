@@ -3,7 +3,7 @@
 
 Name: wget
 Version: 1.10.2
-Release: alt2
+Release: alt3
 
 Summary: An utility for retrieving files using the HTTP, HTTPS or FTP protocols
 License: GPL
@@ -20,6 +20,9 @@ Packager: Michael Shigorin <mike@altlinux.org>
 
 # Automatically added by buildreq on Wed Jun 29 2005
 BuildRequires: gcc-c++ hostinfo libssl-devel libstdc++-devel
+
+Requires(post): %install_info
+Requires(preun): %uninstall_info
 
 Summary(es):	Cliente en línea de comando para bajar archivos WWW/FTP con recursión opcional
 Summary(fr):	Un utilitaire pour recuperer des fichiers en utilisant les protocoles HTTP ou FTP
@@ -141,6 +144,9 @@ find doc -type f -print0 |
 %doc AUTHORS MAILING-LIST NEWS README* TODO
 
 %changelog
+* Thu Nov 01 2007 Michael Shigorin <mike@altlinux.org> 1.10.2-alt3
+- fixed #13241, thanks inger@
+
 * Tue May 22 2007 Michael Shigorin <mike@altlinux.org> 1.10.2-alt2
 - added ru/uk package description charsets (#11848)
 - spec macro abuse cleanup
