@@ -1,11 +1,56 @@
 GNU Wget NEWS -- history of user-visible changes.
 
-Copyright (C) 2005 Free Software Foundation, Inc.
+Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
+2006, 2007, 2008 Free Software Foundation, Inc.
 See the end for copying conditions.
 
 Please send GNU Wget bug reports to <bug-wget@gnu.org>.
 
-* Wget 1.10.1 is a bugfix release with no user-visible changes.
+* Changes in Wget 1.11.
+
+** Timestamping now uses the value from the most recent HTTP response,
+rather than the first one it got.
+
+** Authentication information is no longer sent as part of the Referer
+header in recursive fetches.
+
+** No authentication credentials are sent until a challenge is issued,
+for improved security. Authentication handling is still not
+RFC-compliant, as once a Basic challenge has been received, it will
+assume it can send credentials to any URL at that same host, and not
+just the ones at or below the original authenticated location.
+Credentials for Digest authentication are still never saved or issued
+automatically, and continue to require a challenge for each resource.
+
+** Added --max-redirect option, allowing the user to specify what should
+be the maximum number of HTTP redirects to follow.
+
+** Wget now supports saving HTTP downloads using file names specified by
+the `Content-Disposition' header.  This is a standard way of specifying
+the file name used by many web dynamically generated pages. However, the
+current implementation is inefficient, and known to have bugs. It is
+EXPERIMENTAL only, and not enabled by default. Use --content-disposition
+to enable it.
+
+** The new option `--ignore-case' makes Wget ignore case when
+matching files, directories, and wildcards.  This affects the -X, -I,
+-A, and -R options, as well as globbing in FTP URLs.
+
+** ETA projection is now displayed in "dot" progress output as well as
+in the default progress bar.  (The dot progress is used by default when
+logging Wget's output to file using the `-o' option.)
+
+** The "lockable boolean" argument type is no longer supported.  It
+was only used by the passive_ftp .wgetrc setting.  If you're running
+broken scripts or Perl modules that unconditionally specify
+`--passive-ftp' and your firewall disallows it, you can override them
+by replacing wget with a script that execs wget "$@" --no-passive-ftp.
+
+** The source code has been migrated to Mercurial. The repositories are
+available at http://hg.addictivecode.org/. Prior to this, the source
+code was hosted on Subversion (migrated from the original CVS); you can
+still get access to older tags and branches for Wget in the Subversion
+repository at http://addictivecode.org/svn/wget/.
 
 * Changes in Wget 1.10.
 
@@ -551,7 +596,7 @@ geturl -vo log http://fly.cc.fer.hr/
 ----------------------------------------------------------------------
 Copyright information:
 
-Copyright (C) 2005 Free Software Foundation, Inc.
+Copyright (C) 1997-2005 Free Software Foundation, Inc.
 
    Permission is granted to anyone to make or distribute verbatim
    copies of this document as received, in any medium, provided that

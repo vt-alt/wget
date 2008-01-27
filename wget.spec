@@ -2,15 +2,15 @@
 # $Id: wget,v 1.1 2004/03/19 10:48:41 grigory Exp $
 
 Name: wget
-Version: 1.10.2
-Release: alt3
+Version: 1.11
+Release: alt1
 
 Summary: An utility for retrieving files using the HTTP, HTTPS or FTP protocols
-License: GPL
+License: GPLv3
 Group: Networking/WWW
 
 Url: http://www.gnu.org/directory/GNU/wget.html
-Source: ftp://ftp.gnu.org/gnu/%name/%name-%version.tar.gz
+Source: ftp://ftp.gnu.org/gnu/%name/%name-%version.tar.bz2
 Patch1: %name-1.9.1-alt-texinfo.patch
 Patch2: %name-1.6-mdk-passive_ftp.patch
 Patch3: %name-1.7-alt-locale.patch
@@ -141,9 +141,15 @@ find doc -type f -print0 |
 %_bindir/*
 %_mandir/man?/*
 %_infodir/*.info*
-%doc AUTHORS MAILING-LIST NEWS README* TODO
+%doc AUTHORS MAILING-LIST NEWS README*
 
 %changelog
+* Sun Jan 27 2008 Michael Shigorin <mike@altlinux.org> 1.11-alt1
+- 1.11
+  + License: changed to GPLv3
+  + see announce here:
+    http://www.mail-archive.com/wget%%40sunsite.dk/msg10768.html
+
 * Thu Nov 01 2007 Michael Shigorin <mike@altlinux.org> 1.10.2-alt3
 - fixed #13241, thanks inger@
 
