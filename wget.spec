@@ -3,7 +3,7 @@
 
 Name: wget
 Version: 1.11
-Release: alt1
+Release: alt2
 
 Summary: An utility for retrieving files using the HTTP, HTTPS or FTP protocols
 License: GPLv3
@@ -123,6 +123,8 @@ find doc -type f -print0 |
 
 %build
 %configure --with-ssl
+# https://bugzilla.altlinux.org/show_bug.cgi?id=14239
+(cd po; make update-po)
 %make_build
 
 %install
@@ -136,7 +138,8 @@ find doc -type f -print0 |
 %preun
 %uninstall_info %name.info
 
-%files -f %name.lang
+#files -f %name.lang
+%files
 %config(noreplace) %_sysconfdir/%{name}rc
 %_bindir/*
 %_mandir/man?/*
@@ -144,6 +147,11 @@ find doc -type f -print0 |
 %doc AUTHORS MAILING-LIST NEWS README*
 
 %changelog
+* Wed Jan 30 2008 Michael Shigorin <mike@altlinux.org> 1.11-alt2
+- added workaround for #14239 (crash in ru_RU.UTF-8 while
+  all OK in C, ru_RU.KOI8-R, uk_UA.UTF-8); that is, removed
+  translations till 1.11.1: https://savannah.gnu.org/bugs/?22161
+
 * Sun Jan 27 2008 Michael Shigorin <mike@altlinux.org> 1.11-alt1
 - 1.11
   + License: changed to GPLv3
