@@ -1,3 +1,19 @@
+2008-02-10  Micah Cowan  <micah@cowan.name>
+
+	* wget.texi <HTTP Options>: Added documentation of
+	--auth-no-challenge.
+
+2008-02-06  Micah Cowan  <micah@cowan.name>
+
+	* wget.ṫexi <Overview>: Remove references to no-longer-supported
+	socks library.
+
+2008-01-30  Micah Cowan  <micah@cowan.name>
+
+	* version.texi: Bumped version to 1.11.1-devel.
+	* wget.texi: Ensure that license info appears in the info
+	version of the manual.
+
 2008-01-25  Micah Cowan  <micah@cowan.name>
 
 	* wget.texi: Update the "last updated" setting.

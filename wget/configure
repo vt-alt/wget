@@ -5199,7 +5199,8 @@ done
 
 
 
-for ac_header in stdint.h inttypes.h pwd.h
+
+for ac_header in stdint.h inttypes.h pwd.h wchar.h
 do
 as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
@@ -8816,7 +8817,9 @@ done
 
 
 
-for ac_func in strtoll usleep ftello sigblock sigsetjmp memrchr
+
+
+for ac_func in strtoll usleep ftello sigblock sigsetjmp memrchr wcwidth mbtowc
 do
 as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
 { echo "$as_me:$LINENO: checking for $ac_func" >&5

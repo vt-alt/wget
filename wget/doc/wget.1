@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "WGET 1"
-.TH WGET 1 "2008-01-26" "GNU Wget 1.11" "GNU Wget"
+.TH WGET 1 "2008-02-10" "GNU Wget 1.11.1-b2092" "GNU Wget"
 .SH "NAME"
 Wget \- The non\-interactive network downloader.
 .SH "SYNOPSIS"
@@ -1179,6 +1179,16 @@ to suffer from a few bugs, which is why it is not currently enabled by default.
 This option is useful for some file-downloading \s-1CGI\s0 programs that use
 \&\f(CW\*(C`Content\-Disposition\*(C'\fR headers to describe what the name of a
 downloaded file should be.
+.IP "\fB\-\-auth\-no\-challenge\fR" 4
+.IX Item "--auth-no-challenge"
+If this option is given, Wget will send Basic \s-1HTTP\s0 authentication
+information (plaintext username and password) for all requests, just
+like Wget 1.10.2 and prior did by default.
+.Sp
+Use of this option is not recommended, and is intended only to support
+some few obscure servers, which never send \s-1HTTP\s0 authentication
+challenges, but accept unsolicited auth info, say, in addition to
+form-based authentication.
 .Sh "\s-1HTTPS\s0 (\s-1SSL/TLS\s0) Options"
 .IX Subsection "HTTPS (SSL/TLS) Options"
 To support encrypted \s-1HTTP\s0 (\s-1HTTPS\s0) downloads, Wget must be compiled
@@ -1770,11 +1780,8 @@ Originally written by Hrvoje Niksic <hniksic@xemacs.org>.
 Currently maintained by Micah Cowan <micah@cowan.name>.
 .SH "COPYRIGHT"
 .IX Header "COPYRIGHT"
-Copyright (c) 1996\-\-2008 Free Software Foundation, Inc.
-.PP
-Permission is granted to make and distribute verbatim copies of
-this manual provided the copyright notice and this permission notice
-are preserved on all copies.
+Copyright (c) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
+2004, 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
 .PP
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the \s-1GNU\s0 Free Documentation License, Version 1.2 or

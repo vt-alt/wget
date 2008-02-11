@@ -8,11 +8,8 @@ END-INFO-DIR-ENTRY
    This file documents the GNU Wget utility for downloading network
 data.
 
-   Copyright (C) 1996-2008 Free Software Foundation, Inc.
-
-   Permission is granted to make and distribute verbatim copies of this
-manual provided the copyright notice and this permission notice are
-preserved on all copies.
+   Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
+2005, 2006, 2007, 2008 Free Software Foundation, Inc.
 
    Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.2 or
@@ -24,13 +21,20 @@ Documentation License".
 
 File: wget.info,  Node: Top,  Next: Overview,  Up: (dir)
 
-Wget 1.11
-*********
+Wget 1.11.1-b2092
+*****************
 
-This manual documents version 1.11 of GNU Wget, the freely available
-utility for network downloads.
+This file documents the GNU Wget utility for downloading network data.
 
-   Copyright (C) 1996-2008 Free Software Foundation, Inc.
+   Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
+2005, 2006, 2007, 2008 Free Software Foundation, Inc.
+
+   Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.  A
+copy of the license is included in the section entitled "GNU Free
+Documentation License".
 
 * Menu:
 
@@ -88,11 +92,8 @@ retrieval through HTTP proxies.
      the download from where it left off.
 
    * Wget supports proxy servers, which can lighten the network load,
-     speed up retrieval and provide access behind firewalls.  However,
-     if you are behind a firewall that requires that you use a socks
-     style gateway, you can get the socks library and build Wget with
-     support for socks.  Wget uses the passive FTP downloading by
-     default, active FTP being an option.
+     speed up retrieval and provide access behind firewalls.  Wget uses
+     the passive FTP downloading by default, active FTP being an option.
 
    * Wget supports IP version 6, the next generation of IP.  IPv6 is
      autodetected at compile-time, and can be disabled at either build
@@ -1150,6 +1151,16 @@ File: wget.info,  Node: HTTP Options,  Next: HTTPS (SSL/TLS) Options,  Prev: Dir
      This option is useful for some file-downloading CGI programs that
      use `Content-Disposition' headers to describe what the name of a
      downloaded file should be.
+
+`--auth-no-challenge'
+     If this option is given, Wget will send Basic HTTP authentication
+     information (plaintext username and password) for all requests,
+     just like Wget 1.10.2 and prior did by default.
+
+     Use of this option is not recommended, and is intended only to
+     support some few obscure servers, which never send HTTP
+     authentication challenges, but accept unsolicited auth info, say,
+     in addition to form-based authentication.
 
 
 
@@ -3017,8 +3028,8 @@ File: wget.info,  Node: Distribution,  Next: Web Site,  Prev: Proxies,  Up: Vari
 
 Like all GNU utilities, the latest version of Wget can be found at the
 master GNU archive site ftp.gnu.org, and its mirrors.  For example,
-Wget 1.11 can be found at
-`ftp://ftp.gnu.org/pub/gnu/wget/wget-1.11.tar.gz'
+Wget 1.11.1-b2092 can be found at
+`ftp://ftp.gnu.org/pub/gnu/wget/wget-1.11.1-b2092.tar.gz'
 
 
 File: wget.info,  Node: Web Site,  Next: Mailing List,  Prev: Distribution,  Up: Various
@@ -4105,57 +4116,57 @@ Concept Index
 
 
 Tag Table:
-Node: Top887
-Node: Overview1752
-Node: Invoking5336
-Node: URL Format6173
-Ref: URL Format-Footnote-18746
-Node: Option Syntax8848
-Node: Basic Startup Options11530
-Node: Logging and Input File Options12335
-Node: Download Options14988
-Node: Directory Options35149
-Node: HTTP Options37854
-Node: HTTPS (SSL/TLS) Options50571
-Node: FTP Options56246
-Node: Recursive Retrieval Options61299
-Node: Recursive Accept/Reject Options69167
-Node: Recursive Download72627
-Node: Following Links75738
-Node: Spanning Hosts76675
-Node: Types of Files78848
-Node: Directory-Based Limits81308
-Node: Relative Links83958
-Node: FTP Links84795
-Node: Time-Stamping85662
-Node: Time-Stamping Usage87306
-Node: HTTP Time-Stamping Internals89132
-Ref: HTTP Time-Stamping Internals-Footnote-190408
-Node: FTP Time-Stamping Internals90607
-Node: Startup File92073
-Node: Wgetrc Location92947
-Node: Wgetrc Syntax93746
-Node: Wgetrc Commands94466
-Node: Sample Wgetrc107933
-Node: Examples113135
-Node: Simple Usage113475
-Node: Advanced Usage114879
-Node: Very Advanced Usage118580
-Node: Various120075
-Node: Proxies120716
-Node: Distribution123551
-Node: Web Site123889
-Node: Mailing List124183
-Node: Internet Relay Chat125964
-Node: Reporting Bugs126278
-Node: Portability128796
-Node: Signals130421
-Node: Appendices131104
-Node: Robot Exclusion131438
-Node: Security Considerations135215
-Node: Contributors136399
-Node: Copying this manual141295
-Node: GNU Free Documentation License141534
-Node: Concept Index163930
+Node: Top788
+Node: Overview2080
+Node: Invoking5491
+Node: URL Format6328
+Ref: URL Format-Footnote-18901
+Node: Option Syntax9003
+Node: Basic Startup Options11685
+Node: Logging and Input File Options12490
+Node: Download Options15143
+Node: Directory Options35304
+Node: HTTP Options38009
+Node: HTTPS (SSL/TLS) Options51190
+Node: FTP Options56865
+Node: Recursive Retrieval Options61918
+Node: Recursive Accept/Reject Options69786
+Node: Recursive Download73246
+Node: Following Links76357
+Node: Spanning Hosts77294
+Node: Types of Files79467
+Node: Directory-Based Limits81927
+Node: Relative Links84577
+Node: FTP Links85414
+Node: Time-Stamping86281
+Node: Time-Stamping Usage87925
+Node: HTTP Time-Stamping Internals89751
+Ref: HTTP Time-Stamping Internals-Footnote-191027
+Node: FTP Time-Stamping Internals91226
+Node: Startup File92692
+Node: Wgetrc Location93566
+Node: Wgetrc Syntax94365
+Node: Wgetrc Commands95085
+Node: Sample Wgetrc108552
+Node: Examples113754
+Node: Simple Usage114094
+Node: Advanced Usage115498
+Node: Very Advanced Usage119199
+Node: Various120694
+Node: Proxies121335
+Node: Distribution124170
+Node: Web Site124524
+Node: Mailing List124818
+Node: Internet Relay Chat126599
+Node: Reporting Bugs126913
+Node: Portability129431
+Node: Signals131056
+Node: Appendices131739
+Node: Robot Exclusion132073
+Node: Security Considerations135850
+Node: Contributors137034
+Node: Copying this manual141930
+Node: GNU Free Documentation License142169
+Node: Concept Index164565
 
 End Tag Table

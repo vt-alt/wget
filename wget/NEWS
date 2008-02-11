@@ -6,6 +6,21 @@ See the end for copying conditions.
 
 Please send GNU Wget bug reports to <bug-wget@gnu.org>.
 
+* Changes in Wget 1.11.1.
+
+** Progress bar now displays correctly in non-English locales (and a
+related assertion failure was fixed).
+
+** Wget no longer issues a GET request over HTTP for files it should
+know it's not going to download (regression in 1.11 over 1.10.2).
+
+** Interrupted downloads no longer result in renaming the file
+(regression in 1.11 over 1.10.2).
+
+** Added option --auth-no-challenge, to support broken pre-1.11
+authentication-before-server-challenge, which turns out to still be
+useful for some limited cases.
+
 * Changes in Wget 1.11.
 
 ** Timestamping now uses the value from the most recent HTTP response,

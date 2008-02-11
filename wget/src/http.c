@@ -390,27 +390,35 @@ static struct hash_table *basic_authed_hosts;
  * it the username, password. A temporary measure until we can get
  * proper authentication in place. */
 
-static int
+static bool
 maybe_send_basic_creds (const char *hostname, const char *user,
                         const char *passwd, struct request *req)
 {
-  int did_challenge = 0;
+  bool do_challenge = false;
 
-  if (basic_authed_hosts
+  if (opt.auth_without_challenge)
+    {
+      DEBUGP(("Auth-without-challenge set, sending Basic credentials.\n"));
+      do_challenge = true;
+    }
+  else if (basic_authed_hosts
       && hash_table_contains(basic_authed_hosts, hostname))
     {
       DEBUGP(("Found `%s' in basic_authed_hosts.\n", hostname));
-      request_set_header (req, "Authorization",
-                          basic_authentication_encode (user, passwd),
-                          rel_value);
-      did_challenge = 1;
+      do_challenge = true;
     }
   else
     {
       DEBUGP(("Host `%s' has not issued a general basic challenge.\n",
               hostname));
     }
-  return did_challenge;
+  if (do_challenge)
+    {
+      request_set_header (req, "Authorization",
+                          basic_authentication_encode (user, passwd),
+                          rel_value);
+    }
+  return do_challenge;
 }
 
 static void
@@ -865,8 +873,11 @@ parse_content_range (const char *hdr, wgint *first_byte_ptr,
     return false;
   *last_byte_ptr = num;
   ++hdr;
-  for (num = 0; ISDIGIT (*hdr); hdr++)
-    num = 10 * num + (*hdr - '0');
+  if (*hdr == '*')
+    num = -1;
+  else
+    for (num = 0; ISDIGIT (*hdr); hdr++)
+      num = 10 * num + (*hdr - '0');
   *entity_length_ptr = num;
   return true;
 }
@@ -1289,6 +1300,10 @@ struct http_stat
   double dltime;                /* time it took to download the data */
   const char *referer;          /* value of the referer header. */
   char *local_file;             /* local file name. */
+  bool existence_checked;       /* true if we already checked for a file's
+                                   existence after having begun to download
+                                   (needed in gethttp for when connection is
+                                   interrupted/restarted. */
   bool timestamp_checked;       /* true if pre-download time-stamping checks 
                                  * have already been performed */
   char *orig_file_name;         /* name of file to compare for time-stamping
@@ -1805,7 +1820,7 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
     }
   
   /* TODO: perform this check only once. */
-  if (file_exists_p (hs->local_file))
+  if (!hs->existence_checked && file_exists_p (hs->local_file))
     {
       if (opt.noclobber)
         {
@@ -1831,6 +1846,7 @@ File `%s' already there; not retrieving.\n\n"), hs->local_file);
           hs->local_file = unique;
         }
     }
+  hs->existence_checked = true;
 
   /* Support timestamping */
   /* TODO: move this code out of gethttp. */
@@ -2053,7 +2069,10 @@ File `%s' already there; not retrieving.\n\n"), hs->local_file);
       wgint first_byte_pos, last_byte_pos, entity_length;
       if (parse_content_range (hdrval, &first_byte_pos, &last_byte_pos,
                                &entity_length))
-        contrange = first_byte_pos;
+        {
+          contrange = first_byte_pos;
+          contlen = last_byte_pos - first_byte_pos + 1;
+        }
     }
   resp_free (resp);
 
@@ -2153,7 +2172,10 @@ File `%s' already there; not retrieving.\n\n"), hs->local_file);
       CLOSE_INVALIDATE (sock);
       return RANGEERR;
     }
-  hs->contlen = contlen + contrange;
+  if (contlen == -1)
+    hs->contlen = -1;
+  else
+    hs->contlen = contlen + contrange;
 
   if (opt.verbose)
     {
@@ -2349,6 +2371,26 @@ http_loop (struct url *u, char **newloc, char **local_file, const char *referer,
     {
       hstat.local_file = url_file_name (u);
       got_name = true;
+    }
+
+  /* TODO: Ick! This code is now in both gethttp and http_loop, and is
+   * screaming for some refactoring. */
+  if (got_name && file_exists_p (hstat.local_file) && opt.noclobber)
+    {
+      /* If opt.noclobber is turned on and file already exists, do not
+         retrieve the file */
+      logprintf (LOG_VERBOSE, _("\
+File `%s' already there; not retrieving.\n\n"), 
+                 hstat.local_file);
+      /* If the file is there, we suppose it's retrieved OK.  */
+      *dt |= RETROKF;
+
+      /* #### Bogusness alert.  */
+      /* If its suffix is "html" or "htm" or similar, assume text/html.  */
+      if (has_html_suffix_p (hstat.local_file))
+        *dt |= TEXTHTML;
+
+      return RETRUNNEEDED;
     }
 
   /* Reset the counter. */

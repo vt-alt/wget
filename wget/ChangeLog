@@ -1,3 +1,20 @@
+2008-02-10  Micah Cowan  <micah@cowan.name>
+
+	* NEWS: Added note re interrupted files resulting in renames,
+	and new --auth-no-challenge option.
+
+2008-02-06  Micah Cowan  <micah@cowan.name>
+
+	* configure.in (AC_CHECK_FUNCS): Added check for mbtowc.
+	* NEWS: Added notes regarding fixes for the localized progress
+	bar and --no-clobber wasted GET request.
+
+2008-02-03  Micah Cowan  <micah@cowan.name>
+
+	* configure.in: Add checks for wchar.h, wcwidth function (to
+	support column-counting in progress.c).
+	* NEWS: Added line for 1.11.1.
+
 2008-01-26  Micah Cowan  <micah@cowan.name>
 
 	* util/README, util/dist-wget, util/download-netscape.html,

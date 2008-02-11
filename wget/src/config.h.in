@@ -93,6 +93,9 @@
 /* Define if you have the ssl library. */
 #undef HAVE_LIBSSL
 
+/* Define to 1 if you have the `mbtowc' function. */
+#undef HAVE_MBTOWC
+
 /* Define if we're compiling support for MD5. */
 #undef HAVE_MD5
 
@@ -221,6 +224,12 @@
 
 /* Define to 1 if you have the `vsnprintf' function. */
 #undef HAVE_VSNPRINTF
+
+/* Define to 1 if you have the <wchar.h> header file. */
+#undef HAVE_WCHAR_H
+
+/* Define to 1 if you have the `wcwidth' function. */
+#undef HAVE_WCWIDTH
 
 /* Define if fnmatch.h can be included. */
 #undef HAVE_WORKING_FNMATCH_H

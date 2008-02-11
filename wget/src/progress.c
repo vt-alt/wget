@@ -38,6 +38,9 @@ as that of the covered work.  */
 # include <unistd.h>
 #endif
 #include <signal.h>
+#ifdef HAVE_WCHAR_H
+# include <wchar.h>
+#endif
 
 #include "wget.h"
 #include "progress.h"
@@ -577,8 +580,9 @@ bar_create (wgint initial, wgint total)
 
   /* - 1 because we don't want to use the last screen column. */
   bp->width = screen_width - 1;
-  /* + 1 for the terminating zero. */
-  bp->buffer = xmalloc (bp->width + 1);
+  /* + enough space for the terminating zero, and hopefully enough room
+   * for multibyte characters. */
+  bp->buffer = xmalloc (bp->width + 100);
 
   logputs (LOG_VERBOSE, "\n");
 
@@ -621,7 +625,7 @@ bar_update (void *progress, wgint howmuch, double dltime)
       if (screen_width != old_width)
         {
           bp->width = screen_width - 1;
-          bp->buffer = xrealloc (bp->buffer, bp->width + 1);
+          bp->buffer = xrealloc (bp->buffer, bp->width + 100);
           force_screen_update = true;
         }
       received_sigwinch = 0;
@@ -764,6 +768,71 @@ update_speed_ring (struct bar_progress *bp, wgint howmuch, double dltime)
 #endif
 }
 
+#if USE_NLS_PROGRESS_BAR
+int
+count_cols (const char *mbs)
+{
+  wchar_t wc;
+  int     bytes;
+  int     remaining = strlen(mbs);
+  int     cols = 0;
+  int     wccols;
+
+  while (*mbs != '\0')
+    {
+      bytes = mbtowc (&wc, mbs, remaining);
+      assert (bytes != 0);  /* Only happens when *mbs == '\0' */
+      if (bytes == -1)
+        {
+          /* Invalid sequence. We'll just have to fudge it. */
+          return cols + remaining;
+        }
+      mbs += bytes;
+      remaining -= bytes;
+      wccols = wcwidth(wc);
+      cols += (wccols == -1? 1 : wccols);
+    }
+  return cols;
+}
+#else
+# define count_cols(mbs) ((int)(strlen(mbs)))
+#endif
+
+/* Translation note: "ETA" is English-centric, but this must
+   be short, ideally 3 chars.  Abbreviate if necessary.  */
+static const char eta_str[] = N_("  eta %s");
+static const char *eta_trans;
+static int bytes_cols_diff;
+
+const char *
+get_eta (void)
+{
+  if (eta_trans == NULL)
+    {
+      int nbytes;
+      int ncols;
+
+#if USE_NLS_PROGRESS_BAR
+      eta_trans = _(eta_str);
+#else
+      eta_trans = eta_str;
+#endif
+
+      /* Determine the number of bytes used in the translated string,
+       * versus the number of columns used. This is to figure out how
+       * many spaces to add at the end to pad to the full line width.
+       *
+       * We'll store the difference between the number of bytes and
+       * number of columns, so that removing this from the string length
+       * will reveal the total number of columns in the progress bar. */
+      nbytes = strlen (eta_trans);
+      ncols = count_cols (eta_trans);
+      bytes_cols_diff = nbytes - ncols;
+    }
+
+  return eta_trans;
+}
+
 #define APPEND_LITERAL(s) do {                  \
   memcpy (p, s, sizeof (s) - 1);                \
   p += sizeof (s) - 1;                          \
@@ -785,7 +854,10 @@ create_image (struct bar_progress *bp, double dl_total_time, bool done)
   wgint size = bp->initial_length + bp->count;
 
   const char *size_grouped = with_thousand_seps (size);
-  int size_grouped_len = strlen (size_grouped);
+  int size_grouped_len = count_cols (size_grouped);
+  /* Difference between num cols and num bytes: */
+  int size_grouped_diff = strlen (size_grouped) - size_grouped_len;
+  int size_grouped_pad; /* Used to pad the field width for size_grouped. */
 
   struct bar_progress_hist *hist = &bp->hist;
 
@@ -803,12 +875,12 @@ create_image (struct bar_progress *bp, double dl_total_time, bool done)
      "[]"              - progress bar decorations - 2 chars
      " nnn,nnn,nnn"    - downloaded bytes         - 12 chars or very rarely more
      " 12.5K/s"        - download rate             - 8 chars
-     "  eta 36m 51s"   - ETA                      - 13 chars
+     "  eta 36m 51s"   - ETA                      - 14 chars
 
      "=====>..."       - progress bar             - the rest
   */
   int dlbytes_size = 1 + MAX (size_grouped_len, 11);
-  int progress_size = bp->width - (4 + 2 + dlbytes_size + 8 + 13);
+  int progress_size = bp->width - (4 + 2 + dlbytes_size + 8 + 14);
 
   if (progress_size < 5)
     progress_size = 0;
@@ -890,8 +962,17 @@ create_image (struct bar_progress *bp, double dl_total_time, bool done)
     }
 
   /* " 234,567,890" */
-  sprintf (p, " %-11s", size_grouped);
+  sprintf (p, " %s", size_grouped);
   move_to_end (p);
+  /* Pad with spaces to 11 chars for the size_grouped field;
+   * couldn't use the field width specifier in sprintf, because
+   * it counts in bytes, not characters. */
+  for (size_grouped_pad = 11 - size_grouped_len;
+       size_grouped_pad > 0;
+       --size_grouped_pad)
+    {
+      *p++ = ' ';
+    }
 
   /* " 12.52K/s" */
   if (hist->total_time > 0 && hist->total_bytes)
@@ -943,9 +1024,7 @@ create_image (struct bar_progress *bp, double dl_total_time, bool done)
               bp->last_eta_time = dl_total_time;
             }
 
-          /* Translation note: "ETA" is English-centric, but this must
-             be short, ideally 3 chars.  Abbreviate if necessary.  */
-          sprintf (p, _("  eta %s"), eta_to_human_short (eta, false));
+          sprintf (p, get_eta(), eta_to_human_short (eta, false));
           move_to_end (p);
         }
       else if (bp->total_length > 0)
@@ -969,9 +1048,7 @@ create_image (struct bar_progress *bp, double dl_total_time, bool done)
       move_to_end (p);
     }
 
-  assert (p - bp->buffer <= bp->width);
-
-  while (p < bp->buffer + bp->width)
+  while (p - bp->buffer - bytes_cols_diff - size_grouped_diff < bp->width)
     *p++ = ' ';
   *p = '\0';
 }

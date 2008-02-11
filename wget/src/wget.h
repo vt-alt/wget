@@ -58,7 +58,17 @@ as that of the covered work.  */
 #else  /* not HAVE_NLS */
 # define _(string) (string)
 # define ngettext(sing, plur, num)  ((num) == 1 ? (sing) : (plur))
+# undef HAVE_WCHAR_H
+# undef HAVE_WCWIDTH
+# undef HAVE_MBTOWC
 #endif /* not HAVE_NLS */
+
+#if HAVE_WCWIDTH && HAVE_MBTOWC
+# define USE_NLS_PROGRESS_BAR 1
+#else
+/* Just to be a little paranoid about it. */
+# undef  USE_NLS_PROGRESS_BAR
+#endif
 
 /* A pseudo function call that serves as a marker for the automated
    extraction of messages, but does not call gettext().  The run-time
