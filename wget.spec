@@ -1,18 +1,20 @@
 # -*- rpm-spec -*-
 # $Id: wget,v 1.1 2004/03/19 10:48:41 grigory Exp $
 
-%define beta b2092
+%define beta %nil
 
 Name: wget
 Version: 1.11.1
-Release: alt0.%beta
+Release: alt1
+#Release: alt0.%beta
 
 Summary: An utility for retrieving files using the HTTP, HTTPS or FTP protocols
 License: GPLv3
 Group: Networking/WWW
 
 Url: http://www.gnu.org/software/wget/wget.html
-Source: ftp://ftp.gnu.org/gnu/wget/%name-%version-%beta.tar.gz
+Source: ftp://ftp.gnu.org/gnu/wget/%name-%version.tar.bz2
+#Source: ftp://ftp.gnu.org/gnu/wget/%name-%version-%beta.tar.gz
 Patch1: %name-1.9.1-alt-texinfo.patch
 Patch2: %name-1.6-mdk-passive_ftp.patch
 Patch3: %name-1.7-alt-locale.patch
@@ -109,7 +111,8 @@ GNU Wget - це утил╕та командного рядка для отримання файл╕в по
 прокс╕-сервер╕в, налаштовуван╕сть.
 
 %prep
-%setup -q -n %name-%version-%beta
+%setup -q -n %name-%version
+#setup -q -n %name-%version-%beta
 
 # Fix docs and samples.
 rm -f doc/*.info*
@@ -148,6 +151,9 @@ find doc -type f -print0 |
 %doc AUTHORS MAILING-LIST NEWS README*
 
 %changelog
+* Fri Mar 28 2008 Michael Shigorin <mike@altlinux.org> 1.11.1-alt1
+- 1.11.1
+
 * Mon Feb 11 2008 Michael Shigorin <mike@altlinux.org> 1.11.1-alt0.b2092
 - 1.1.11-b2092
 

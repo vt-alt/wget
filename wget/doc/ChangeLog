@@ -1,3 +1,20 @@
+2008-03-24  Micah Cowan  <micah@cowan.name>
+
+	* wget.texi <Types of Fields>: Mentioned various caveats in the
+	behavior of accept/reject lists, deprecate current
+	always-download-HTML feature. Added @noindent to a couple of
+	appropriate spots.
+
+2008-03-17  Micah Cowan  <micah@cowan.name>
+
+	* wget.texi <Directory-Based Limits>: Mention importance of
+	trailing slashes to --no-parents.
+
+2008-02-14  Micah Cowan  <micah@cowan.name>
+
+	* Makefile.in: Install manpage from source dir, rather than
+	build dir.
+
 2008-02-10  Micah Cowan  <micah@cowan.name>
 
 	* wget.texi <HTTP Options>: Added documentation of

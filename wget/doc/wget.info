@@ -21,8 +21,8 @@ Documentation License".
 
 File: wget.info,  Node: Top,  Next: Overview,  Up: (dir)
 
-Wget 1.11.1-b2092
-*****************
+Wget 1.11.1
+***********
 
 This file documents the GNU Wget utility for downloading network data.
 
@@ -1843,14 +1843,49 @@ in `.wgetrc'.
      `bjork', use `wget -R "bjork*"'.  The quotes are to prevent
      expansion by the shell.
 
-   The `-A' and `-R' options may be combined to achieve even better
+The `-A' and `-R' options may be combined to achieve even better
 fine-tuning of which files to retrieve.  E.g. `wget -A "*zelazny*" -R
 .ps' will download all the files having `zelazny' as a part of their
 name, but _not_ the PostScript files.
 
    Note that these two options do not affect the downloading of HTML
-files; Wget must load all the HTMLs to know where to go at
-all--recursive retrieval would make no sense otherwise.
+files (as determined by a `.htm' or `.html' filename prefix). This
+behavior may not be desirable for all users, and may be changed for
+future versions of Wget.
+
+   Note, too, that query strings (strings at the end of a URL beginning
+with a question mark (`?') are not included as part of the filename for
+accept/reject rules, even though these will actually contribute to the
+name chosen for the local file. It is expected that a future version of
+Wget will provide an option to allow matching against query strings.
+
+   Finally, it's worth noting that the accept/reject lists are matched
+_twice_ against downloaded files: once against the URL's filename
+portion, to determine if the file should be downloaded in the first
+place; then, after it has been accepted and successfully downloaded,
+the local file's name is also checked against the accept/reject lists
+to see if it should be removed. The rationale was that, since `.htm'
+and `.html' files are always downloaded regardless of accept/reject
+rules, they should be removed _after_ being downloaded and scanned for
+links, if they did match the accept/reject lists. However, this can
+lead to unexpected results, since the local filenames can differ from
+the original URL filenames in the following ways, all of which can
+change whether an accept/reject rule matches:
+
+   * If the local file already exists and `--no-directories' was
+     specified, a numeric suffix will be appended to the original name.
+
+   * If `--html-extension' was specified, the local filename will have
+     `.html' appended to it. If Wget is invoked with `-E -A.php', a
+     filename such as `index.php' will match be accepted, but upon
+     download will be named `index.php.html', which no longer matches,
+     and so the file will be deleted.
+
+   * Query strings do not contribute to URL matching, but are included
+     in local filenames, and so _do_ contribute to filename matching.
+
+This behavior, too, is considered less-than-desirable, and may change
+in a future version of Wget.
 
 
 File: wget.info,  Node: Directory-Based Limits,  Next: Relative Links,  Prev: Types of Files,  Up: Following Links
@@ -1915,6 +1950,14 @@ equivalent command in `.wgetrc'.
      downloaded.  Essentially, `--no-parent' is similar to
      `-I/~luzer/my-archive', only it handles redirections in a more
      intelligent fashion.
+
+     *Note* that, for HTTP (and HTTPS), the trailing slash is very
+     important to `--no-parent'. HTTP has no concept of a
+     "directory"--Wget relies on you to indicate what's a directory and
+     what isn't. In `http://foo/bar/', Wget will consider `bar' to be a
+     directory, while in `http://foo/bar' (no trailing slash), `bar'
+     will be considered a filename (so `--no-parent' would be
+     meaningless, as its parent is `/').
 
 
 File: wget.info,  Node: Relative Links,  Next: FTP Links,  Prev: Directory-Based Limits,  Up: Following Links
@@ -3028,8 +3071,8 @@ File: wget.info,  Node: Distribution,  Next: Web Site,  Prev: Proxies,  Up: Vari
 
 Like all GNU utilities, the latest version of Wget can be found at the
 master GNU archive site ftp.gnu.org, and its mirrors.  For example,
-Wget 1.11.1-b2092 can be found at
-`ftp://ftp.gnu.org/pub/gnu/wget/wget-1.11.1-b2092.tar.gz'
+Wget 1.11.1 can be found at
+`ftp://ftp.gnu.org/pub/gnu/wget/wget-1.11.1.tar.gz'
 
 
 File: wget.info,  Node: Web Site,  Next: Mailing List,  Prev: Distribution,  Up: Various
@@ -4117,56 +4160,56 @@ Concept Index
 
 Tag Table:
 Node: Top788
-Node: Overview2080
-Node: Invoking5491
-Node: URL Format6328
-Ref: URL Format-Footnote-18901
-Node: Option Syntax9003
-Node: Basic Startup Options11685
-Node: Logging and Input File Options12490
-Node: Download Options15143
-Node: Directory Options35304
-Node: HTTP Options38009
-Node: HTTPS (SSL/TLS) Options51190
-Node: FTP Options56865
-Node: Recursive Retrieval Options61918
-Node: Recursive Accept/Reject Options69786
-Node: Recursive Download73246
-Node: Following Links76357
-Node: Spanning Hosts77294
-Node: Types of Files79467
-Node: Directory-Based Limits81927
-Node: Relative Links84577
-Node: FTP Links85414
-Node: Time-Stamping86281
-Node: Time-Stamping Usage87925
-Node: HTTP Time-Stamping Internals89751
-Ref: HTTP Time-Stamping Internals-Footnote-191027
-Node: FTP Time-Stamping Internals91226
-Node: Startup File92692
-Node: Wgetrc Location93566
-Node: Wgetrc Syntax94365
-Node: Wgetrc Commands95085
-Node: Sample Wgetrc108552
-Node: Examples113754
-Node: Simple Usage114094
-Node: Advanced Usage115498
-Node: Very Advanced Usage119199
-Node: Various120694
-Node: Proxies121335
-Node: Distribution124170
-Node: Web Site124524
-Node: Mailing List124818
-Node: Internet Relay Chat126599
-Node: Reporting Bugs126913
-Node: Portability129431
-Node: Signals131056
-Node: Appendices131739
-Node: Robot Exclusion132073
-Node: Security Considerations135850
-Node: Contributors137034
-Node: Copying this manual141930
-Node: GNU Free Documentation License142169
-Node: Concept Index164565
+Node: Overview2068
+Node: Invoking5479
+Node: URL Format6316
+Ref: URL Format-Footnote-18889
+Node: Option Syntax8991
+Node: Basic Startup Options11673
+Node: Logging and Input File Options12478
+Node: Download Options15131
+Node: Directory Options35292
+Node: HTTP Options37997
+Node: HTTPS (SSL/TLS) Options51178
+Node: FTP Options56853
+Node: Recursive Retrieval Options61906
+Node: Recursive Accept/Reject Options69774
+Node: Recursive Download73234
+Node: Following Links76345
+Node: Spanning Hosts77282
+Node: Types of Files79455
+Node: Directory-Based Limits83814
+Node: Relative Links86906
+Node: FTP Links87743
+Node: Time-Stamping88610
+Node: Time-Stamping Usage90254
+Node: HTTP Time-Stamping Internals92080
+Ref: HTTP Time-Stamping Internals-Footnote-193356
+Node: FTP Time-Stamping Internals93555
+Node: Startup File95021
+Node: Wgetrc Location95895
+Node: Wgetrc Syntax96694
+Node: Wgetrc Commands97414
+Node: Sample Wgetrc110881
+Node: Examples116083
+Node: Simple Usage116423
+Node: Advanced Usage117827
+Node: Very Advanced Usage121528
+Node: Various123023
+Node: Proxies123664
+Node: Distribution126499
+Node: Web Site126841
+Node: Mailing List127135
+Node: Internet Relay Chat128916
+Node: Reporting Bugs129230
+Node: Portability131748
+Node: Signals133373
+Node: Appendices134056
+Node: Robot Exclusion134390
+Node: Security Considerations138167
+Node: Contributors139351
+Node: Copying this manual144247
+Node: GNU Free Documentation License144486
+Node: Concept Index166882
 
 End Tag Table

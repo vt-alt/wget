@@ -124,7 +124,7 @@ install.info: wget.info
 # install man page, creating install directory if necessary
 install.man: $(MAN)
 	$(top_srcdir)/mkinstalldirs $(DESTDIR)$(mandir)/man$(manext)
-	$(INSTALL_DATA) $(MAN) $(DESTDIR)$(mandir)/man$(manext)/$(MAN)
+	$(INSTALL_DATA) $(srcdir)/$(MAN) $(DESTDIR)$(mandir)/man$(manext)/$(MAN)
 
 # install sample.wgetrc
 install.wgetrc: $(srcdir)/sample.wgetrc

@@ -1,3 +1,16 @@
+2008-03-24  Micah Cowan  <micah@cowan.name>
+
+	* NEWS: Added documentation change re: --no-parents, and various
+	caveats on accept/reject lists behavior. Rearranged some items in
+	order of priority.
+	* po/*.po: Ensure synchronization with the TP, resync with
+	sources.
+
+2008-02-14  Micah Cowan  <micah@cowan.name>
+
+	* po/*.po: Updates from the Translation Project, resync with
+	sources.
+
 2008-02-10  Micah Cowan  <micah@cowan.name>
 
 	* NEWS: Added note re interrupted files resulting in renames,

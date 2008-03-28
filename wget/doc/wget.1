@@ -25,11 +25,11 @@
 ..
 .\" Set up some character translations and predefined strings.  \*(-- will
 .\" give an unbreakable dash, \*(PI will give pi, \*(L" will give a left
-.\" double quote, and \*(R" will give a right double quote.  \*(C+ will
-.\" give a nicer C++.  Capital omega is used to do unbreakable dashes and
-.\" therefore won't be available.  \*(C` and \*(C' expand to `' in nroff,
-.\" nothing in troff, for use with C<>.
-.tr \(*W-
+.\" double quote, and \*(R" will give a right double quote.  | will give a
+.\" real vertical bar.  \*(C+ will give a nicer C++.  Capital omega is used to
+.\" do unbreakable dashes and therefore won't be available.  \*(C` and \*(C'
+.\" expand to `' in nroff, nothing in troff, for use with C<>.
+.tr \(*W-|\(bv\*(Tr
 .ds C+ C\v'-.1v'\h'-1p'\s-2+\h'-1p'+\s0\v'.1v'\h'-1p'
 .ie n \{\
 .    ds -- \(*W-
@@ -129,7 +129,7 @@
 .\" ========================================================================
 .\"
 .IX Title "WGET 1"
-.TH WGET 1 "2008-02-10" "GNU Wget 1.11.1-b2092" "GNU Wget"
+.TH WGET 1 "2008-03-24" "GNU Wget 1.11.1" "GNU Wget"
 .SH "NAME"
 Wget \- The non\-interactive network downloader.
 .SH "SYNOPSIS"
@@ -171,7 +171,7 @@ mix different option styles, or specify options after the command-line
 arguments.  Thus you may write:
 .PP
 .Vb 1
-\&        wget \-r \-\-tries=10 http://fly.srk.fer.hr/ \-o log
+\&        wget -r --tries=10 http://fly.srk.fer.hr/ -o log
 .Ve
 .PP
 The space between the option accepting an argument and the argument may
@@ -181,13 +181,13 @@ You may put several options that do not require arguments together,
 like:
 .PP
 .Vb 1
-\&        wget \-drc <URL>
+\&        wget -drc <URL>
 .Ve
 .PP
 This is a complete equivalent of:
 .PP
 .Vb 1
-\&        wget \-d \-r \-c <URL>
+\&        wget -d -r -c <URL>
 .Ve
 .PP
 Since the options can be specified after the arguments, you may
@@ -195,7 +195,7 @@ terminate them with \fB\-\-\fR.  So the following will try to download
 \&\s-1URL\s0 \fB\-x\fR, reporting failure to \fIlog\fR:
 .PP
 .Vb 1
-\&        wget \-o log \-\- \-x
+\&        wget -o log -- -x
 .Ve
 .PP
 The options that accept comma-separated lists all respect the convention
@@ -206,7 +206,7 @@ example will first reset it, and then set it to exclude \fI/~nobody\fR
 and \fI/~somebody\fR.  You can also clear the lists in \fI.wgetrc\fR.
 .PP
 .Vb 1
-\&        wget \-X " \-X /~nobody,/~somebody
+\&        wget -X " -X /~nobody,/~somebody
 .Ve
 .PP
 Most options that do not accept arguments are \fIboolean\fR options,
@@ -451,7 +451,7 @@ want to finish up a download started by a previous instance of Wget, or
 by another program.  For instance:
 .Sp
 .Vb 1
-\&        wget \-c ftp://sunsite.doc.ic.ac.uk/ls\-lR.Z
+\&        wget -c ftp://sunsite.doc.ic.ac.uk/ls-lR.Z
 .Ve
 .Sp
 If there is a file named \fIls\-lR.Z\fR in the current directory, Wget
@@ -555,7 +555,7 @@ which means that it will not download the pages, just check that they
 are there.  For example, you can use Wget to check your bookmarks:
 .Sp
 .Vb 1
-\&        wget \-\-spider \-\-force\-html \-i bookmarks.html
+\&        wget --spider --force-html -i bookmarks.html
 .Ve
 .Sp
 This feature needs much more work for Wget to get close to the
@@ -865,14 +865,14 @@ makes Wget not \*(L"see\*(R" \fInumber\fR remote directory components.  Here
 are several examples of how \fB\-\-cut\-dirs\fR option works.
 .Sp
 .Vb 4
-\&        No options        \-> ftp.xemacs.org/pub/xemacs/
-\&        \-nH               \-> pub/xemacs/
-\&        \-nH \-\-cut\-dirs=1  \-> xemacs/
-\&        \-nH \-\-cut\-dirs=2  \-> .
+\&        No options        -> ftp.xemacs.org/pub/xemacs/
+\&        -nH               -> pub/xemacs/
+\&        -nH --cut-dirs=1  -> xemacs/
+\&        -nH --cut-dirs=2  -> .
 .Ve
 .Sp
 .Vb 2
-\&        \-\-cut\-dirs=1      \-> ftp.xemacs.org/xemacs/
+\&        --cut-dirs=1      -> ftp.xemacs.org/xemacs/
 \&        ...
 .Ve
 .Sp
@@ -1000,7 +1000,7 @@ Write down the name and value of the cookie, and manually instruct Wget
 to send those cookies, bypassing the \*(L"official\*(R" cookie support:
 .Sp
 .Vb 1
-\&        wget \-\-no\-cookies \-\-header "Cookie: <name>=<value>"
+\&        wget --no-cookies --header "Cookie: <name>=<value>"
 .Ve
 .RE
 .IP "\fB\-\-save\-cookies\fR \fIfile\fR" 4
@@ -1047,8 +1047,8 @@ You may define more than one additional header by specifying
 \&\fB\-\-header\fR more than once.
 .Sp
 .Vb 3
-\&        wget \-\-header='Accept\-Charset: iso\-8859\-2' \e
-\&             \-\-header='Accept\-Language: hr'        \e
+\&        wget --header='Accept-Charset: iso-8859-2' \e
+\&             --header='Accept-Language: hr'        \e
 \&               http://fly.srk.fer.hr/
 .Ve
 .Sp
@@ -1060,7 +1060,7 @@ generated automatically.  This example instructs Wget to connect to
 localhost, but to specify \fBfoo.bar\fR in the \f(CW\*(C`Host\*(C'\fR header:
 .Sp
 .Vb 1
-\&        wget \-\-header="Host: foo.bar" http://localhost/
+\&        wget --header="Host: foo.bar" http://localhost/
 .Ve
 .Sp
 In versions of Wget prior to 1.10 such use of \fB\-\-header\fR caused
@@ -1153,15 +1153,15 @@ users:
 .Sp
 .Vb 4
 \&        # Log in to the server.  This can be done only once.
-\&        wget \-\-save\-cookies cookies.txt \e
-\&             \-\-post\-data 'user=foo&password=bar' \e
+\&        wget --save-cookies cookies.txt \e
+\&             --post-data 'user=foo&password=bar' \e
 \&             http://server.com/auth.php
 .Ve
 .Sp
 .Vb 3
 \&        # Now grab the page or pages we care about.
-\&        wget \-\-load\-cookies cookies.txt \e
-\&             \-p http://server.com/interesting/article.php
+\&        wget --load-cookies cookies.txt \e
+\&             -p http://server.com/interesting/article.php
 .Ve
 .Sp
 If the server is using session cookies to track user authentication,
@@ -1427,7 +1427,7 @@ This option tells Wget to delete every single file it downloads,
 pages through a proxy, e.g.:
 .Sp
 .Vb 1
-\&        wget \-r \-nd \-\-delete\-after http://whatever.com/~popular/page/
+\&        wget -r -nd --delete-after http://whatever.com/~popular/page/
 .Ve
 .Sp
 The \fB\-r\fR option is to retrieve recursively, and \fB\-nd\fR to not
@@ -1526,7 +1526,7 @@ continues up to some arbitrarily high number.
 If one executes the command:
 .Sp
 .Vb 1
-\&        wget \-r \-l 2 http://<site>/1.html
+\&        wget -r -l 2 http://<site>/1.html
 .Ve
 .Sp
 then \fI1.html\fR, \fI1.gif\fR, \fI2.html\fR, \fI2.gif\fR, and
@@ -1536,21 +1536,21 @@ number of hops (up to 2) away from \fI1.html\fR in order to determine
 where to stop the recursion.  However, with this command:
 .Sp
 .Vb 1
-\&        wget \-r \-l 2 \-p http://<site>/1.html
+\&        wget -r -l 2 -p http://<site>/1.html
 .Ve
 .Sp
 all the above files \fIand\fR \fI3.html\fR's requisite \fI3.gif\fR
 will be downloaded.  Similarly,
 .Sp
 .Vb 1
-\&        wget \-r \-l 1 \-p http://<site>/1.html
+\&        wget -r -l 1 -p http://<site>/1.html
 .Ve
 .Sp
 will cause \fI1.html\fR, \fI1.gif\fR, \fI2.html\fR, and \fI2.gif\fR
 to be downloaded.  One might think that:
 .Sp
 .Vb 1
-\&        wget \-r \-l 0 \-p http://<site>/1.html
+\&        wget -r -l 0 -p http://<site>/1.html
 .Ve
 .Sp
 would download just \fI1.html\fR and \fI1.gif\fR, but unfortunately
@@ -1561,7 +1561,7 @@ page (or a handful of them, all specified on the command-line or in a
 \&\fB\-r\fR and \fB\-l\fR:
 .Sp
 .Vb 1
-\&        wget \-p http://<site>/1.html
+\&        wget -p http://<site>/1.html
 .Ve
 .Sp
 Note that Wget will behave as if \fB\-r\fR had been specified, but only
@@ -1572,7 +1572,7 @@ websites), and make sure the lot displays properly locally, this author
 likes to use a few options in addition to \fB\-p\fR:
 .Sp
 .Vb 1
-\&        wget \-E \-H \-k \-K \-p http://<site>/<document>
+\&        wget -E -H -k -K -p http://<site>/<document>
 .Ve
 .Sp
 To finish off this topic, it's worth knowing that Wget's idea of an
@@ -1656,7 +1656,7 @@ In the past, this option was the best bet for downloading a single page
 and its requisites, using a command-line like:
 .Sp
 .Vb 1
-\&        wget \-\-ignore\-tags=a,area \-H \-k \-K \-r http://<site>/<document>
+\&        wget --ignore-tags=a,area -H -k -K -r http://<site>/<document>
 .Ve
 .Sp
 However, the author of this option came across a page with tags like

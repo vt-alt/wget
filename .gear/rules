@@ -1,2 +1,2 @@
 copy: *.patch
-tar.gz: wget name=wget-@version@-b2092
+tar.bz2: wget

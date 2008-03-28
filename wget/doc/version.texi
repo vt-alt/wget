@@ -1,1 +1,1 @@
-@set VERSION 1.11.1-b2092
+@set VERSION 1.11.1
