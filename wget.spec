@@ -5,7 +5,7 @@
 
 Name: wget
 Version: 1.11.1
-Release: alt1
+Release: alt1.1
 #Release: alt0.%beta
 
 Summary: An utility for retrieving files using the HTTP, HTTPS or FTP protocols
@@ -151,6 +151,9 @@ find doc -type f -print0 |
 %doc AUTHORS MAILING-LIST NEWS README*
 
 %changelog
+* Sat Aug 09 2008 ALT QA Team Robot <qa-robot@altlinux.org> 1.11.1-alt1.1
+- Automated rebuild due to libssl.so.6 -> libssl.so.7 soname change.
+
 * Fri Mar 28 2008 Michael Shigorin <mike@altlinux.org> 1.11.1-alt1
 - 1.11.1
 
