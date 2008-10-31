@@ -1498,41 +1498,6 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
       basic_auth_finished = maybe_send_basic_creds(u->host, user, passwd, req);
     }
 
-  proxyauth = NULL;
-  if (proxy)
-    {
-      char *proxy_user, *proxy_passwd;
-      /* For normal username and password, URL components override
-         command-line/wgetrc parameters.  With proxy
-         authentication, it's the reverse, because proxy URLs are
-         normally the "permanent" ones, so command-line args
-         should take precedence.  */
-      if (opt.proxy_user && opt.proxy_passwd)
-        {
-          proxy_user = opt.proxy_user;
-          proxy_passwd = opt.proxy_passwd;
-        }
-      else
-        {
-          proxy_user = proxy->user;
-          proxy_passwd = proxy->passwd;
-        }
-      /* #### This does not appear right.  Can't the proxy request,
-         say, `Digest' authentication?  */
-      if (proxy_user && proxy_passwd)
-        proxyauth = basic_authentication_encode (proxy_user, proxy_passwd);
-
-      /* If we're using a proxy, we will be connecting to the proxy
-         server.  */
-      conn = proxy;
-
-      /* Proxy authorization over SSL is handled below. */
-#ifdef HAVE_SSL
-      if (u->scheme != SCHEME_HTTPS)
-#endif
-        request_set_header (req, "Proxy-Authorization", proxyauth, rel_value);
-    }
-
   /* Generate the Host header, HOST:PORT.  Take into account that:
 
      - Broken server-side software often doesn't recognize the PORT
@@ -1602,6 +1567,41 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
   /* We need to come back here when the initial attempt to retrieve
      without authorization header fails.  (Expected to happen at least
      for the Digest authorization scheme.)  */
+
+  proxyauth = NULL;
+  if (proxy)
+    {
+      char *proxy_user, *proxy_passwd;
+      /* For normal username and password, URL components override
+         command-line/wgetrc parameters.  With proxy
+         authentication, it's the reverse, because proxy URLs are
+         normally the "permanent" ones, so command-line args
+         should take precedence.  */
+      if (opt.proxy_user && opt.proxy_passwd)
+        {
+          proxy_user = opt.proxy_user;
+          proxy_passwd = opt.proxy_passwd;
+        }
+      else
+        {
+          proxy_user = proxy->user;
+          proxy_passwd = proxy->passwd;
+        }
+      /* #### This does not appear right.  Can't the proxy request,
+         say, `Digest' authentication?  */
+      if (proxy_user && proxy_passwd)
+        proxyauth = basic_authentication_encode (proxy_user, proxy_passwd);
+
+      /* If we're using a proxy, we will be connecting to the proxy
+         server.  */
+      conn = proxy;
+
+      /* Proxy authorization over SSL is handled below. */
+#ifdef HAVE_SSL
+      if (u->scheme != SCHEME_HTTPS)
+#endif
+        request_set_header (req, "Proxy-Authorization", proxyauth, rel_value);
+    }
 
   keep_alive = false;
 
@@ -1822,10 +1822,11 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy)
   /* TODO: perform this check only once. */
   if (!hs->existence_checked && file_exists_p (hs->local_file))
     {
-      if (opt.noclobber)
+      if (opt.noclobber && !opt.output_document)
         {
           /* If opt.noclobber is turned on and file already exists, do not
-             retrieve the file */
+             retrieve the file. But if the output_document was given, then this
+             test was already done and the file didn't exist. Hence the !opt.output_document */
           logprintf (LOG_VERBOSE, _("\
 File `%s' already there; not retrieving.\n\n"), hs->local_file);
           /* If the file is there, we suppose it's retrieved OK.  */
@@ -2375,10 +2376,11 @@ http_loop (struct url *u, char **newloc, char **local_file, const char *referer,
 
   /* TODO: Ick! This code is now in both gethttp and http_loop, and is
    * screaming for some refactoring. */
-  if (got_name && file_exists_p (hstat.local_file) && opt.noclobber)
+  if (got_name && file_exists_p (hstat.local_file) && opt.noclobber && !opt.output_document)
     {
       /* If opt.noclobber is turned on and file already exists, do not
-         retrieve the file */
+         retrieve the file. But if the output_document was given, then this
+         test was already done and the file didn't exist. Hence the !opt.output_document */
       logprintf (LOG_VERBOSE, _("\
 File `%s' already there; not retrieving.\n\n"), 
                  hstat.local_file);
@@ -2390,7 +2392,8 @@ File `%s' already there; not retrieving.\n\n"),
       if (has_html_suffix_p (hstat.local_file))
         *dt |= TEXTHTML;
 
-      return RETRUNNEEDED;
+      ret = RETROK;
+      goto exit;
     }
 
   /* Reset the counter. */
@@ -2795,10 +2798,18 @@ Remote file exists.\n\n"));
               printwhat (count, opt.ntry);
               continue;
             }
-          else
+          else if (hstat.len != hstat.restval)
             /* Getting here would mean reading more data than
                requested with content-length, which we never do.  */
             abort ();
+          else
+            {
+              /* Getting here probably means that the content-length was
+               * _less_ than the original, local size. We should probably
+               * truncate or re-read, or something. FIXME */
+              ret = RETROK;
+              goto exit;
+            }
         }
       else /* from now on hstat.res can only be -1 */
         {

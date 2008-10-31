@@ -1,14 +1,15 @@
 # Czech translations for GNU wget
 # Copyright (C) 1998, 2000, 2001 Free Software Foundation, Inc.
+# This file is distributed under the same license as the wget package.
 # Jan Prikryl <prikryl@acm.org>, 1998, 2000, 2001
-# Petr Pisar <petr.pisar@atlas.cz>, 2007
+# Petr Pisar <petr.pisar@atlas.cz>, 2007, 2008
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: wget 1.11.1-b2093\n"
+"Project-Id-Version: wget 1.11.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-24 13:24-0700\n"
-"PO-Revision-Date: 2008-02-12 13:06+0100\n"
+"POT-Creation-Date: 2008-06-29 18:27-0700\n"
+"PO-Revision-Date: 2008-05-13 22:41+0200\n"
 "Last-Translator: Petr Pisar <petr.pisar@atlas.cz>\n"
 "Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
@@ -109,32 +110,32 @@ msgstr "Nepodporovaný typ výpisu, použije se Unixový parser.\n"
 msgid "Index of /%s on %s:%d"
 msgstr "Obsah /%s na %s:%d"
 
-#: src/ftp-ls.c:909
+#: src/ftp-ls.c:910
 #, c-format
 msgid "time unknown       "
 msgstr "čas neznámý        "
 
-#: src/ftp-ls.c:913
+#: src/ftp-ls.c:914
 #, c-format
 msgid "File        "
 msgstr "Soubor      "
 
-#: src/ftp-ls.c:916
+#: src/ftp-ls.c:917
 #, c-format
 msgid "Directory   "
 msgstr "Adresář     "
 
-#: src/ftp-ls.c:919
+#: src/ftp-ls.c:920
 #, c-format
 msgid "Link        "
 msgstr "Sym. odkaz  "
 
-#: src/ftp-ls.c:922
+#: src/ftp-ls.c:923
 #, c-format
 msgid "Not sure    "
 msgstr "Neznámý typ "
 
-#: src/ftp-ls.c:940
+#: src/ftp-ls.c:941
 #, c-format
 msgid " (%s bytes)"
 msgstr " (%s bajtů)"
@@ -144,12 +145,12 @@ msgstr " (%s bajtů)"
 msgid "Length: %s"
 msgstr "Délka: %s"
 
-#: src/ftp.c:221 src/http.c:2197
+#: src/ftp.c:221 src/http.c:2198
 #, c-format
 msgid ", %s (%s) remaining"
 msgstr ", %s (%s) zbývá"
 
-#: src/ftp.c:225 src/http.c:2201
+#: src/ftp.c:225 src/http.c:2202
 #, c-format
 msgid ", %s remaining"
 msgstr ", %s zbývá"
@@ -287,7 +288,7 @@ msgstr ""
 #. what functions like unique_create typically do)
 #. because we told the user we'd use this name.
 #. Instead, return and retry the download.
-#: src/ftp.c:936 src/http.c:2259
+#: src/ftp.c:936 src/http.c:2260
 #, c-format
 msgid "%s has sprung into existence.\n"
 msgstr "%s se objevil.\n"
@@ -310,17 +311,18 @@ msgstr "Řídicí spojení bylo ukončeno.\n"
 msgid "Data transfer aborted.\n"
 msgstr "Přenos dat byl předčasně ukončen.\n"
 
-#: src/ftp.c:1098
+#. Check if output file exists; if it does, exit.
+#: src/ftp.c:1100 src/main.c:906
 #, c-format
 msgid "File `%s' already there; not retrieving.\n"
 msgstr "Soubor „%s“ je již zde, nebudu jej přenášet.\n"
 
-#: src/ftp.c:1166 src/http.c:2437
+#: src/ftp.c:1170 src/http.c:2440
 #, c-format
 msgid "(try:%2d)"
 msgstr "(pokus:%2d)"
 
-#: src/ftp.c:1236 src/http.c:2769
+#: src/ftp.c:1240 src/http.c:2772
 #, c-format
 msgid ""
 "%s (%s) - `%s' saved [%s]\n"
@@ -329,29 +331,29 @@ msgstr ""
 "%s (%s) – „%s“ uložen [%s]\n"
 "\n"
 
-#: src/ftp.c:1278 src/main.c:1010 src/recur.c:379 src/retr.c:861
+#: src/ftp.c:1282 src/main.c:1025 src/recur.c:379 src/retr.c:861
 #, c-format
 msgid "Removing %s.\n"
 msgstr "Maže se %s.\n"
 
-#: src/ftp.c:1320
+#: src/ftp.c:1324
 #, c-format
 msgid "Using `%s' as listing tmp file.\n"
 msgstr "Seznam souborů bude dočasně uložen v „%s“.\n"
 
-#: src/ftp.c:1335
+#: src/ftp.c:1339
 #, c-format
 msgid "Removed `%s'.\n"
 msgstr "Soubor „%s“ byl vymazán.\n"
 
-#: src/ftp.c:1368
+#: src/ftp.c:1372
 #, c-format
 msgid "Recursion depth %d exceeded max. depth %d.\n"
 msgstr "Hloubka rekurze %d překročila maximální hloubku %d.\n"
 
 #. Remote file is older, file sizes can be compared and
 #. are both equal.
-#: src/ftp.c:1438
+#: src/ftp.c:1442
 #, c-format
 msgid "Remote file no newer than local file `%s' -- not retrieving.\n"
 msgstr ""
@@ -359,7 +361,7 @@ msgstr ""
 "stahovat.\n"
 
 #. Remote file is newer or sizes cannot be matched
-#: src/ftp.c:1445
+#: src/ftp.c:1449
 #, c-format
 msgid ""
 "Remote file is newer than local file `%s' -- retrieving.\n"
@@ -370,7 +372,7 @@ msgstr ""
 "\n"
 
 #. Sizes do not match
-#: src/ftp.c:1452
+#: src/ftp.c:1456
 #, c-format
 msgid ""
 "The sizes do not match (local %s) -- retrieving.\n"
@@ -379,11 +381,11 @@ msgstr ""
 "Velikosti se neshodují (lokální %s), stahuji.\n"
 "\n"
 
-#: src/ftp.c:1470
+#: src/ftp.c:1474
 msgid "Invalid name of the symlink, skipping.\n"
 msgstr "Přeskakuje se symbolický odkaz, neboť název odkazu není platný.\n"
 
-#: src/ftp.c:1487
+#: src/ftp.c:1491
 #, c-format
 msgid ""
 "Already have correct symlink %s -> %s\n"
@@ -392,41 +394,41 @@ msgstr ""
 "Korektní symbolický odkaz %s -> %s již existuje.\n"
 "\n"
 
-#: src/ftp.c:1495
+#: src/ftp.c:1499
 #, c-format
 msgid "Creating symlink %s -> %s\n"
 msgstr "Vytváří se symbolický odkaz %s -> %s\n"
 
-#: src/ftp.c:1505
+#: src/ftp.c:1509
 #, c-format
 msgid "Symlinks not supported, skipping symlink `%s'.\n"
 msgstr ""
 "Symbolický odkaz „%s“ bude vynechán, protože systém symbolické odkazy "
 "nepodporuje.\n"
 
-#: src/ftp.c:1517
+#: src/ftp.c:1521
 #, c-format
 msgid "Skipping directory `%s'.\n"
 msgstr "Adresář „%s“ bude vynechán.\n"
 
-#: src/ftp.c:1526
+#: src/ftp.c:1530
 #, c-format
 msgid "%s: unknown/unsupported file type.\n"
 msgstr "%s: neznámý/nepodporovaný typ souboru.\n"
 
-#: src/ftp.c:1553
+#: src/ftp.c:1557
 #, c-format
 msgid "%s: corrupt time-stamp.\n"
 msgstr "%s: časové razítko souboru je porušené.\n"
 
-#: src/ftp.c:1581
+#: src/ftp.c:1585
 #, c-format
 msgid "Will not retrieve dirs since depth is %d (max %d).\n"
 msgstr ""
 "Podadresáře se nebudou přenášet, protože již bylo dosaženo hloubky %d "
 "(maximum je %d).\n"
 
-#: src/ftp.c:1631
+#: src/ftp.c:1635
 #, c-format
 msgid "Not descending to `%s' as it is excluded/not-included.\n"
 msgstr ""
@@ -434,12 +436,12 @@ msgstr ""
 "nebo\n"
 "nebyl zadán k procházení.\n"
 
-#: src/ftp.c:1697 src/ftp.c:1711
+#: src/ftp.c:1701 src/ftp.c:1715
 #, c-format
 msgid "Rejecting `%s'.\n"
 msgstr "Soubor „%s“ se nemá stahovat.\n"
 
-#: src/ftp.c:1734
+#: src/ftp.c:1738
 #, c-format
 msgid "Error matching %s against %s: %s\n"
 msgstr "Při porovnávání %s s %s došlo k chybě: %s\n"
@@ -447,17 +449,17 @@ msgstr "Při porovnávání %s s %s došlo k chybě: %s\n"
 #. No luck.
 #. #### This message SUCKS.  We should see what was the
 #. reason that nothing was retrieved.
-#: src/ftp.c:1775
+#: src/ftp.c:1779
 #, c-format
 msgid "No matches on pattern `%s'.\n"
 msgstr "Vzorku „%s“ nic neodpovídá.\n"
 
-#: src/ftp.c:1841
+#: src/ftp.c:1845
 #, c-format
 msgid "Wrote HTML-ized index to `%s' [%s].\n"
 msgstr "Výpis adresáře v HTML formátu byl zapsán do „%s“ [%s].\n"
 
-#: src/ftp.c:1846
+#: src/ftp.c:1850
 #, c-format
 msgid "Wrote HTML-ized index to `%s'.\n"
 msgstr "Výpis adresáře v HTML formátu byl zapsán do „%s“.\n"
@@ -571,7 +573,7 @@ msgstr "Chybí hlavičky, předpokládám HTTP/0.9"
 msgid "Disabling SSL due to encountered errors.\n"
 msgstr "Vypínám SSL kvůli chybám, které se vyskytly.\n"
 
-#: src/http.c:1583
+#: src/http.c:1548
 #, c-format
 msgid "POST data file `%s' missing: %s\n"
 msgstr "Soubor „%s“ s daty pro POST chybí: %s\n"
@@ -606,8 +608,9 @@ msgid "Read error (%s) in headers.\n"
 msgstr "Chyba (%s) při čtení hlaviček.\n"
 
 #. If opt.noclobber is turned on and file already exists, do not
-#. retrieve the file
-#: src/http.c:1829 src/http.c:2382
+#. retrieve the file. But if the output_document was given, then this
+#. test was already done and the file didn't exist. Hence the !opt.output_document
+#: src/http.c:1830 src/http.c:2384
 #, c-format
 msgid ""
 "File `%s' already there; not retrieving.\n"
@@ -618,39 +621,39 @@ msgstr ""
 
 #. If the authentication header is missing or
 #. unrecognized, there's no sense in retrying.
-#: src/http.c:1983
+#: src/http.c:1984
 msgid "Unknown authentication scheme.\n"
 msgstr "Server požaduje neznámý způsob autentizace.\n"
 
-#: src/http.c:2014
+#: src/http.c:2015
 msgid "Authorization failed.\n"
 msgstr "Autorizace selhala.\n"
 
-#: src/http.c:2028
+#: src/http.c:2029
 msgid "Malformed status line"
 msgstr "Odpověď serveru má zkomolený stavový řádek"
 
-#: src/http.c:2030
+#: src/http.c:2031
 msgid "(no description)"
 msgstr "(žádný popis)"
 
-#: src/http.c:2096
+#: src/http.c:2097
 #, c-format
 msgid "Location: %s%s\n"
 msgstr "Přesměrováno na: %s%s\n"
 
-#: src/http.c:2097 src/http.c:2207
+#: src/http.c:2098 src/http.c:2208
 msgid "unspecified"
 msgstr "neudáno"
 
-#: src/http.c:2098
+#: src/http.c:2099
 msgid " [following]"
 msgstr " [následuji]"
 
 #. If `-c' is in use and the file has been fully downloaded (or
 #. the remote file has shrunk), Wget effectively requests bytes
 #. after the end of file and the server response with 416.
-#: src/http.c:2154
+#: src/http.c:2155
 msgid ""
 "\n"
 "    The file is already fully retrieved; nothing to do.\n"
@@ -663,65 +666,65 @@ msgstr ""
 #. No need to print this output if the body won't be
 #. downloaded at all, or if the original server response is
 #. printed.
-#: src/http.c:2187
+#: src/http.c:2188
 msgid "Length: "
 msgstr "Délka: "
 
-#: src/http.c:2207
+#: src/http.c:2208
 msgid "ignored"
 msgstr "je ignorována"
 
-#: src/http.c:2278
+#: src/http.c:2279
 #, c-format
 msgid "Saving to: `%s'\n"
 msgstr "Ukládám do: „%s“.\n"
 
-#: src/http.c:2359
+#: src/http.c:2360
 msgid "Warning: wildcards not supported in HTTP.\n"
 msgstr "Varování: HTTP nepodporuje žolíkové znaky.\n"
 
-#: src/http.c:2426
+#: src/http.c:2429
 msgid "Spider mode enabled. Check if remote file exists.\n"
 msgstr "Aktivován režim pavouka. Kontroluje, zda vzdálený soubor existuje.\n"
 
-#: src/http.c:2511
+#: src/http.c:2514
 #, c-format
 msgid "Cannot write to `%s' (%s).\n"
 msgstr "Nelze zapsat do „%s“ (%s).\n"
 
 #. Another fatal error.
-#: src/http.c:2520
+#: src/http.c:2523
 msgid "Unable to establish SSL connection.\n"
 msgstr "Nebylo možné navázat SSL spojení.\n"
 
 # , c-format
-#: src/http.c:2528
+#: src/http.c:2531
 #, c-format
 msgid "ERROR: Redirection (%d) without location.\n"
 msgstr "CHYBA: Přesměrování (%d) bez udané nové adresy.\n"
 
-#: src/http.c:2574
+#: src/http.c:2577
 msgid "Remote file does not exist -- broken link!!!\n"
 msgstr "Vzdálený soubor neexistuje – slepý odkaz!!!\n"
 
-#: src/http.c:2579
+#: src/http.c:2582
 #, c-format
 msgid "%s ERROR %d: %s.\n"
 msgstr "%s CHYBA %d: %s.\n"
 
-#: src/http.c:2595
+#: src/http.c:2598
 msgid "Last-modified header missing -- time-stamps turned off.\n"
 msgstr ""
 "Nelze použít časová razítka, protože v odpovědi serveru \n"
 "schází hlavička „Last-modified“.\n"
 
-#: src/http.c:2603
+#: src/http.c:2606
 msgid "Last-modified header invalid -- time-stamp ignored.\n"
 msgstr ""
 "Časové razítko souboru bude ignorováno, protože hlavička \n"
 "„Last-modified“ obsahuje neplatné údaje.\n"
 
-#: src/http.c:2633
+#: src/http.c:2636
 #, c-format
 msgid ""
 "Server file no newer than local file `%s' -- not retrieving.\n"
@@ -731,16 +734,16 @@ msgstr ""
 "stahovat.\n"
 "\n"
 
-#: src/http.c:2641
+#: src/http.c:2644
 #, c-format
 msgid "The sizes do not match (local %s) -- retrieving.\n"
 msgstr "Velikosti se neshodují (lokální %s), stahuji.\n"
 
-#: src/http.c:2648
+#: src/http.c:2651
 msgid "Remote file is newer, retrieving.\n"
 msgstr "Lokální soubor je starší a vzdálený soubor se proto bude přenášet.\n"
 
-#: src/http.c:2664
+#: src/http.c:2667
 msgid ""
 "Remote file exists and could contain links to other resources -- "
 "retrieving.\n"
@@ -750,7 +753,7 @@ msgstr ""
 "stahuji.\n"
 "\n"
 
-#: src/http.c:2669
+#: src/http.c:2672
 msgid ""
 "Remote file exists but does not contain any link -- not retrieving.\n"
 "\n"
@@ -758,7 +761,7 @@ msgstr ""
 "Vzdálený soubor existuje, ale neobsahuje žádné odkazy – nestahuji.\n"
 "\n"
 
-#: src/http.c:2679
+#: src/http.c:2682
 msgid ""
 "Remote file exists and could contain further links,\n"
 "but recursion is disabled -- not retrieving.\n"
@@ -767,7 +770,7 @@ msgstr ""
 "Vzdálený soubor existuje a možná obsahuje další odkazy,\n"
 "avšak rekurze je vypnuta – nestahuji.\n"
 
-#: src/http.c:2685
+#: src/http.c:2688
 msgid ""
 "Remote file exists.\n"
 "\n"
@@ -775,7 +778,7 @@ msgstr ""
 "Vzdálený soubor existuje.\n"
 "\n"
 
-#: src/http.c:2738
+#: src/http.c:2741
 #, c-format
 msgid ""
 "%s (%s) - `%s' saved [%s/%s]\n"
@@ -784,17 +787,17 @@ msgstr ""
 "%s (%s) – „%s“ uloženo [%s/%s]\n"
 "\n"
 
-#: src/http.c:2793
+#: src/http.c:2796
 #, c-format
 msgid "%s (%s) - Connection closed at byte %s. "
 msgstr "%s (%s) – Spojení ukončeno na bajtu %s. "
 
-#: src/http.c:2808
+#: src/http.c:2819
 #, c-format
 msgid "%s (%s) - Read error at byte %s (%s)."
 msgstr "%s (%s) – Chyba při čtení dat na bajtu %s (%s)."
 
-#: src/http.c:2817
+#: src/http.c:2828
 #, c-format
 msgid "%s (%s) - Read error at byte %s/%s (%s). "
 msgstr "%s (%s) – Chyba při čtení dat na bajtu %s/%s (%s). "
@@ -1608,7 +1611,7 @@ msgstr "Nyní jej spravuje Micah Cowan <micah@cowan.name>.\n"
 
 #. #### Something nicer should be printed here -- similar to the
 #. pre-1.5 `--help' page.
-#: src/main.c:738 src/main.c:807 src/main.c:904
+#: src/main.c:738 src/main.c:807 src/main.c:919
 #, c-format
 msgid "Try `%s --help' for more options.\n"
 msgstr "Příkaz „%s --help“ vypíše další přepínače.\n"
@@ -1634,27 +1637,46 @@ msgid "Cannot specify both --inet4-only and --inet6-only.\n"
 msgstr "--inet4-only a --inet6-only nelze zadat najednou.\n"
 
 #: src/main.c:883
-#, c-format
-msgid "Cannot specify -r, -p or -N if -O is given.\n"
-msgstr "Je-li zadáno -O, nelze současně použít -r, -p nebo -N.\n"
+msgid ""
+"Cannot specify both -k and -O if multiple URLs are given, or in combination\n"
+"with -p or -r. See the manual for details.\n"
+"\n"
+msgstr ""
+"Přepínače -k a -O  nelze spolu použít, je-li zadáno více URL nebo\n"
+"zadán přepínač -p nebo -r. Vysvětlení naleznete v manuálu.\n"
 
-#: src/main.c:891
-#, c-format
-msgid "Cannot specify both -k and -O if multiple URLs are given.\n"
-msgstr "Je-li zadáno více URL, nelze najednou použít jak -k, tak i -O.\n"
+#: src/main.c:892
+msgid ""
+"WARNING: combining -O with -r or -p will mean that all downloaded content\n"
+"will be placed in the single file you specified.\n"
+"\n"
+msgstr ""
+"VAROVÁNÍ: kombinace -O s -r nebo -p způsobí, že veškerý stažený obsah bude\n"
+"uložen do jediného souboru, který jste určili.\n"
+"\n"
+
+#: src/main.c:898
+msgid ""
+"WARNING: timestamping does nothing in combination with -O. See the manual\n"
+"for details.\n"
+"\n"
+msgstr ""
+"VAROVÁNÍ: porovnávání času spolu s -O nic nedělá. Vysvětlení naleznete\n"
+"v manuálu.\n"
+"\n"
 
 #. No URL specified.
-#: src/main.c:899
+#: src/main.c:914
 #, c-format
 msgid "%s: missing URL\n"
 msgstr "%s: chybí URL\n"
 
-#: src/main.c:1025
+#: src/main.c:1040
 #, c-format
 msgid "No URLs found in %s.\n"
 msgstr "V souboru „%s“ nebyla nalezena žádná URL.\n"
 
-#: src/main.c:1043
+#: src/main.c:1058
 #, c-format
 msgid ""
 "FINISHED --%s--\n"
@@ -1663,7 +1685,7 @@ msgstr ""
 "KONEC --%s--\n"
 "Staženo: %d souborů, %s za %s (%s)\n"
 
-#: src/main.c:1052
+#: src/main.c:1067
 #, c-format
 msgid "Download quota of %s EXCEEDED!\n"
 msgstr "Kvóta %s na stahování PŘEKROČENA!\n"
@@ -1790,15 +1812,14 @@ msgstr "„%s“ není platné určení způsobu indikace, ponechávám nezměn�
 
 #. Translation note: "ETA" is English-centric, but this must
 #. be short, ideally 3 chars.  Abbreviate if necessary.
-#: src/progress.c:803
+#: src/progress.c:806
 #, c-format
 msgid "  eta %s"
 msgstr " zbývá %s"
 
-#. When the download is done, print the elapsed time.
 #. Note to translators: this should not take up more room than
 #. available here.  Abbreviate if necessary.
-#: src/progress.c:1042
+#: src/progress.c:1051
 msgid "   in "
 msgstr "   za "
 
@@ -1932,6 +1953,13 @@ msgstr "Nebylo možné odstranit symbolický odkaz „%s“: %s\n"
 #, c-format
 msgid "%s: %s: Failed to allocate %ld bytes; memory exhausted.\n"
 msgstr "%s: %s: alokace %ld bajtů selhala, paměť vyčerpána.\n"
+
+#~ msgid ""
+#~ "Cannot specify -N if -O is given. See the manual for details.\n"
+#~ "\n"
+#~ msgstr ""
+#~ "Je-li zadáno -O, nelze současně použít -N. Vysvětlení naleznete "
+#~ "v manuálu\n"
 
 #~ msgid "  -Y,  --proxy                   explicitly turn on proxy.\n"
 #~ msgstr "  -Y,  --proxy                   explicitně zapne proxy.\n"

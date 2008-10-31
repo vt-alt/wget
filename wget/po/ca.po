@@ -1,15 +1,16 @@
 # Catalan translation of wget.
-# Copyright © 2002, 2003, 2005, 2007 Free Software Foundation, Inc.
+# Copyright © 2002, 2003, 2005, 2007, 2008 Free Software Foundation, Inc.
+# This file is distributed under the same licence as the wget package.
 # Jordi Valverde Sivilla <jordi@eclipsi.net>, 2002.
 # Ernest Adrogué Calveras <eadrogue@gmx.net>, 2003.
-# Jordi Mallach <jordi@gnu.org>, 2003, 2005, 2007.
+# Jordi Mallach <jordi@gnu.org>, 2003, 2005, 2007, 2008.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: wget 1.11-b2425\n"
+"Project-Id-Version: wget 1.11.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-24 13:24-0700\n"
-"PO-Revision-Date: 2007-12-15 02:10+0100\n"
+"POT-Creation-Date: 2008-06-29 18:27-0700\n"
+"PO-Revision-Date: 2008-06-10 00:40+0200\n"
 "Last-Translator: Jordi Mallach <jordi@gnu.org>\n"
 "Language-Team: Catalan <ca@dodds.net>\n"
 "MIME-Version: 1.0\n"
@@ -115,32 +116,32 @@ msgstr ""
 msgid "Index of /%s on %s:%d"
 msgstr "Índex de /%s a %s:%d"
 
-#: src/ftp-ls.c:909
+#: src/ftp-ls.c:910
 #, c-format
 msgid "time unknown       "
 msgstr "data desconeguda   "
 
-#: src/ftp-ls.c:913
+#: src/ftp-ls.c:914
 #, c-format
 msgid "File        "
 msgstr "Fitxer      "
 
-#: src/ftp-ls.c:916
+#: src/ftp-ls.c:917
 #, c-format
 msgid "Directory   "
 msgstr "Directori   "
 
-#: src/ftp-ls.c:919
+#: src/ftp-ls.c:920
 #, c-format
 msgid "Link        "
 msgstr "Enllaç      "
 
-#: src/ftp-ls.c:922
+#: src/ftp-ls.c:923
 #, c-format
 msgid "Not sure    "
 msgstr "No és segur "
 
-#: src/ftp-ls.c:940
+#: src/ftp-ls.c:941
 #, c-format
 msgid " (%s bytes)"
 msgstr " (%s octets)"
@@ -150,12 +151,12 @@ msgstr " (%s octets)"
 msgid "Length: %s"
 msgstr "Mida: %s"
 
-#: src/ftp.c:221 src/http.c:2197
+#: src/ftp.c:221 src/http.c:2198
 #, c-format
 msgid ", %s (%s) remaining"
 msgstr ", %s (%s) restant"
 
-#: src/ftp.c:225 src/http.c:2201
+#: src/ftp.c:225 src/http.c:2202
 #, c-format
 msgid ", %s remaining"
 msgstr ", %s restant"
@@ -293,7 +294,7 @@ msgstr ""
 #. what functions like unique_create typically do)
 #. because we told the user we'd use this name.
 #. Instead, return and retry the download.
-#: src/ftp.c:936 src/http.c:2259
+#: src/ftp.c:936 src/http.c:2260
 #, c-format
 msgid "%s has sprung into existence.\n"
 msgstr "%s ha començat a existir.\n"
@@ -316,17 +317,18 @@ msgstr "Connexió de control tancada.\n"
 msgid "Data transfer aborted.\n"
 msgstr "S'ha avortat la transferència de dades.\n"
 
-#: src/ftp.c:1098
+#. Check if output file exists; if it does, exit.
+#: src/ftp.c:1100 src/main.c:906
 #, c-format
 msgid "File `%s' already there; not retrieving.\n"
 msgstr "El fitxer «%s» ja existeix, no es baixa.\n"
 
-#: src/ftp.c:1166 src/http.c:2437
+#: src/ftp.c:1170 src/http.c:2440
 #, c-format
 msgid "(try:%2d)"
 msgstr "(intent:%2d)"
 
-#: src/ftp.c:1236 src/http.c:2769
+#: src/ftp.c:1240 src/http.c:2772
 #, c-format
 msgid ""
 "%s (%s) - `%s' saved [%s]\n"
@@ -335,35 +337,35 @@ msgstr ""
 "%s (%s) - s'ha desat «%s» [%s]\n"
 "\n"
 
-#: src/ftp.c:1278 src/main.c:1010 src/recur.c:379 src/retr.c:861
+#: src/ftp.c:1282 src/main.c:1025 src/recur.c:379 src/retr.c:861
 #, c-format
 msgid "Removing %s.\n"
 msgstr "S'està suprimint %s.\n"
 
-#: src/ftp.c:1320
+#: src/ftp.c:1324
 #, c-format
 msgid "Using `%s' as listing tmp file.\n"
 msgstr "S'utilitza «%s» com a fitxer de llistat temporal.\n"
 
-#: src/ftp.c:1335
+#: src/ftp.c:1339
 #, c-format
 msgid "Removed `%s'.\n"
 msgstr "S'ha suprimit «%s».\n"
 
-#: src/ftp.c:1368
+#: src/ftp.c:1372
 #, c-format
 msgid "Recursion depth %d exceeded max. depth %d.\n"
 msgstr "La profunditat de recursió %d excedeix el màxim permès %d.\n"
 
 #. Remote file is older, file sizes can be compared and
 #. are both equal.
-#: src/ftp.c:1438
+#: src/ftp.c:1442
 #, c-format
 msgid "Remote file no newer than local file `%s' -- not retrieving.\n"
 msgstr "El fitxer remot no és més nou que el local «%s» -- no es baixa.\n"
 
 #. Remote file is newer or sizes cannot be matched
-#: src/ftp.c:1445
+#: src/ftp.c:1449
 #, c-format
 msgid ""
 "Remote file is newer than local file `%s' -- retrieving.\n"
@@ -373,7 +375,7 @@ msgstr ""
 "\n"
 
 #. Sizes do not match
-#: src/ftp.c:1452
+#: src/ftp.c:1456
 #, c-format
 msgid ""
 "The sizes do not match (local %s) -- retrieving.\n"
@@ -382,11 +384,11 @@ msgstr ""
 "Els fitxers no tenen la mateixa mida (local %s) -- s'està baixant.\n"
 "\n"
 
-#: src/ftp.c:1470
+#: src/ftp.c:1474
 msgid "Invalid name of the symlink, skipping.\n"
 msgstr "El nom de l'enllaç simbòlic no és correcte; s'omet.\n"
 
-#: src/ftp.c:1487
+#: src/ftp.c:1491
 #, c-format
 msgid ""
 "Already have correct symlink %s -> %s\n"
@@ -395,65 +397,65 @@ msgstr ""
 "Ja hi ha un enllaç simbòlic correcte %s -> %s\n"
 "\n"
 
-#: src/ftp.c:1495
+#: src/ftp.c:1499
 #, c-format
 msgid "Creating symlink %s -> %s\n"
 msgstr "S'està creant l'enllaç simbòlic %s -> %s\n"
 
-#: src/ftp.c:1505
+#: src/ftp.c:1509
 #, c-format
 msgid "Symlinks not supported, skipping symlink `%s'.\n"
 msgstr "No es suporten enllaços simbòlics; s'omet l'enllaç «%s».\n"
 
-#: src/ftp.c:1517
+#: src/ftp.c:1521
 #, c-format
 msgid "Skipping directory `%s'.\n"
 msgstr "S'està ometent el directori «%s».\n"
 
-#: src/ftp.c:1526
+#: src/ftp.c:1530
 #, c-format
 msgid "%s: unknown/unsupported file type.\n"
 msgstr "%s: tipus de fitxer desconegut o no suportat.\n"
 
-#: src/ftp.c:1553
+#: src/ftp.c:1557
 #, c-format
 msgid "%s: corrupt time-stamp.\n"
 msgstr "%s: la marca de temps és corrupta..\n"
 
-#: src/ftp.c:1581
+#: src/ftp.c:1585
 #, c-format
 msgid "Will not retrieve dirs since depth is %d (max %d).\n"
 msgstr "No es baixaran els directoris ja que la profunditat és %d (max %d).\n"
 
-#: src/ftp.c:1631
+#: src/ftp.c:1635
 #, c-format
 msgid "Not descending to `%s' as it is excluded/not-included.\n"
 msgstr "No es descendeix a «%s» ja que està exclòs, o no inclòs.\n"
 
-#: src/ftp.c:1697 src/ftp.c:1711
+#: src/ftp.c:1701 src/ftp.c:1715
 #, c-format
 msgid "Rejecting `%s'.\n"
 msgstr "S'està rebutjant «%s».\n"
 
-#: src/ftp.c:1734
-#, fuzzy, c-format
+#: src/ftp.c:1738
+#, c-format
 msgid "Error matching %s against %s: %s\n"
-msgstr "S'ha produït un error en escriure a «%s»: %s\n"
+msgstr "S'ha produït un error en comparar %s amb %s: %s\n"
 
 #. No luck.
 #. #### This message SUCKS.  We should see what was the
 #. reason that nothing was retrieved.
-#: src/ftp.c:1775
+#: src/ftp.c:1779
 #, c-format
 msgid "No matches on pattern `%s'.\n"
 msgstr "Cap coincidència amb el patró «%s».\n"
 
-#: src/ftp.c:1841
+#: src/ftp.c:1845
 #, c-format
 msgid "Wrote HTML-ized index to `%s' [%s].\n"
 msgstr "S'ha escrit un índex HTMLitzat a «%s» [%s].\n"
 
-#: src/ftp.c:1846
+#: src/ftp.c:1850
 #, c-format
 msgid "Wrote HTML-ized index to `%s'.\n"
 msgstr "S'ha escrit un índex HTMLitzat a «%s».\n"
@@ -567,7 +569,7 @@ msgstr "No hi ha capçaleres, s'assumeix HTTP/0.9"
 msgid "Disabling SSL due to encountered errors.\n"
 msgstr "S'està inhabilitant SSL a causa dels errors trobats.\n"
 
-#: src/http.c:1583
+#: src/http.c:1548
 #, c-format
 msgid "POST data file `%s' missing: %s\n"
 msgstr "Manca el fitxer de dades POST «%s»: %s\n"
@@ -603,8 +605,9 @@ msgid "Read error (%s) in headers.\n"
 msgstr "S'ha produït un error de lectura (%s) a les capçaleres.\n"
 
 #. If opt.noclobber is turned on and file already exists, do not
-#. retrieve the file
-#: src/http.c:1829 src/http.c:2382
+#. retrieve the file. But if the output_document was given, then this
+#. test was already done and the file didn't exist. Hence the !opt.output_document
+#: src/http.c:1830 src/http.c:2384
 #, c-format
 msgid ""
 "File `%s' already there; not retrieving.\n"
@@ -615,40 +618,40 @@ msgstr ""
 
 #. If the authentication header is missing or
 #. unrecognized, there's no sense in retrying.
-#: src/http.c:1983
+#: src/http.c:1984
 msgid "Unknown authentication scheme.\n"
 msgstr "L'esquema d'autenticació és desconegut.\n"
 
-#: src/http.c:2014
+#: src/http.c:2015
 msgid "Authorization failed.\n"
 msgstr "Ha fallat l'autorització.\n"
 
-#: src/http.c:2028
+#: src/http.c:2029
 msgid "Malformed status line"
 msgstr "La línia d'estat és malformada"
 
-#: src/http.c:2030
+#: src/http.c:2031
 msgid "(no description)"
 msgstr "(sense descripció)"
 
-#: src/http.c:2096
+#: src/http.c:2097
 #, c-format
 msgid "Location: %s%s\n"
 msgstr "Ubicació: %s%s\n"
 
 # és femení: ubicació/mida. eac
-#: src/http.c:2097 src/http.c:2207
+#: src/http.c:2098 src/http.c:2208
 msgid "unspecified"
 msgstr "no especificada"
 
-#: src/http.c:2098
+#: src/http.c:2099
 msgid " [following]"
 msgstr " [es segueix]"
 
 #. If `-c' is in use and the file has been fully downloaded (or
 #. the remote file has shrunk), Wget effectively requests bytes
 #. after the end of file and the server response with 416.
-#: src/http.c:2154
+#: src/http.c:2155
 msgid ""
 "\n"
 "    The file is already fully retrieved; nothing to do.\n"
@@ -661,61 +664,61 @@ msgstr ""
 #. No need to print this output if the body won't be
 #. downloaded at all, or if the original server response is
 #. printed.
-#: src/http.c:2187
+#: src/http.c:2188
 msgid "Length: "
 msgstr "Mida: "
 
-#: src/http.c:2207
+#: src/http.c:2208
 msgid "ignored"
 msgstr "s'ignora"
 
-#: src/http.c:2278
+#: src/http.c:2279
 #, c-format
 msgid "Saving to: `%s'\n"
 msgstr "S'està desant a: «%s»\n"
 
-#: src/http.c:2359
+#: src/http.c:2360
 msgid "Warning: wildcards not supported in HTTP.\n"
 msgstr "Avís: En HTTP no es suporten patrons.\n"
 
-#: src/http.c:2426
+#: src/http.c:2429
 msgid "Spider mode enabled. Check if remote file exists.\n"
 msgstr "Mode aranya habilitat. Comprova si el fitxer remot existeix.\n"
 
-#: src/http.c:2511
+#: src/http.c:2514
 #, c-format
 msgid "Cannot write to `%s' (%s).\n"
 msgstr "No s'ha pogut escriure a «%s» (%s).\n"
 
 #. Another fatal error.
-#: src/http.c:2520
+#: src/http.c:2523
 msgid "Unable to establish SSL connection.\n"
 msgstr "No s'ha pogut establir la connexió SSL.\n"
 
-#: src/http.c:2528
+#: src/http.c:2531
 #, c-format
 msgid "ERROR: Redirection (%d) without location.\n"
 msgstr "ERROR: Redirecció (%d) sense ubicació.\n"
 
-#: src/http.c:2574
+#: src/http.c:2577
 msgid "Remote file does not exist -- broken link!!!\n"
 msgstr "El fitxer remot no existeix -- enllaç trencat!\n"
 
-#: src/http.c:2579
+#: src/http.c:2582
 #, c-format
 msgid "%s ERROR %d: %s.\n"
 msgstr "%s ERROR: %d %s.\n"
 
-#: src/http.c:2595
+#: src/http.c:2598
 msgid "Last-modified header missing -- time-stamps turned off.\n"
 msgstr ""
 "Falta la capçalera Last-modified -- s'han inhabilitat les marques de temps.\n"
 
-#: src/http.c:2603
+#: src/http.c:2606
 msgid "Last-modified header invalid -- time-stamp ignored.\n"
 msgstr "Capçalera Last-modified no vàlida -- s'omet la marca de temps.\n"
 
-#: src/http.c:2633
+#: src/http.c:2636
 #, c-format
 msgid ""
 "Server file no newer than local file `%s' -- not retrieving.\n"
@@ -724,16 +727,16 @@ msgstr ""
 "El fitxer remot no és més nou que el local «%s» -- no es baixa.\n"
 "\n"
 
-#: src/http.c:2641
+#: src/http.c:2644
 #, c-format
 msgid "The sizes do not match (local %s) -- retrieving.\n"
 msgstr "Les mides dels fitxers no coincideixen (local %s) -- s'està baixant.\n"
 
-#: src/http.c:2648
+#: src/http.c:2651
 msgid "Remote file is newer, retrieving.\n"
 msgstr "El fitxer remot és més nou, s'està baixant.\n"
 
-#: src/http.c:2664
+#: src/http.c:2667
 msgid ""
 "Remote file exists and could contain links to other resources -- "
 "retrieving.\n"
@@ -743,7 +746,7 @@ msgstr ""
 "obtenint.\n"
 "\n"
 
-#: src/http.c:2669
+#: src/http.c:2672
 msgid ""
 "Remote file exists but does not contain any link -- not retrieving.\n"
 "\n"
@@ -751,23 +754,25 @@ msgstr ""
 "El fitxer remot existeix però no conté cap enllaç -- no s'obté.\n"
 "\n"
 
-#: src/http.c:2679
-#, fuzzy
+#: src/http.c:2682
 msgid ""
 "Remote file exists and could contain further links,\n"
 "but recursion is disabled -- not retrieving.\n"
 "\n"
 msgstr ""
-"El fitxer remot existeix, però la recursió és inhabilitada -- no es baixa.\n"
+"El fitxer remot existeix i podria contenir més enllaços,\n"
+"però la recursió és inhabilitada -- no es baixa.\n"
+"\n"
 
-#: src/http.c:2685
-#, fuzzy
+#: src/http.c:2688
 msgid ""
 "Remote file exists.\n"
 "\n"
-msgstr "El fitxer remot és més nou, s'està baixant.\n"
+msgstr ""
+"El fitxer remot existeix.\n"
+"\n"
 
-#: src/http.c:2738
+#: src/http.c:2741
 #, c-format
 msgid ""
 "%s (%s) - `%s' saved [%s/%s]\n"
@@ -776,17 +781,17 @@ msgstr ""
 "%s (%s) - s'ha desat «%s» [%s/%s]\n"
 "\n"
 
-#: src/http.c:2793
+#: src/http.c:2796
 #, c-format
 msgid "%s (%s) - Connection closed at byte %s. "
 msgstr "%s (%s) - S'ha tancat la connexió a l'octet %s. "
 
-#: src/http.c:2808
+#: src/http.c:2819
 #, c-format
 msgid "%s (%s) - Read error at byte %s (%s)."
 msgstr "%s (%s) - S'ha produït un error de lectura a l'octet %s (%s)."
 
-#: src/http.c:2817
+#: src/http.c:2828
 #, c-format
 msgid "%s (%s) - Read error at byte %s/%s (%s). "
 msgstr "%s (%s) - S'ha produït un error de lectura a l'octet %s/%s (%s). "
@@ -1339,6 +1344,9 @@ msgid ""
 "                               without first waiting for the server's\n"
 "                               challenge.\n"
 msgstr ""
+"       --auth-no-challenge     Envia informació d'autenticació HTTP bàsica\n"
+"                               sense primer esperar la negociació del\n"
+"                               servidor.\n"
 
 #: src/main.c:545
 msgid "HTTPS (SSL/TLS) options:\n"
@@ -1419,8 +1427,7 @@ msgstr ""
 
 #: src/main.c:577
 msgid "       --no-remove-listing     don't remove `.listing' files.\n"
-msgstr ""
-"       --no-remove-listing     no suprimeixes els fitxers «.listing».\n"
+msgstr "       --no-remove-listing     no suprimeixes els fitxers «.listing».\n"
 
 #: src/main.c:579
 msgid "       --no-glob               turn off FTP file name globbing.\n"
@@ -1431,8 +1438,7 @@ msgstr ""
 #: src/main.c:581
 msgid "       --no-passive-ftp        disable the \"passive\" transfer mode.\n"
 msgstr ""
-"       --no-passive-ftp        inhabilita el mode de transferència "
-"«passiu».\n"
+"       --no-passive-ftp        inhabilita el mode de transferència «passiu».\n"
 
 #: src/main.c:583
 msgid ""
@@ -1602,9 +1608,8 @@ msgid "GNU Wget %s, a non-interactive network retriever.\n"
 msgstr "GNU Wget %s, un baixador de xarxa no interactiu.\n"
 
 #: src/main.c:682
-#, fuzzy
 msgid "Copyright (C) 2008 Free Software Foundation, Inc.\n"
-msgstr "Copyright © 2007 Free Software Foundation, Inc.\n"
+msgstr "Copyright © 2008 Free Software Foundation, Inc.\n"
 
 #: src/main.c:684
 msgid ""
@@ -1632,7 +1637,7 @@ msgstr "Actualment mantingut per Micah Cowan <micah@cowan.name>.\n"
 
 #. #### Something nicer should be printed here -- similar to the
 #. pre-1.5 `--help' page.
-#: src/main.c:738 src/main.c:807 src/main.c:904
+#: src/main.c:738 src/main.c:807 src/main.c:919
 #, c-format
 msgid "Try `%s --help' for more options.\n"
 msgstr "Proveu «%s --help» per a veure més opcions.\n"
@@ -1660,27 +1665,47 @@ msgid "Cannot specify both --inet4-only and --inet6-only.\n"
 msgstr "No es pot especificar inet4-only i --inet6-only a l'hora.\n"
 
 #: src/main.c:883
-#, c-format
-msgid "Cannot specify -r, -p or -N if -O is given.\n"
-msgstr "No es pot especificar -r, -p o -N si es dóna -O.\n"
+msgid ""
+"Cannot specify both -k and -O if multiple URLs are given, or in combination\n"
+"with -p or -r. See the manual for details.\n"
+"\n"
+msgstr ""
+"No es pot especificar -k i -O a l'hora si es donen múltiples URL, o en\n"
+"combinació amb -p o -r. Vegeu el manual per a més detalls.\n"
+"\n"
 
-#: src/main.c:891
-#, c-format
-msgid "Cannot specify both -k and -O if multiple URLs are given.\n"
-msgstr "No es pot especificar -k i -O a l'hora si es donen múltiples URL.\n"
+#: src/main.c:892
+msgid ""
+"WARNING: combining -O with -r or -p will mean that all downloaded content\n"
+"will be placed in the single file you specified.\n"
+"\n"
+msgstr ""
+"AVÍS: combinar -O amb -r o -p voldrà dir que tot el contingut baixat es\n"
+"posarà a l'únic fitxer que especifiqueu.\n"
+"\n"
+
+#: src/main.c:898
+msgid ""
+"WARNING: timestamping does nothing in combination with -O. See the manual\n"
+"for details.\n"
+"\n"
+msgstr ""
+"AVÍS: les marques de temps no fan res en combinació amb -O. Vegeu el manual\n"
+"per a més detalls.\n"
+"\n"
 
 #. No URL specified.
-#: src/main.c:899
+#: src/main.c:914
 #, c-format
 msgid "%s: missing URL\n"
 msgstr "%s: falta l'URL\n"
 
-#: src/main.c:1025
+#: src/main.c:1040
 #, c-format
 msgid "No URLs found in %s.\n"
 msgstr "No s'ha trobat cap URL a %s.\n"
 
-#: src/main.c:1043
+#: src/main.c:1058
 #, c-format
 msgid ""
 "FINISHED --%s--\n"
@@ -1689,7 +1714,7 @@ msgstr ""
 "FINALITZAT --%s--\n"
 "Baixat: %d fitxers, %s en %s (%s)\n"
 
-#: src/main.c:1052
+#: src/main.c:1067
 #, c-format
 msgid "Download quota of %s EXCEEDED!\n"
 msgstr "S'ha EXCEDIT la quota de baixada de %s.\n"
@@ -1817,15 +1842,14 @@ msgstr "L'estil de progrés «%s» no és vàlid; no es canvia.\n"
 
 #. Translation note: "ETA" is English-centric, but this must
 #. be short, ideally 3 chars.  Abbreviate if necessary.
-#: src/progress.c:803
+#: src/progress.c:806
 #, c-format
 msgid "  eta %s"
 msgstr "  eta %s"
 
-#. When the download is done, print the elapsed time.
 #. Note to translators: this should not take up more room than
 #. available here.  Abbreviate if necessary.
-#: src/progress.c:1042
+#: src/progress.c:1051
 msgid "   in "
 msgstr "   en "
 
@@ -1958,6 +1982,9 @@ msgstr "No s'ha pogut eliminar l'enllaç simbòlic «%s»: %s\n"
 #, c-format
 msgid "%s: %s: Failed to allocate %ld bytes; memory exhausted.\n"
 msgstr "%s: %s: No s'ha pogut assignar %ld octets; s'ha exhaurit la memòria.\n"
+
+#~ msgid "Cannot specify -r, -p or -N if -O is given.\n"
+#~ msgstr "No es pot especificar -r, -p o -N si es dóna -O.\n"
 
 #~ msgid "Error in Set-Cookie, field `%s'"
 #~ msgstr "S'ha produït un error a la capçalera Set-Cookie, camp «%s»"

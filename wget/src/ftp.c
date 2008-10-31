@@ -919,7 +919,7 @@ Error in server response, closing control connection.\n"));
       if (opt.backups)
         rotate_backups (con->target);
 
-      if (restval)
+      if (restval && !(con->cmd & DO_LIST))
         fp = fopen (con->target, "ab");
       else if (opt.noclobber || opt.always_rest || opt.timestamping || opt.dirstruct
                || opt.output_document)
@@ -1092,7 +1092,9 @@ ftp_loop_internal (struct url *u, struct fileinfo *f, ccon *con)
   if (!con->target)
     con->target = url_file_name (u);
 
-  if (opt.noclobber && file_exists_p (con->target))
+  /* If the output_document was given, then this check was already done and
+     the file didn't exist. Hence the !opt.output_document */
+  if (opt.noclobber && !opt.output_document && file_exists_p (con->target))
     {
       logprintf (LOG_VERBOSE,
                  _("File `%s' already there; not retrieving.\n"), con->target);
@@ -1142,7 +1144,9 @@ ftp_loop_internal (struct url *u, struct fileinfo *f, ccon *con)
         }
 
       /* Decide whether or not to restart.  */
-      if (opt.always_rest
+      if (con->cmd & DO_LIST)
+        restval = 0;
+      else if (opt.always_rest
           && stat (locf, &st) == 0
           && S_ISREG (st.st_mode))
         /* When -c is used, continue from on-disk size.  (Can't use
@@ -1775,7 +1779,7 @@ ftp_retrieve_glob (struct url *u, ccon *con, int action)
           logprintf (LOG_VERBOSE, _("No matches on pattern `%s'.\n"),
                      escnonprint (u->file));
         }
-      else /* GLOB_GETONE or GLOB_GETALL */
+      else if (*u->file) /* GLOB_GETONE or GLOB_GETALL */
         {
           /* Let's try retrieving it anyway.  */
           con->st |= ON_YOUR_OWN;

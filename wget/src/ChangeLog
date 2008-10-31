@@ -1,3 +1,79 @@
+2008-06-29  Micah Cowan  <micah@cowan.name>
+
+	* version.c: Bumped version to 1.11.4.
+
+2008-06-24  Micah Cowan  <micah@cowan.name>
+
+	* ftp-ls.c (ftp_index): Don't assume time_t* is compatible with
+	long*. Fixes crash on Windows, and probably other systems.
+
+2008-06-16  Micah Cowan  <micah@cowan.name>
+
+	* http.c (http_loop): When hstat.len is higher than the
+	successfully completed content's length, but it's because we
+	_set_ it that way, don't abort.
+
+2008-05-28  Micah Cowan  <micah@cowan.name>
+
+	* version.c: Bumped version to 1.11.3.
+
+2008-05-14  Joao Ferreira  <joao@joaoff.com>
+
+	* main.c, http.c, ftp.c: -nc is now working in conjunction with
+	'-O file'.
+
+2008-05-12  Micah Cowan  <micah@cowan.name>
+
+	* main.c (main): Downgrade "-N with -O" to a warning, and switch
+	it off to avoid confusing messages.
+
+2008-04-30  Micah Cowan  <micah@cowan.name>
+
+	* version.c: Bumped version to 1.11.2.
+
+	* progress.c (create_image): Fix glitch where too many spaces are
+	printed on lines that don't display the ETA, in multibyte
+	locales.
+
+2008-04-27  Rabin Vincent  <rabin@rab.in>
+
+	* ftp.c (ftp_retrieve_glob): Prevent attempted retrieval of an
+	empty filename when --recursive hits an empty directory.  Fixes
+	bug #22968. [Thanks also to Steven M. Schweda, who also
+	submitted this fix. -mjc]
+
+2008-04-27  Rabin Vincent  <rabin@rab.in>
+
+	* http.c (http_loop): Fix return for the case where we don't
+	download a file because of -nc.
+
+2008-04-27  Micah Cowan  <micah@cowan.name>
+
+	* url.c (path_simplify): Go back to allowing leading ".." in
+	paths, but only for FTP URLs.
+	(test_path_simplify): Add scheme-specificness to tests, adapt for
+	mu_run_test.
+
+	* test.c (all_tests): Add test_path_simplify.
+
+	* main.c (main): Downgrade -r, -p with -O to a warning rather than
+	an error; elaborate just a bit more for other -O combination
+	cases.
+
+2008-04-26  Micah Cowan  <micah@cowan.name>
+
+	* http.c (gethttp): Move proxy CONNECT handling to below the
+	retry_with_auth label, to deal with properly reconnecting to
+	proxies when we need to authenticate.
+	* version.c: Forgot to move version to a "-devel" one again.
+
+2008-04-11  Micah Cowan  <micah@cowan.name>
+
+	* ftp.c (getftp, ftp_loop_internal): Don't append to an existing
+	.listing when --continue is used.  Fixes bug #22825. Thanks to
+	Rabin Vincent <rabin@rab.in> for pointing the way with a
+	suggested fix!
+
 2008-03-19  Micah Cowan  <micah@cowan.name>
 
 	* utils.c (test_dir_matches_p): More tests related for

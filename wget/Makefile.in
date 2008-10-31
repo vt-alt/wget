@@ -121,6 +121,7 @@ TAGS:
 	cd src && $(MAKE) $@
 
 dist: $(srcdir)/configure doc/wget.1 doc/wget.info DISTFILES
+	cd po && $(MAKE) wget.pot
 	mkdir $(DISTNAME)
 	for d in `$(FIND) . -type d ! -regex '.*/\.\(svn\|hg\)\(/.*\)?' -print`; do \
 		if [ "$$d" != "." -a "$$d" != "./$(DISTNAME)" ]; then \

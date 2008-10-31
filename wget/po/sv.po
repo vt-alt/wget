@@ -1,14 +1,15 @@
 # Swedish messages for wget.
 # Copyright (C) 2008 Free Software Foundation, Inc.
+# This file is distributed under the same license as the wget package.
 # Christian Rose <menthos@menthos.com>, 1999, 2000, 2001, 2002, 2003.
 # Daniel Nylander <po@danielnylander.se>, 2006, 2007, 2008.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: wget 1.11.1-b2093\n"
+"Project-Id-Version: wget 1.11.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-24 13:24-0700\n"
-"PO-Revision-Date: 2008-02-12 22:11+0100\n"
+"POT-Creation-Date: 2008-06-29 18:27-0700\n"
+"PO-Revision-Date: 2008-05-19 21:11+0100\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "MIME-Version: 1.0\n"
@@ -110,32 +111,32 @@ msgstr "Listningstypen stöds inte, försöker med Unix-listtolkare.\n"
 msgid "Index of /%s on %s:%d"
 msgstr "Innehåll i /%s på %s:%d"
 
-#: src/ftp-ls.c:909
+#: src/ftp-ls.c:910
 #, c-format
 msgid "time unknown       "
 msgstr "okänd tid          "
 
-#: src/ftp-ls.c:913
+#: src/ftp-ls.c:914
 #, c-format
 msgid "File        "
 msgstr "Fil         "
 
-#: src/ftp-ls.c:916
+#: src/ftp-ls.c:917
 #, c-format
 msgid "Directory   "
 msgstr "Katalog     "
 
-#: src/ftp-ls.c:919
+#: src/ftp-ls.c:920
 #, c-format
 msgid "Link        "
 msgstr "Länk        "
 
-#: src/ftp-ls.c:922
+#: src/ftp-ls.c:923
 #, c-format
 msgid "Not sure    "
 msgstr "Osäker      "
 
-#: src/ftp-ls.c:940
+#: src/ftp-ls.c:941
 #, c-format
 msgid " (%s bytes)"
 msgstr " (%s byte) "
@@ -145,12 +146,12 @@ msgstr " (%s byte) "
 msgid "Length: %s"
 msgstr "Längd: %s"
 
-#: src/ftp.c:221 src/http.c:2197
+#: src/ftp.c:221 src/http.c:2198
 #, c-format
 msgid ", %s (%s) remaining"
 msgstr ", %s (%s) återstår"
 
-#: src/ftp.c:225 src/http.c:2201
+#: src/ftp.c:225 src/http.c:2202
 #, c-format
 msgid ", %s remaining"
 msgstr ", %s återstår"
@@ -283,7 +284,7 @@ msgstr ""
 #. what functions like unique_create typically do)
 #. because we told the user we'd use this name.
 #. Instead, return and retry the download.
-#: src/ftp.c:936 src/http.c:2259
+#: src/ftp.c:936 src/http.c:2260
 #, c-format
 msgid "%s has sprung into existence.\n"
 msgstr "%s har uppstått.\n"
@@ -306,17 +307,18 @@ msgstr "Styranslutning stängd.\n"
 msgid "Data transfer aborted.\n"
 msgstr "Dataöverföring avbruten.\n"
 
-#: src/ftp.c:1098
+#. Check if output file exists; if it does, exit.
+#: src/ftp.c:1100 src/main.c:906
 #, c-format
 msgid "File `%s' already there; not retrieving.\n"
 msgstr "Filen \"%s\" finns redan; hämtar inte.\n"
 
-#: src/ftp.c:1166 src/http.c:2437
+#: src/ftp.c:1170 src/http.c:2440
 #, c-format
 msgid "(try:%2d)"
 msgstr "(försök:%2d)"
 
-#: src/ftp.c:1236 src/http.c:2769
+#: src/ftp.c:1240 src/http.c:2772
 #, c-format
 msgid ""
 "%s (%s) - `%s' saved [%s]\n"
@@ -325,36 +327,36 @@ msgstr ""
 "%s (%s) - \"%s\" sparad [%s]\n"
 "\n"
 
-#: src/ftp.c:1278 src/main.c:1010 src/recur.c:379 src/retr.c:861
+#: src/ftp.c:1282 src/main.c:1025 src/recur.c:379 src/retr.c:861
 #, c-format
 msgid "Removing %s.\n"
 msgstr "Tar bort %s.\n"
 
-#: src/ftp.c:1320
+#: src/ftp.c:1324
 #, c-format
 msgid "Using `%s' as listing tmp file.\n"
 msgstr "Använder \"%s\" som temporär listningsfil.\n"
 
-#: src/ftp.c:1335
+#: src/ftp.c:1339
 #, c-format
 msgid "Removed `%s'.\n"
 msgstr "Tog bort \"%s\".\n"
 
-#: src/ftp.c:1368
+#: src/ftp.c:1372
 #, c-format
 msgid "Recursion depth %d exceeded max. depth %d.\n"
 msgstr "Rekursionsdjupet %d överskred det maximala djupet %d.\n"
 
 #. Remote file is older, file sizes can be compared and
 #. are both equal.
-#: src/ftp.c:1438
+#: src/ftp.c:1442
 #, c-format
 msgid "Remote file no newer than local file `%s' -- not retrieving.\n"
 msgstr ""
 "Filen på servern är inte nyare än lokala filen \"%s\" -- hämtar inte.\n"
 
 #. Remote file is newer or sizes cannot be matched
-#: src/ftp.c:1445
+#: src/ftp.c:1449
 #, c-format
 msgid ""
 "Remote file is newer than local file `%s' -- retrieving.\n"
@@ -364,7 +366,7 @@ msgstr ""
 "\n"
 
 #. Sizes do not match
-#: src/ftp.c:1452
+#: src/ftp.c:1456
 #, c-format
 msgid ""
 "The sizes do not match (local %s) -- retrieving.\n"
@@ -373,11 +375,11 @@ msgstr ""
 "Storlekarna stämmer inte överens (lokal %s) -- hämtar.\n"
 "\n"
 
-#: src/ftp.c:1470
+#: src/ftp.c:1474
 msgid "Invalid name of the symlink, skipping.\n"
 msgstr "Ogiltig symbolisk länk, hoppar över.\n"
 
-#: src/ftp.c:1487
+#: src/ftp.c:1491
 #, c-format
 msgid ""
 "Already have correct symlink %s -> %s\n"
@@ -386,47 +388,47 @@ msgstr ""
 "En korrekt symbolisk länk %s -> %s finns redan.\n"
 "\n"
 
-#: src/ftp.c:1495
+#: src/ftp.c:1499
 #, c-format
 msgid "Creating symlink %s -> %s\n"
 msgstr "Skapar symbolisk länk %s -> %s\n"
 
-#: src/ftp.c:1505
+#: src/ftp.c:1509
 #, c-format
 msgid "Symlinks not supported, skipping symlink `%s'.\n"
 msgstr "Symboliska länkar stöds inte, hoppar över symboliska länken \"%s\".\n"
 
-#: src/ftp.c:1517
+#: src/ftp.c:1521
 #, c-format
 msgid "Skipping directory `%s'.\n"
 msgstr "Hoppar över katalogen \"%s\".\n"
 
-#: src/ftp.c:1526
+#: src/ftp.c:1530
 #, c-format
 msgid "%s: unknown/unsupported file type.\n"
 msgstr "%s: okänd filtyp/filtypen stöds inte.\n"
 
-#: src/ftp.c:1553
+#: src/ftp.c:1557
 #, c-format
 msgid "%s: corrupt time-stamp.\n"
 msgstr "%s: felaktig tidsstämpel.\n"
 
-#: src/ftp.c:1581
+#: src/ftp.c:1585
 #, c-format
 msgid "Will not retrieve dirs since depth is %d (max %d).\n"
 msgstr "Hämtar inte kataloger eftersom djupet är %d (max %d).\n"
 
-#: src/ftp.c:1631
+#: src/ftp.c:1635
 #, c-format
 msgid "Not descending to `%s' as it is excluded/not-included.\n"
 msgstr "Går inte ner till \"%s\" eftersom det är undantaget/inte ingår.\n"
 
-#: src/ftp.c:1697 src/ftp.c:1711
+#: src/ftp.c:1701 src/ftp.c:1715
 #, c-format
 msgid "Rejecting `%s'.\n"
 msgstr "Förkastar \"%s\".\n"
 
-#: src/ftp.c:1734
+#: src/ftp.c:1738
 #, c-format
 msgid "Error matching %s against %s: %s\n"
 msgstr "Fel vid matchning av %s mot %s: %s\n"
@@ -434,17 +436,17 @@ msgstr "Fel vid matchning av %s mot %s: %s\n"
 #. No luck.
 #. #### This message SUCKS.  We should see what was the
 #. reason that nothing was retrieved.
-#: src/ftp.c:1775
+#: src/ftp.c:1779
 #, c-format
 msgid "No matches on pattern `%s'.\n"
 msgstr "Inga träffar med mönstret \"%s\".\n"
 
-#: src/ftp.c:1841
+#: src/ftp.c:1845
 #, c-format
 msgid "Wrote HTML-ized index to `%s' [%s].\n"
 msgstr "Skrev HTML-iserat index till \"%s\" [%s].\n"
 
-#: src/ftp.c:1846
+#: src/ftp.c:1850
 #, c-format
 msgid "Wrote HTML-ized index to `%s'.\n"
 msgstr "Skrev HTML-iserat index till \"%s\".\n"
@@ -558,7 +560,7 @@ msgstr "Inga huvuden, antar HTTP/0.9"
 msgid "Disabling SSL due to encountered errors.\n"
 msgstr "Inaktiverar SSL på grund av påträffade fel.\n"
 
-#: src/http.c:1583
+#: src/http.c:1548
 #, c-format
 msgid "POST data file `%s' missing: %s\n"
 msgstr "Datafil för POST \"%s\" saknas: %s\n"
@@ -593,8 +595,9 @@ msgid "Read error (%s) in headers.\n"
 msgstr "Läsfel (%s) i huvuden.\n"
 
 #. If opt.noclobber is turned on and file already exists, do not
-#. retrieve the file
-#: src/http.c:1829 src/http.c:2382
+#. retrieve the file. But if the output_document was given, then this
+#. test was already done and the file didn't exist. Hence the !opt.output_document
+#: src/http.c:1830 src/http.c:2384
 #, c-format
 msgid ""
 "File `%s' already there; not retrieving.\n"
@@ -605,39 +608,39 @@ msgstr ""
 
 #. If the authentication header is missing or
 #. unrecognized, there's no sense in retrying.
-#: src/http.c:1983
+#: src/http.c:1984
 msgid "Unknown authentication scheme.\n"
 msgstr "Okänd autentiseringsmetod.\n"
 
-#: src/http.c:2014
+#: src/http.c:2015
 msgid "Authorization failed.\n"
 msgstr "Auktorisering misslyckades.\n"
 
-#: src/http.c:2028
+#: src/http.c:2029
 msgid "Malformed status line"
 msgstr "Felaktig statusrad"
 
-#: src/http.c:2030
+#: src/http.c:2031
 msgid "(no description)"
 msgstr "(ingen beskrivning)"
 
-#: src/http.c:2096
+#: src/http.c:2097
 #, c-format
 msgid "Location: %s%s\n"
 msgstr "Adress: %s%s\n"
 
-#: src/http.c:2097 src/http.c:2207
+#: src/http.c:2098 src/http.c:2208
 msgid "unspecified"
 msgstr "ospecifierat"
 
-#: src/http.c:2098
+#: src/http.c:2099
 msgid " [following]"
 msgstr " [följer]"
 
 #. If `-c' is in use and the file has been fully downloaded (or
 #. the remote file has shrunk), Wget effectively requests bytes
 #. after the end of file and the server response with 416.
-#: src/http.c:2154
+#: src/http.c:2155
 msgid ""
 "\n"
 "    The file is already fully retrieved; nothing to do.\n"
@@ -650,60 +653,60 @@ msgstr ""
 #. No need to print this output if the body won't be
 #. downloaded at all, or if the original server response is
 #. printed.
-#: src/http.c:2187
+#: src/http.c:2188
 msgid "Length: "
 msgstr "Längd: "
 
-#: src/http.c:2207
+#: src/http.c:2208
 msgid "ignored"
 msgstr "ignorerad"
 
-#: src/http.c:2278
+#: src/http.c:2279
 #, c-format
 msgid "Saving to: `%s'\n"
 msgstr "Sparar till \"%s\".\n"
 
-#: src/http.c:2359
+#: src/http.c:2360
 msgid "Warning: wildcards not supported in HTTP.\n"
 msgstr "Varning: jokertecken stöds inte i HTTP.\n"
 
-#: src/http.c:2426
+#: src/http.c:2429
 msgid "Spider mode enabled. Check if remote file exists.\n"
 msgstr "Spindelläget aktiverat. Kontrollera om fjärrfilen finns.\n"
 
-#: src/http.c:2511
+#: src/http.c:2514
 #, c-format
 msgid "Cannot write to `%s' (%s).\n"
 msgstr "Kan inte skriva till \"%s\" (%s).\n"
 
 #. Another fatal error.
-#: src/http.c:2520
+#: src/http.c:2523
 msgid "Unable to establish SSL connection.\n"
 msgstr "Kan inte etablera en SSL-anslutning.\n"
 
-#: src/http.c:2528
+#: src/http.c:2531
 #, c-format
 msgid "ERROR: Redirection (%d) without location.\n"
 msgstr "FEL: Omdirigering (%d) utan adress.\n"
 
-#: src/http.c:2574
+#: src/http.c:2577
 msgid "Remote file does not exist -- broken link!!!\n"
 msgstr "Fjärrfilen finns inte -- trasig länk!\n"
 
-#: src/http.c:2579
+#: src/http.c:2582
 #, c-format
 msgid "%s ERROR %d: %s.\n"
 msgstr "%s FEL %d: %s.\n"
 
-#: src/http.c:2595
+#: src/http.c:2598
 msgid "Last-modified header missing -- time-stamps turned off.\n"
 msgstr "\"Last-modified\"-huvud saknas -- tidsstämplar avstängda.\n"
 
-#: src/http.c:2603
+#: src/http.c:2606
 msgid "Last-modified header invalid -- time-stamp ignored.\n"
 msgstr "\"Last-modified\"-huvudet ogiltigt -- tidsstämpel ignorerad.\n"
 
-#: src/http.c:2633
+#: src/http.c:2636
 #, c-format
 msgid ""
 "Server file no newer than local file `%s' -- not retrieving.\n"
@@ -712,16 +715,16 @@ msgstr ""
 "Filen på servern är inte nyare än lokala filen \"%s\" -- hämtar inte.\n"
 "\n"
 
-#: src/http.c:2641
+#: src/http.c:2644
 #, c-format
 msgid "The sizes do not match (local %s) -- retrieving.\n"
 msgstr "Storlekarna stämmer inte överens (lokal %s) -- hämtar.\n"
 
-#: src/http.c:2648
+#: src/http.c:2651
 msgid "Remote file is newer, retrieving.\n"
 msgstr "Filen på fjärrsystemet är nyare, hämtar.\n"
 
-#: src/http.c:2664
+#: src/http.c:2667
 msgid ""
 "Remote file exists and could contain links to other resources -- "
 "retrieving.\n"
@@ -731,7 +734,7 @@ msgstr ""
 "den.\n"
 "\n"
 
-#: src/http.c:2669
+#: src/http.c:2672
 msgid ""
 "Remote file exists but does not contain any link -- not retrieving.\n"
 "\n"
@@ -739,7 +742,7 @@ msgstr ""
 "Fjärrfilen finns men innehåller ingen länk -- hämtar inte.\n"
 "\n"
 
-#: src/http.c:2679
+#: src/http.c:2682
 msgid ""
 "Remote file exists and could contain further links,\n"
 "but recursion is disabled -- not retrieving.\n"
@@ -749,7 +752,7 @@ msgstr ""
 "men rekursion är inaktiverat -- hämtar inte.\n"
 "\n"
 
-#: src/http.c:2685
+#: src/http.c:2688
 msgid ""
 "Remote file exists.\n"
 "\n"
@@ -757,7 +760,7 @@ msgstr ""
 "Fjärrfilen finns.\n"
 "\n"
 
-#: src/http.c:2738
+#: src/http.c:2741
 #, c-format
 msgid ""
 "%s (%s) - `%s' saved [%s/%s]\n"
@@ -766,17 +769,17 @@ msgstr ""
 "%s (%s) - \"%s\" sparad [%s/%s]\n"
 "\n"
 
-#: src/http.c:2793
+#: src/http.c:2796
 #, c-format
 msgid "%s (%s) - Connection closed at byte %s. "
 msgstr "%s (%s) - Anslutningen stängd vid byte %s. "
 
-#: src/http.c:2808
+#: src/http.c:2819
 #, c-format
 msgid "%s (%s) - Read error at byte %s (%s)."
 msgstr "%s (%s) - Läsfel vid byte %s (%s)."
 
-#: src/http.c:2817
+#: src/http.c:2828
 #, c-format
 msgid "%s (%s) - Read error at byte %s/%s (%s). "
 msgstr "%s (%s) - Läsfel vid byte %s/%s (%s). "
@@ -1574,7 +1577,7 @@ msgstr "Underhålls för närvarande av Micah Cowan <micah@cowan.name>.\n"
 
 #. #### Something nicer should be printed here -- similar to the
 #. pre-1.5 `--help' page.
-#: src/main.c:738 src/main.c:807 src/main.c:904
+#: src/main.c:738 src/main.c:807 src/main.c:919
 #, c-format
 msgid "Try `%s --help' for more options.\n"
 msgstr "Prova \"%s --help\" för fler flaggor.\n"
@@ -1600,27 +1603,48 @@ msgid "Cannot specify both --inet4-only and --inet6-only.\n"
 msgstr "Kan inte ange både --inet4-only och --inet6-only.\n"
 
 #: src/main.c:883
-#, c-format
-msgid "Cannot specify -r, -p or -N if -O is given.\n"
-msgstr "Kan inte ange -r, -p eller -N om -O har angivits.\n"
+msgid ""
+"Cannot specify both -k and -O if multiple URLs are given, or in combination\n"
+"with -p or -r. See the manual for details.\n"
+"\n"
+msgstr ""
+"Kan inte ange både -k och -O om flera url:er har angivits, eller i "
+"kombination\n"
+"med -p eller -r. Se manualen för information.\n"
+"\n"
 
-#: src/main.c:891
-#, c-format
-msgid "Cannot specify both -k and -O if multiple URLs are given.\n"
-msgstr "Kan inte ange både -k och -O om flera url:er har angivits.\n"
+#: src/main.c:892
+msgid ""
+"WARNING: combining -O with -r or -p will mean that all downloaded content\n"
+"will be placed in the single file you specified.\n"
+"\n"
+msgstr ""
+"VARNING: kombinera -O med -r eller -p betyder att allt hämtat innehåll\n"
+"kommer att placeras i en enstaka fil som du har angivit.\n"
+"\n"
+
+#: src/main.c:898
+msgid ""
+"WARNING: timestamping does nothing in combination with -O. See the manual\n"
+"for details.\n"
+"\n"
+msgstr ""
+"VARNING: tidsstämpling gör ingenting i kombination med -O. Se manualen\n"
+"för information.\n"
+"\n"
 
 #. No URL specified.
-#: src/main.c:899
+#: src/main.c:914
 #, c-format
 msgid "%s: missing URL\n"
 msgstr "%s: URL saknas\n"
 
-#: src/main.c:1025
+#: src/main.c:1040
 #, c-format
 msgid "No URLs found in %s.\n"
 msgstr "Inga URL:er hittade i %s.\n"
 
-#: src/main.c:1043
+#: src/main.c:1058
 #, c-format
 msgid ""
 "FINISHED --%s--\n"
@@ -1629,7 +1653,7 @@ msgstr ""
 "FÄRDIG --%s--\n"
 "Hämtade: %d filer, %s i %s (%s)\n"
 
-#: src/main.c:1052
+#: src/main.c:1067
 #, c-format
 msgid "Download quota of %s EXCEEDED!\n"
 msgstr "Hämtningskvot för %s ÖVERSKRIDEN!\n"
@@ -1755,15 +1779,14 @@ msgstr "Punktstilsspecifikationen \"%s\" är ogiltig; lämnar oförändrad.\n"
 
 #. Translation note: "ETA" is English-centric, but this must
 #. be short, ideally 3 chars.  Abbreviate if necessary.
-#: src/progress.c:803
+#: src/progress.c:806
 #, c-format
 msgid "  eta %s"
 msgstr "  färdig %s"
 
-#. When the download is done, print the elapsed time.
 #. Note to translators: this should not take up more room than
 #. available here.  Abbreviate if necessary.
-#: src/progress.c:1042
+#: src/progress.c:1051
 msgid "   in "
 msgstr "   på "
 
@@ -1894,6 +1917,9 @@ msgstr "Misslyckades med att ta bort symboliska länken \"%s\": %s\n"
 #, c-format
 msgid "%s: %s: Failed to allocate %ld bytes; memory exhausted.\n"
 msgstr "%s: %s: Misslyckades att allokera %ld byte; minne fullt.\n"
+
+#~ msgid "Cannot specify -r, -p or -N if -O is given.\n"
+#~ msgstr "Kan inte ange -r, -p eller -N om -O har angivits.\n"
 
 #~ msgid "  -Y,  --proxy                   explicitly turn on proxy.\n"
 #~ msgstr "  -Y,  --proxy                   slå uttryckligen på proxy.\n"

@@ -314,9 +314,22 @@ B<wget -O file http://foo> is intended to work like
 B<wget -O - http://foo E<gt> file>; F<file> will be truncated
 immediately, and I<all> downloaded content will be written there.
 
+For this reason, B<-N> (for timestamp-checking) is not supported
+in combination with B<-O>: since I<file> is always newly
+created, it will always have a very new timestamp. A warning will be
+issued if this combination is used.
+
+Similarly, using B<-r> or B<-p> with B<-O> may not work as
+you expect: Wget won't just download the first file to I<file> and
+then download the rest to their normal names: I<all> downloaded
+content will be placed in I<file>. This was disabled in version
+1.11, but has been reinstated (with a warning) in 1.11.2, as there are
+some cases where this behavior can actually have some use.
+
 Note that a combination with B<-k> is only permitted when
-downloading a single document, and combination with any of B<-r>,
-B<-p>, or B<-N> is not allowed.
+downloading a single document, as in that case it will just convert
+all relative URIs to external ones; B<-k> makes no sense for
+multiple URIs when they're all being downloaded to a single file.
 
 
 =item B<-nc>

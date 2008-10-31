@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget 1.8.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-24 13:24-0700\n"
+"POT-Creation-Date: 2008-06-29 18:27-0700\n"
 "PO-Revision-Date: 2002-03-18 03:11\n"
 "Last-Translator: Yassen Roussev <slona@bulgaria.com>\n"
 "Language-Team: Bulgarian <bg@bulgaria.com>\n"
@@ -109,32 +109,32 @@ msgstr "Неподдържан вид листинг, пробвам с друг
 msgid "Index of /%s on %s:%d"
 msgstr "Индекс от /%s върху %s:%d"
 
-#: src/ftp-ls.c:909
+#: src/ftp-ls.c:910
 #, c-format
 msgid "time unknown       "
 msgstr "неизвестно време   "
 
-#: src/ftp-ls.c:913
+#: src/ftp-ls.c:914
 #, c-format
 msgid "File        "
 msgstr "Файл        "
 
-#: src/ftp-ls.c:916
+#: src/ftp-ls.c:917
 #, c-format
 msgid "Directory   "
 msgstr "Директория     "
 
-#: src/ftp-ls.c:919
+#: src/ftp-ls.c:920
 #, c-format
 msgid "Link        "
 msgstr "Линк      "
 
-#: src/ftp-ls.c:922
+#: src/ftp-ls.c:923
 #, c-format
 msgid "Not sure    "
 msgstr "Не съм сигурен    "
 
-#: src/ftp-ls.c:940
+#: src/ftp-ls.c:941
 #, c-format
 msgid " (%s bytes)"
 msgstr " (%s байта)"
@@ -144,12 +144,12 @@ msgstr " (%s байта)"
 msgid "Length: %s"
 msgstr "Дължина: %s"
 
-#: src/ftp.c:221 src/http.c:2197
+#: src/ftp.c:221 src/http.c:2198
 #, c-format
 msgid ", %s (%s) remaining"
 msgstr ""
 
-#: src/ftp.c:225 src/http.c:2201
+#: src/ftp.c:225 src/http.c:2202
 #, c-format
 msgid ", %s remaining"
 msgstr ""
@@ -282,7 +282,7 @@ msgstr ""
 #. what functions like unique_create typically do)
 #. because we told the user we'd use this name.
 #. Instead, return and retry the download.
-#: src/ftp.c:936 src/http.c:2259
+#: src/ftp.c:936 src/http.c:2260
 #, c-format
 msgid "%s has sprung into existence.\n"
 msgstr ""
@@ -305,17 +305,18 @@ msgstr "Основната връзка бе затворена.\n"
 msgid "Data transfer aborted.\n"
 msgstr "Трансферът бе прекъснат.\n"
 
-#: src/ftp.c:1098
+#. Check if output file exists; if it does, exit.
+#: src/ftp.c:1100 src/main.c:906
 #, fuzzy, c-format
 msgid "File `%s' already there; not retrieving.\n"
 msgstr "Файлът `%s' е вече тук, няма да го тегля.\n"
 
-#: src/ftp.c:1166 src/http.c:2437
+#: src/ftp.c:1170 src/http.c:2440
 #, c-format
 msgid "(try:%2d)"
 msgstr "(опит:%2d)"
 
-#: src/ftp.c:1236 src/http.c:2769
+#: src/ftp.c:1240 src/http.c:2772
 #, fuzzy, c-format
 msgid ""
 "%s (%s) - `%s' saved [%s]\n"
@@ -324,35 +325,35 @@ msgstr ""
 "%s (%s) - `%s' записан [%ld]\n"
 "\n"
 
-#: src/ftp.c:1278 src/main.c:1010 src/recur.c:379 src/retr.c:861
+#: src/ftp.c:1282 src/main.c:1025 src/recur.c:379 src/retr.c:861
 #, c-format
 msgid "Removing %s.\n"
 msgstr "Премахвам %s.\n"
 
-#: src/ftp.c:1320
+#: src/ftp.c:1324
 #, c-format
 msgid "Using `%s' as listing tmp file.\n"
 msgstr "Ползвам `%s' като временен списък файл.\n"
 
-#: src/ftp.c:1335
+#: src/ftp.c:1339
 #, c-format
 msgid "Removed `%s'.\n"
 msgstr "Премахвам `%s'.\n"
 
-#: src/ftp.c:1368
+#: src/ftp.c:1372
 #, c-format
 msgid "Recursion depth %d exceeded max. depth %d.\n"
 msgstr "Дълбочина на рекурсията %d надвишава макс. дълбочина %d.\n"
 
 #. Remote file is older, file sizes can be compared and
 #. are both equal.
-#: src/ftp.c:1438
+#: src/ftp.c:1442
 #, c-format
 msgid "Remote file no newer than local file `%s' -- not retrieving.\n"
 msgstr "Файлът от сървъра не е по-нов от местния `%s' -- не продължавам.\n"
 
 #. Remote file is newer or sizes cannot be matched
-#: src/ftp.c:1445
+#: src/ftp.c:1449
 #, c-format
 msgid ""
 "Remote file is newer than local file `%s' -- retrieving.\n"
@@ -360,18 +361,18 @@ msgid ""
 msgstr "Файлът на сървъра е по-нов от местния `%s' -- започвам да тeгля.\n"
 
 #. Sizes do not match
-#: src/ftp.c:1452
+#: src/ftp.c:1456
 #, fuzzy, c-format
 msgid ""
 "The sizes do not match (local %s) -- retrieving.\n"
 "\n"
 msgstr "Големината не съвпада (местен %ld) -- започвам да тeгля.\n"
 
-#: src/ftp.c:1470
+#: src/ftp.c:1474
 msgid "Invalid name of the symlink, skipping.\n"
 msgstr "Невалидно име на символична връзка, пропускам.\n"
 
-#: src/ftp.c:1487
+#: src/ftp.c:1491
 #, c-format
 msgid ""
 "Already have correct symlink %s -> %s\n"
@@ -380,47 +381,47 @@ msgstr ""
 "Символичната връзка е вече поправена %s -> %s.\n"
 "\n"
 
-#: src/ftp.c:1495
+#: src/ftp.c:1499
 #, c-format
 msgid "Creating symlink %s -> %s\n"
 msgstr "Създавам символична връзка %s -> %s\n"
 
-#: src/ftp.c:1505
+#: src/ftp.c:1509
 #, c-format
 msgid "Symlinks not supported, skipping symlink `%s'.\n"
 msgstr "Символичните връзки не са поддържат, пропускам `%s'.\n"
 
-#: src/ftp.c:1517
+#: src/ftp.c:1521
 #, c-format
 msgid "Skipping directory `%s'.\n"
 msgstr "Пропускам директория `%s'.\n"
 
-#: src/ftp.c:1526
+#: src/ftp.c:1530
 #, c-format
 msgid "%s: unknown/unsupported file type.\n"
 msgstr "%s: неизвестен/неподдържан вид файл.\n"
 
-#: src/ftp.c:1553
+#: src/ftp.c:1557
 #, c-format
 msgid "%s: corrupt time-stamp.\n"
 msgstr "%s: недостоверен времеви печат.\n"
 
-#: src/ftp.c:1581
+#: src/ftp.c:1585
 #, c-format
 msgid "Will not retrieve dirs since depth is %d (max %d).\n"
 msgstr "Няма да тегля директории, защото дълбочината е %d (максимум %d).\n"
 
-#: src/ftp.c:1631
+#: src/ftp.c:1635
 #, c-format
 msgid "Not descending to `%s' as it is excluded/not-included.\n"
 msgstr "Не влизам в `%s', тъй като тя е изключенa/не е включенa.\n"
 
-#: src/ftp.c:1697 src/ftp.c:1711
+#: src/ftp.c:1701 src/ftp.c:1715
 #, c-format
 msgid "Rejecting `%s'.\n"
 msgstr "Отказвам `%s'.\n"
 
-#: src/ftp.c:1734
+#: src/ftp.c:1738
 #, fuzzy, c-format
 msgid "Error matching %s against %s: %s\n"
 msgstr "Грешка при запис на `%s': %s\n"
@@ -428,17 +429,17 @@ msgstr "Грешка при запис на `%s': %s\n"
 #. No luck.
 #. #### This message SUCKS.  We should see what was the
 #. reason that nothing was retrieved.
-#: src/ftp.c:1775
+#: src/ftp.c:1779
 #, c-format
 msgid "No matches on pattern `%s'.\n"
 msgstr "Няма съвпадения за пример `%s'.\n"
 
-#: src/ftp.c:1841
+#: src/ftp.c:1845
 #, fuzzy, c-format
 msgid "Wrote HTML-ized index to `%s' [%s].\n"
 msgstr "Записах HTML-изиран индекс в `%s' [%ld].\n"
 
-#: src/ftp.c:1846
+#: src/ftp.c:1850
 #, c-format
 msgid "Wrote HTML-ized index to `%s'.\n"
 msgstr "Записах HTML-изиран индекс в `%s'.\n"
@@ -554,7 +555,7 @@ msgstr ""
 msgid "Disabling SSL due to encountered errors.\n"
 msgstr ""
 
-#: src/http.c:1583
+#: src/http.c:1548
 #, c-format
 msgid "POST data file `%s' missing: %s\n"
 msgstr ""
@@ -590,8 +591,9 @@ msgid "Read error (%s) in headers.\n"
 msgstr "Грешка при четене (%s) в заглавките.\n"
 
 #. If opt.noclobber is turned on and file already exists, do not
-#. retrieve the file
-#: src/http.c:1829 src/http.c:2382
+#. retrieve the file. But if the output_document was given, then this
+#. test was already done and the file didn't exist. Hence the !opt.output_document
+#: src/http.c:1830 src/http.c:2384
 #, fuzzy, c-format
 msgid ""
 "File `%s' already there; not retrieving.\n"
@@ -600,39 +602,39 @@ msgstr "Файлът `%s' е вече тук, няма да го тегля.\n"
 
 #. If the authentication header is missing or
 #. unrecognized, there's no sense in retrying.
-#: src/http.c:1983
+#: src/http.c:1984
 msgid "Unknown authentication scheme.\n"
 msgstr "Непознат начин на удостоверение.\n"
 
-#: src/http.c:2014
+#: src/http.c:2015
 msgid "Authorization failed.\n"
 msgstr "Грешка при удостоверяване.\n"
 
-#: src/http.c:2028
+#: src/http.c:2029
 msgid "Malformed status line"
 msgstr "Деформиран статус"
 
-#: src/http.c:2030
+#: src/http.c:2031
 msgid "(no description)"
 msgstr "(без описание)"
 
-#: src/http.c:2096
+#: src/http.c:2097
 #, c-format
 msgid "Location: %s%s\n"
 msgstr "Адрес: %s%s\n"
 
-#: src/http.c:2097 src/http.c:2207
+#: src/http.c:2098 src/http.c:2208
 msgid "unspecified"
 msgstr "неопределен"
 
-#: src/http.c:2098
+#: src/http.c:2099
 msgid " [following]"
 msgstr " [следва]"
 
 #. If `-c' is in use and the file has been fully downloaded (or
 #. the remote file has shrunk), Wget effectively requests bytes
 #. after the end of file and the server response with 416.
-#: src/http.c:2154
+#: src/http.c:2155
 msgid ""
 "\n"
 "    The file is already fully retrieved; nothing to do.\n"
@@ -645,80 +647,80 @@ msgstr ""
 #. No need to print this output if the body won't be
 #. downloaded at all, or if the original server response is
 #. printed.
-#: src/http.c:2187
+#: src/http.c:2188
 msgid "Length: "
 msgstr "Дължина: "
 
-#: src/http.c:2207
+#: src/http.c:2208
 msgid "ignored"
 msgstr "игнориран"
 
-#: src/http.c:2278
+#: src/http.c:2279
 #, fuzzy, c-format
 msgid "Saving to: `%s'\n"
 msgstr "Пропускам директория `%s'.\n"
 
-#: src/http.c:2359
+#: src/http.c:2360
 msgid "Warning: wildcards not supported in HTTP.\n"
 msgstr "Внимание: уайлдкардс не се поддържат в HTTP.\n"
 
-#: src/http.c:2426
+#: src/http.c:2429
 msgid "Spider mode enabled. Check if remote file exists.\n"
 msgstr ""
 
-#: src/http.c:2511
+#: src/http.c:2514
 #, c-format
 msgid "Cannot write to `%s' (%s).\n"
 msgstr "Немога да запиша върху `%s' (%s).\n"
 
 #. Another fatal error.
-#: src/http.c:2520
+#: src/http.c:2523
 msgid "Unable to establish SSL connection.\n"
 msgstr "Немога да установя SSL връзка.\n"
 
-#: src/http.c:2528
+#: src/http.c:2531
 #, c-format
 msgid "ERROR: Redirection (%d) without location.\n"
 msgstr "ГРЕШКА: Пре-адресация (%d) без установен адрес.\n"
 
-#: src/http.c:2574
+#: src/http.c:2577
 msgid "Remote file does not exist -- broken link!!!\n"
 msgstr ""
 
-#: src/http.c:2579
+#: src/http.c:2582
 #, c-format
 msgid "%s ERROR %d: %s.\n"
 msgstr "%s ГРЕШКА: %d: %s.\n"
 
-#: src/http.c:2595
+#: src/http.c:2598
 msgid "Last-modified header missing -- time-stamps turned off.\n"
 msgstr ""
 "Заглавката съдържаща информация относно последна промяна липсва -- полето за "
 "дата се изключва.\n"
 
-#: src/http.c:2603
+#: src/http.c:2606
 msgid "Last-modified header invalid -- time-stamp ignored.\n"
 msgstr ""
 "Заглавката съдържаща информация относно последна промяна е невалиднa -- "
 "полето за дата се игнорира.\n"
 
-#: src/http.c:2633
+#: src/http.c:2636
 #, c-format
 msgid ""
 "Server file no newer than local file `%s' -- not retrieving.\n"
 "\n"
 msgstr "Файлът на сървъра не е по-нов от този на диска `%s' -- спирам.\n"
 
-#: src/http.c:2641
+#: src/http.c:2644
 #, fuzzy, c-format
 msgid "The sizes do not match (local %s) -- retrieving.\n"
 msgstr "Големините не съвпадат (местен %ld) -- продължавам.\n"
 
-#: src/http.c:2648
+#: src/http.c:2651
 msgid "Remote file is newer, retrieving.\n"
 msgstr "Файлът на сървъра е по-нов, продължавам.\n"
 
-#: src/http.c:2664
+#: src/http.c:2667
 #, fuzzy
 msgid ""
 "Remote file exists and could contain links to other resources -- "
@@ -726,28 +728,28 @@ msgid ""
 "\n"
 msgstr "Файлът на сървъра е по-нов от местния `%s' -- започвам да тeгля.\n"
 
-#: src/http.c:2669
+#: src/http.c:2672
 #, fuzzy
 msgid ""
 "Remote file exists but does not contain any link -- not retrieving.\n"
 "\n"
 msgstr "Файлът от сървъра не е по-нов от местния `%s' -- не продължавам.\n"
 
-#: src/http.c:2679
+#: src/http.c:2682
 msgid ""
 "Remote file exists and could contain further links,\n"
 "but recursion is disabled -- not retrieving.\n"
 "\n"
 msgstr ""
 
-#: src/http.c:2685
+#: src/http.c:2688
 #, fuzzy
 msgid ""
 "Remote file exists.\n"
 "\n"
 msgstr "Файлът на сървъра е по-нов, продължавам.\n"
 
-#: src/http.c:2738
+#: src/http.c:2741
 #, fuzzy, c-format
 msgid ""
 "%s (%s) - `%s' saved [%s/%s]\n"
@@ -756,17 +758,17 @@ msgstr ""
 "%s (%s) - `%s' записан [%ld/%ld]\n"
 "\n"
 
-#: src/http.c:2793
+#: src/http.c:2796
 #, fuzzy, c-format
 msgid "%s (%s) - Connection closed at byte %s. "
 msgstr "%s (%s) - Връзката бе преустановена при байт %ld. "
 
-#: src/http.c:2808
+#: src/http.c:2819
 #, fuzzy, c-format
 msgid "%s (%s) - Read error at byte %s (%s)."
 msgstr "%s (%s) - Грешка при четене, байт %ld (%s)."
 
-#: src/http.c:2817
+#: src/http.c:2828
 #, fuzzy, c-format
 msgid "%s (%s) - Read error at byte %s/%s (%s). "
 msgstr "%s (%s) - Грешка при четене, байт %ld/%ld (%s). "
@@ -1464,7 +1466,7 @@ msgstr ""
 
 #. #### Something nicer should be printed here -- similar to the
 #. pre-1.5 `--help' page.
-#: src/main.c:738 src/main.c:807 src/main.c:904
+#: src/main.c:738 src/main.c:807 src/main.c:919
 #, c-format
 msgid "Try `%s --help' for more options.\n"
 msgstr "Опитайте `%s --help' за повече опции.\n"
@@ -1490,27 +1492,38 @@ msgid "Cannot specify both --inet4-only and --inet6-only.\n"
 msgstr ""
 
 #: src/main.c:883
-#, c-format
-msgid "Cannot specify -r, -p or -N if -O is given.\n"
+msgid ""
+"Cannot specify both -k and -O if multiple URLs are given, or in combination\n"
+"with -p or -r. See the manual for details.\n"
+"\n"
 msgstr ""
 
-#: src/main.c:891
-#, c-format
-msgid "Cannot specify both -k and -O if multiple URLs are given.\n"
+#: src/main.c:892
+msgid ""
+"WARNING: combining -O with -r or -p will mean that all downloaded content\n"
+"will be placed in the single file you specified.\n"
+"\n"
+msgstr ""
+
+#: src/main.c:898
+msgid ""
+"WARNING: timestamping does nothing in combination with -O. See the manual\n"
+"for details.\n"
+"\n"
 msgstr ""
 
 #. No URL specified.
-#: src/main.c:899
+#: src/main.c:914
 #, c-format
 msgid "%s: missing URL\n"
 msgstr "%s: УРЛ не е указан\n"
 
-#: src/main.c:1025
+#: src/main.c:1040
 #, c-format
 msgid "No URLs found in %s.\n"
 msgstr "УРЛ не е открит в %s.\n"
 
-#: src/main.c:1043
+#: src/main.c:1058
 #, fuzzy, c-format
 msgid ""
 "FINISHED --%s--\n"
@@ -1520,7 +1533,7 @@ msgstr ""
 "ГОТОВО --%s--\n"
 "Изтеглени: %s байта в %d файла\n"
 
-#: src/main.c:1052
+#: src/main.c:1067
 #, fuzzy, c-format
 msgid "Download quota of %s EXCEEDED!\n"
 msgstr "Квотата от (%s байта) бе ПРЕВИШЕНА!\n"
@@ -1644,15 +1657,14 @@ msgstr "Невалидна точкова спецификация `%s'; ост�
 
 #. Translation note: "ETA" is English-centric, but this must
 #. be short, ideally 3 chars.  Abbreviate if necessary.
-#: src/progress.c:803
+#: src/progress.c:806
 #, c-format
 msgid "  eta %s"
 msgstr ""
 
-#. When the download is done, print the elapsed time.
 #. Note to translators: this should not take up more room than
 #. available here.  Abbreviate if necessary.
-#: src/progress.c:1042
+#: src/progress.c:1051
 msgid "   in "
 msgstr ""
 

@@ -87,6 +87,8 @@ run-unit-tests: unit-tests$(exeext)
 	./unit-tests$(exeext)
 
 run-px-tests: WgetTest.pm
+	./Test-proxied-https-auth.px && echo && echo
+	./Test-proxy-auth-basic.px && echo && echo
 	./Test-auth-basic.px && echo && echo
 	./Test-c-full.px && echo && echo
 	./Test-c-partial.px && echo && echo

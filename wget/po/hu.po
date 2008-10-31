@@ -1,15 +1,15 @@
-# Hungarian translation of wget.
-# Copyright (C) 2001, 2002, 2003, 2004, 2006, 2007 Free Software Foundation, Inc.
-#
+# Hungarian translation of wget
+# Copyright (C) 2001, 2002, 2003, 2004, 2006, 2007, 2008 Free Software Foundation, Inc.
+# This file is distributed under the same license as the wget package.
 # Pal Szasz <szpal@Maria.UTCluj.Ro>, 2001-2003.
 # Javitasok: Laszlo Dvornik <dvornik@gnome.hu>, 2004.
-# Gabor Kelemen <kelemeng@gnome.hu>, 2006, 2007.
+# Gabor Kelemen <kelemeng@gnome.hu>, 2006, 2007, 2008.
 msgid ""
 msgstr ""
-"Project-Id-Version: wget 1.11-b2405\n"
+"Project-Id-Version: wget 1.11.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-24 13:24-0700\n"
-"PO-Revision-Date: 2007-11-06 12:22+0100\n"
+"POT-Creation-Date: 2008-06-29 18:27-0700\n"
+"PO-Revision-Date: 2008-05-11 16:27+0200\n"
 "Last-Translator: Gabor Kelemen <kelemeng@gnome.hu>\n"
 "Language-Team: Hungarian <translation-team-hu@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
@@ -21,7 +21,7 @@ msgstr ""
 #: src/connect.c:200
 #, c-format
 msgid "%s: unable to resolve bind address `%s'; disabling bind.\n"
-msgstr "%s: a(z) \"%s\" bind cím nem oldható fel; a bind le lesz tiltva.\n"
+msgstr "%s: a(z) „%s” bind cím nem oldható fel; a bind le lesz tiltva.\n"
 
 #: src/connect.c:272
 #, c-format
@@ -45,7 +45,7 @@ msgstr "sikertelen: %s.\n"
 #: src/connect.c:371 src/http.c:1645
 #, c-format
 msgid "%s: unable to resolve host address `%s'\n"
-msgstr "%s: a(z) \"%s\" gépcím nem oldható fel\n"
+msgstr "%s: a(z) „%s” gépcím nem oldható fel\n"
 
 #: src/convert.c:172
 #, c-format
@@ -69,7 +69,7 @@ msgstr "A hivatkozások nem alakíthatók át a következőben: %s: %s\n"
 #: src/convert.c:235
 #, c-format
 msgid "Unable to delete `%s': %s\n"
-msgstr "\"%s\" nem törölhető: %s\n"
+msgstr "„%s” nem törölhető: %s\n"
 
 #: src/convert.c:444
 #, c-format
@@ -91,17 +91,17 @@ msgstr ""
 #: src/cookies.c:1134 src/cookies.c:1252
 #, c-format
 msgid "Cannot open cookies file `%s': %s\n"
-msgstr "Nem lehet megnyitni a(z) \"%s\" sütifájlt: %s\n"
+msgstr "Nem lehet megnyitni a(z) „%s” sütifájlt: %s\n"
 
 #: src/cookies.c:1289
 #, c-format
 msgid "Error writing to `%s': %s\n"
-msgstr "Hiba \"%s\" írása közben: %s.\n"
+msgstr "Hiba „%s” írása közben: %s.\n"
 
 #: src/cookies.c:1292
 #, c-format
 msgid "Error closing `%s': %s\n"
-msgstr "Hiba \"%s\" bezárásakor: %s\n"
+msgstr "Hiba „%s” bezárásakor: %s\n"
 
 #: src/ftp-ls.c:838
 msgid "Unsupported listing type, trying Unix listing parser.\n"
@@ -113,32 +113,32 @@ msgstr ""
 msgid "Index of /%s on %s:%d"
 msgstr "/%s tartalma %s:%d-n"
 
-#: src/ftp-ls.c:909
+#: src/ftp-ls.c:910
 #, c-format
 msgid "time unknown       "
 msgstr "idő ismeretlen     "
 
-#: src/ftp-ls.c:913
+#: src/ftp-ls.c:914
 #, c-format
 msgid "File        "
 msgstr "Fájl        "
 
-#: src/ftp-ls.c:916
+#: src/ftp-ls.c:917
 #, c-format
 msgid "Directory   "
 msgstr "Könyvtár    "
 
-#: src/ftp-ls.c:919
+#: src/ftp-ls.c:920
 #, c-format
 msgid "Link        "
 msgstr "Link        "
 
-#: src/ftp-ls.c:922
+#: src/ftp-ls.c:923
 #, c-format
 msgid "Not sure    "
 msgstr "Nem biztos  "
 
-#: src/ftp-ls.c:940
+#: src/ftp-ls.c:941
 #, c-format
 msgid " (%s bytes)"
 msgstr " (%s bájt)"
@@ -148,12 +148,12 @@ msgstr " (%s bájt)"
 msgid "Length: %s"
 msgstr "Hossz: %s"
 
-#: src/ftp.c:221 src/http.c:2197
+#: src/ftp.c:221 src/http.c:2198
 #, c-format
 msgid ", %s (%s) remaining"
 msgstr ", %s (%s) van hátra"
 
-#: src/ftp.c:225 src/http.c:2201
+#: src/ftp.c:225 src/http.c:2202
 #, c-format
 msgid ", %s remaining"
 msgstr ", %s van hátra"
@@ -210,7 +210,7 @@ msgstr "kész.\n"
 #: src/ftp.c:459
 #, c-format
 msgid "Unknown type `%c', closing control connection.\n"
-msgstr "Ismeretlen típus: \"%c\", a vezérlőkapcsolat lezárásra kerül.\n"
+msgstr "Ismeretlen típus: „%c”, a vezérlőkapcsolat lezárásra kerül.\n"
 
 #: src/ftp.c:471
 msgid "done.  "
@@ -226,7 +226,7 @@ msgid ""
 "No such directory `%s'.\n"
 "\n"
 msgstr ""
-"Nincs ilyen könyvtár: \"%s\".\n"
+"Nincs ilyen könyvtár: „%s”.\n"
 "\n"
 
 #. do not CWD
@@ -270,7 +270,7 @@ msgid ""
 "No such file `%s'.\n"
 "\n"
 msgstr ""
-"Nincs ilyen fájl: \"%s\".\n"
+"Nincs ilyen fájl: „%s”.\n"
 "\n"
 
 #: src/ftp.c:874
@@ -279,14 +279,14 @@ msgid ""
 "No such file or directory `%s'.\n"
 "\n"
 msgstr ""
-"Nincs ilyen fájl vagy könyvtár: \"%s\".\n"
+"Nincs ilyen fájl vagy könyvtár: „%s”.\n"
 "\n"
 
 #. We cannot just invent a new name and use it (which is
 #. what functions like unique_create typically do)
 #. because we told the user we'd use this name.
 #. Instead, return and retry the download.
-#: src/ftp.c:936 src/http.c:2259
+#: src/ftp.c:936 src/http.c:2260
 #, c-format
 msgid "%s has sprung into existence.\n"
 msgstr "%s létrejött.\n"
@@ -309,65 +309,66 @@ msgstr "Vezérlőkapcsolat lezárva.\n"
 msgid "Data transfer aborted.\n"
 msgstr "Adatátvitel megszakítva.\n"
 
-#: src/ftp.c:1098
+#. Check if output file exists; if it does, exit.
+#: src/ftp.c:1100 src/main.c:906
 #, c-format
 msgid "File `%s' already there; not retrieving.\n"
-msgstr "A(z) \"%s\" fájl már létezik, nem kerül letöltésre.\n"
+msgstr "A(z) „%s” fájl már létezik, nem kerül letöltésre.\n"
 
-#: src/ftp.c:1166 src/http.c:2437
+#: src/ftp.c:1170 src/http.c:2440
 #, c-format
 msgid "(try:%2d)"
 msgstr "(próba:%2d)"
 
-#: src/ftp.c:1236 src/http.c:2769
+#: src/ftp.c:1240 src/http.c:2772
 #, c-format
 msgid ""
 "%s (%s) - `%s' saved [%s]\n"
 "\n"
 msgstr ""
-"%s (%s) - \"%s\" mentve [%s]\n"
+"%s (%s) - „%s” mentve [%s]\n"
 "\n"
 
-#: src/ftp.c:1278 src/main.c:1010 src/recur.c:379 src/retr.c:861
+#: src/ftp.c:1282 src/main.c:1025 src/recur.c:379 src/retr.c:861
 #, c-format
 msgid "Removing %s.\n"
 msgstr "%s eltávolítása.\n"
 
-#: src/ftp.c:1320
+#: src/ftp.c:1324
 #, c-format
 msgid "Using `%s' as listing tmp file.\n"
-msgstr "\"%s\" kerül felhasználásra ideiglenes listafájlként.\n"
+msgstr "„%s” kerül felhasználásra ideiglenes listafájlként.\n"
 
-#: src/ftp.c:1335
+#: src/ftp.c:1339
 #, c-format
 msgid "Removed `%s'.\n"
-msgstr "\"%s\" eltávolítva.\n"
+msgstr "„%s” eltávolítva.\n"
 
-#: src/ftp.c:1368
+#: src/ftp.c:1372
 #, c-format
 msgid "Recursion depth %d exceeded max. depth %d.\n"
 msgstr "A(z) %d rekurziós mélység túllépte a maximális %d mélységet.\n"
 
 #. Remote file is older, file sizes can be compared and
 #. are both equal.
-#: src/ftp.c:1438
+#: src/ftp.c:1442
 #, c-format
 msgid "Remote file no newer than local file `%s' -- not retrieving.\n"
 msgstr ""
-"A kiszolgálón lévő \"%s\" fájl nem újabb mint a helyi -- nem töltöm le.\n"
+"A kiszolgálón lévő „%s” fájl nem újabb mint a helyi -- nem töltöm le.\n"
 
 #. Remote file is newer or sizes cannot be matched
-#: src/ftp.c:1445
+#: src/ftp.c:1449
 #, c-format
 msgid ""
 "Remote file is newer than local file `%s' -- retrieving.\n"
 "\n"
 msgstr ""
-"A kiszolgálón lévő \"%s\" fájl újabb mint a helyi -- letöltöm.\n"
+"A kiszolgálón lévő „%s” fájl újabb mint a helyi -- letöltöm.\n"
 "\n"
 
 #. Sizes do not match
-#: src/ftp.c:1452
+#: src/ftp.c:1456
 #, c-format
 msgid ""
 "The sizes do not match (local %s) -- retrieving.\n"
@@ -376,11 +377,11 @@ msgstr ""
 "A méretek nem egyeznek (a helyi: %s) -- letöltöm.\n"
 "\n"
 
-#: src/ftp.c:1470
+#: src/ftp.c:1474
 msgid "Invalid name of the symlink, skipping.\n"
 msgstr "A szimbolikus link neve érvénytelen, kihagyom.\n"
 
-#: src/ftp.c:1487
+#: src/ftp.c:1491
 #, c-format
 msgid ""
 "Already have correct symlink %s -> %s\n"
@@ -389,103 +390,102 @@ msgstr ""
 "Már létezik a(z) %s -> %s helyes szimbolikus link\n"
 "\n"
 
-#: src/ftp.c:1495
+#: src/ftp.c:1499
 #, c-format
 msgid "Creating symlink %s -> %s\n"
 msgstr "Létrehozom a(z) %s -> %s szimbolikus linket\n"
 
-#: src/ftp.c:1505
+#: src/ftp.c:1509
 #, c-format
 msgid "Symlinks not supported, skipping symlink `%s'.\n"
 msgstr ""
-"A szimbolikus linkek nem támogatottak, a(z) \"%s\" szimbolikus linket "
+"A szimbolikus linkek nem támogatottak, a(z) „%s” szimbolikus linket "
 "kihagyom.\n"
 
-#: src/ftp.c:1517
+#: src/ftp.c:1521
 #, c-format
 msgid "Skipping directory `%s'.\n"
-msgstr "A(z) \"%s\" könyvtárat kihagyom.\n"
+msgstr "A(z) „%s” könyvtárat kihagyom.\n"
 
-#: src/ftp.c:1526
+#: src/ftp.c:1530
 #, c-format
 msgid "%s: unknown/unsupported file type.\n"
 msgstr "%s: ismeretlen/nem támogatott fájltípus.\n"
 
-#: src/ftp.c:1553
+#: src/ftp.c:1557
 #, c-format
 msgid "%s: corrupt time-stamp.\n"
 msgstr "%s: sérült időpecsét.\n"
 
-#: src/ftp.c:1581
+#: src/ftp.c:1585
 #, c-format
 msgid "Will not retrieve dirs since depth is %d (max %d).\n"
 msgstr "Könyvtárakat nem töltöm le, mivel a mélység %d (max %d).\n"
 
-#: src/ftp.c:1631
+#: src/ftp.c:1635
 #, c-format
 msgid "Not descending to `%s' as it is excluded/not-included.\n"
-msgstr ""
-"Nem lépek be a következőbe: \"%s\", mert ki van zárva/nincs kijelölve.\n"
+msgstr "Nem lépek be a következőbe: „%s”, mert ki van zárva/nincs kijelölve.\n"
 
-#: src/ftp.c:1697 src/ftp.c:1711
+#: src/ftp.c:1701 src/ftp.c:1715
 #, c-format
 msgid "Rejecting `%s'.\n"
-msgstr "Visszautasítom \"%s\"-t.\n"
+msgstr "A következő visszautasítva: „%s”.\n"
 
-#: src/ftp.c:1734
-#, fuzzy, c-format
+#: src/ftp.c:1738
+#, c-format
 msgid "Error matching %s against %s: %s\n"
-msgstr "Hiba \"%s\" írása közben: %s.\n"
+msgstr "Hiba %s és %s illesztésekor: %s\n"
 
 #. No luck.
 #. #### This message SUCKS.  We should see what was the
 #. reason that nothing was retrieved.
-#: src/ftp.c:1775
+#: src/ftp.c:1779
 #, c-format
 msgid "No matches on pattern `%s'.\n"
-msgstr "Nincs találat a(z) \"%s\" mintához .\n"
+msgstr "Nincs találat a(z) „%s” mintához .\n"
 
-#: src/ftp.c:1841
+#: src/ftp.c:1845
 #, c-format
 msgid "Wrote HTML-ized index to `%s' [%s].\n"
-msgstr "A HTML-esített index kiírva a(z) \"%s\" [%s] fájlba.\n"
+msgstr "A HTML-esített index kiírva a(z) „%s” [%s] fájlba.\n"
 
-#: src/ftp.c:1846
+#: src/ftp.c:1850
 #, c-format
 msgid "Wrote HTML-ized index to `%s'.\n"
-msgstr "A HTML-esített index kiírva a(z) \"%s\" fájlba.\n"
+msgstr "A HTML-esített index kiírva a(z) „%s” fájlba.\n"
 
 #: src/getopt.c:670
 #, c-format
 msgid "%s: option `%s' is ambiguous\n"
-msgstr "%s: a(z) \"%s\" kapcsoló nem egyértelmű\n"
+msgstr "%s: a(z) „%s” kapcsoló nem egyértelmű\n"
 
 #: src/getopt.c:695
 #, c-format
 msgid "%s: option `--%s' doesn't allow an argument\n"
-msgstr "%s: a(z) \"--%s\" kapcsoló nem enged meg argumentumot\n"
+msgstr "%s: a(z) „--%s” kapcsoló nem enged meg argumentumot\n"
 
 #: src/getopt.c:700
 #, c-format
 msgid "%s: option `%c%s' doesn't allow an argument\n"
-msgstr "%s: a(z) \"%c%s\" kapcsoló nem enged meg argumentumot\n"
+msgstr "%s: a(z) „%c%s” kapcsoló nem enged meg argumentumot\n"
 
 #: src/getopt.c:718 src/getopt.c:891
 #, c-format
 msgid "%s: option `%s' requires an argument\n"
-msgstr "%s: a(z) \"%s\" kapcsolóhoz argumentum szükséges\n"
+msgstr "%s: a(z) „%s” kapcsolóhoz argumentum szükséges\n"
 
 #. --option
 #: src/getopt.c:747
 #, c-format
 msgid "%s: unrecognized option `--%s'\n"
-msgstr "%s: a(z) \"--%s\" kapcsoló ismeretlen\n"
+msgstr "%s: a(z) „--%s” kapcsoló ismeretlen\n"
 
 #. +option or -option
 #: src/getopt.c:751
 #, c-format
 msgid "%s: unrecognized option `%c%s'\n"
-msgstr "%s: a(z) \"%c%s\" kapcsoló ismeretlen\n"
+msgstr "%s: a(z) „%c%s” kapcsoló ismeretlen\n"
 
 #. 1003.2 specifies the format of this message.
 #: src/getopt.c:777
@@ -507,12 +507,12 @@ msgstr "%s: a kapcsoló egy argumentumot igényel -- %c\n"
 #: src/getopt.c:857
 #, c-format
 msgid "%s: option `-W %s' is ambiguous\n"
-msgstr "%s: a \"-W %s\" kapcsoló nem egyértelmű\n"
+msgstr "%s: a „-W %s” kapcsoló nem egyértelmű\n"
 
 #: src/getopt.c:875
 #, c-format
 msgid "%s: option `-W %s' doesn't allow an argument\n"
-msgstr "%s: a \"-W %s\" kapcsoló nem enged meg argumentumot\n"
+msgstr "%s: a „-W %s” kapcsoló nem enged meg argumentumot\n"
 
 #: src/host.c:349
 msgid "Unknown host"
@@ -564,10 +564,10 @@ msgstr "Nincsenek fejlécek, HTTP/0.9 feltételezése"
 msgid "Disabling SSL due to encountered errors.\n"
 msgstr "A tapasztalt hibák miatt az SSL letiltásra kerül.\n"
 
-#: src/http.c:1583
+#: src/http.c:1548
 #, c-format
 msgid "POST data file `%s' missing: %s\n"
-msgstr "A(z) \"%s\" POST adatfájl hiányzik: %s\n"
+msgstr "A(z) „%s” POST adatfájl hiányzik: %s\n"
 
 #: src/http.c:1632
 #, c-format
@@ -599,51 +599,52 @@ msgid "Read error (%s) in headers.\n"
 msgstr "Olvasási hiba (%s) a fejlécekben.\n"
 
 #. If opt.noclobber is turned on and file already exists, do not
-#. retrieve the file
-#: src/http.c:1829 src/http.c:2382
+#. retrieve the file. But if the output_document was given, then this
+#. test was already done and the file didn't exist. Hence the !opt.output_document
+#: src/http.c:1830 src/http.c:2384
 #, c-format
 msgid ""
 "File `%s' already there; not retrieving.\n"
 "\n"
 msgstr ""
-"A(z) \"%s\" fájl már létezik, nem töltöm le.\n"
+"A(z) „%s” fájl már létezik, nem töltöm le.\n"
 "\n"
 
 #. If the authentication header is missing or
 #. unrecognized, there's no sense in retrying.
-#: src/http.c:1983
+#: src/http.c:1984
 msgid "Unknown authentication scheme.\n"
 msgstr "Ismeretlen hitelesítési séma.\n"
 
-#: src/http.c:2014
+#: src/http.c:2015
 msgid "Authorization failed.\n"
 msgstr "A hitelesítés meghiúsult.\n"
 
-#: src/http.c:2028
+#: src/http.c:2029
 msgid "Malformed status line"
 msgstr "Rosszul formázott állapotsor"
 
-#: src/http.c:2030
+#: src/http.c:2031
 msgid "(no description)"
 msgstr "(nincs leírás)"
 
-#: src/http.c:2096
+#: src/http.c:2097
 #, c-format
 msgid "Location: %s%s\n"
 msgstr "Hely: %s%s\n"
 
-#: src/http.c:2097 src/http.c:2207
+#: src/http.c:2098 src/http.c:2208
 msgid "unspecified"
 msgstr "nincs megadva"
 
-#: src/http.c:2098
+#: src/http.c:2099
 msgid " [following]"
 msgstr " [következik]"
 
 #. If `-c' is in use and the file has been fully downloaded (or
 #. the remote file has shrunk), Wget effectively requests bytes
 #. after the end of file and the server response with 416.
-#: src/http.c:2154
+#: src/http.c:2155
 msgid ""
 "\n"
 "    The file is already fully retrieved; nothing to do.\n"
@@ -656,80 +657,80 @@ msgstr ""
 #. No need to print this output if the body won't be
 #. downloaded at all, or if the original server response is
 #. printed.
-#: src/http.c:2187
+#: src/http.c:2188
 msgid "Length: "
 msgstr "Hossz: "
 
-#: src/http.c:2207
+#: src/http.c:2208
 msgid "ignored"
 msgstr "figyelmen kívül hagyva"
 
-#: src/http.c:2278
+#: src/http.c:2279
 #, c-format
 msgid "Saving to: `%s'\n"
-msgstr "Mentés ide: \"%s\"\n"
+msgstr "Mentés ide: „%s”\n"
 
-#: src/http.c:2359
+#: src/http.c:2360
 msgid "Warning: wildcards not supported in HTTP.\n"
 msgstr "Figyelmeztetés: a helyettesítő karaktereket a HTTP nem támogatja.\n"
 
-#: src/http.c:2426
+#: src/http.c:2429
 msgid "Spider mode enabled. Check if remote file exists.\n"
-msgstr "A \"spider\" mód bekapcsolva. A távoli fájl létezésének ellenőrzése.\n"
+msgstr "A „spider” mód bekapcsolva. A távoli fájl létezésének ellenőrzése.\n"
 
-#: src/http.c:2511
+#: src/http.c:2514
 #, c-format
 msgid "Cannot write to `%s' (%s).\n"
-msgstr "\"%s\" nem írható (%s).\n"
+msgstr "„%s” nem írható (%s).\n"
 
 #. Another fatal error.
-#: src/http.c:2520
+#: src/http.c:2523
 msgid "Unable to establish SSL connection.\n"
 msgstr "Nem lehet létrehozni SSL-kapcsolatot.\n"
 
-#: src/http.c:2528
+#: src/http.c:2531
 #, c-format
 msgid "ERROR: Redirection (%d) without location.\n"
 msgstr "HIBA: Átirányítás (%d) hely nélkül.\n"
 
-#: src/http.c:2574
+#: src/http.c:2577
 msgid "Remote file does not exist -- broken link!!!\n"
 msgstr "A távoli fájl nem létezik - hibás hivatkozás!\n"
 
-#: src/http.c:2579
+#: src/http.c:2582
 #, c-format
 msgid "%s ERROR %d: %s.\n"
 msgstr "%s HIBA %d: %s.\n"
 
-#: src/http.c:2595
+#: src/http.c:2598
 msgid "Last-modified header missing -- time-stamps turned off.\n"
 msgstr "Az Utolsó módosítás fejléc hiányzik -- az időbélyegek kikapcsolva.\n"
 
-#: src/http.c:2603
+#: src/http.c:2606
 msgid "Last-modified header invalid -- time-stamp ignored.\n"
 msgstr ""
 "Az Utolsó módosítás fejléc érvénytelen -- az időbélyeg figyelmen kívül "
 "hagyva.\n"
 
-#: src/http.c:2633
+#: src/http.c:2636
 #, c-format
 msgid ""
 "Server file no newer than local file `%s' -- not retrieving.\n"
 "\n"
 msgstr ""
-"A kiszolgálón lévő \"%s\" fájl nem újabb mint a helyi -- nem töltöm le.\n"
+"A kiszolgálón lévő „%s” fájl nem újabb mint a helyi -- nem töltöm le.\n"
 "\n"
 
-#: src/http.c:2641
+#: src/http.c:2644
 #, c-format
 msgid "The sizes do not match (local %s) -- retrieving.\n"
 msgstr "A méretek nem egyeznek (a helyi: %s) -- letöltöm.\n"
 
-#: src/http.c:2648
+#: src/http.c:2651
 msgid "Remote file is newer, retrieving.\n"
 msgstr "A távoli fájl újabb, letöltöm.\n"
 
-#: src/http.c:2664
+#: src/http.c:2667
 msgid ""
 "Remote file exists and could contain links to other resources -- "
 "retrieving.\n"
@@ -739,48 +740,51 @@ msgstr ""
 "letöltöm.\n"
 "\n"
 
-#: src/http.c:2669
+#: src/http.c:2672
 msgid ""
 "Remote file exists but does not contain any link -- not retrieving.\n"
 "\n"
 msgstr ""
 "A távoli fájl létezik, de nem tartalmaz hivatkozásokat -- nem töltöm le.\n"
 
-#: src/http.c:2679
-#, fuzzy
+#: src/http.c:2682
 msgid ""
 "Remote file exists and could contain further links,\n"
 "but recursion is disabled -- not retrieving.\n"
 "\n"
-msgstr "A távoli fájl létezik, de a rekurzió le van tiltva -- nem töltöm le.\n"
+msgstr ""
+"A távoli fájl létezik és tartalmazhat további hivatkozásokat,\n"
+"de a rekurzió le van tiltva -- nem töltöm le.\n"
+"\n"
 
-#: src/http.c:2685
-#, fuzzy
+#: src/http.c:2688
 msgid ""
 "Remote file exists.\n"
 "\n"
-msgstr "A távoli fájl újabb, letöltöm.\n"
+msgstr ""
+"A távoli fájl létezik.\n"
+"\n"
 
-#: src/http.c:2738
+#: src/http.c:2741
 #, c-format
 msgid ""
 "%s (%s) - `%s' saved [%s/%s]\n"
 "\n"
 msgstr ""
-"%s (%s) - \"%s\" mentve [%s/%s]\n"
+"%s (%s) - „%s” mentve [%s/%s]\n"
 "\n"
 
-#: src/http.c:2793
+#: src/http.c:2796
 #, c-format
 msgid "%s (%s) - Connection closed at byte %s. "
 msgstr "%s (%s) - A kapcsolat lezárva a(z) %s. bájtnál. "
 
-#: src/http.c:2808
+#: src/http.c:2819
 #, c-format
 msgid "%s (%s) - Read error at byte %s (%s)."
-msgstr "%s (%s) - Olvasási hiba a(Z) %s. bájtnál (%s). "
+msgstr "%s (%s) - Olvasási hiba a(z) %s. bájtnál (%s). "
 
-#: src/http.c:2817
+#: src/http.c:2828
 #, c-format
 msgid "%s (%s) - Read error at byte %s/%s (%s). "
 msgstr "%s (%s) - Olvasási hiba a(z) %s/%s. bájtnál (%s). "
@@ -815,49 +819,49 @@ msgstr "%s: Ismeretlen parancs (%s) a következőben: %s, a(z) %d. sornál.\n"
 msgid "%s: Warning: Both system and user wgetrc point to `%s'.\n"
 msgstr ""
 "%s: Figyelmeztetés: Mind a rendszer, mind a felhasználói szintű wgetrc a(z) "
-"\"%s\" elemre mutat.\n"
+"„%s” elemre mutat.\n"
 
 #: src/init.c:680
 #, c-format
 msgid "%s: Invalid --execute command `%s'\n"
-msgstr "%s: Érvénytelen --execute parancs: \"%s\"\n"
+msgstr "%s: Érvénytelen --execute parancs: „%s”\n"
 
 #: src/init.c:725
 #, c-format
 msgid "%s: %s: Invalid boolean `%s'; use `on' or `off'.\n"
 msgstr ""
-"%s: %s: Érvénytelen logikai érték: \"%s\", használja az \"on\" vagy \"off\" "
+"%s: %s: Érvénytelen logikai érték: „%s”, használja az „on” vagy „off” "
 "szavakat.\n"
 
 #: src/init.c:742
 #, c-format
 msgid "%s: %s: Invalid number `%s'.\n"
-msgstr "%s: %s:Érvénytelen szám: \"%s\".\n"
+msgstr "%s: %s:Érvénytelen szám: „%s”.\n"
 
 #: src/init.c:973 src/init.c:992
 #, c-format
 msgid "%s: %s: Invalid byte value `%s'\n"
-msgstr "%s: %s: Érvénytelen bájtérték: \"%s\".\n"
+msgstr "%s: %s: Érvénytelen bájtérték: „%s”.\n"
 
 #: src/init.c:1017
 #, c-format
 msgid "%s: %s: Invalid time period `%s'\n"
-msgstr "%s: %s: Érvénytelen időintervallum: \"%s\".\n"
+msgstr "%s: %s: Érvénytelen időintervallum: „%s”.\n"
 
 #: src/init.c:1071 src/init.c:1161 src/init.c:1264 src/init.c:1289
 #, c-format
 msgid "%s: %s: Invalid value `%s'.\n"
-msgstr "%s: %s: Érvénytelen érték: \"%s\".\n"
+msgstr "%s: %s: Érvénytelen érték: „%s”.\n"
 
 #: src/init.c:1108
 #, c-format
 msgid "%s: %s: Invalid header `%s'.\n"
-msgstr "%s: %s: Érvénytelen fejléc: \"%s\".\n"
+msgstr "%s: %s: Érvénytelen fejléc: „%s”.\n"
 
 #: src/init.c:1174
 #, c-format
 msgid "%s: %s: Invalid progress type `%s'.\n"
-msgstr "%s: %s: Érvénytelen folyamattípus: \"%s\".\n"
+msgstr "%s: %s: Érvénytelen folyamattípus: „%s”.\n"
 
 #: src/init.c:1233
 #, c-format
@@ -865,8 +869,8 @@ msgid ""
 "%s: %s: Invalid restriction `%s', use [unix|windows],[lowercase|uppercase],"
 "[nocontrol].\n"
 msgstr ""
-"%s: %s: Érvénytelen korlátozás: \"%s\", használja a [unix|windows],"
-"[lowercase|uppercase],[nocontrol] egyikét.\n"
+"%s: %s: Érvénytelen korlátozás: „%s”, használja a [unix|windows],[lowercase|"
+"uppercase],[nocontrol] egyikét.\n"
 
 #: src/log.c:785
 #, c-format
@@ -875,7 +879,7 @@ msgid ""
 "%s received, redirecting output to `%s'.\n"
 msgstr ""
 "\n"
-"%s érkezett, a kimenet átirányítása \"%s\" fájlba.\n"
+"%s érkezett, a kimenet átirányítása „%s” fájlba.\n"
 
 #. Eek!  Opening the alternate log file has failed.  Nothing we
 #. can do but disable printing completely.
@@ -927,7 +931,7 @@ msgstr "  -b,  --background        indítás után folytatás a háttérben.\n"
 #: src/main.c:382
 msgid "  -e,  --execute=COMMAND   execute a `.wgetrc'-style command.\n"
 msgstr ""
-"  -e,  --execute=PARANCS   egy \".wgetrc\" stílusú parancs végrehajtása.\n"
+"  -e,  --execute=PARANCS   egy „.wgetrc” stílusú parancs végrehajtása.\n"
 
 #: src/main.c:386
 msgid "Logging and input file:\n"
@@ -1151,8 +1155,7 @@ msgid ""
 msgstr ""
 "       --prefer-family=CSALÁD    kapcsolódás először a megadott család "
 "címeihez\n"
-"                                   ez az \"IPv6\", \"IPv4\", vagy \"none\" "
-"egyike\n"
+"                                   ez az „IPv6”, „IPv4”, vagy „none” egyike\n"
 "                                   lehet.\n"
 
 #: src/main.c:473
@@ -1228,13 +1231,13 @@ msgstr ""
 msgid ""
 "  -E,  --html-extension        save HTML documents with `.html' extension.\n"
 msgstr ""
-"  -E,  --html-extension        a HTML dokumentumok mentése \".html\"\n"
+"  -E,  --html-extension        a HTML dokumentumok mentése „.html”\n"
 "                                 kiterjesztéssel.\n"
 
 #: src/main.c:505
 msgid "       --ignore-length         ignore `Content-Length' header field.\n"
 msgstr ""
-"       --ignore-length         a \"Content-Length\" fejlécmező figyelmen "
+"       --ignore-length         a „Content-Length” fejlécmező figyelmen "
 "kívül\n"
 "                                 hagyása.\n"
 
@@ -1264,8 +1267,7 @@ msgid ""
 "       --referer=URL           include `Referer: URL' header in HTTP "
 "request.\n"
 msgstr ""
-"       --referer=URL           a \"Referer: URL\" fejléc beillesztése a "
-"HTTP\n"
+"       --referer=URL           a „Referer: URL” fejléc beillesztése a HTTP\n"
 "                                 kérésbe.\n"
 
 #: src/main.c:517
@@ -1329,6 +1331,10 @@ msgid ""
 "       --content-disposition   honor the Content-Disposition header when\n"
 "                               choosing local file names (EXPERIMENTAL).\n"
 msgstr ""
+"       --content-disposition   a Content-Disposition fejléc figyelembe "
+"vétele\n"
+"                                 helyi fájlnevek kiválasztásakor "
+"(KÍSÉRLETI).\n"
 
 #: src/main.c:538
 msgid ""
@@ -1336,6 +1342,9 @@ msgid ""
 "                               without first waiting for the server's\n"
 "                               challenge.\n"
 msgstr ""
+"       --auth-no-challenge     alapvető HTTP hitelesítési információk "
+"küldése\n"
+"                                 a kiszolgáló kérésének megvárása nélkül is\n"
 
 #: src/main.c:545
 msgid "HTTPS (SSL/TLS) options:\n"
@@ -1347,8 +1356,8 @@ msgid ""
 "                                SSLv3, and TLSv1.\n"
 msgstr ""
 "       --secure-protocol=PR     a biztonságos protokoll kiválasztása, az "
-"\"auto\",\n"
-"                                 \"SSLv2\", \"SSLv3\", és \"TLSv1\" egyike.\n"
+"„auto”,\n"
+"                                 „SSLv2”, „SSLv3”, és „TLSv1” egyike.\n"
 
 #: src/main.c:550
 msgid ""
@@ -1421,7 +1430,7 @@ msgstr "       --ftp-password=JELSZÓ   az ftp jelszó beállítása.\n"
 #: src/main.c:577
 msgid "       --no-remove-listing     don't remove `.listing' files.\n"
 msgstr ""
-"       --no-remove-listing     ne távolítsa el a \".listing\" fájlokat.\n"
+"       --no-remove-listing     ne távolítsa el a „.listing” fájlokat.\n"
 
 #: src/main.c:579
 msgid "       --no-glob               turn off FTP file name globbing.\n"
@@ -1432,7 +1441,7 @@ msgstr ""
 #: src/main.c:581
 msgid "       --no-passive-ftp        disable the \"passive\" transfer mode.\n"
 msgstr ""
-"       --no-passive-ftp        a \"passzív\" átviteli mód kikapcsolása.\n"
+"       --no-passive-ftp        a „passzív” átviteli mód kikapcsolása.\n"
 
 #: src/main.c:583
 msgid ""
@@ -1607,9 +1616,8 @@ msgid "GNU Wget %s, a non-interactive network retriever.\n"
 msgstr "GNU Wget %s, egy nem-interaktív hálózati letöltő.\n"
 
 #: src/main.c:682
-#, fuzzy
 msgid "Copyright (C) 2008 Free Software Foundation, Inc.\n"
-msgstr "Copyright (C) 2007 Free Software Foundation, Inc.\n"
+msgstr "Copyright (C) 2008 Free Software Foundation, Inc.\n"
 
 #: src/main.c:684
 msgid ""
@@ -1637,15 +1645,15 @@ msgstr "Jelenlegi karbantartó: Micah Cowan <micah@cowan.name>.\n"
 
 #. #### Something nicer should be printed here -- similar to the
 #. pre-1.5 `--help' page.
-#: src/main.c:738 src/main.c:807 src/main.c:904
+#: src/main.c:738 src/main.c:807 src/main.c:919
 #, c-format
 msgid "Try `%s --help' for more options.\n"
-msgstr "Próbáld kiadni a \"%s --help\" parancsot több lehetőségért.\n"
+msgstr "További kapcsolókért próbálja kiadni a „%s --help” parancsot.\n"
 
 #: src/main.c:804
 #, c-format
 msgid "%s: illegal option -- `-n%c'\n"
-msgstr "%s: hibás opció -- \"-n%c\"\n"
+msgstr "%s: hibás opció -- „-n%c”\n"
 
 #: src/main.c:859
 #, c-format
@@ -1663,27 +1671,44 @@ msgid "Cannot specify both --inet4-only and --inet6-only.\n"
 msgstr "Nem adható meg egyszerre mind a --inet4-only, mind az --inet6-only.\n"
 
 #: src/main.c:883
-#, c-format
-msgid "Cannot specify -r, -p or -N if -O is given.\n"
-msgstr "A -r, -p vagy -N nem adható meg, ha a -O meg van adva.\n"
+msgid ""
+"Cannot specify both -k and -O if multiple URLs are given, or in combination\n"
+"with -p or -r. See the manual for details.\n"
+"\n"
+msgstr ""
+"Nem adható meg egyszerre a -k és a -O több URL megadásakor vagy a -p vagy -r "
+"kapcsolókkal együtt. Részletekért lásd a kézikönyvet.\n"
+"\n"
 
-#: src/main.c:891
-#, c-format
-msgid "Cannot specify both -k and -O if multiple URLs are given.\n"
-msgstr "Nem adható meg egyszerre a -k és a -O több URL megadásakor.\n"
+#: src/main.c:892
+msgid ""
+"WARNING: combining -O with -r or -p will mean that all downloaded content\n"
+"will be placed in the single file you specified.\n"
+"\n"
+msgstr ""
+"FIGYELMEZTETÉS: a -O és a -r vagy -p együttes használata azt jelenti, hogy "
+"minden letöltött tartalom a megadott fájlba kerül.\n"
+"\n"
+
+#: src/main.c:898
+msgid ""
+"WARNING: timestamping does nothing in combination with -O. See the manual\n"
+"for details.\n"
+"\n"
+msgstr ""
 
 #. No URL specified.
-#: src/main.c:899
+#: src/main.c:914
 #, c-format
 msgid "%s: missing URL\n"
 msgstr "%s: hiányzó URL\n"
 
-#: src/main.c:1025
+#: src/main.c:1040
 #, c-format
 msgid "No URLs found in %s.\n"
 msgstr "Nem található URL a következőben: %s.\n"
 
-#: src/main.c:1043
+#: src/main.c:1058
 #, c-format
 msgid ""
 "FINISHED --%s--\n"
@@ -1692,7 +1717,7 @@ msgstr ""
 "BEFEJEZTEM --%s--\n"
 "Letöltve: %d fájl, %s %s alatt (%s)\n"
 
-#: src/main.c:1052
+#: src/main.c:1067
 #, c-format
 msgid "Download quota of %s EXCEEDED!\n"
 msgstr "A letöltési korlát (%s) TÚLLÉPVE!\n"
@@ -1710,7 +1735,7 @@ msgstr "Folytatás a háttérben, a pid: %lu.\n"
 #: src/mswindows.c:294 src/utils.c:331
 #, c-format
 msgid "Output will be written to `%s'.\n"
-msgstr "A kimenet a(z) \"%s\" fájlba lesz kiírva.\n"
+msgstr "A kimenet a(z) „%s” fájlba lesz kiírva.\n"
 
 #: src/mswindows.c:462 src/mswindows.c:469
 #, c-format
@@ -1720,12 +1745,12 @@ msgstr "%s: Nem található használható foglalat-illesztőprogram.\n"
 #: src/netrc.c:376
 #, c-format
 msgid "%s: %s:%d: warning: \"%s\" token appears before any machine name\n"
-msgstr "%s: %s:%d: figyelmeztetés: \"%s\" tokent találtam a gép neve előtt\n"
+msgstr "%s: %s:%d: figyelmeztetés: „%s” tokent találtam a gép neve előtt\n"
 
 #: src/netrc.c:407
 #, c-format
 msgid "%s: %s:%d: unknown token \"%s\"\n"
-msgstr "%s: %s:%d: ismeretlen token \"%s\"\n"
+msgstr "%s: %s:%d: ismeretlen token „%s”\n"
 
 #: src/netrc.c:471
 #, c-format
@@ -1768,7 +1793,7 @@ msgstr "%s: %s nem mutatott be tanúsítványt.\n"
 #: src/openssl.c:519
 #, c-format
 msgid "%s: cannot verify %s's certificate, issued by `%s':\n"
-msgstr "%s: %s \"%s\" által kiadott tanúsítványa nem ellenőrizhető:\n"
+msgstr "%s: %s „%s” által kiadott tanúsítványa nem ellenőrizhető:\n"
 
 #: src/openssl.c:527
 msgid "  Unable to locally verify the issuer's authority.\n"
@@ -1791,8 +1816,7 @@ msgstr "  A kibocsátott tanúsítvány lejárt.\n"
 msgid ""
 "%s: certificate common name `%s' doesn't match requested host name `%s'.\n"
 msgstr ""
-"%s: a tanúsítvány \"%s\" általános neve nem egyezik a kért \"%s\" "
-"gépnévvel.\n"
+"%s: a tanúsítvány „%s” általános neve nem egyezik a kért „%s” gépnévvel.\n"
 
 #: src/openssl.c:582
 #, c-format
@@ -1816,19 +1840,18 @@ msgstr ""
 #: src/progress.c:457
 #, c-format
 msgid "Invalid dot style specification `%s'; leaving unchanged.\n"
-msgstr "Érvénytelen pontstílus meghatározás: \"%s\"; változatlanul hagyom.\n"
+msgstr "Érvénytelen pontstílus meghatározás: „%s”; változatlanul hagyom.\n"
 
 #. Translation note: "ETA" is English-centric, but this must
 #. be short, ideally 3 chars.  Abbreviate if necessary.
-#: src/progress.c:803
+#: src/progress.c:806
 #, c-format
 msgid "  eta %s"
 msgstr " kész: %s"
 
-#. When the download is done, print the elapsed time.
 #. Note to translators: this should not take up more room than
 #. available here.  Abbreviate if necessary.
-#: src/progress.c:1042
+#: src/progress.c:1051
 msgid "   in "
 msgstr "  idő "
 
@@ -1953,19 +1976,17 @@ msgstr "Folytatás a háttérben, a pid: %d.\n"
 #: src/utils.c:377
 #, c-format
 msgid "Failed to unlink symlink `%s': %s\n"
-msgstr "A(z) \"%s\" szimbolikus link törlése meghiúsult: %s\n"
+msgstr "A(z) „%s” szimbolikus link törlése meghiúsult: %s\n"
 
 #: src/xmalloc.c:64
 #, c-format
 msgid "%s: %s: Failed to allocate %ld bytes; memory exhausted.\n"
 msgstr "%s: %s: %ld bájt lefoglalása meghiúsult; elfogyott a memória.\n"
 
-#~ msgid "  -Y,  --proxy                   explicitly turn on proxy.\n"
-#~ msgstr "  -Y,  --proxy                   proxy bekapcsolása.\n"
-
 #~ msgid ""
-#~ "       --no-content-disposition  don't honor Content-Disposition header.\n"
+#~ "Cannot specify -N if -O is given. See the manual for details.\n"
+#~ "\n"
 #~ msgstr ""
-#~ "       --no-content-disposition  nem veszi figyelembe a Content-"
-#~ "Disposition\n"
-#~ "                                 fejlécet.\n"
+#~ "A -N nem adható meg, ha a -O is meg van adva. Részletekért lásd a "
+#~ "kézikönyvet.\n"
+#~ "\n"
