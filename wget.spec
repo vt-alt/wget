@@ -5,7 +5,7 @@
 
 Name: wget
 Version: 1.11.4
-Release: alt1
+Release: alt2
 #Release: alt0.%beta
 
 Summary: An utility for retrieving files using the HTTP, HTTPS or FTP protocols
@@ -25,8 +25,6 @@ Packager: Michael Shigorin <mike@altlinux.org>
 # Automatically added by buildreq on Wed Jun 29 2005
 BuildRequires: gcc-c++ hostinfo libssl-devel libstdc++-devel
 
-Requires(post): %install_info
-Requires(preun): %uninstall_info
 
 Summary(es):	Cliente en línea de comando para bajar archivos WWW/FTP con recursión opcional
 Summary(fr):	Un utilitaire pour recuperer des fichiers en utilisant les protocoles HTTP ou FTP
@@ -137,12 +135,6 @@ find doc -type f -print0 |
 
 %find_lang %name
 
-%post
-%install_info %name.info
-
-%preun
-%uninstall_info %name.info
-
 %files -f %name.lang
 %config(noreplace) %_sysconfdir/%{name}rc
 %_bindir/*
@@ -151,6 +143,9 @@ find doc -type f -print0 |
 %doc AUTHORS MAILING-LIST NEWS README*
 
 %changelog
+* Sun Jul 26 2009 Michael Shigorin <mike@altlinux.org> 1.11.4-alt2
+- applied repocop patch
+
 * Fri Oct 31 2008 Michael Shigorin <mike@altlinux.org> 1.11.4-alt1
 - 1.11.4 (1.11.2 should have fixed #17676)
 
