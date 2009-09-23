@@ -4,8 +4,8 @@
 %define beta %nil
 
 Name: wget
-Version: 1.11.4
-Release: alt2
+Version: 1.12
+Release: alt1
 #Release: alt0.%beta
 
 Summary: An utility for retrieving files using the HTTP, HTTPS or FTP protocols
@@ -143,6 +143,14 @@ find doc -type f -print0 |
 %doc AUTHORS MAILING-LIST NEWS README*
 
 %changelog
+* Wed Sep 23 2009 Michael Shigorin <mike@altlinux.org> 1.12-alt1
+- 1.12
+  + fixes security problem outlined in RH#520454:
+    SSL certificate name vs. host name verification bypass
+    via NUL ('\0') character embedded in X509 certificate's
+    CommonName or subjectAltName
+  + thanks ldv@ for heads-up
+
 * Sun Jul 26 2009 Michael Shigorin <mike@altlinux.org> 1.11.4-alt2
 - applied repocop patch
 
