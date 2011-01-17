@@ -5,7 +5,7 @@
 
 Name: wget
 Version: 1.12
-Release: alt1.1
+Release: alt2
 #Release: alt0.%beta
 
 Summary: An utility for retrieving files using the HTTP, HTTPS or FTP protocols
@@ -23,7 +23,7 @@ Patch10: wget-1.10.1-alt-ntlm-buffer.patch
 Packager: Michael Shigorin <mike@altlinux.org>
 
 # Automatically added by buildreq on Wed Jun 29 2005
-BuildRequires: gcc-c++ hostinfo libssl-devel libstdc++-devel
+BuildRequires: gcc-c++ hostinfo libssl-devel libstdc++-devel perl-podlators
 
 
 Summary(es):	Cliente en línea de comando para bajar archivos WWW/FTP con recursión opcional
@@ -143,6 +143,9 @@ find doc -type f -print0 |
 %doc AUTHORS MAILING-LIST NEWS README*
 
 %changelog
+* Mon Jan 17 2011 Timur Aitov <timonbl4@altlinux.org> 1.12-alt2
+- fix manual build
+
 * Tue Oct 12 2010 Michael Shigorin <mike@altlinux.org> 1.12-alt1.1
 - rebuilt against openssl-1.0.0a
 
