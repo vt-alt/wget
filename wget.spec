@@ -4,27 +4,24 @@
 %define beta %nil
 
 Name: wget
-Version: 1.12
-Release: alt2
-#Release: alt0.%beta
+Version: 1.13.4
+Release: alt1
 
 Summary: An utility for retrieving files using the HTTP, HTTPS or FTP protocols
 License: GPLv3
 Group: Networking/WWW
 
 Url: http://www.gnu.org/software/wget/wget.html
-Source: ftp://ftp.gnu.org/gnu/wget/%name-%version.tar.bz2
-#Source: ftp://ftp.gnu.org/gnu/wget/%name-%version-%beta.tar.gz
+Source: ftp://ftp.gnu.org/gnu/wget/%name-%version.tar
 Patch1: %name-1.9.1-alt-texinfo.patch
 Patch2: %name-1.6-mdk-passive_ftp.patch
 Patch3: %name-1.7-alt-locale.patch
-#Patch4: %name-1.8.1-alt-quiet.patch
 Patch10: wget-1.10.1-alt-ntlm-buffer.patch
 Packager: Michael Shigorin <mike@altlinux.org>
 
-# Automatically added by buildreq on Wed Jun 29 2005
-BuildRequires: gcc-c++ hostinfo libssl-devel libstdc++-devel perl-podlators
-
+# Automatically added by buildreq on Sun Sep 25 2011
+# optimized out: libcom_err-devel libkrb5-devel perl-Encode perl-Pod-Escapes perl-Pod-Simple perl-podlators
+BuildRequires: libidn-devel libssl-devel perl-Pod-Parser zlib-devel
 
 Summary(es):	Cliente en lМnea de comando para bajar archivos WWW/FTP con recursiСn opcional
 Summary(fr):	Un utilitaire pour recuperer des fichiers en utilisant les protocoles HTTP ou FTP
@@ -109,8 +106,7 @@ GNU Wget - це утил╕та командного рядка для отримання файл╕в по
 прокс╕-сервер╕в, налаштовуван╕сть.
 
 %prep
-%setup -q -n %name-%version
-#setup -q -n %name-%version-%beta
+%setup -n %name-%version
 
 # Fix docs and samples.
 rm -f doc/*.info*
@@ -119,13 +115,10 @@ find doc -type f -print0 |
 	xargs -r0 sed -i 's,/usr/local/,/,g' --
 
 %patch1 -p1
-#patch2 -p1
-#patch3 -p1
-#%patch4 -p1
 %patch10 -p1
 
 %build
-%configure --with-ssl
+%configure --with-ssl=openssl
 # https://bugzilla.altlinux.org/show_bug.cgi?id=14239
 (cd po; make update-po)
 %make_build
@@ -142,7 +135,19 @@ find doc -type f -print0 |
 %_infodir/*.info*
 %doc AUTHORS MAILING-LIST NEWS README*
 
+# TODO:
+# - consider switching to gnutls build
+#   (double-check with ca-certificates or whatever);
+#   so far it's a bit too churny
+
 %changelog
+* Sun Sep 25 2011 Michael Shigorin <mike@altlinux.org> 1.13.4-alt1
+- 1.13.4 (NB: moved to gnutls by default)
+- built with openssl specifically
+- enabled IDN support
+- spec cleanup
+- buildreq
+
 * Mon Jan 17 2011 Timur Aitov <timonbl4@altlinux.org> 1.12-alt2
 - fix manual build
 
