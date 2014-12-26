@@ -72,12 +72,6 @@ as that of the covered work.  */
    variables.  -- explanation partly taken from GNU make.  */
 #define N_(string) string
 
-#if ! ENABLE_NLS
-# undef HAVE_WCHAR_H
-# undef HAVE_WCWIDTH
-# undef HAVE_MBTOWC
-#endif /* not ENABLE_NLS */
-
 #if HAVE_WCWIDTH && HAVE_MBTOWC
 # define USE_NLS_PROGRESS_BAR 1
 #else
@@ -254,24 +248,24 @@ typedef double SUM_SIZE_INT;
 /* Copy the data delimited with BEG and END to alloca-allocated
    storage, and zero-terminate it.  Arguments are evaluated only once,
    in the order BEG, END, PLACE.  */
-#define BOUNDED_TO_ALLOCA(beg, end, place) do {	\
-  const char *BTA_beg = (beg);			\
-  int BTA_len = (end) - BTA_beg;		\
-  char **BTA_dest = &(place);			\
-  *BTA_dest = alloca (BTA_len + 1);		\
-  memcpy (*BTA_dest, BTA_beg, BTA_len);		\
-  (*BTA_dest)[BTA_len] = '\0';			\
+#define BOUNDED_TO_ALLOCA(beg, end, place) do { \
+  const char *BTA_beg = (beg);                  \
+  int BTA_len = (end) - BTA_beg;                \
+  char **BTA_dest = &(place);                   \
+  *BTA_dest = alloca (BTA_len + 1);             \
+  memcpy (*BTA_dest, BTA_beg, BTA_len);         \
+  (*BTA_dest)[BTA_len] = '\0';                  \
 } while (0)
 
 /* Return non-zero if string bounded between BEG and END is equal to
    STRING_LITERAL.  The comparison is case-sensitive.  */
-#define BOUNDED_EQUAL(beg, end, string_literal)				\
-  ((end) - (beg) == sizeof (string_literal) - 1				\
+#define BOUNDED_EQUAL(beg, end, string_literal)             \
+  ((end) - (beg) == sizeof (string_literal) - 1             \
    && !memcmp (beg, string_literal, sizeof (string_literal) - 1))
 
 /* The same as above, except the comparison is case-insensitive. */
-#define BOUNDED_EQUAL_NO_CASE(beg, end, string_literal)			\
-  ((end) - (beg) == sizeof (string_literal) - 1				\
+#define BOUNDED_EQUAL_NO_CASE(beg, end, string_literal)         \
+  ((end) - (beg) == sizeof (string_literal) - 1                 \
    && !strncasecmp (beg, string_literal, sizeof (string_literal) - 1))
 
 /* Like ptr=strdup(str), but allocates the space for PTR on the stack.
@@ -280,11 +274,11 @@ typedef double SUM_SIZE_INT;
    The problem is that some compilers can't handle alloca() being an
    argument to a function.  */
 
-#define STRDUP_ALLOCA(ptr, str) do {			\
-  char **SA_dest = &(ptr);				\
-  const char *SA_src = (str);				\
-  *SA_dest = (char *)alloca (strlen (SA_src) + 1);	\
-  strcpy (*SA_dest, SA_src);				\
+#define STRDUP_ALLOCA(ptr, str) do {                \
+  char **SA_dest = &(ptr);                          \
+  const char *SA_src = (str);                       \
+  *SA_dest = (char *)alloca (strlen (SA_src) + 1);  \
+  strcpy (*SA_dest, SA_src);                        \
 } while (0)
 
 /* Generally useful if you want to avoid arbitrary size limits but
@@ -295,17 +289,17 @@ typedef double SUM_SIZE_INT;
    NEEDED_SIZE objects.  The reallocing is done by doubling, which
    ensures constant amortized time per element.  */
 
-#define DO_REALLOC(basevar, sizevar, needed_size, type)	do {		\
-  long DR_needed_size = (needed_size);					\
-  long DR_newsize = 0;							\
-  while ((sizevar) < (DR_needed_size)) {				\
-    DR_newsize = sizevar << 1;						\
-    if (DR_newsize < 16)						\
-      DR_newsize = 16;							\
-    (sizevar) = DR_newsize;						\
-  }									\
-  if (DR_newsize)							\
-    basevar = xrealloc (basevar, DR_newsize * sizeof (type));		\
+#define DO_REALLOC(basevar, sizevar, needed_size, type) do {    \
+  long DR_needed_size = (needed_size);                          \
+  long DR_newsize = 0;                                          \
+  while ((sizevar) < (DR_needed_size)) {                        \
+    DR_newsize = sizevar << 1;                                  \
+    if (DR_newsize < 16)                                        \
+      DR_newsize = 16;                                          \
+    (sizevar) = DR_newsize;                                     \
+  }                                                             \
+  if (DR_newsize)                                               \
+    basevar = xrealloc (basevar, DR_newsize * sizeof (type));   \
 } while (0)
 
 /* Used to print pointers (usually for debugging).  Print pointers
@@ -323,14 +317,14 @@ extern const char *exec_name;
 /* Document type ("dt") flags */
 enum
 {
-  TEXTHTML             = 0x0001,	/* document is of type text/html
+  TEXTHTML             = 0x0001,        /* document is of type text/html
                                            or application/xhtml+xml */
-  RETROKF              = 0x0002,	/* retrieval was OK */
-  HEAD_ONLY            = 0x0004,	/* only send the HEAD request */
-  SEND_NOCACHE         = 0x0008,	/* send Pragma: no-cache directive */
-  ACCEPTRANGES         = 0x0010,	/* Accept-ranges header was found */
+  RETROKF              = 0x0002,        /* retrieval was OK */
+  HEAD_ONLY            = 0x0004,        /* only send the HEAD request */
+  SEND_NOCACHE         = 0x0008,        /* send Pragma: no-cache directive */
+  ACCEPTRANGES         = 0x0010,        /* Accept-ranges header was found */
   ADDED_HTML_EXTENSION = 0x0020,        /* added ".html" extension due to -E */
-  TEXTCSS              = 0x0040	        /* document is of type text/css */
+  TEXTCSS              = 0x0040         /* document is of type text/css */
 };
 
 /* Universal error type -- used almost everywhere.  Error reporting of
@@ -338,27 +332,18 @@ enum
    simplified.  */
 typedef enum
 {
-  /*  0  */
   NOCONERROR, HOSTERR, CONSOCKERR, CONERROR, CONSSLERR,
-  CONIMPOSSIBLE, NEWLOCATION, NOTENOUGHMEM /* ! */,
-  CONPORTERR /* ! */, CONCLOSED /* ! */,
-  /* 10  */
+  CONIMPOSSIBLE, NEWLOCATION,
   FTPOK, FTPLOGINC, FTPLOGREFUSED, FTPPORTERR, FTPSYSERR,
-  FTPNSFOD, FTPRETROK /* ! */, FTPUNKNOWNTYPE, FTPRERR, FTPREXC /* ! */,
-  /* 20  */
+  FTPNSFOD, FTPUNKNOWNTYPE, FTPRERR,
   FTPSRVERR, FTPRETRINT, FTPRESTFAIL, URLERROR, FOPENERR,
-  FOPEN_EXCL_ERR, FWRITEERR, HOK /* ! */, HLEXC /* ! */, HEOF,
-  /* 30  */
-  HERR, RETROK, RECLEVELEXC, FTPACCDENIED /* ! */, WRONGCODE,
+  FOPEN_EXCL_ERR, FWRITEERR, HEOF,
+  HERR, RETROK, RECLEVELEXC, WRONGCODE,
   FTPINVPASV, FTPNOPASV, CONTNOTSUPPORTED, RETRUNNEEDED, RETRFINISHED,
-  /* 40  */
-  READERR, TRYLIMEXC, URLBADPATTERN /* ! */, FILEBADFILE /* ! */, RANGEERR,
-  RETRBADPATTERN, RETNOTSUP /* ! */, ROBOTSOK /* ! */, NOROBOTS /* ! */,
-  PROXERR,
-  /* 50  */
+  READERR, TRYLIMEXC, FILEBADFILE, RANGEERR,
+  RETRBADPATTERN, PROXERR,
   AUTHFAILED, QUOTEXC, WRITEFAILED, SSLINITFAILED, VERIFCERTERR,
   UNLINKERR, NEWLOCATION_KEEP_POST, CLOSEFAILED, ATTRMISSING, UNKNOWNATTR,
-
   WARC_ERR, WARC_TMP_FOPENERR, WARC_TMP_FWRITEERR
 } uerr_t;
 
@@ -366,7 +351,7 @@ typedef enum
    Select an appropriate "orig" suffix and a separator character for
    adding a unique suffix to a file name.
 
-   A VMS ODS2 file system can not tolerate multiple dots.  An ODS5 file
+   A VMS ODS2 file system can't tolerate multiple dots.  An ODS5 file
    system can, but even there not all dots are equal, and heroic effort
    would be needed to get ".html^.orig" rather than (the less desirable)
    "^.html.orig".  It's more satisfactory always to use "_orig" on VMS

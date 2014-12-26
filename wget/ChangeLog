@@ -1,3 +1,87 @@
+2013-10-22  Ángel González <keisial@gmail.com>
+
+	* bootstrap.conf (gnulib_modules): Add module xstrndup.
+
+2014-09-25  Tim Ruehsen <tim.ruehsen@gmx.de>
+
+	* configure.ac: removed WgetTest.pm.in
+	* .gitignore: removed WgetTest.pm
+
+2014-09-12  Darshit Shah  <darnir@gmail.com>
+
+	* bootstrap.conf: Add GNULib module mbiter
+
+2014-07-25  Darshit Shah  <darnir@gmail.com>
+
+	* .gitignore: Add a gitignore file for the project.
+
+2013-08-31  Darshit Shah  <darnir@gmail.com>
+
+	* configure.ac: Add testenv/Makefile to	AC_CONFIG_FILES.
+	* Makefile.am: Add testenv to SUBDIRS
+
+2014-07-22  Darshit Shah  <darnir@gmail.com>
+
+	* configure.ac: Fix broken code for detecting libpsl
+
+2014-07-21  Darshit Shah  <darnir@gmail.com>
+
+	* configure.ac: Fix check for Libpsl
+
+2014-06-28  Giuseppe Scrivano  <gscrivan@redhat.com>
+
+	* cfg.mk (local-checks-to-skip): Remove some checks.
+
+2014-06-27  Giuseppe Scrivano  <gscrivan@redhat.com>
+
+	* cfg.mk (VC_LIST_ALWAYS_EXCLUDE_REGEX): Ignore msdos/* and vms/* from
+	syntax-check.
+
+2014-06-22  Giuseppe Scrivano  <gscrivan@redhat.com>
+
+	* configure.ac: Add check for uuid_create.
+
+2014-06-11  Giuseppe Scrivano  <gscrivan@redhat.com>
+
+	* NEWS: Remove repeated word.
+
+	* po/POTFILES.in: Add lib/regcomp.c.
+
+	* configure.ac: Do not depend on always defined macros.
+	* vms/vms.h: Likewise.
+
+	* Makefile.am: Remove @VAR@ with $FOO.
+	* util/Makefile.am: Likewise.
+
+	* ABOUT-NLS: Remove terminating empty lines.
+	* MAILING-LIST: Likewise.
+	* util/rmold.pl: Likewise.
+
+	* util/trunc.c (main): Ensure bindtextdomain is called.
+
+2014-06-10  Giuseppe Scrivano  <gscrivan@redhat.com>
+
+	* build-aux/build_info.pl: Remove trailing whitespaces.
+	* configure.ac: Likewise.
+
+2014-05-30  Darshit Shah  <darnir@gmail.com>
+
+	* configure.ac: Allow compilation without libpsl.
+	* README.checkout: Add libpsl as a dependency.
+
+2014-05-24  Giuseppe Scrivano  <gscrivan@redhat.com>
+
+	* gnulib: update module.
+
+2014-02-24  Giuseppe Scrivano  <gscrivan@redhat.com>
+
+	* gnulib: update module.
+	Reported by: Darshit Shah  <darnir@gmail.com>.
+
+2014-02-06  Giuseppe Scrivano  <gscrivan@redhat.com>
+
+	* configure.ac: Update copyright years.
+
 2013-12-22  Giuseppe Scrivano  <gscrivan@redhat.com>
 
 	* gnulib: add git submodule.

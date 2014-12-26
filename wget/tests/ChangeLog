@@ -1,3 +1,164 @@
+2014-10-06  Tim Ruehsen <tim.ruehsen@gmx.de>
+
+	* Test-iri.px: fixed encodings
+	* Test-iri-forced-remote.px: fixed encodings
+	* Test-iri-percent.px: fixed encodings
+	* Test-idn-meta.px: fixed encodings
+
+2014-10-02  Tim Ruehsen <tim.ruehsen@gmx.de>
+
+	* tests/WgetTests.pm: use filename as default test name
+	* tests/Test-*.px: removed redundant 'name => ...'
+
+2014-10-01  Tim Ruehsen <tim.ruehsen@gmx.de>
+
+	* tests/Makefile.am: remove run-px, fixing dist-check
+
+2014-10-01  Tim Ruehsen <tim.ruehsen@gmx.de>
+
+	* Test--post-file.px: name => "Test--post-file", fixing race
+	condition.
+	* Test-N-no-info.px: name => "Test-N-no-info", fixing race
+	condition.
+	* Test-N-smaller.px: name => "Test-N-smaller", fixing race
+	condition.
+	* Test-c-shorter.px: name => "Test-c-shorter", fixing race
+	condition.
+	* Test-proxy-auth-basic.px: name => "Test-proxy-auth-basic",
+	fixing race condition.
+	* Test-proxied-https-auth.px: removed debug print line.
+
+2014-09-25  Tim Ruehsen <tim.ruehsen@gmx.de>
+
+	* Makefile.am: Modified to use parallel test harness
+	* Test-proxied-https-auth.px: get $top_srcdir from ENV
+	* run-px: removed
+	* WgetTest.pm.in: removed
+	* WgetTest.pm: get $top_srcdir from ENV
+
+2014-06-11  Giuseppe Scrivano  <gscrivan@redhat.com>
+
+	* Makefile.am: Remove @VAR@ with $FOO.
+
+	* FTPTest.pm: Remove terminating empty lines.
+	* HTTPServer.pm: Likewise.
+	* HTTPTest.pm: Likewise.
+	* Test--httpsonly-r.px: Likewise.
+	* Test--no-content-disposition-trivial.px: Likewise.
+	* Test--no-content-disposition.px: Likewise.
+	* Test--spider-fail.px: Likewise.
+	* Test--spider-r--no-content-disposition-trivial.px: Likewise.
+	* Test--spider-r--no-content-disposition.px: Likewise.
+	* Test--spider-r-HTTP-Content-Disposition.px: Likewise.
+	* Test--spider-r.px: Likewise.
+	* Test--spider.px: Likewise.
+	* Test--start-pos--continue.px: Likewise.
+	* Test--start-pos.px: Likewise.
+	* Test-E-k-K.px: Likewise.
+	* Test-E-k.px: Likewise.
+	* Test-HTTP-Content-Disposition-1.px: Likewise.
+	* Test-HTTP-Content-Disposition-2.px: Likewise.
+	* Test-HTTP-Content-Disposition.px: Likewise.
+	* Test-N--no-content-disposition-trivial.px: Likewise.
+	* Test-N--no-content-disposition.px: Likewise.
+	* Test-N-HTTP-Content-Disposition.px: Likewise.
+	* Test-N-current.px: Likewise.
+	* Test-N-no-info.px: Likewise.
+	* Test-N-old.px: Likewise.
+	* Test-N-smaller.px: Likewise.
+	* Test-N.px: Likewise.
+	* Test-O--no-content-disposition-trivial.px: Likewise.
+	* Test-O--no-content-disposition.px: Likewise.
+	* Test-O-HTTP-Content-Disposition.px: Likewise.
+	* Test-O-nc.px: Likewise.
+	* Test-O-nonexisting.px: Likewise.
+	* Test-O.px: Likewise.
+	* Test-Restrict-Lowercase.px: Likewise.
+	* Test-Restrict-Uppercase.px: Likewise.
+	* Test-auth-basic.px: Likewise.
+	* Test-auth-no-challenge-url.px: Likewise.
+	* Test-auth-no-challenge.px: Likewise.
+	* Test-auth-with-content-disposition.px: Likewise.
+	* Test-c-full.px: Likewise.
+	* Test-c-partial.px: Likewise.
+	* Test-c-shorter.px: Likewise.
+	* Test-c.px: Likewise.
+	* Test-cookies-401.px: Likewise.
+	* Test-cookies.px: Likewise.
+	* Test-ftp--start-pos.px: Likewise.
+	* Test-ftp-bad-list.px: Likewise.
+	* Test-ftp-iri-disabled.px: Likewise.
+	* Test-ftp-iri-fallback.px: Likewise.
+	* Test-ftp-iri-recursive.px: Likewise.
+	* Test-ftp-iri.px: Likewise.
+	* Test-ftp-list-Multinet.px: Likewise.
+	* Test-ftp-list-UNIX-hidden.px: Likewise.
+	* Test-ftp-list-Unknown-a.px: Likewise.
+	* Test-ftp-list-Unknown-hidden.px: Likewise.
+	* Test-ftp-list-Unknown-list-a-fails.px: Likewise.
+	* Test-ftp-list-Unknown.px: Likewise.
+	* Test-ftp-pasv-fail.px: Likewise.
+	* Test-ftp-recursive.px: Likewise.
+	* Test-ftp.px: Likewise.
+	* Test-i-ftp.px: Likewise.
+	* Test-i-http.px: Likewise.
+	* Test-idn-cmd-utf8.px: Likewise.
+	* Test-idn-cmd.px: Likewise.
+	* Test-idn-headers.px: Likewise.
+	* Test-idn-meta.px: Likewise.
+	* Test-idn-robots-utf8.px: Likewise.
+	* Test-idn-robots.px: Likewise.
+	* Test-iri-disabled.px: Likewise.
+	* Test-iri-forced-remote.px: Likewise.
+	* Test-iri-list.px: Likewise.
+	* Test-iri-percent.px: Likewise.
+	* Test-iri.px: Likewise.
+	* Test-k.px: Likewise.
+	* Test-meta-robots.px: Likewise.
+	* Test-nonexisting-quiet.px: Likewise.
+	* Test-noop.px: Likewise.
+	* Test-np.px: Likewise.
+	* Test-proxy-auth-basic.px: Likewise.
+	* Test-restrict-ascii.px: Likewise.
+	* Test-stdouterr.px: Likewise.
+	* WgetTest.pm.in: Likewise.
+
+2014-40-22  Tim Ruehsen <tim.ruehsen@gmx.de>
+
+        * Test-204.px: added file
+        * run-px: added Test-204.px
+        * Makefile.am: added Test-204.px
+
+2014-04-22  Giuseppe Scrivano  <gscrivan@redhat.com>
+
+	* Makefile.am (EXTRA_DIST): Add missing Test--start-pos.px,
+	Test-ftp--start-pos.px and Test--start-pos--continue.px.
+
+2014-02-24  Yousong Zhou  <yszhou4tech@gmail.com> (tiny change)
+
+	* tests/Test--httpsonly-r.px: Add feature constraint on https.
+
+2014-02-13  Yousong Zhou  <yszhou4tech@gmail.com>
+
+	* Test--start-pos.px: Test --start-pos for HTTP downloads.
+	* Test-ftp--start-pos.px: Test --start-pos for FTP downloads.
+	* Test--start-pos--continue.px: Test the case when --start-pos and
+	  --continue were both specified.
+
+2014-02-13  Yousong Zhou  <yszhou4tech@gmail.com>
+
+	* Wget.pm.in: Exclude existing files from the check of unexpected
+	  downloads.
+
+2014-02-13  Yousong Zhou  <yszhou4tech@gmail.com>
+
+	* FTPServer.pm: Fix the handling of TYPE command and avoid endless
+	loop when doing binary mode RETR.
+
+2014-01-23  Lars Wendler  <polynomial-c@gentoo.org> (tiny change)
+
+	* Test--post-file.px: Do not fail when wget has no debug support.
+
 2013-11-04  Darshit Shah  <darnir@gmail.com>
 
 	* Makefile.am: Add new tests introduced in last commit to

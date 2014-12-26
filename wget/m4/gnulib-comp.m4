@@ -1,5 +1,5 @@
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2013 Free Software Foundation, Inc.
+# Copyright (C) 2002-2014 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -107,6 +107,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module inet_ntop:
   # Code from module intprops:
   # Code from module ioctl:
+  # Code from module iswblank:
   # Code from module langinfo:
   # Code from module largefile:
   AC_REQUIRE([AC_SYS_LARGEFILE])
@@ -118,8 +119,9 @@ AC_DEFUN([gl_EARLY],
   # Code from module lseek:
   # Code from module lstat:
   # Code from module maintainer-makefile:
-  # Code from module malloc-gnu:
   # Code from module malloc-posix:
+  # Code from module mbchar:
+  # Code from module mbiter:
   # Code from module mbrtowc:
   # Code from module mbsinit:
   # Code from module mbtowc:
@@ -199,6 +201,8 @@ AC_DEFUN([gl_EARLY],
   # Code from module strerror_r-posix:
   # Code from module string:
   # Code from module strings:
+  # Code from module strndup:
+  # Code from module strnlen:
   # Code from module strtok_r:
   # Code from module sys_ioctl:
   # Code from module sys_select:
@@ -216,6 +220,9 @@ AC_DEFUN([gl_EARLY],
   # Code from module tmpdir:
   # Code from module unistd:
   # Code from module unistd-safer:
+  # Code from module unitypes:
+  # Code from module uniwidth/base:
+  # Code from module uniwidth/width:
   # Code from module unlocked-io:
   # Code from module update-copyright:
   # Code from module useless-if-before-free:
@@ -230,11 +237,13 @@ AC_DEFUN([gl_EARLY],
   # Code from module wchar:
   # Code from module wcrtomb:
   # Code from module wctype-h:
+  # Code from module wcwidth:
   # Code from module write:
   # Code from module xalloc:
   # Code from module xalloc-die:
   # Code from module xalloc-oversized:
   # Code from module xsize:
+  # Code from module xstrndup:
 ])
 
 # This macro should be invoked from ./configure.ac, in the section
@@ -451,6 +460,15 @@ AC_DEFUN([gl_INIT],
     AC_LIBOBJ([ioctl])
   fi
   gl_SYS_IOCTL_MODULE_INDICATOR([ioctl])
+  gl_FUNC_ISWBLANK
+  if test $HAVE_ISWCNTRL = 0 || test $REPLACE_ISWCNTRL = 1; then
+    :
+  else
+    if test $HAVE_ISWBLANK = 0 || test $REPLACE_ISWBLANK = 1; then
+      AC_LIBOBJ([iswblank])
+    fi
+  fi
+  gl_WCTYPE_MODULE_INDICATOR([iswblank])
   gl_LANGINFO_H
   AC_REQUIRE([gl_LARGEFILE])
   AC_REQUIRE([gl_HEADER_SYS_SOCKET])
@@ -483,16 +501,14 @@ AC_DEFUN([gl_INIT],
   gl_SYS_STAT_MODULE_INDICATOR([lstat])
   AC_CONFIG_COMMANDS_PRE([m4_ifdef([AH_HEADER],
     [AC_SUBST([CONFIG_INCLUDE], m4_defn([AH_HEADER]))])])
-  gl_FUNC_MALLOC_GNU
-  if test $REPLACE_MALLOC = 1; then
-    AC_LIBOBJ([malloc])
-  fi
-  gl_MODULE_INDICATOR([malloc-gnu])
+  AC_REQUIRE([AC_PROG_SED])
   gl_FUNC_MALLOC_POSIX
   if test $REPLACE_MALLOC = 1; then
     AC_LIBOBJ([malloc])
   fi
   gl_STDLIB_MODULE_INDICATOR([malloc-posix])
+  gl_MBCHAR
+  gl_MBITER
   gl_FUNC_MBRTOWC
   if test $HAVE_MBRTOWC = 0 || test $REPLACE_MBRTOWC = 1; then
     AC_LIBOBJ([mbrtowc])
@@ -775,6 +791,17 @@ AC_DEFUN([gl_INIT],
   gl_STRING_MODULE_INDICATOR([strerror_r])
   gl_HEADER_STRING_H
   gl_HEADER_STRINGS_H
+  gl_FUNC_STRNDUP
+  if test $HAVE_STRNDUP = 0 || test $REPLACE_STRNDUP = 1; then
+    AC_LIBOBJ([strndup])
+  fi
+  gl_STRING_MODULE_INDICATOR([strndup])
+  gl_FUNC_STRNLEN
+  if test $HAVE_DECL_STRNLEN = 0 || test $REPLACE_STRNLEN = 1; then
+    AC_LIBOBJ([strnlen])
+    gl_PREREQ_STRNLEN
+  fi
+  gl_STRING_MODULE_INDICATOR([strnlen])
   gl_FUNC_STRTOK_R
   if test $HAVE_STRTOK_R = 0 || test $REPLACE_STRTOK_R = 1; then
     AC_LIBOBJ([strtok_r])
@@ -804,6 +831,9 @@ AC_DEFUN([gl_INIT],
   gt_TMPDIR
   gl_UNISTD_H
   gl_UNISTD_SAFER
+  gl_LIBUNISTRING_LIBHEADER([0.9], [unitypes.h])
+  gl_LIBUNISTRING_LIBHEADER([0.9], [uniwidth.h])
+  gl_LIBUNISTRING_MODULE([0.9.4], [uniwidth/width])
   gl_FUNC_GLIBC_UNLOCKED_IO
   gl_UTIMENS
   gl_FUNC_VASNPRINTF
@@ -828,6 +858,11 @@ AC_DEFUN([gl_INIT],
   fi
   gl_WCHAR_MODULE_INDICATOR([wcrtomb])
   gl_WCTYPE_H
+  gl_FUNC_WCWIDTH
+  if test $HAVE_WCWIDTH = 0 || test $REPLACE_WCWIDTH = 1; then
+    AC_LIBOBJ([wcwidth])
+  fi
+  gl_WCHAR_MODULE_INDICATOR([wcwidth])
   gl_FUNC_WRITE
   if test $REPLACE_WRITE = 1; then
     AC_LIBOBJ([write])
@@ -836,6 +871,7 @@ AC_DEFUN([gl_INIT],
   gl_UNISTD_MODULE_INDICATOR([write])
   gl_XALLOC
   gl_XSIZE
+  gl_XSTRNDUP
   # End of code from modules
   m4_ifval(gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([gl_LIBSOURCES_DIR])[ ||
@@ -1063,6 +1099,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/inet_ntop.c
   lib/intprops.h
   lib/ioctl.c
+  lib/iswblank.c
   lib/itold.c
   lib/langinfo.in.h
   lib/listen.c
@@ -1073,6 +1110,10 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/lseek.c
   lib/lstat.c
   lib/malloc.c
+  lib/mbchar.c
+  lib/mbchar.h
+  lib/mbiter.c
+  lib/mbiter.h
   lib/mbrtowc.c
   lib/mbsinit.c
   lib/mbtowc-impl.h
@@ -1174,6 +1215,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/strings.in.h
   lib/stripslash.c
   lib/strncasecmp.c
+  lib/strndup.c
+  lib/strnlen.c
   lib/strtok_r.c
   lib/sys_ioctl.in.h
   lib/sys_select.in.h
@@ -1195,6 +1238,10 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/unistd-safer.h
   lib/unistd.c
   lib/unistd.in.h
+  lib/unitypes.in.h
+  lib/uniwidth.in.h
+  lib/uniwidth/cjk.h
+  lib/uniwidth/width.c
   lib/unlocked-io.h
   lib/utimens.c
   lib/utimens.h
@@ -1212,6 +1259,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/wcrtomb.c
   lib/wctype-h.c
   lib/wctype.in.h
+  lib/wcwidth.c
   lib/write.c
   lib/xalloc-die.c
   lib/xalloc-oversized.h
@@ -1219,6 +1267,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/xmalloc.c
   lib/xsize.c
   lib/xsize.h
+  lib/xstrndup.c
+  lib/xstrndup.h
   m4/00gnulib.m4
   m4/absolute-header.m4
   m4/alloca.m4
@@ -1270,11 +1320,13 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/intmax_t.m4
   m4/inttypes_h.m4
   m4/ioctl.m4
+  m4/iswblank.m4
   m4/langinfo_h.m4
   m4/largefile.m4
   m4/lib-ld.m4
   m4/lib-link.m4
   m4/lib-prefix.m4
+  m4/libunistring-base.m4
   m4/localcharset.m4
   m4/locale-fr.m4
   m4/locale-ja.m4
@@ -1287,6 +1339,8 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/lstat.m4
   m4/malloc.m4
   m4/math_h.m4
+  m4/mbchar.m4
+  m4/mbiter.m4
   m4/mbrtowc.m4
   m4/mbsinit.m4
   m4/mbstate_t.m4
@@ -1352,6 +1406,8 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/strerror_r.m4
   m4/string_h.m4
   m4/strings_h.m4
+  m4/strndup.m4
+  m4/strnlen.m4
   m4/strtok_r.m4
   m4/sys_ioctl_h.m4
   m4/sys_select_h.m4
@@ -1382,10 +1438,12 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/wchar_t.m4
   m4/wcrtomb.m4
   m4/wctype_h.m4
+  m4/wcwidth.m4
   m4/wint_t.m4
   m4/write.m4
   m4/xalloc.m4
   m4/xsize.m4
+  m4/xstrndup.m4
   top/GNUmakefile
   top/maint.mk
 ])

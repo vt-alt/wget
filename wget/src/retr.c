@@ -1,6 +1,6 @@
 /* File retrieval.
    Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
-   2005, 2006, 2007, 2008, 2009, 2010, 2011 Free Software Foundation,
+   2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014 Free Software Foundation,
    Inc.
 
 This file is part of GNU Wget.
@@ -226,7 +226,8 @@ write_data (FILE *out, FILE *out2, const char *buf, int bufsize,
    data to OUT2, -3 is returned.  */
 
 int
-fd_read_body (int fd, FILE *out, wgint toread, wgint startpos,
+fd_read_body (const char *downloaded_filename, int fd, FILE *out, wgint toread, wgint startpos,
+
               wgint *qtyread, wgint *qtywritten, double *elapsed, int flags,
               FILE *out2)
 {
@@ -262,13 +263,13 @@ fd_read_body (int fd, FILE *out, wgint toread, wgint startpos,
   if (flags & rb_skip_startpos)
     skip = startpos;
 
-  if (opt.verbose)
+  if (opt.show_progress)
     {
       /* If we're skipping STARTPOS bytes, pass 0 as the INITIAL
          argument to progress_create because the indicator doesn't
          (yet) know about "skipping" data.  */
       wgint start = skip ? 0 : startpos;
-      progress = progress_create (start, start + toread);
+      progress = progress_create (downloaded_filename, start, start + toread);
       progress_interactive = progress_interactive_p (progress);
     }
 
@@ -411,7 +412,7 @@ fd_read_body (int fd, FILE *out, wgint toread, wgint startpos,
       if (progress)
         progress_update (progress, ret, ptimer_read (timer));
 #ifdef WINDOWS
-      if (toread > 0 && !opt.quiet)
+      if (toread > 0 && opt.show_progress)
         ws_percenttitle (100.0 *
                          (startpos + sum_read) / (startpos + toread));
 #endif
@@ -587,7 +588,7 @@ fd_read_hunk (int fd, hunk_terminator_t terminator, long sizehint, long maxsize)
 }
 
 static const char *
-line_terminator (const char *start, const char *peeked, int peeklen)
+line_terminator (const char *start _GL_UNUSED, const char *peeked, int peeklen)
 {
   const char *p = memchr (peeked, '\n', peeklen);
   if (p)
@@ -649,7 +650,7 @@ calc_rate (wgint bytes, double secs, int *units)
 {
   double dlrate;
   double bibyte = 1000.0;
- 
+
   if (!opt.report_bps)
     bibyte = 1024.0;
 
@@ -781,6 +782,7 @@ retrieve_url (struct url * orig_parsed, const char *origurl, char **file,
           result = PROXERR;
           goto bail;
         }
+      free (proxy);
     }
 
   if (u->scheme == SCHEME_HTTP
@@ -902,14 +904,18 @@ retrieve_url (struct url * orig_parsed, const char *origurl, char **file,
          index page; that redirection is clearly a GET.  We "suspend"
          POST data for the duration of the redirections, and restore
          it when we're done.
-	 
-	 RFC2616 HTTP/1.1 introduces code 307 Temporary Redirect
-	 specifically to preserve the method of the request.
-	 */
+
+         RFC2616 HTTP/1.1 introduces code 307 Temporary Redirect
+         specifically to preserve the method of the request.
+     */
       if (result != NEWLOCATION_KEEP_POST && !method_suspended)
         SUSPEND_METHOD;
 
       goto redirected;
+    }
+  else
+    {
+      xfree(mynewloc);
     }
 
   /* Try to not encode in UTF-8 if fetching failed */
@@ -1004,7 +1010,6 @@ retrieve_from_file (const char *file, bool html, int *count)
   if (url_valid_scheme (url))
     {
       int dt,url_err;
-      uerr_t status;
       struct url *url_parsed = url_parse (url, &url_err, iri, true);
       if (!url_parsed)
         {
@@ -1030,7 +1035,7 @@ retrieve_from_file (const char *file, bool html, int *count)
       /* If we have a found a content encoding, use it.
        * ( == is okay, because we're checking for identical object) */
       if (iri->content_encoding != opt.locale)
-	  set_uri_encoding (iri, iri->content_encoding, false);
+          set_uri_encoding (iri, iri->content_encoding, false);
 
       /* Reset UTF-8 encode status */
       iri->utf8_encode = opt.enable_iri;
@@ -1065,8 +1070,9 @@ retrieve_from_file (const char *file, bool html, int *count)
 
       parsed_url = url_parse (cur_url->url->url, NULL, tmpiri, true);
 
+      char *proxy = getproxy (cur_url->url);
       if ((opt.recursive || opt.page_requisites)
-          && (cur_url->url->scheme != SCHEME_FTP || getproxy (cur_url->url)))
+          && (cur_url->url->scheme != SCHEME_FTP || proxy))
         {
           int old_follow_ftp = opt.follow_ftp;
 
@@ -1084,6 +1090,7 @@ retrieve_from_file (const char *file, bool html, int *count)
                                cur_url->url->url, &filename,
                                &new_file, NULL, &dt, opt.recursive, tmpiri,
                                true);
+      free(proxy);
 
       if (parsed_url)
           url_free (parsed_url);
@@ -1236,7 +1243,6 @@ getproxy (struct url *u)
 {
   char *proxy = NULL;
   char *rewritten_url;
-  static char rewritten_storage[1024];
 
   if (!opt.use_proxy)
     return NULL;
@@ -1266,13 +1272,9 @@ getproxy (struct url *u)
      getproxy() to return static storage. */
   rewritten_url = rewrite_shorthand_url (proxy);
   if (rewritten_url)
-    {
-      strncpy (rewritten_storage, rewritten_url, sizeof (rewritten_storage));
-      rewritten_storage[sizeof (rewritten_storage) - 1] = '\0';
-      proxy = rewritten_storage;
-    }
+    return rewritten_url;
 
-  return proxy;
+  return strdup(proxy);
 }
 
 /* Returns true if URL would be downloaded through a proxy. */
@@ -1283,7 +1285,9 @@ url_uses_proxy (struct url * u)
   bool ret;
   if (!u)
     return false;
-  ret = getproxy (u) != NULL;
+  char *proxy = getproxy (u);
+  ret = proxy != NULL;
+  free(proxy);
   return ret;
 }
 

@@ -169,7 +169,7 @@ static const unsigned char urlchr_table[256] =
    The transformation is done in place.  If you need the original
    string intact, make a copy before calling this function.  */
 
-static void
+void
 url_unescape (char *s)
 {
   char *t = s;                  /* t - tortoise */
@@ -681,7 +681,6 @@ url_parse (const char *url, int *error, struct iri *iri, bool percent_encode)
   char *user = NULL, *passwd = NULL;
 
   const char *url_encoded = NULL;
-  char *new_url = NULL;
 
   int error_code;
 
@@ -695,29 +694,29 @@ url_parse (const char *url, int *error, struct iri *iri, bool percent_encode)
       goto error;
     }
 
+  url_encoded = url;
+
   if (iri && iri->utf8_encode)
     {
+      char *new_url = NULL;
+
       iri->utf8_encode = remote_to_utf8 (iri, iri->orig_url ? iri->orig_url : url, (const char **) &new_url);
       if (!iri->utf8_encode)
         new_url = NULL;
       else
         {
           iri->orig_url = xstrdup (url);
-          percent_encode = true;
+          url_encoded = reencode_escapes (new_url);
+          if (url_encoded != new_url)
+            xfree (new_url);
+          percent_encode = false;
         }
     }
 
-  /* XXX XXX Could that change introduce (security) bugs ???  XXX XXX*/
   if (percent_encode)
-    url_encoded = reencode_escapes (new_url ? new_url : url);
-  else
-    url_encoded = new_url ? new_url : url;
+    url_encoded = reencode_escapes (url);
 
   p = url_encoded;
-
-  if (new_url && url_encoded != new_url)
-    xfree (new_url);
-
   p += strlen (supported_schemes[scheme].leading_string);
   uname_b = p;
   p = url_skip_credentials (p);
@@ -1282,16 +1281,6 @@ append_null (struct growable *dest)
 {
   GROW (dest, 1);
   *TAIL (dest) = 0;
-}
-
-/* Shorten DEST to LENGTH. */
-static void
-shorten_length (size_t length, struct growable *dest)
-{
-  if (length < dest->tail)
-    dest->tail = length;
-
-  append_null (dest);
 }
 
 /* Append CH to DEST. */
@@ -2046,7 +2035,7 @@ url_string (const struct url *url, enum url_auth_mode auth_mode)
           if (url->passwd)
             {
               if (auth_mode == URL_AUTH_HIDE_PASSWD)
-                quoted_passwd = HIDDEN_PASSWORD;
+                quoted_passwd = (char *) HIDDEN_PASSWORD;
               else
                 quoted_passwd = url_escape_allow_passthrough (url->passwd);
             }
@@ -2215,7 +2204,7 @@ ps (char *path)
 #endif
 
 static const char *
-run_test (char *test, char *expected_result, enum url_scheme scheme,
+run_test (const char *test, const char *expected_result, enum url_scheme scheme,
           bool expected_change)
 {
   char *test_copy = xstrdup (test);
@@ -2244,8 +2233,8 @@ run_test (char *test, char *expected_result, enum url_scheme scheme,
 const char *
 test_path_simplify (void)
 {
-  static struct {
-    char *test, *result;
+  static const struct {
+    const char *test, *result;
     enum url_scheme scheme;
     bool should_modify;
   } tests[] = {
@@ -2277,15 +2266,16 @@ test_path_simplify (void)
     { "a/b/../../c",            "c",            SCHEME_HTTP, true },
     { "./a/../b",               "b",            SCHEME_HTTP, true }
   };
-  int i;
+  unsigned i;
 
   for (i = 0; i < countof (tests); i++)
     {
       const char *message;
-      char *test = tests[i].test;
-      char *expected_result = tests[i].result;
+      const char *test = tests[i].test;
+      const char *expected_result = tests[i].result;
       enum url_scheme scheme = tests[i].scheme;
       bool  expected_change = tests[i].should_modify;
+
       message = run_test (test, expected_result, scheme, expected_change);
       if (message) return message;
     }
@@ -2293,19 +2283,19 @@ test_path_simplify (void)
 }
 
 const char *
-test_append_uri_pathel()
+test_append_uri_pathel(void)
 {
-  int i;
-  struct {
-    char *original_url;
-    char *input;
+  unsigned i;
+  static const struct {
+    const char *original_url;
+    const char *input;
     bool escaped;
-    char *expected_result;
+    const char *expected_result;
   } test_array[] = {
     { "http://www.yoyodyne.com/path/", "somepage.html", false, "http://www.yoyodyne.com/path/somepage.html" },
   };
 
-  for (i = 0; i < sizeof(test_array)/sizeof(test_array[0]); ++i)
+  for (i = 0; i < countof(test_array); ++i)
     {
       struct growable dest;
       const char *p = test_array[i].input;
@@ -2322,13 +2312,13 @@ test_append_uri_pathel()
   return NULL;
 }
 
-const char*
-test_are_urls_equal()
+const char *
+test_are_urls_equal(void)
 {
-  int i;
-  struct {
-    char *url1;
-    char *url2;
+  unsigned i;
+  static const struct {
+    const char *url1;
+    const char *url2;
     bool expected_result;
   } test_array[] = {
     { "http://www.adomain.com/apath/", "http://www.adomain.com/apath/",       true },
@@ -2339,7 +2329,7 @@ test_are_urls_equal()
     { "http://www.adomain.com/path%2f", "http://www.adomain.com/path/",       false },
   };
 
-  for (i = 0; i < sizeof(test_array)/sizeof(test_array[0]); ++i)
+  for (i = 0; i < countof(test_array); ++i)
     {
       mu_assert ("test_are_urls_equal: wrong result",
                  are_urls_equal (test_array[i].url1, test_array[i].url2) == test_array[i].expected_result);
@@ -2353,4 +2343,3 @@ test_are_urls_equal()
 /*
  * vim: et ts=2 sw=2
  */
-

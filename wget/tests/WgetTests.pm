@@ -1,7 +1,3 @@
-# WARNING!
-# WgetTest.pm is a generated file! Do not edit! Edit WgetTest.pm.in
-# instead.
-
 package WgetTest;
 $VERSION = 0.01;
 
@@ -10,8 +6,10 @@ use warnings;
 
 use Cwd;
 use File::Path;
+use POSIX qw(locale_h);
+use locale;
 
-our $WGETPATH = "@abs_top_builddir@/src/wget";
+our $WGETPATH = "../src/wget";
 
 my @unexpected_downloads = ();
 
@@ -22,7 +20,7 @@ my @unexpected_downloads = ();
         _errcode      => 0,
         _existing     => {},
         _input        => {},
-        _name         => "",
+        _name         => $0,
         _output       => {},
         _server_behavior => {},
     );
@@ -72,6 +70,8 @@ sub run {
     my $result_message = "Test successful.\n";
     my $errcode;
 
+    $self->{_name} =~ s{.*/}{}; # remove path
+    $self->{_name} =~ s{\.[^.]+$}{}; # remove extension
     printf "Running test $self->{_name}\n";
 
     # Setup
@@ -94,7 +94,7 @@ sub run {
     $errcode =
         ($cmdline =~ m{^/.*})
             ? system ($cmdline)
-            : system ("$self->{_workdir}/../src/$cmdline");
+            : system ("$self->{_workdir}/$cmdline");
     $errcode >>= 8; # XXX: should handle abnormal error codes.
 
     # Shutdown server
@@ -256,7 +256,10 @@ sub _verify_download {
     # make sure no unexpected files were downloaded
     chdir ("$self->{_workdir}/$self->{_name}/output");
 
-    __dir_walk('.', sub { push @unexpected_downloads, $_[0] unless (exists $self->{_output}{$_[0]}) }, sub { shift; return @_ } );
+    __dir_walk('.',
+               sub { push @unexpected_downloads,
+                          $_[0] unless (exists $self->{_output}{$_[0]} || $self->{_existing}{$_[0]}) },
+               sub { shift; return @_ } );
     if (@unexpected_downloads) {
         return "Test failed: unexpected downloaded files [" . join(', ', @unexpected_downloads) . "]\n";
     }
@@ -304,6 +307,8 @@ sub _fork_and_launch_server
     } elsif ($pid == 0) {
         # child
         close FROM_CHILD;
+        # FTP Server has to start with english locale due to use of strftime month names in LIST command
+        setlocale(LC_ALL,"C");
         $self->_launch_server(sub { print TO_PARENT "SYNC\n"; close TO_PARENT });
     } else {
         # father
@@ -318,4 +323,3 @@ sub _fork_and_launch_server
 1;
 
 # vim: et ts=4 sw=4
-

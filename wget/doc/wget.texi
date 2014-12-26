@@ -701,6 +701,22 @@ Another instance where you'll get a garbled file if you try to use
 Note that @samp{-c} only works with @sc{ftp} servers and with @sc{http}
 servers that support the @code{Range} header.
 
+@cindex offset
+@cindex continue retrieval
+@cindex incomplete downloads
+@cindex resume download
+@cindex start position
+@item --start-pos=@var{OFFSET}
+Start downloading at zero-based position @var{OFFSET}.  Offset may be expressed
+in bytes, kilobytes with the `k' suffix, or megabytes with the `m' suffix, etc.
+
+@samp{--start-pos} has higher precedence over @samp{--continue}.  When
+@samp{--start-pos} and @samp{--continue} are both specified, wget will emit a
+warning then proceed as if @samp{--continue} was absent.
+
+Server support for continued download is required, otherwise @samp{--start-pos}
+cannot help.  See @samp{-c} for details.
+
 @cindex progress indicator
 @cindex dot style
 @item --progress=@var{type}
@@ -716,7 +732,12 @@ Use @samp{--progress=dot} to switch to the ``dot'' display.  It traces
 the retrieval by printing dots on the screen, each dot representing a
 fixed amount of downloaded data.
 
-When using the dotted retrieval, you may also set the @dfn{style} by
+The progress @var{type} can also take one or more parameters.  The parameters
+vary based on the @var{type} selected.  Parameters to @var{type} are passed by
+appending them to the type sperated by a colon (:) like this:
+@samp{--progress=@var{type}:@var{parameter1}:@var{parameter2}}.
+
+When using the dotted retrieval, you may set the @dfn{style} by
 specifying the type as @samp{dot:@var{style}}.  Different styles assign
 different meaning to one dot.  With the @code{default} style each dot
 represents 1K, there are ten dots in a cluster and 50 dots in a line.
@@ -729,11 +750,35 @@ If @code{mega} is not enough then you can use the @code{giga}
 style---each dot represents 1M retrieved, there are eight dots in a
 cluster, and 32 dots on each line (so each line contains 32M).
 
+With @samp{--progress=bar}, there are currently two possible parameters,
+@var{force} and @var{noscroll}.
+
+When the output is not a TTY, the progress bar always falls back to ``dot'',
+even if @samp{--progress=bar} was passed to Wget during invokation. This
+behaviour can be overridden and the ``bar'' output forced by using the ``force''
+parameter as @samp{--progress=bar:force}.
+
+By default, the @samp{bar} style progress bar scroll the name of the file from
+left to right for the file being downloaded if the filename exceeds the maximum
+length allotted for its display.  In certain cases, such as with
+@samp{--progress=bar:force}, one may not want the scrolling filename in the
+progress bar.  By passing the ``noscroll'' parameter, Wget can be forced to
+display as much of the filename as possible without scrolling through it.
+
 Note that you can set the default style using the @code{progress}
 command in @file{.wgetrc}.  That setting may be overridden from the
-command line.  The exception is that, when the output is not a TTY, the
-``dot'' progress will be favored over ``bar''.  To force the bar output,
-use @samp{--progress=bar:force}.
+command line.  For example, to force the bar output without scrolling,
+use @samp{--progress=bar:force:noscroll}.
+
+@item --show-progress
+Force wget to display the progress bar in any verbosity.
+
+By default, wget only displays the progress bar in verbose mode.  One may
+however want wget to display the progress bar on screen in conjunction with
+any other verbosity modes like @samp{--no-verbose} or @samp{--quiet}.  This
+is often a desired a property when invoking wget to download several small/large
+files.  In such a case, wget could simply be invoked with this parameter to get
+a much cleaner output on the screen.
 
 @item -N
 @itemx --timestamping
@@ -890,7 +935,8 @@ Don't use proxies, even if the appropriate @code{*_proxy} environment
 variable is defined.
 
 @c man end
-For more information about the use of proxies with Wget, @xref{Proxies}.
+@xref{Proxies}, for more information about the use of proxies with
+Wget.
 @c man begin OPTIONS
 
 @cindex quota
@@ -1232,8 +1278,8 @@ really important, do not leave them lying in those files either---edit
 the files and delete them after Wget has started the download.
 
 @iftex
-For more information about security issues with Wget, @xref{Security
-Considerations}.
+@xref{Security Considerations}, for more information about security
+issues with Wget.
 @end iftex
 
 @cindex Keep-Alive, turning off
@@ -1595,16 +1641,16 @@ without SSL support, none of these options are available.
 @cindex SSL protocol, choose
 @item --secure-protocol=@var{protocol}
 Choose the secure protocol to be used.  Legal values are @samp{auto},
-@samp{SSLv2}, @samp{SSLv3}, @samp{TLSv1} and @samp{PFS}.  If @samp{auto}
-is used, the SSL library is given the liberty of choosing the appropriate
-protocol automatically, which is achieved by sending an SSLv2 greeting
-and announcing support for SSLv3 and TLSv1.  This is the default.
+@samp{SSLv2}, @samp{SSLv3}, @samp{TLSv1}, @samp{TLSv1_1}, @samp{TLSv1_2}
+and @samp{PFS}.  If @samp{auto} is used, the SSL library is given the
+liberty of choosing the appropriate protocol automatically, which is
+achieved by sending a TLSv1 greeting. This is the default.
 
-Specifying @samp{SSLv2}, @samp{SSLv3}, or @samp{TLSv1} forces the use
-of the corresponding protocol.  This is useful when talking to old and
-buggy SSL server implementations that make it hard for the underlying
-SSL library to choose the correct protocol version.  Fortunately, such
-servers are quite rare.
+Specifying @samp{SSLv2}, @samp{SSLv3}, @samp{TLSv1}, @samp{TLSv1_1} or
+@samp{TLSv1_2} forces the use of the corresponding protocol.  This is
+useful when talking to old and buggy SSL server implementations that
+make it hard for the underlying SSL library to choose the correct
+protocol version.  Fortunately, such servers are quite rare.
 
 Specifying @samp{PFS} enforces the use of the so-called Perfect Forward
 Security cipher suites. In short, PFS adds security by creating a one-time
@@ -1769,8 +1815,8 @@ really important, do not leave them lying in those files either---edit
 the files and delete them after Wget has started the download.
 
 @iftex
-For more information about security issues with Wget, @xref{Security
-Considerations}.
+@xref{Security Considerations}, for more information about security
+issues with Wget.
 @end iftex
 
 @cindex .listing files, removing
@@ -1837,17 +1883,18 @@ Preserve remote file permissions instead of permissions set by umask.
 
 @cindex symbolic links, retrieving
 @item --retr-symlinks
-Usually, when retrieving @sc{ftp} directories recursively and a symbolic
-link is encountered, the linked-to file is not downloaded.  Instead, a
-matching symbolic link is created on the local filesystem.  The
-pointed-to file will not be downloaded unless this recursive retrieval
-would have encountered it separately and downloaded it anyway.
+By default, when retrieving @sc{ftp} directories recursively and a symbolic link
+is encountered, the symbolic link is traversed and the pointed-to files are
+retrieved.  Currently, Wget does not traverse symbolic links to directories to
+download them recursively, though this feature may be added in the future.
 
-When @samp{--retr-symlinks} is specified, however, symbolic links are
-traversed and the pointed-to files are retrieved.  At this time, this
-option does not cause Wget to traverse symlinks to directories and
-recurse through them, but in the future it should be enhanced to do
-this.
+When @samp{--retr-symlinks=no} is specified, the linked-to file is not
+downloaded.  Instead, a matching symbolic link is created on the local
+filesystem.  The pointed-to file will not be retrieved unless this recursive
+retrieval would have encountered it separately and downloaded it anyway.  This
+option poses a security risk where a malicious FTP Server may cause Wget to
+write to files outside of the intended directories through a specially crafted
+@sc{.listing} file.
 
 Note that when retrieving a file (not a directory) because it was
 specified on the command-line, rather than because it was recursed to,

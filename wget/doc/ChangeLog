@@ -1,3 +1,41 @@
+2014-09-08  Darshit Shah  <darnir@gmail.com>
+
+	* wget.texi (symbolic links): Update documentation of retr-symlinks to
+	reflect the new default. Add warning about potential security issues with
+	--retr-symlinks=yes.
+
+2014-10-16  Tim Ruehsen  <tim.ruehsen@gmx.de>
+
+	* wget.texi (Download Options): update --secure-protocol description
+
+2014-08-03  Giuseppe Scrivano  <gscrivano@gnu.org>
+
+	* wget.texi (Download Options): Fix texinfo warning.
+
+2014-06-11  Giuseppe Scrivano  <gscrivan@redhat.com>
+
+	* Makefile.am: Remove @VAR@ with $FOO.
+
+	* fdl.texi: Remove terminating empty lines.
+
+2014-06-10  Giuseppe Scrivano  <gscrivan@redhat.com>
+
+	* wget.texi: Remove trailing whitespaces.
+
+	* fdl.texi: Copy from gnulib.
+
+2014-05-24  Darshit Shah  <darnir@gmail.com>
+
+	* wget.texi: Document noscroll parameter to progress=bar
+
+2014-05-01  Darshit Shah  <darnir@gmail.com>
+
+	* wget.texi: Add documentation for --show-progress
+
+2014-02-10  Yousong Zhou  <yszhou4tech@gmail.com>
+
+	* wget.texi: Add documentation for --start-pos.
+
 2013-12-29  Giuseppe Scrivano  <gscrivan@redhat.com>
 
 	* wget.texi: Update to GFDL 1.3.

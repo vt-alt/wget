@@ -60,11 +60,17 @@ const char *compiled_features[] =
   "-opie",
 #endif
 
+#if defined HAVE_LIBPSL
+  "+psl",
+#else
+  "-psl",
+#endif
+
 #if defined HAVE_LIBSSL || defined HAVE_LIBSSL32
   "+ssl/openssl",
 #elif defined HAVE_LIBGNUTLS
   "+ssl/gnutls",
-#else 
+#else
   "-ssl",
 #endif
 

@@ -1,6 +1,6 @@
 dnl Template file for GNU Autoconf
-dnl Copyright (C) 1995, 1996, 1997, 2001, 2007, 2008, 2009, 2010, 2011
-dnl Free Software Foundation, Inc.
+dnl Copyright (C) 1995, 1996, 1997, 2001, 2007, 2008, 2009, 2010, 2011, 2012,
+dnl 2013, 2014 Free Software Foundation, Inc.
 
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -60,6 +60,16 @@ AC_DEFINE_UNQUOTED([OS_TYPE], "$host_os",
 dnl
 dnl Process features.
 dnl
+
+ENABLE_PSL=no
+AC_ARG_WITH(libpsl,
+    AS_HELP_STRING([--without-libpsl],
+                   [disable support for libpsl cookie checking.]),
+    [],
+    [AC_SEARCH_LIBS(psl_builtin, psl,
+                    [ENABLE_PSL=yes; AC_DEFINE([HAVE_LIBPSL], [1], [PSL Support Enabled])],
+                    [AC_MSG_WARN(*** libpsl not found. Falling back to Wget builtin cookie checking.)])
+    ])
 
 AC_ARG_WITH(ssl,
 [[  --without-ssl           disable SSL autodetection
@@ -142,8 +152,7 @@ AC_C_VOLATILE
 
 dnl Check for basic headers, even though we expect them to exist and
 dnl #include them unconditionally in the code.  Their detection is
-dnl still needed because test programs used by Autoconf macros check
-dnl for STDC_HEADERS, HAVE_SYS_TYPES_H, etc. before using them.
+dnl still needed because test programs used by Autoconf macros check.
 dnl Without the checks they will fail to be included in test programs,
 dnl which will subsequently fail.
 AC_HEADER_STDC
@@ -184,9 +193,7 @@ AC_CHECK_TYPES([uint32_t, uintptr_t, intptr_t, int64_t])
 AC_CHECK_TYPES(sig_atomic_t, [], [], [
 #include <stdio.h>
 #include <sys/types.h>
-#if HAVE_INTTYPES_H
-# include <inttypes.h>
-#endif
+#include <inttypes.h>
 #include <signal.h>
 ])
 
@@ -255,7 +262,7 @@ AS_IF([test x"$with_ssl" = xopenssl], [
   case $host_os in
     *mingw32* )
       dnl prefer link to openssl dlls if possible. if not then fallback on static libs. if not then error
-        
+
       AC_CHECK_LIB(eay32, EVP_MD_CTX_init)
       if test x"$ac_cv_lib_eay32_EVP_MD_CTX_init" != xno
       then
@@ -267,7 +274,7 @@ AS_IF([test x"$with_ssl" = xopenssl], [
           AC_DEFINE([HAVE_LIBSSL32], [1], [Define to 1 if you have the `ssl32' library (-lssl32).])
         ],
         AC_MSG_ERROR([openssl not found: shared lib eay32 found but ssl32 not found]))
-          
+
       else
         LIBS+=' -lgdi32'
         dnl fallback and test static libs
@@ -357,6 +364,7 @@ else
     fi
   fi
 fi
+
 
 dnl **********************************************************************
 dnl Checks for IPv6
@@ -534,6 +542,12 @@ fi
 dnl
 dnl Check for UUID
 dnl
+AC_CHECK_HEADER(uuid.h,
+                AC_CHECK_FUNC(uuid, uuid_create,
+                  [AC_DEFINE([HAVE_UUID_CREATE], 1,
+                             [Define if uuid_create is available.])
+                  ])
+)
 
 AC_CHECK_HEADER(uuid/uuid.h,
                 AC_CHECK_LIB(uuid, uuid_generate,
@@ -555,7 +569,7 @@ AC_CHECK_HEADER(pcre.h,
                   ])
 )
 
- 
+
 dnl Needed by src/Makefile.am
 AM_CONDITIONAL([IRI_IS_ENABLED], [test "X$iri" != "Xno"])
 
@@ -564,8 +578,8 @@ dnl
 dnl Create output
 dnl
 AC_CONFIG_FILES([Makefile src/Makefile doc/Makefile util/Makefile
-                 po/Makefile.in tests/Makefile tests/WgetTest.pm
-                 lib/Makefile])
+                 po/Makefile.in tests/Makefile
+                 lib/Makefile testenv/Makefile])
 AC_CONFIG_HEADERS([src/config.h])
 AC_OUTPUT
 
@@ -580,6 +594,7 @@ AC_MSG_NOTICE([Summary of build options:
   Libs:              $LIBS
   SSL:               $with_ssl
   Zlib:              $with_zlib
+  PSL:               $ENABLE_PSL
   Digest:            $ENABLE_DIGEST
   NTLM:              $ENABLE_NTLM
   OPIE:              $ENABLE_OPIE

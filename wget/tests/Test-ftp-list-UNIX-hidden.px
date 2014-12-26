@@ -55,11 +55,10 @@ my %expected_downloaded_files = (
 
 ###############################################################################
 
-my $the_test = FTPTest->new (name => "Test-ftp-list-UNIX-hidden",
+my $the_test = FTPTest->new (
                              input => \%urls,
                              cmdline => $cmdline,
                              errcode => $expected_error_code,
                              output => \%expected_downloaded_files,
                              server_behavior => {list_no_hidden_if_list => 1});
 exit $the_test->run();
-

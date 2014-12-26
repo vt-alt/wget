@@ -40,6 +40,9 @@ as that of the covered work.  */
 #include <openssl/x509v3.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
+#if OPENSSL_VERSION_NUMBER >= 0x00907000
+#include <openssl/conf.h>
+#endif
 
 #include "utils.h"
 #include "connect.h"
@@ -153,6 +156,9 @@ key_type_to_ssl_type (enum keyfile_type type)
     }
 }
 
+/* SSL has been initialized */
+static int ssl_true_initialized = 0;
+
 /* Create an SSL Context and set default paths etc.  Called the first
    time an HTTP download is attempted.
 
@@ -161,6 +167,14 @@ key_type_to_ssl_type (enum keyfile_type type)
 bool
 ssl_init (void)
 {
+#if OPENSSL_VERSION_NUMBER >= 0x00907000
+  if (ssl_true_initialized == 0)
+    {
+      OPENSSL_config (NULL);
+      ssl_true_initialized = 1;
+    }
+#endif
+
   SSL_METHOD const *meth;
 
   if (ssl_ctx)
@@ -176,6 +190,12 @@ ssl_init (void)
       goto error;
     }
 
+#if OPENSSL_VERSION_NUMBER >= 0x00907000
+  OPENSSL_load_builtin_modules();
+  ENGINE_load_builtin_engines();
+  CONF_modules_load_file(NULL, NULL,
+      CONF_MFLAGS_DEFAULT_SECTION|CONF_MFLAGS_IGNORE_MISSING_FILE);
+#endif
   SSL_library_init ();
   SSL_load_error_strings ();
   SSLeay_add_all_algorithms ();
@@ -183,9 +203,6 @@ ssl_init (void)
 
   switch (opt.secure_protocol)
     {
-    case secure_protocol_auto:
-      meth = SSLv23_client_method ();
-      break;
 #ifndef OPENSSL_NO_SSL2
     case secure_protocol_sslv2:
       meth = SSLv2_client_method ();
@@ -194,10 +211,19 @@ ssl_init (void)
     case secure_protocol_sslv3:
       meth = SSLv3_client_method ();
       break;
+    case secure_protocol_auto:
     case secure_protocol_pfs:
     case secure_protocol_tlsv1:
       meth = TLSv1_client_method ();
       break;
+#if OPENSSL_VERSION_NUMBER >= 0x01001000
+    case secure_protocol_tlsv1_1:
+      meth = TLSv1_1_client_method ();
+      break;
+    case secure_protocol_tlsv1_2:
+      meth = TLSv1_2_client_method ();
+      break;
+#endif
     default:
       abort ();
     }
@@ -305,7 +331,7 @@ openssl_read (int fd, char *buf, int bufsize, void *arg)
 }
 
 static int
-openssl_write (int fd, char *buf, int bufsize, void *arg)
+openssl_write (int fd _GL_UNUSED, char *buf, int bufsize, void *arg)
 {
   int ret = 0;
   struct openssl_transport_context *ctx = arg;
@@ -347,7 +373,7 @@ openssl_peek (int fd, char *buf, int bufsize, void *arg)
 }
 
 static const char *
-openssl_errstr (int fd, void *arg)
+openssl_errstr (int fd _GL_UNUSED, void *arg)
 {
   struct openssl_transport_context *ctx = arg;
   unsigned long errcode;
@@ -459,10 +485,10 @@ ssl_connect_wget (int fd, const char *hostname)
   if (! is_valid_ip_address (hostname))
     {
       if (! SSL_set_tlsext_host_name (conn, hostname))
-	{
-	DEBUGP (("Failed to set TLS server-name indication."));
-	goto error;
-	}
+        {
+          DEBUGP (("Failed to set TLS server-name indication."));
+          goto error;
+        }
     }
 #endif
 
@@ -689,7 +715,7 @@ ssl_check_certificate (int fd, const char *host)
                       /* Compare and check for NULL attack in ASN1_STRING */
                       if (pattern_match ((char *)name_in_utf8, host) &&
                             (strlen ((char *)name_in_utf8) ==
-                                ASN1_STRING_length (name->d.dNSName)))
+                                (size_t) ASN1_STRING_length (name->d.dNSName)))
                         {
                           OPENSSL_free (name_in_utf8);
                           break;
@@ -712,7 +738,7 @@ ssl_check_certificate (int fd, const char *host)
           success = false;
         }
     }
-  
+
   if (alt_name_checked == false)
     {
       /* Test commomName */
@@ -753,7 +779,7 @@ ssl_check_certificate (int fd, const char *host)
 
           xentry = X509_NAME_get_entry(xname,i);
           sdata = X509_NAME_ENTRY_get_data(xentry);
-          if (strlen (common_name) != ASN1_STRING_length (sdata))
+          if (strlen (common_name) != (size_t) ASN1_STRING_length (sdata))
             {
               logprintf (LOG_NOTQUIET, _("\
     %s: certificate common name is invalid (contains a NUL character).\n\

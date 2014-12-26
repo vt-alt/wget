@@ -1,6 +1,6 @@
 /* HTTP support.
    Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
-   2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Free Software Foundation,
+   2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014 Free Software Foundation,
    Inc.
 
 This file is part of GNU Wget.
@@ -1016,13 +1016,13 @@ modify_param_name(param_token *name)
   else if(delim1 == delim2)
     {
       if ((name->e - 1) == delim1)
-	{
-	  result = RFC2231_ENCODING;
-	}
+        {
+          result = RFC2231_ENCODING;
+        }
       else
-	{
-	  result = RFC2231_NOENCODING;
-	}
+        {
+          result = RFC2231_NOENCODING;
+        }
       name->e = delim1;
     }
   else
@@ -1040,13 +1040,13 @@ modify_param_name(param_token *name)
 static void
 modify_param_value (param_token *value, int encoding_type )
 {
-  if (RFC2231_ENCODING == encoding_type)
+  if (encoding_type == RFC2231_ENCODING)
     {
       const char *delim = memrchr (value->b, '\'', value->e - value->b);
-      if ( delim != NULL )
-	{
-	  value->b = (delim+1);
-	}
+      if (delim != NULL)
+        {
+          value->b = (delim+1);
+        }
     }
 }
 
@@ -1060,13 +1060,22 @@ modify_param_value (param_token *value, int encoding_type )
    filename=\"foo bar\"", the first call to this function will return
    the token named "attachment" and no value, and the second call will
    return the token named "filename" and value "foo bar".  The third
-   call will return false, indicating no more valid tokens.  */
+   call will return false, indicating no more valid tokens.
+
+   is_url_encoded is an out parameter. If not NULL, a boolean value will be
+   stored into it, letting the caller know whether or not the extracted value is
+   URL-encoded. The caller can then decode it with url_unescape(), which however
+   performs decoding in-place. URL-encoding is used by RFC 2231 to support
+   non-US-ASCII characters in HTTP header values.  */
 
 bool
 extract_param (const char **source, param_token *name, param_token *value,
-               char separator)
+               char separator, bool *is_url_encoded)
 {
   const char *p = *source;
+  int param_type;
+  if (is_url_encoded)
+    *is_url_encoded = false;   /* initializing the out parameter */
 
   while (c_isspace (*p)) ++p;
   if (!*p)
@@ -1122,9 +1131,11 @@ extract_param (const char **source, param_token *name, param_token *value,
     }
   *source = p;
 
-  int param_type = modify_param_name(name);
-  if (NOT_RFC2231 != param_type)
+  param_type = modify_param_name(name);
+  if (param_type != NOT_RFC2231)
     {
+      if (param_type == RFC2231_ENCODING && is_url_encoded)
+        *is_url_encoded = true;
       modify_param_value(value, param_type);
     }
   return true;
@@ -1137,13 +1148,16 @@ extract_param (const char **source, param_token *name, param_token *value,
 /* Appends the string represented by VALUE to FILENAME */
 
 static void
-append_value_to_filename (char **filename, param_token const * const value)
+append_value_to_filename (char **filename, param_token const * const value,
+                          bool is_url_encoded)
 {
   int original_length = strlen(*filename);
   int new_length = strlen(*filename) + (value->e - value->b);
   *filename = xrealloc (*filename, new_length+1);
-  memcpy (*filename + original_length, value->b, (value->e - value->b)); 
+  memcpy (*filename + original_length, value->b, (value->e - value->b));
   (*filename)[new_length] = '\0';
+  if (is_url_encoded)
+    url_unescape (*filename + original_length);
 }
 
 #undef MAX
@@ -1176,7 +1190,9 @@ parse_content_disposition (const char *hdr, char **filename)
 {
   param_token name, value;
   *filename = NULL;
-  while (extract_param (&hdr, &name, &value, ';'))
+  bool is_url_encoded = false;
+  for ( ; extract_param (&hdr, &name, &value, ';', &is_url_encoded);
+        is_url_encoded = false)
     {
       int isFilename = BOUNDED_EQUAL_NO_CASE ( name.b, name.e, "filename" );
       if ( isFilename && value.b != NULL)
@@ -1192,9 +1208,13 @@ parse_content_disposition (const char *hdr, char **filename)
             continue;
 
           if (*filename)
-            append_value_to_filename (filename, &value);
+            append_value_to_filename (filename, &value, is_url_encoded);
           else
-            *filename = strdupdelim (value.b, value.e);
+            {
+              *filename = strdupdelim (value.b, value.e);
+              if (is_url_encoded)
+                url_unescape (*filename);
+            }
         }
     }
 
@@ -1495,13 +1515,13 @@ File %s already there; not retrieving.\n\n"), quote (filename));
    url, warc_timestamp_str, warc_request_uuid, warc_ip, type
    and statcode will be saved in the headers of the WARC record.
    The head parameter contains the HTTP headers of the response.
- 
+
    If fp is NULL and WARC is enabled, the response body will be
    written only to the WARC file.  If WARC is disabled and fp
    is a file pointer, the data will be written to the file.
    If fp is a file pointer and WARC is enabled, the body will
    be written to both destinations.
-   
+
    Returns the error code.   */
 static int
 read_response_body (struct http_stat *hs, int sock, FILE *fp, wgint contlen,
@@ -1566,7 +1586,7 @@ read_response_body (struct http_stat *hs, int sock, FILE *fp, wgint contlen,
   /* Download the response body and write it to fp.
      If we are working on a WARC file, we simultaneously write the
      response body to warc_tmp.  */
-  hs->res = fd_read_body (sock, fp, contlen != -1 ? contlen : 0,
+  hs->res = fd_read_body (hs->local_file, sock, fp, contlen != -1 ? contlen : 0,
                           hs->restval, &hs->rd_size, &hs->len, &hs->dltime,
                           flags, warc_tmp);
   if (hs->res >= 0)
@@ -1590,7 +1610,7 @@ read_response_body (struct http_stat *hs, int sock, FILE *fp, wgint contlen,
 
       return RETRFINISHED;
     }
-  
+
   if (warc_tmp != NULL)
     fclose (warc_tmp);
 
@@ -1826,13 +1846,9 @@ gethttp (struct url *u, struct http_stat *hs, int *dt, struct url *proxy,
     request_set_header (req, "Connection", "Close", rel_none);
   else
     {
-      if (proxy == NULL)
-        request_set_header (req, "Connection", "Keep-Alive", rel_none);
-      else
-        {
-          request_set_header (req, "Connection", "Close", rel_none);
-          request_set_header (req, "Proxy-Connection", "Keep-Alive", rel_none);
-        }
+      request_set_header (req, "Connection", "Keep-Alive", rel_none);
+      if (proxy)
+        request_set_header (req, "Proxy-Connection", "Keep-Alive", rel_none);
     }
 
   if (opt.method)
@@ -2315,23 +2331,23 @@ read_header:
          But if we are writing a WARC file we are: we like to keep everyting.  */
       if (warc_enabled)
         {
-          int err;
+          int _err;
           type = resp_header_strdup (resp, "Content-Type");
-          err = read_response_body (hs, sock, NULL, contlen, 0,
+          _err = read_response_body (hs, sock, NULL, contlen, 0,
                                     chunked_transfer_encoding,
                                     u->url, warc_timestamp_str,
                                     warc_request_uuid, warc_ip, type,
                                     statcode, head);
           xfree_null (type);
 
-          if (err != RETRFINISHED || hs->res < 0)
+          if (_err != RETRFINISHED || hs->res < 0)
             {
               CLOSE_INVALIDATE (sock);
               request_free (req);
               xfree_null (message);
               resp_free (resp);
               xfree (head);
-              return err;
+              return _err;
             }
           else
             CLOSE_FINISH (sock);
@@ -2407,6 +2423,7 @@ read_header:
                   resp_free (resp);
                   xfree (head);
                   xfree (auth_stat);
+                  xfree (hs->message);
                   goto retry_with_auth;
                 }
               else
@@ -2458,6 +2475,8 @@ read_header:
                   local_file));
           hs->local_file = url_file_name (u, local_file);
         }
+
+      xfree_null (local_file);
     }
 
   /* TODO: perform this check only once. */
@@ -2576,6 +2595,7 @@ read_header:
               tmp = parse_charset (tmp2);
               if (tmp)
                 set_content_encoding (iri, tmp);
+              xfree_null(tmp);
             }
         }
     }
@@ -2598,6 +2618,22 @@ read_header:
   if (H_20X (statcode))
     *dt |= RETROKF;
 
+  if (statcode == HTTP_STATUS_NO_CONTENT)
+    {
+      /* 204 response has no body (RFC 2616, 4.3) */
+
+      /* In case the caller cares to look...  */
+      hs->len = 0;
+      hs->res = 0;
+      hs->restval = 0;
+
+      CLOSE_FINISH (sock);
+      xfree_null (type);
+      xfree (head);
+
+      return RETRFINISHED;
+    }
+
   /* Return if redirected.  */
   if (H_REDIRECTED (statcode) || statcode == HTTP_STATUS_MULTIPLE_CHOICES)
     {
@@ -2614,7 +2650,7 @@ read_header:
                      _("Location: %s%s\n"),
                      hs->newloc ? escnonprint_uri (hs->newloc) : _("unspecified"),
                      hs->newloc ? _(" [following]") : "");
- 
+
           /* In case the caller cares to look...  */
           hs->len = 0;
           hs->res = 0;
@@ -2624,18 +2660,18 @@ read_header:
              But if we are writing a WARC file we are: we like to keep everyting.  */
           if (warc_enabled)
             {
-              int err = read_response_body (hs, sock, NULL, contlen, 0,
+              int _err = read_response_body (hs, sock, NULL, contlen, 0,
                                             chunked_transfer_encoding,
                                             u->url, warc_timestamp_str,
                                             warc_request_uuid, warc_ip, type,
                                             statcode, head);
 
-              if (err != RETRFINISHED || hs->res < 0)
+              if (_err != RETRFINISHED || hs->res < 0)
                 {
                   CLOSE_INVALIDATE (sock);
                   xfree_null (type);
                   xfree (head);
-                  return err;
+                  return _err;
                 }
               else
                 CLOSE_FINISH (sock);
@@ -2671,7 +2707,6 @@ read_header:
             {
             case HTTP_STATUS_TEMPORARY_REDIRECT:
               return NEWLOCATION_KEEP_POST;
-              break;
             case HTTP_STATUS_MOVED_PERMANENTLY:
               if (opt.method && strcasecmp (opt.method, "post") != 0)
                 return NEWLOCATION_KEEP_POST;
@@ -2682,7 +2717,6 @@ read_header:
               break;
             default:
               return NEWLOCATION;
-              break;
             }
           return NEWLOCATION;
         }
@@ -2769,13 +2803,13 @@ read_header:
               logputs (LOG_VERBOSE, number_to_static_string (contlen + contrange));
               if (contlen + contrange >= 1024)
                 logprintf (LOG_VERBOSE, " (%s)",
-                           human_readable (contlen + contrange));
+                           human_readable (contlen + contrange, 10, 1));
               if (contrange)
                 {
                   if (contlen >= 1024)
                     logprintf (LOG_VERBOSE, _(", %s (%s) remaining"),
                                number_to_static_string (contlen),
-                               human_readable (contlen));
+                               human_readable (contlen, 10, 1));
                   else
                     logprintf (LOG_VERBOSE, _(", %s remaining"),
                                number_to_static_string (contlen));
@@ -2803,18 +2837,18 @@ read_header:
          But if we are writing a WARC file we are: we like to keep everyting.  */
       if (warc_enabled)
         {
-          int err = read_response_body (hs, sock, NULL, contlen, 0,
+          int _err = read_response_body (hs, sock, NULL, contlen, 0,
                                         chunked_transfer_encoding,
                                         u->url, warc_timestamp_str,
                                         warc_request_uuid, warc_ip, type,
                                         statcode, head);
 
-          if (err != RETRFINISHED || hs->res < 0)
+          if (_err != RETRFINISHED || hs->res < 0)
             {
               CLOSE_INVALIDATE (sock);
               xfree (head);
               xfree_null (type);
-              return err;
+              return _err;
             }
           else
             CLOSE_FINISH (sock);
@@ -2871,19 +2905,18 @@ read_header:
         }
       else if (ALLOW_CLOBBER || count > 0)
         {
-	  if (opt.unlink && file_exists_p (hs->local_file))
-	    {
-	      int res = unlink (hs->local_file);
-	      if (res < 0)
-		{
-		  logprintf (LOG_NOTQUIET, "%s: %s\n", hs->local_file,
-			     strerror (errno));
-		  CLOSE_INVALIDATE (sock);
-		  xfree (head);
-      xfree_null (type);
-		  return UNLINKERR;
-		}
-	    }
+          if (opt.unlink && file_exists_p (hs->local_file))
+            {
+              if (unlink (hs->local_file) < 0)
+                {
+                  logprintf (LOG_NOTQUIET, "%s: %s\n", hs->local_file,
+                             strerror (errno));
+                  CLOSE_INVALIDATE (sock);
+                  xfree (head);
+                  xfree_null (type);
+                  return UNLINKERR;
+                }
+            }
 
 #ifdef __VMS
           int open_id;
@@ -2925,11 +2958,8 @@ read_header:
     fp = output_stream;
 
   /* Print fetch message, if opt.verbose.  */
-  if (opt.verbose)
-    {
-      logprintf (LOG_NOTQUIET, _("Saving to: %s\n"),
+      logprintf (LOG_VERBOSE, _("Saving to: %s\n"),
                  HYPHENP (hs->local_file) ? quote ("STDOUT") : quote (hs->local_file));
-    }
 
 
   err = read_response_body (hs, sock, fp, contlen, contrange,
@@ -2990,7 +3020,7 @@ http_loop (struct url *u, struct url *original_url, char **newloc,
   /* Reset NEWLOC parameter. */
   *newloc = NULL;
 
-  /* This used to be done in main(), but it's a better idea to do it
+  /* This used to be done in main, but it's a better idea to do it
      here so that we don't go through the hoops if we're just using
      FTP or whatever. */
   if (opt.cookies)
@@ -3101,6 +3131,8 @@ Spider mode enabled. Check if remote file exists.\n"));
       /* Decide whether or not to restart.  */
       if (force_full_retrieve)
         hstat.restval = hstat.len;
+      else if (opt.start_pos >= 0)
+        hstat.restval = opt.start_pos;
       else if (opt.always_rest
           && got_name
           && stat (hstat.local_file, &st) == 0
@@ -3139,7 +3171,7 @@ Spider mode enabled. Check if remote file exists.\n"));
 
       switch (err)
         {
-        case HERR: case HEOF: case CONSOCKERR: case CONCLOSED:
+        case HERR: case HEOF: case CONSOCKERR:
         case CONERROR: case READERR: case WRITEFAILED:
         case RANGEERR: case FOPEN_EXCL_ERR:
           /* Non-fatal errors continue executing the loop, which will
@@ -3382,6 +3414,8 @@ Remote file exists.\n\n"));
               got_name = true;
               *dt &= ~HEAD_ONLY;
               count = 0;          /* the retrieve count for HEAD is reset */
+              xfree_null (hstat.message);
+              xfree_null (hstat.error);
               continue;
             } /* send_head_first */
         } /* !got_head */
@@ -3529,7 +3563,10 @@ Remote file exists.\n\n"));
 
 exit:
   if (ret == RETROK && local_file)
-    *local_file = xstrdup (hstat.local_file);
+    {
+      xfree_null (*local_file);
+      *local_file = xstrdup (hstat.local_file);
+    }
   free_hstat (&hstat);
 
   return ret;
@@ -3730,7 +3767,7 @@ digest_authentication_encode (const char *au, const char *user,
   realm = opaque = nonce = algorithm = qop = NULL;
 
   au += 6;                      /* skip over `Digest' */
-  while (extract_param (&au, &name, &value, ','))
+  while (extract_param (&au, &name, &value, ',', NULL))
     {
       size_t i;
       size_t namelen = name.e - name.b;
@@ -3999,10 +4036,12 @@ ensure_extension (struct http_stat *hs, const char *ext, int *dt)
 {
   char *last_period_in_local_filename = strrchr (hs->local_file, '.');
   char shortext[8];
-  int len = strlen (ext);
+  int len;
+  shortext[0] = '\0';
+  len = strlen (ext);
   if (len == 5)
     {
-      strncpy (shortext, ext, len - 1);
+      memcpy (shortext, ext, len - 1);
       shortext[len - 1] = '\0';
     }
 
@@ -4034,12 +4073,12 @@ ensure_extension (struct http_stat *hs, const char *ext, int *dt)
 #ifdef TESTING
 
 const char *
-test_parse_content_disposition()
+test_parse_content_disposition(void)
 {
-  int i;
-  struct {
-    char *hdrval;
-    char *filename;
+  unsigned i;
+  static const struct {
+    const char *hdrval;
+    const char *filename;
     bool result;
   } test_array[] = {
     { "filename=\"file.ext\"", "file.ext", true },
@@ -4050,7 +4089,7 @@ test_parse_content_disposition()
     { "attachement; filename*0=\"hello\"; filename*1=\"world.txt\"", "helloworld.txt", true },
   };
 
-  for (i = 0; i < sizeof(test_array)/sizeof(test_array[0]); ++i)
+  for (i = 0; i < countof(test_array); ++i)
     {
       char *filename;
       bool res;
@@ -4071,4 +4110,3 @@ test_parse_content_disposition()
 /*
  * vim: et sts=2 sw=2 cino+={s
  */
-

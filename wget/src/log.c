@@ -39,6 +39,7 @@ as that of the covered work.  */
 #include <errno.h>
 
 #include "utils.h"
+#include "exits.h"
 #include "log.h"
 
 /* 2005-10-25 SMS.
@@ -278,6 +279,10 @@ saved_append (const char *s)
 #define CHECK_VERBOSE(x)                        \
   switch (x)                                    \
     {                                           \
+    case LOG_PROGRESS:                          \
+      if (!opt.show_progress)                   \
+        return;                                 \
+      break;                                    \
     case LOG_ALWAYS:                            \
       break;                                    \
     case LOG_NOTQUIET:                          \
@@ -543,7 +548,7 @@ logprintf (enum log_options o, const char *fmt, ...)
       va_end (args);
 
       if (done && errno == EPIPE)
-        exit (1);
+        exit (WGET_EXIT_GENERIC_ERROR);
     }
   while (!done);
 }
@@ -587,7 +592,7 @@ log_init (const char *file, bool appendp)
       if (!logfp)
         {
           fprintf (stderr, "%s: %s: %s\n", exec_name, file, strerror (errno));
-          exit (1);
+          exit (WGET_EXIT_GENERIC_ERROR);
         }
     }
   else

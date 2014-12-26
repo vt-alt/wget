@@ -94,10 +94,6 @@
 #undef GNULIB_LOCK
 
 /* Define to a C preprocessor expression that evaluates to 1 or 0, depending
-   whether the gnulib module malloc-gnu shall be considered present. */
-#undef GNULIB_MALLOC_GNU
-
-/* Define to a C preprocessor expression that evaluates to 1 or 0, depending
    whether the gnulib module mkostemp shall be considered present. */
 #undef GNULIB_MKOSTEMP
 
@@ -192,6 +188,9 @@
 
 /* Define to 1 when the gnulib module ioctl should be tested. */
 #undef GNULIB_TEST_IOCTL
+
+/* Define to 1 when the gnulib module iswblank should be tested. */
+#undef GNULIB_TEST_ISWBLANK
 
 /* Define to 1 when the gnulib module listen should be tested. */
 #undef GNULIB_TEST_LISTEN
@@ -325,6 +324,12 @@
 /* Define to 1 when the gnulib module strerror_r should be tested. */
 #undef GNULIB_TEST_STRERROR_R
 
+/* Define to 1 when the gnulib module strndup should be tested. */
+#undef GNULIB_TEST_STRNDUP
+
+/* Define to 1 when the gnulib module strnlen should be tested. */
+#undef GNULIB_TEST_STRNLEN
+
 /* Define to 1 when the gnulib module strtok_r should be tested. */
 #undef GNULIB_TEST_STRTOK_R
 
@@ -339,6 +344,9 @@
 
 /* Define to 1 when the gnulib module wcrtomb should be tested. */
 #undef GNULIB_TEST_WCRTOMB
+
+/* Define to 1 when the gnulib module wcwidth should be tested. */
+#undef GNULIB_TEST_WCWIDTH
 
 /* Define to 1 when the gnulib module write should be tested. */
 #undef GNULIB_TEST_WRITE
@@ -496,6 +504,10 @@
    don't. */
 #undef HAVE_DECL_ISBLANK
 
+/* Define to 1 if you have the declaration of `iswblank', and to 0 if you
+   don't. */
+#undef HAVE_DECL_ISWBLANK
+
 /* Define to 1 if you have the declaration of `mbrtowc', and to 0 if you
    don't. */
 #undef HAVE_DECL_MBRTOWC
@@ -524,6 +536,14 @@
    don't. */
 #undef HAVE_DECL_STRNCASECMP
 
+/* Define to 1 if you have the declaration of `strndup', and to 0 if you
+   don't. */
+#undef HAVE_DECL_STRNDUP
+
+/* Define to 1 if you have the declaration of `strnlen', and to 0 if you
+   don't. */
+#undef HAVE_DECL_STRNLEN
+
 /* Define to 1 if you have the declaration of `strtok_r', and to 0 if you
    don't. */
 #undef HAVE_DECL_STRTOK_R
@@ -539,6 +559,10 @@
 /* Define to 1 if you have the declaration of `wcrtomb', and to 0 if you
    don't. */
 #undef HAVE_DECL_WCRTOMB
+
+/* Define to 1 if you have the declaration of `wcwidth', and to 0 if you
+   don't. */
+#undef HAVE_DECL_WCWIDTH
 
 /* Define to 1 if you have the declaration of `_snprintf', and to 0 if you
    don't. */
@@ -660,6 +684,9 @@
 /* Define to 1 if you have the `issetugid' function. */
 #undef HAVE_ISSETUGID
 
+/* Define to 1 if you have the `iswblank' function. */
+#undef HAVE_ISWBLANK
+
 /* Define to 1 if you have the `iswcntrl' function. */
 #undef HAVE_ISWCNTRL
 
@@ -690,6 +717,9 @@
 /* Define if libpcre is available. */
 #undef HAVE_LIBPCRE
 
+/* PSL Support Enabled */
+#undef HAVE_LIBPSL
+
 /* Define to 1 if you have the `rt' library (-lrt). */
 #undef HAVE_LIBRT
 
@@ -716,10 +746,6 @@
 
 /* Define to 1 if you have the `lutimes' function. */
 #undef HAVE_LUTIMES
-
-/* Define to 1 if your system has a GNU libc compatible 'malloc' function, and
-   to 0 otherwise. */
-#undef HAVE_MALLOC_GNU
 
 /* Define to 1 if you have the <malloc.h> header file. */
 #undef HAVE_MALLOC_H
@@ -1655,6 +1681,9 @@
 /* Define to 1 if you have the `strncasecmp' function. */
 #undef HAVE_STRNCASECMP
 
+/* Define to 1 if you have the `strndup' function. */
+#undef HAVE_STRNDUP
+
 /* Define to 1 if you have the `strnlen' function. */
 #undef HAVE_STRNLEN
 
@@ -1796,6 +1825,9 @@
 /* Define to 1 if you have the <utime.h> header file. */
 #undef HAVE_UTIME_H
 
+/* Define if uuid_create is available. */
+#undef HAVE_UUID_CREATE
+
 /* Define to 1 if you have the `vasnprintf' function. */
 #undef HAVE_VASNPRINTF
 
@@ -1899,6 +1931,10 @@
 
 /* Define to a substitute value for mmap()'s MAP_ANONYMOUS flag. */
 #undef MAP_ANONYMOUS
+
+/* Define if the mbrtowc function does not return (size_t) -2 for empty input.
+   */
+#undef MBRTOWC_EMPTY_INPUT_BUG
 
 /* Define if the mbrtowc function has the NULL pwc argument bug. */
 #undef MBRTOWC_NULL_ARG1_BUG

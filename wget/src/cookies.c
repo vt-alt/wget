@@ -51,6 +51,9 @@ as that of the covered work.  */
 #include <assert.h>
 #include <errno.h>
 #include <time.h>
+#ifdef HAVE_LIBPSL
+# include <libpsl.h>
+#endif
 #include "utils.h"
 #include "hash.h"
 #include "cookies.h"
@@ -95,7 +98,7 @@ struct cookie {
   int port;                     /* port number */
   char *path;                   /* path prefix of the cookie */
 
-  unsigned discard_requested :1; /* whether cookie was created to
+  unsigned discard_requested :1;/* whether cookie was created to
                                    request discarding another
                                    cookie. */
 
@@ -346,7 +349,7 @@ parse_set_cookie (const char *set_cookie, bool silent)
   struct cookie *cookie = cookie_new ();
   param_token name, value;
 
-  if (!extract_param (&ptr, &name, &value, ';'))
+  if (!extract_param (&ptr, &name, &value, ';', NULL))
     goto error;
   if (!value.b)
     goto error;
@@ -360,7 +363,7 @@ parse_set_cookie (const char *set_cookie, bool silent)
   cookie->attr = strdupdelim (name.b, name.e);
   cookie->value = strdupdelim (value.b, value.e);
 
-  while (extract_param (&ptr, &name, &value, ';'))
+  while (extract_param (&ptr, &name, &value, ';', NULL))
     {
       if (TOKEN_IS (name, "domain"))
         {
@@ -393,7 +396,7 @@ parse_set_cookie (const char *set_cookie, bool silent)
 
           /* Check if expiration spec is valid.
              If not, assume default (cookie doesn't expire, but valid only for
-	     this session.) */
+             this session.) */
           expires = http_atotm (value_copy);
           if (expires != (time_t) -1)
             {
@@ -460,9 +463,9 @@ parse_set_cookie (const char *set_cookie, bool silent)
 
 
 #define REQUIRE_DIGITS(p) do {                  \
-  if (!c_isdigit (*p))                            \
+  if (!c_isdigit (*p))                          \
     return false;                               \
-  for (++p; c_isdigit (*p); p++)                  \
+  for (++p; c_isdigit (*p); p++)                \
     ;                                           \
 } while (0)
 
@@ -498,19 +501,61 @@ numeric_address_p (const char *addr)
 /* Check whether COOKIE_DOMAIN is an appropriate domain for HOST.
    Originally I tried to make the check compliant with rfc2109, but
    the sites deviated too often, so I had to fall back to "tail
-   matching", as defined by the original Netscape's cookie spec.  */
+   matching", as defined by the original Netscape's cookie spec.
+
+   Wget now uses libpsl to check domain names against a public suffix
+   list to see if they are valid. However, since we don't provide a
+   psl on our own, if libpsl is compiled without a public suffix list,
+   fall back to using the original "tail matching" heuristic. Also if
+   libpsl is unable to convert the domain to lowercase, which means that
+   it doesnt have any runtime conversion support, we again fall back to
+   "tail matching" since libpsl states the results are unpredictable with
+   upper case strings.
+   */
 
 static bool
 check_domain_match (const char *cookie_domain, const char *host)
 {
+
+#ifdef HAVE_LIBPSL
   DEBUGP (("cdm: 1"));
+  char *cookie_domain_lower = NULL;
+  char *host_lower = NULL;
+  const psl_ctx_t *psl;
+  int is_acceptable;
 
-  /* Numeric address requires exact match.  It also requires HOST to
-     be an IP address.  */
-  if (numeric_address_p (cookie_domain))
-    return 0 == strcmp (cookie_domain, host);
+  if (!(psl = psl_builtin()))
+    {
+      DEBUGP (("\nlibpsl not built with a public suffix list. "
+               "Falling back to simple heuristics.\n"));
+      goto no_psl;
+    }
 
-  DEBUGP ((" 2"));
+  if (psl_str_to_utf8lower (cookie_domain, NULL, NULL, &cookie_domain_lower) == PSL_SUCCESS &&
+      psl_str_to_utf8lower (host, NULL, NULL, &host_lower) == PSL_SUCCESS)
+    {
+      is_acceptable = psl_is_cookie_domain_acceptable (psl, host_lower, cookie_domain_lower);
+    }
+  else
+    {
+        DEBUGP (("libpsl unable to parse domain name. "
+                 "Falling back to simple heuristics.\n"));
+        goto no_psl;
+    }
+
+  xfree (cookie_domain_lower);
+  xfree (host_lower);
+
+  return is_acceptable == 1;
+
+no_psl:
+  /* Cleanup the PSL pointers first */
+  xfree (cookie_domain_lower);
+  xfree (host_lower);
+#endif
+
+  /* For efficiency make some elementary checks first */
+  DEBUGP (("cdm: 2"));
 
   /* For the sake of efficiency, check for exact match first. */
   if (0 == strcasecmp (cookie_domain, host))
@@ -1377,7 +1422,7 @@ test_cookies (void)
         param_token name, value;
         const char *ptr = data;
         int j = 0;
-        while (extract_param (&ptr, &name, &value, ';'))
+        while (extract_param (&ptr, &name, &value, ';', NULL))
           {
             char *n = strdupdelim (name.b, name.e);
             char *v = strdupdelim (value.b, value.e);

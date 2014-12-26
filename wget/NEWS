@@ -6,6 +6,22 @@ See the end for copying conditions.
 
 Please send GNU Wget bug reports to <bug-wget@gnu.org>.
 
+* Changes in Wget 1.16
+
+** No longer create local symbolic links by default.  Closes CVE-2014-4877.
+
+** Use libpsl for verifying cookie domains.
+
+** Default progress bar output changed.
+
+** Introduce --show-progress to force display the progress bar.
+
+** Introduce --no-config.  The wgetrc files will not be read.
+
+** Introduce --start-pos to allow starting downloads from a specified position.
+
+** Fix a problem with ISA Server Proxy and keep-alive connections.
+
 * Changes in Wget 1.15
 
 ** Add support for --method.
@@ -672,7 +688,7 @@ ASCII type transfer:
 
     wget "ftp://ftp.somewhere.com/welcome.msg;type=a"
 
-** `--help' and `--version' options have been redone to to conform to
+** `--help' and `--version' options have been redone to conform to
 standards set by other GNU utilities.
 
 ** Wget should now be compilable under MS Windows environment.  MS

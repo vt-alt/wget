@@ -44,7 +44,7 @@
 # as that of the covered work.
 
 #
-# Version: @VERSION@
+# Version: $(VERSION)
 #
 
 VPATH = @srcdir@
@@ -113,7 +113,7 @@ host_triplet = @host@
 bin_PROGRAMS = wget$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(srcdir)/config.h.in gnutls.c openssl.c http-ntlm.c \
+	$(srcdir)/config.h.in openssl.c gnutls.c http-ntlm.c \
 	ftp-opie.c mswindows.c $(top_srcdir)/build-aux/depcomp \
 	ChangeLog
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -146,15 +146,17 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/include_next.m4 $(top_srcdir)/m4/inet_ntop.m4 \
 	$(top_srcdir)/m4/intlmacosx.m4 $(top_srcdir)/m4/intmax_t.m4 \
 	$(top_srcdir)/m4/inttypes_h.m4 $(top_srcdir)/m4/ioctl.m4 \
-	$(top_srcdir)/m4/langinfo_h.m4 $(top_srcdir)/m4/largefile.m4 \
-	$(top_srcdir)/m4/lib-ld.m4 $(top_srcdir)/m4/lib-link.m4 \
-	$(top_srcdir)/m4/lib-prefix.m4 \
+	$(top_srcdir)/m4/iswblank.m4 $(top_srcdir)/m4/langinfo_h.m4 \
+	$(top_srcdir)/m4/largefile.m4 $(top_srcdir)/m4/lib-ld.m4 \
+	$(top_srcdir)/m4/lib-link.m4 $(top_srcdir)/m4/lib-prefix.m4 \
+	$(top_srcdir)/m4/libunistring-base.m4 \
 	$(top_srcdir)/m4/localcharset.m4 $(top_srcdir)/m4/locale-fr.m4 \
 	$(top_srcdir)/m4/locale-ja.m4 $(top_srcdir)/m4/locale-zh.m4 \
 	$(top_srcdir)/m4/locale_h.m4 $(top_srcdir)/m4/localeconv.m4 \
 	$(top_srcdir)/m4/lock.m4 $(top_srcdir)/m4/longlong.m4 \
 	$(top_srcdir)/m4/lseek.m4 $(top_srcdir)/m4/lstat.m4 \
-	$(top_srcdir)/m4/malloc.m4 $(top_srcdir)/m4/mbrtowc.m4 \
+	$(top_srcdir)/m4/malloc.m4 $(top_srcdir)/m4/mbchar.m4 \
+	$(top_srcdir)/m4/mbiter.m4 $(top_srcdir)/m4/mbrtowc.m4 \
 	$(top_srcdir)/m4/mbsinit.m4 $(top_srcdir)/m4/mbstate_t.m4 \
 	$(top_srcdir)/m4/mbtowc.m4 $(top_srcdir)/m4/md5.m4 \
 	$(top_srcdir)/m4/memchr.m4 $(top_srcdir)/m4/mkdir.m4 \
@@ -188,7 +190,8 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/strcase.m4 $(top_srcdir)/m4/strcasestr.m4 \
 	$(top_srcdir)/m4/strchrnul.m4 $(top_srcdir)/m4/strerror.m4 \
 	$(top_srcdir)/m4/strerror_r.m4 $(top_srcdir)/m4/string_h.m4 \
-	$(top_srcdir)/m4/strings_h.m4 $(top_srcdir)/m4/strtok_r.m4 \
+	$(top_srcdir)/m4/strings_h.m4 $(top_srcdir)/m4/strndup.m4 \
+	$(top_srcdir)/m4/strnlen.m4 $(top_srcdir)/m4/strtok_r.m4 \
 	$(top_srcdir)/m4/sys_ioctl_h.m4 \
 	$(top_srcdir)/m4/sys_select_h.m4 \
 	$(top_srcdir)/m4/sys_socket_h.m4 \
@@ -205,9 +208,10 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/waitpid.m4 $(top_srcdir)/m4/warn-on-use.m4 \
 	$(top_srcdir)/m4/wchar_h.m4 $(top_srcdir)/m4/wchar_t.m4 \
 	$(top_srcdir)/m4/wcrtomb.m4 $(top_srcdir)/m4/wctype_h.m4 \
-	$(top_srcdir)/m4/wget.m4 $(top_srcdir)/m4/wint_t.m4 \
-	$(top_srcdir)/m4/write.m4 $(top_srcdir)/m4/xalloc.m4 \
-	$(top_srcdir)/m4/xsize.m4 $(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/wcwidth.m4 $(top_srcdir)/m4/wget.m4 \
+	$(top_srcdir)/m4/wint_t.m4 $(top_srcdir)/m4/write.m4 \
+	$(top_srcdir)/m4/xalloc.m4 $(top_srcdir)/m4/xsize.m4 \
+	$(top_srcdir)/m4/xstrndup.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -373,7 +377,8 @@ CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
 
 # The following line is losing on some versions of make!
-DEFS = @DEFS@ -DSYSTEM_WGETRC=\"$(sysconfdir)/wgetrc\" -DLOCALEDIR=\"$(localedir)\"
+DEFS = @DEFS@ -DSYSTEM_WGETRC=\"$(sysconfdir)/wgetrc\" \
+	-DLOCALEDIR=\"$(localedir)\"
 DEPDIR = @DEPDIR@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
@@ -954,13 +959,16 @@ LIBMULTITHREAD = @LIBMULTITHREAD@
 LIBOBJS = @LIBOBJS@
 LIBPTH = @LIBPTH@
 LIBPTH_PREFIX = @LIBPTH_PREFIX@
-LIBS = @LIBICONV@ @LIBINTL@ @LIBS@ $(LIB_CLOCK_GETTIME)
+LIBS = @LIBS@ $(LIBICONV) $(LIBINTL) $(LIB_CLOCK_GETTIME)
 LIBSOCKET = @LIBSOCKET@
 LIBSSL = @LIBSSL@
 LIBSSL_PREFIX = @LIBSSL_PREFIX@
 LIBTHREAD = @LIBTHREAD@
+LIBUNISTRING_UNITYPES_H = @LIBUNISTRING_UNITYPES_H@
+LIBUNISTRING_UNIWIDTH_H = @LIBUNISTRING_UNIWIDTH_H@
 LIB_CLOCK_GETTIME = @LIB_CLOCK_GETTIME@
 LIB_CRYPTO = @LIB_CRYPTO@
+LIB_POSIX_SPAWN = @LIB_POSIX_SPAWN@
 LIB_SELECT = @LIB_SELECT@
 LOCALCHARSET_TESTS_ENVIRONMENT = @LOCALCHARSET_TESTS_ENVIRONMENT@
 LOCALE_FR = @LOCALE_FR@
@@ -1210,6 +1218,7 @@ REPLACE_WCTOMB = @REPLACE_WCTOMB@
 REPLACE_WCWIDTH = @REPLACE_WCWIDTH@
 REPLACE_WRITE = @REPLACE_WRITE@
 SCHED_H = @SCHED_H@
+SED = @SED@
 SERVENT_LIB = @SERVENT_LIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
@@ -1295,18 +1304,18 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 @IRI_IS_ENABLED_TRUE@IRI_OBJ = iri.c
 EXTRA_DIST = css.l css.c css_.c build_info.c.in
-wget_SOURCES = cmpt.c connect.c convert.c cookies.c ftp.c    		  \
-	       css_.c css-url.c \
-	       ftp-basic.c ftp-ls.c hash.c host.c html-parse.c html-url.c \
-	       http.c init.c log.c main.c netrc.c progress.c ptimer.c     \
-	       recur.c res.c retr.c spider.c url.c warc.c	          	  \
-	       utils.c exits.c build_info.c $(IRI_OBJ)			  \
-	       css-url.h css-tokens.h connect.h convert.h cookies.h       \
-	       ftp.h hash.h host.h html-parse.h html-url.h      \
-	       http.h http-ntlm.h init.h log.h mswindows.h netrc.h        \
-	       options.h progress.h ptimer.h recur.h res.h retr.h         \
-	       spider.h ssl.h sysdep.h url.h warc.h utils.h wget.h iri.h 	  \
-	       exits.h gettext.h
+wget_SOURCES = cmpt.c connect.c convert.c cookies.c ftp.c	\
+		css_.c css-url.c	\
+		ftp-basic.c ftp-ls.c hash.c host.c html-parse.c html-url.c	\
+		http.c init.c log.c main.c netrc.c progress.c ptimer.c	\
+		recur.c res.c retr.c spider.c url.c warc.c	\
+		utils.c exits.c build_info.c $(IRI_OBJ)	\
+		css-url.h css-tokens.h connect.h convert.h cookies.h	\
+		ftp.h hash.h host.h html-parse.h html-url.h	\
+		http.h http-ntlm.h init.h log.h mswindows.h netrc.h	\
+		options.h progress.h ptimer.h recur.h res.h retr.h	\
+		spider.h ssl.h sysdep.h url.h warc.h utils.h wget.h iri.h	\
+		exits.h gettext.h
 
 nodist_wget_SOURCES = version.c
 EXTRA_wget_SOURCES = iri.c
@@ -2182,7 +2191,7 @@ version.c:  $(wget_SOURCES) ../lib/libgnu.a
 	echo '/* version.c */' > $@
 	echo '/* Autogenerated by Makefile - DO NOT EDIT */' >> $@
 	echo '' >> $@
-	echo 'const char *version_string = "@VERSION@";' >> $@
+	echo 'const char *version_string = "$(VERSION)";' >> $@
 	echo 'const char *compilation_string = "'$(COMPILE)'";' \
 	    | $(ESCAPEQUOTE) >> $@
 	echo 'const char *link_string = "'$(CCLD) $(AM_CFLAGS) $(CFLAGS) \

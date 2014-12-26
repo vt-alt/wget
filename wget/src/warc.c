@@ -36,7 +36,6 @@ as that of the covered work.  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 #include <time.h>
 #include <tmpdir.h>
 #include <sha1.h>
@@ -45,8 +44,11 @@ as that of the covered work.  */
 #ifdef HAVE_LIBZ
 #include <zlib.h>
 #endif
+
 #ifdef HAVE_LIBUUID
 #include <uuid/uuid.h>
+#elif HAVE_UUID_CREATE
+#include <uuid.h>
 #endif
 
 #ifndef WINDOWS
@@ -56,6 +58,7 @@ as that of the covered work.  */
 #endif
 
 #include "warc.h"
+#include "exits.h"
 
 #ifndef O_TEMPORARY
 #define O_TEMPORARY 0
@@ -108,7 +111,7 @@ static char *warc_current_filename;
 static int warc_current_file_number;
 
 /* The table of CDX records, if deduplication is enabled. */
-struct hash_table * warc_cdx_dedup_table;
+static struct hash_table * warc_cdx_dedup_table;
 
 static bool warc_start_new_file (bool meta);
 
@@ -383,9 +386,9 @@ warc_write_end_record (void)
 static bool
 warc_write_date_header (const char *timestamp)
 {
+  char current_timestamp[21];
   if (timestamp == NULL)
     {
-      char current_timestamp[21];
       warc_timestamp (current_timestamp);
       timestamp = current_timestamp;
     }
@@ -594,7 +597,7 @@ warc_timestamp (char *timestamp)
   strftime (timestamp, 21, "%Y-%m-%dT%H:%M:%SZ", timeinfo);
 }
 
-#ifdef HAVE_LIBUUID
+#if HAVE_LIBUUID || HAVE_UUID_CREATE
 /* Fills urn_str with a UUID in the format required
    for the WARC-Record-Id header.
    The string will be 47 characters long. */
@@ -604,8 +607,13 @@ warc_uuid_str (char *urn_str)
   char uuid_str[37];
 
   uuid_t record_id;
+#if HAVE_UUID_CREATE
+  uuid_create (&record_id, NULL);
+  uuid_to_string (&record_id, &uuid_str, NULL);
+#else
   uuid_generate (record_id);
   uuid_unparse (record_id, uuid_str);
+#endif
 
   sprintf (urn_str, "<urn:uuid:%s>", uuid_str);
 }
@@ -726,7 +734,7 @@ warc_start_new_file (bool meta)
 
   if (warc_current_file != NULL)
     fclose (warc_current_file);
-  
+
   free (warc_current_warcinfo_uuid_str);
   free (warc_current_filename);
 
@@ -1038,7 +1046,7 @@ warc_init (void)
               logprintf (LOG_NOTQUIET,
                          _("Could not read CDX file %s for deduplication.\n"),
                          quote (opt.warc_cdx_dedup_filename));
-              exit(1);
+              exit (WGET_EXIT_GENERIC_ERROR);
             }
         }
 
@@ -1047,7 +1055,7 @@ warc_init (void)
         {
           logprintf (LOG_NOTQUIET,
                      _("Could not open temporary WARC manifest file.\n"));
-          exit(1);
+          exit (WGET_EXIT_GENERIC_ERROR);
         }
 
       if (opt.warc_keep_log)
@@ -1057,7 +1065,7 @@ warc_init (void)
             {
               logprintf (LOG_NOTQUIET,
                          _("Could not open temporary WARC log file.\n"));
-              exit(1);
+              exit (WGET_EXIT_GENERIC_ERROR);
             }
           log_set_warc_log_fp (warc_log_fp);
         }
@@ -1066,7 +1074,7 @@ warc_init (void)
       if (! warc_start_new_file (false))
         {
           logprintf (LOG_NOTQUIET, _("Could not open WARC file.\n"));
-          exit(1);
+          exit (WGET_EXIT_GENERIC_ERROR);
         }
 
       if (opt.warc_cdx_enabled)
@@ -1075,7 +1083,7 @@ warc_init (void)
             {
               logprintf (LOG_NOTQUIET,
                          _("Could not open CDX file for output.\n"));
-              exit(1);
+              exit (WGET_EXIT_GENERIC_ERROR);
             }
         }
     }
@@ -1103,7 +1111,7 @@ warc_write_metadata (void)
   if (warc_tmp_fp == NULL)
     {
       logprintf (LOG_NOTQUIET, _("Could not open temporary WARC file.\n"));
-      exit(1);
+      exit (WGET_EXIT_GENERIC_ERROR);
     }
   fflush (warc_tmp_fp);
   fprintf (warc_tmp_fp, "%s\n", program_argstring);
@@ -1231,7 +1239,7 @@ static bool
 warc_write_cdx_record (const char *url, const char *timestamp_str,
                        const char *mime_type, int response_code,
                        const char *payload_digest, const char *redirect_location,
-                       off_t offset, const char *warc_filename,
+                       off_t offset, const char *warc_filename _GL_UNUSED,
                        const char *response_uuid)
 {
   /* Transform the timestamp. */

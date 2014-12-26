@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget 1.15-pre1\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2014-01-19 11:03+0100\n"
+"POT-Creation-Date: 2014-10-27 09:59+0100\n"
 "PO-Revision-Date: 2013-11-03 14:55+0100\n"
 "Last-Translator: Petr Pisar <petr.pisar@atlas.cz>\n"
 "Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
@@ -182,13 +182,94 @@ msgstr "„"
 msgid "'"
 msgstr "“"
 
-#: lib/spawn-pipe.c:140 lib/spawn-pipe.c:143 lib/spawn-pipe.c:264
-#: lib/spawn-pipe.c:267
+#: lib/regcomp.c:131
+msgid "Success"
+msgstr ""
+
+#: lib/regcomp.c:134
+msgid "No match"
+msgstr ""
+
+#: lib/regcomp.c:137
+#, fuzzy
+msgid "Invalid regular expression"
+msgstr "Neplatný regulární výraz %s, %s\n"
+
+#: lib/regcomp.c:140
+msgid "Invalid collation character"
+msgstr ""
+
+#: lib/regcomp.c:143
+#, fuzzy
+msgid "Invalid character class name"
+msgstr "Neplatné jméno stroje"
+
+#: lib/regcomp.c:146
+msgid "Trailing backslash"
+msgstr ""
+
+#: lib/regcomp.c:149
+#, fuzzy
+msgid "Invalid back reference"
+msgstr "Neplatné jméno uživatele"
+
+#: lib/regcomp.c:152
+msgid "Unmatched [ or [^"
+msgstr ""
+
+#: lib/regcomp.c:155
+msgid "Unmatched ( or \\("
+msgstr ""
+
+#: lib/regcomp.c:158
+msgid "Unmatched \\{"
+msgstr ""
+
+#: lib/regcomp.c:161
+msgid "Invalid content of \\{\\}"
+msgstr ""
+
+#: lib/regcomp.c:164
+#, fuzzy
+msgid "Invalid range end"
+msgstr "Neplatné jméno uživatele"
+
+#: lib/regcomp.c:167
+#, fuzzy
+msgid "Memory exhausted"
+msgstr "paměť vyčerpána"
+
+#: lib/regcomp.c:170
+#, fuzzy
+msgid "Invalid preceding regular expression"
+msgstr "Neplatný regulární výraz %s, %s\n"
+
+#: lib/regcomp.c:173
+#, fuzzy
+msgid "Premature end of regular expression"
+msgstr "Neplatný regulární výraz %s, %s\n"
+
+#: lib/regcomp.c:176
+#, fuzzy
+msgid "Regular expression too big"
+msgstr "Neplatný regulární výraz %s, %s\n"
+
+#: lib/regcomp.c:179
+msgid "Unmatched ) or \\)"
+msgstr ""
+
+#: lib/regcomp.c:707
+#, fuzzy
+msgid "No previous regular expression"
+msgstr "Neplatný regulární výraz %s, %s\n"
+
+#: lib/spawn-pipe.c:135 lib/spawn-pipe.c:138 lib/spawn-pipe.c:259
+#: lib/spawn-pipe.c:262
 #, c-format
 msgid "cannot create pipe"
 msgstr "nelze vytvořit rouru"
 
-#: lib/spawn-pipe.c:234 lib/spawn-pipe.c:348 lib/wait-process.c:282
+#: lib/spawn-pipe.c:229 lib/spawn-pipe.c:343 lib/wait-process.c:282
 #: lib/wait-process.c:356
 #, c-format
 msgid "%s subprocess failed"
@@ -219,37 +300,37 @@ msgstr "podproces %s obdržel nepřekonatelný signál %d"
 msgid "memory exhausted"
 msgstr "paměť vyčerpána"
 
-#: src/connect.c:203
+#: src/connect.c:200
 #, c-format
 msgid "%s: unable to resolve bind address %s; disabling bind.\n"
 msgstr ""
 "%s: adresu pro přilepení %s nelze přeložit, vypínám přilepování (bind(2)).\n"
 
-#: src/connect.c:287
+#: src/connect.c:284
 #, c-format
 msgid "Connecting to %s|%s|:%d... "
 msgstr "Navazuje se spojení s %s|%s|:%d… "
 
-#: src/connect.c:296
+#: src/connect.c:293
 #, c-format
 msgid "Connecting to %s:%d... "
 msgstr "Navazuje se spojení s %s:%d… "
 
-#: src/connect.c:299
+#: src/connect.c:296
 #, c-format
 msgid "Connecting to [%s]:%d... "
 msgstr "Navazuje se spojení s [%s]:%d… "
 
-#: src/connect.c:361
+#: src/connect.c:358
 msgid "connected.\n"
 msgstr "spojeno.\n"
 
-#: src/connect.c:373 src/host.c:783 src/host.c:812
+#: src/connect.c:370 src/host.c:783 src/host.c:812
 #, c-format
 msgid "failed: %s.\n"
 msgstr "nezdařilo se: %s.\n"
 
-#: src/connect.c:397 src/http.c:1974
+#: src/connect.c:394 src/http.c:1990
 #, c-format
 msgid "%s: unable to resolve host address %s\n"
 msgstr "%s: adresu počítače %s nelze přeložit\n"
@@ -283,71 +364,71 @@ msgstr "%s nebylo možné smazat: %s\n"
 msgid "Cannot back up %s as %s: %s\n"
 msgstr "Nelze zálohovat %s jako %s: %s\n"
 
-#: src/cookies.c:447
+#: src/cookies.c:450
 #, c-format
 msgid "Syntax error in Set-Cookie: %s at position %d.\n"
 msgstr "Syntaktická chyba v hlavičce Set-Cookie: %s na pozici %d.\n"
 
-#: src/cookies.c:687
+#: src/cookies.c:732
 #, c-format
 msgid "Cookie coming from %s attempted to set domain to "
 msgstr "Cookie přišedši z %s se pokusila nastavit doménu na "
 
-#: src/cookies.c:690 src/spider.c:92
+#: src/cookies.c:735 src/spider.c:92
 #, c-format
 msgid "%s\n"
 msgstr "%s\n"
 
-#: src/cookies.c:1138 src/cookies.c:1259
+#: src/cookies.c:1183 src/cookies.c:1304
 #, c-format
 msgid "Cannot open cookies file %s: %s\n"
 msgstr "Soubor s cookie %s nelze otevřít: %s\n"
 
-#: src/cookies.c:1296
+#: src/cookies.c:1341
 #, c-format
 msgid "Error writing to %s: %s\n"
 msgstr "Při zápisu do %s nastala chyba: %s.\n"
 
-#: src/cookies.c:1299
+#: src/cookies.c:1344
 #, c-format
 msgid "Error closing %s: %s\n"
 msgstr "Při uzavírání %s nastala chyba: %s\n"
 
-#: src/ftp-ls.c:1048
+#: src/ftp-ls.c:1049
 msgid "Unsupported listing type, trying Unix listing parser.\n"
 msgstr "Nepodporovaný typ výpisu, použije se Unixový parser.\n"
 
-#: src/ftp-ls.c:1099 src/ftp-ls.c:1101
+#: src/ftp-ls.c:1100 src/ftp-ls.c:1102
 #, c-format
 msgid "Index of /%s on %s:%d"
 msgstr "Obsah /%s na %s:%d"
 
-#: src/ftp-ls.c:1126
+#: src/ftp-ls.c:1127
 #, c-format
 msgid "time unknown       "
 msgstr "čas neznámý        "
 
-#: src/ftp-ls.c:1130
+#: src/ftp-ls.c:1131
 #, c-format
 msgid "File        "
 msgstr "Soubor      "
 
-#: src/ftp-ls.c:1133
+#: src/ftp-ls.c:1134
 #, c-format
 msgid "Directory   "
 msgstr "Adresář     "
 
-#: src/ftp-ls.c:1136
+#: src/ftp-ls.c:1137
 #, c-format
 msgid "Link        "
 msgstr "Sym. odkaz  "
 
-#: src/ftp-ls.c:1139
+#: src/ftp-ls.c:1140
 #, c-format
 msgid "Not sure    "
 msgstr "Neznámý typ "
 
-#: src/ftp-ls.c:1162
+#: src/ftp-ls.c:1163
 #, c-format
 msgid " (%s bytes)"
 msgstr " (%s bajtů)"
@@ -357,12 +438,12 @@ msgstr " (%s bajtů)"
 msgid "Length: %s"
 msgstr "Délka: %s"
 
-#: src/ftp.c:228 src/http.c:2776
+#: src/ftp.c:228 src/http.c:2810
 #, c-format
 msgid ", %s (%s) remaining"
 msgstr ", %s (%s) zbývá"
 
-#: src/ftp.c:232 src/http.c:2780
+#: src/ftp.c:232 src/http.c:2814
 #, c-format
 msgid ", %s remaining"
 msgstr ", %s zbývá"
@@ -371,69 +452,69 @@ msgstr ", %s zbývá"
 msgid " (unauthoritative)\n"
 msgstr " (není směrodatné)\n"
 
-#: src/ftp.c:312
+#: src/ftp.c:313
 #, c-format
 msgid "Logging in as %s ... "
 msgstr "Probíhá přihlašování jako %s… "
 
-#: src/ftp.c:331 src/ftp.c:377 src/ftp.c:444 src/ftp.c:509 src/ftp.c:739
-#: src/ftp.c:792 src/ftp.c:835 src/ftp.c:892 src/ftp.c:953 src/ftp.c:1045
-#: src/ftp.c:1095
+#: src/ftp.c:332 src/ftp.c:378 src/ftp.c:445 src/ftp.c:510 src/ftp.c:740
+#: src/ftp.c:793 src/ftp.c:840 src/ftp.c:897 src/ftp.c:958 src/ftp.c:1049
+#: src/ftp.c:1099
 msgid "Error in server response, closing control connection.\n"
 msgstr ""
 "Řídicí spojení bude ukončeno, protože server odpověděl chybovým hlášením.\n"
 
-#: src/ftp.c:338
+#: src/ftp.c:339
 msgid "Error in server greeting.\n"
 msgstr "Úvodní odpověď serveru je chybná.\n"
 
-#: src/ftp.c:345 src/ftp.c:517 src/ftp.c:747 src/ftp.c:843 src/ftp.c:902
-#: src/ftp.c:963 src/ftp.c:1055 src/ftp.c:1105
+#: src/ftp.c:346 src/ftp.c:518 src/ftp.c:748 src/ftp.c:848 src/ftp.c:907
+#: src/ftp.c:968 src/ftp.c:1059 src/ftp.c:1109
 msgid "Write failed, closing control connection.\n"
 msgstr "Řídicí spojení bude ukončeno, protože nelze zapsat data.\n"
 
-#: src/ftp.c:351
+#: src/ftp.c:352
 msgid "The server refuses login.\n"
 msgstr "Server odmítá přihlášení.\n"
 
-#: src/ftp.c:357
+#: src/ftp.c:358
 msgid "Login incorrect.\n"
 msgstr "Chyba při přihlášení.\n"
 
-#: src/ftp.c:363
+#: src/ftp.c:364
 msgid "Logged in!\n"
 msgstr "Přihlášeno!\n"
 
-#: src/ftp.c:385
+#: src/ftp.c:386
 msgid "Server error, can't determine system type.\n"
 msgstr ""
 "Nelze zjistit typ vzdáleného operačního systému, protože server odpověděl "
 "chybovým hlášením.\n"
 
-#: src/ftp.c:394 src/ftp.c:879 src/ftp.c:936 src/ftp.c:979
+#: src/ftp.c:395 src/ftp.c:884 src/ftp.c:941 src/ftp.c:984
 msgid "done.    "
 msgstr "hotovo.  "
 
-#: src/ftp.c:497 src/ftp.c:764 src/ftp.c:805 src/ftp.c:1075 src/ftp.c:1124
+#: src/ftp.c:498 src/ftp.c:765 src/ftp.c:810 src/ftp.c:1079 src/ftp.c:1128
 msgid "done.\n"
 msgstr "hotovo.\n"
 
-#: src/ftp.c:524
+#: src/ftp.c:525
 #, c-format
 msgid "Unknown type `%c', closing control connection.\n"
 msgstr ""
 "Řídicí spojení bude ukončeno, protože je požadován neznámý typ přenosu "
 "„%c“.\n"
 
-#: src/ftp.c:536
+#: src/ftp.c:537
 msgid "done.  "
 msgstr "hotovo."
 
-#: src/ftp.c:542
+#: src/ftp.c:543
 msgid "==> CWD not needed.\n"
 msgstr "==> CWD není potřeba.\n"
 
-#: src/ftp.c:753
+#: src/ftp.c:754
 #, c-format
 msgid ""
 "No such directory %s.\n"
@@ -442,37 +523,37 @@ msgstr ""
 "Adresář %s neexistuje.\n"
 "\n"
 
-#: src/ftp.c:774
+#: src/ftp.c:775
 msgid "==> CWD not required.\n"
 msgstr "==> CWD není potřeba.\n"
 
-#: src/ftp.c:813
+#: src/ftp.c:818
 msgid "File has already been retrieved.\n"
 msgstr "Soubor již byl přenesen.\n"
 
-#: src/ftp.c:849
+#: src/ftp.c:854
 msgid "Cannot initiate PASV transfer.\n"
 msgstr "Nelze spustit pasivní přenos dat.\n"
 
-#: src/ftp.c:853
+#: src/ftp.c:858
 msgid "Cannot parse PASV response.\n"
 msgstr "Odpověď na PASV není pochopitelná.\n"
 
-#: src/ftp.c:870
+#: src/ftp.c:875
 #, c-format
 msgid "couldn't connect to %s port %d: %s\n"
 msgstr "s %s na portu %d se nelze spojit: %s\n"
 
-#: src/ftp.c:918
+#: src/ftp.c:923
 #, c-format
 msgid "Bind error (%s).\n"
 msgstr "Chyba při přilepování (bind) (%s).\n"
 
-#: src/ftp.c:924
+#: src/ftp.c:929
 msgid "Invalid PORT.\n"
 msgstr "Neplatný PORT.\n"
 
-#: src/ftp.c:970
+#: src/ftp.c:975
 msgid ""
 "\n"
 "REST failed, starting from scratch.\n"
@@ -480,17 +561,17 @@ msgstr ""
 "\n"
 "Příkaz REST selhal, přenos začne od začátku souboru.\n"
 
-#: src/ftp.c:1011
+#: src/ftp.c:1015
 #, c-format
 msgid "File %s exists.\n"
 msgstr "Soubor %s existuje.\n"
 
-#: src/ftp.c:1017
+#: src/ftp.c:1021
 #, c-format
 msgid "No such file %s.\n"
 msgstr "Soubor %s neexistuje.\n"
 
-#: src/ftp.c:1063
+#: src/ftp.c:1067
 #, c-format
 msgid ""
 "No such file %s.\n"
@@ -499,7 +580,7 @@ msgstr ""
 "Soubor %s neexistuje.\n"
 "\n"
 
-#: src/ftp.c:1113
+#: src/ftp.c:1117
 #, c-format
 msgid ""
 "No such file or directory %s.\n"
@@ -508,40 +589,40 @@ msgstr ""
 "Soubor či adresář %s neexistuje.\n"
 "\n"
 
-#: src/ftp.c:1273 src/http.c:2907
+#: src/ftp.c:1276 src/http.c:2940
 #, c-format
 msgid "%s has sprung into existence.\n"
 msgstr "%s se objevil.\n"
 
-#: src/ftp.c:1325
+#: src/ftp.c:1328
 #, c-format
 msgid "%s: %s, closing control connection.\n"
 msgstr "%s: %s, řídicí spojení bude ukončeno.\n"
 
-#: src/ftp.c:1337
+#: src/ftp.c:1340
 #, c-format
 msgid "%s (%s) - Data connection: %s; "
 msgstr "%s (%s) – Datové spojení: %s; "
 
-#: src/ftp.c:1352
+#: src/ftp.c:1356
 msgid "Control connection closed.\n"
 msgstr "Řídicí spojení bylo ukončeno.\n"
 
-#: src/ftp.c:1370
+#: src/ftp.c:1374
 msgid "Data transfer aborted.\n"
 msgstr "Přenos dat byl předčasně ukončen.\n"
 
-#: src/ftp.c:1575
+#: src/ftp.c:1580
 #, c-format
 msgid "File %s already there; not retrieving.\n"
 msgstr "Soubor %s je již přítomen, nebude přenášen.\n"
 
-#: src/ftp.c:1656 src/http.c:3077
+#: src/ftp.c:1663 src/http.c:3107
 #, c-format
 msgid "(try:%2d)"
 msgstr "(pokus:%2d)"
 
-#: src/ftp.c:1737 src/http.c:3459
+#: src/ftp.c:1745 src/http.c:3493
 #, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s]\n"
@@ -550,7 +631,7 @@ msgstr ""
 "%s (%s) – zapsáno na standardní výstup %s[%s]\n"
 "\n"
 
-#: src/ftp.c:1738 src/http.c:3460
+#: src/ftp.c:1746 src/http.c:3494
 #, c-format
 msgid ""
 "%s (%s) - %s saved [%s]\n"
@@ -559,35 +640,35 @@ msgstr ""
 "%s (%s) – %s uložen [%s]\n"
 "\n"
 
-#: src/ftp.c:1796 src/main.c:1640 src/recur.c:433 src/recur.c:650
-#: src/retr.c:1095
+#: src/ftp.c:1804 src/main.c:1670 src/recur.c:433 src/recur.c:650
+#: src/retr.c:1102
 #, c-format
 msgid "Removing %s.\n"
 msgstr "Maže se %s.\n"
 
-#: src/ftp.c:1842
+#: src/ftp.c:1850
 #, c-format
 msgid "Using %s as listing tmp file.\n"
 msgstr "Seznam souborů bude dočasně uložen v %s.\n"
 
-#: src/ftp.c:1859
+#: src/ftp.c:1867
 #, c-format
 msgid "Removed %s.\n"
 msgstr "Soubor %s byl odstraněn.\n"
 
-#: src/ftp.c:1896
+#: src/ftp.c:1904
 #, c-format
 msgid "Recursion depth %d exceeded max. depth %d.\n"
 msgstr "Hloubka rekurze %d překročila maximální hloubku %d.\n"
 
-#: src/ftp.c:1966
+#: src/ftp.c:1974
 #, c-format
 msgid "Remote file no newer than local file %s -- not retrieving.\n"
 msgstr ""
 "Vzdálený soubor není novější než lokální soubor %s, a není jej třeba "
 "stahovat.\n"
 
-#: src/ftp.c:1973
+#: src/ftp.c:1981
 #, c-format
 msgid ""
 "Remote file is newer than local file %s -- retrieving.\n"
@@ -596,7 +677,7 @@ msgstr ""
 "Vzdálený soubor je novější než lokální soubor %s, a je jej třeba stáhnout.\n"
 "\n"
 
-#: src/ftp.c:1980
+#: src/ftp.c:1988
 #, c-format
 msgid ""
 "The sizes do not match (local %s) -- retrieving.\n"
@@ -605,11 +686,11 @@ msgstr ""
 "Velikosti se neshodují (lokální %s), stahuji.\n"
 "\n"
 
-#: src/ftp.c:1998
+#: src/ftp.c:2006
 msgid "Invalid name of the symlink, skipping.\n"
 msgstr "Přeskakuje se symbolický odkaz, neboť název odkazu není platný.\n"
 
-#: src/ftp.c:2015
+#: src/ftp.c:2023
 #, c-format
 msgid ""
 "Already have correct symlink %s -> %s\n"
@@ -618,94 +699,94 @@ msgstr ""
 "Korektní symbolický odkaz %s -> %s již existuje.\n"
 "\n"
 
-#: src/ftp.c:2024
+#: src/ftp.c:2032
 #, c-format
 msgid "Creating symlink %s -> %s\n"
 msgstr "Vytváří se symbolický odkaz %s -> %s\n"
 
-#: src/ftp.c:2034
+#: src/ftp.c:2042
 #, c-format
 msgid "Symlinks not supported, skipping symlink %s.\n"
 msgstr ""
 "Symbolické odkazy nejsou podporovány, symbolický odkaz %s bude vynechán.\n"
 
-#: src/ftp.c:2046
+#: src/ftp.c:2054
 #, c-format
 msgid "Skipping directory %s.\n"
 msgstr "Adresář %s bude vynechán.\n"
 
-#: src/ftp.c:2055
+#: src/ftp.c:2063
 #, c-format
 msgid "%s: unknown/unsupported file type.\n"
 msgstr "%s: neznámý/nepodporovaný typ souboru.\n"
 
-#: src/ftp.c:2095
+#: src/ftp.c:2103
 #, c-format
 msgid "%s: corrupt time-stamp.\n"
 msgstr "%s: časové razítko souboru je porušené.\n"
 
-#: src/ftp.c:2119
+#: src/ftp.c:2127
 #, c-format
 msgid "Will not retrieve dirs since depth is %d (max %d).\n"
 msgstr ""
 "Podadresáře se nebudou přenášet, protože již bylo dosaženo hloubky %d "
 "(maximum je %d).\n"
 
-#: src/ftp.c:2169
+#: src/ftp.c:2177
 #, c-format
 msgid "Not descending to %s as it is excluded/not-included.\n"
 msgstr ""
 "Do adresáře %s se nesestoupí, protože tento adresář se buď má vynechat, nebo "
 "nebyl zadán k procházení.\n"
 
-#: src/ftp.c:2235 src/ftp.c:2249
+#: src/ftp.c:2266 src/ftp.c:2280
 #, c-format
 msgid "Rejecting %s.\n"
 msgstr "%s se zamítá.\n"
 
-#: src/ftp.c:2272
+#: src/ftp.c:2303
 #, c-format
 msgid "Error matching %s against %s: %s\n"
 msgstr "Při porovnávání %s s %s došlo k chybě: %s\n"
 
-#: src/ftp.c:2328
+#: src/ftp.c:2359
 #, c-format
 msgid "No matches on pattern %s.\n"
 msgstr "Vzorku %s nic neodpovídá.\n"
 
-#: src/ftp.c:2399
+#: src/ftp.c:2430
 #, c-format
 msgid "Wrote HTML-ized index to %s [%s].\n"
 msgstr "Výpis adresáře v HTML formátu byl zapsán do %s [%s].\n"
 
-#: src/ftp.c:2404
+#: src/ftp.c:2435
 #, c-format
 msgid "Wrote HTML-ized index to %s.\n"
 msgstr "Výpis adresáře v HTML formátu byl zapsán do %s.\n"
 
-#: src/gnutls.c:111
+#: src/gnutls.c:110
 #, c-format
 msgid "ERROR: Cannot open directory %s.\n"
 msgstr "CHYBA: Adresář %s nelze otevřít.\n"
 
-#: src/gnutls.c:142
+#: src/gnutls.c:141
 #, c-format
 msgid "ERROR: Failed to open cert %s: (%d).\n"
 msgstr "CHYBA: Certifikát %s nelze otevřít: (%d).\n"
 
-#: src/gnutls.c:174
+#: src/gnutls.c:173
 msgid "ERROR: GnuTLS requires the key and the cert to be of the same type.\n"
 msgstr "CHYBA: GnuTLS vyžaduje, aby formát souboru a certifikátu byl stejný.\n"
 
-#: src/gnutls.c:589 src/openssl.c:573
+#: src/gnutls.c:589 src/openssl.c:599
 msgid "ERROR"
 msgstr "CHYBA"
 
-#: src/gnutls.c:589 src/openssl.c:573
+#: src/gnutls.c:589 src/openssl.c:599
 msgid "WARNING"
 msgstr "VAROVÁNÍ"
 
-#: src/gnutls.c:595 src/openssl.c:582
+#: src/gnutls.c:595 src/openssl.c:608
 #, c-format
 msgid "%s: No certificate presented by %s.\n"
 msgstr "%s: %s nepředložil žádný certifikát.\n"
@@ -798,7 +879,7 @@ msgstr "selhal: vypršel časový limit.\n"
 msgid "%s: Cannot resolve incomplete link %s.\n"
 msgstr "%s: Neúplný odkaz %s nelze vyhodnotit.\n"
 
-#: src/html-url.c:835
+#: src/html-url.c:836
 #, c-format
 msgid "%s: Invalid URL %s: %s\n"
 msgstr "%s: Neplatné URL %s: %s\n"
@@ -812,7 +893,7 @@ msgstr "Nebylo možné odeslat HTTP požadavek: %s.\n"
 msgid "No headers, assuming HTTP/0.9"
 msgstr "Chybí hlavičky, předpokládám HTTP/0.9"
 
-#: src/http.c:1475
+#: src/http.c:1495
 #, c-format
 msgid ""
 "File %s already there; not retrieving.\n"
@@ -821,80 +902,80 @@ msgstr ""
 "Soubor %s je již přítomen, nebude přenášen.\n"
 "\n"
 
-#: src/http.c:1727
+#: src/http.c:1747
 msgid "Disabling SSL due to encountered errors.\n"
 msgstr "Vypínám SSL kvůli chybám, které se vyskytly.\n"
 
-#: src/http.c:1853
+#: src/http.c:1869
 #, c-format
 msgid "BODY data file %s missing: %s\n"
 msgstr "Soubor %s s daty pro BODY chybí: %s\n"
 
-#: src/http.c:1955
+#: src/http.c:1971
 #, c-format
 msgid "Reusing existing connection to [%s]:%d.\n"
 msgstr "Využije se existující spojení s [%s]:%d.\n"
 
-#: src/http.c:1960
+#: src/http.c:1976
 #, c-format
 msgid "Reusing existing connection to %s:%d.\n"
 msgstr "Využije se existující spojení s %s:%d.\n"
 
-#: src/http.c:2032
+#: src/http.c:2048
 #, c-format
 msgid "Failed reading proxy response: %s\n"
 msgstr "Chyba při čtení odpovědi od proxy: %s\n"
 
-#: src/http.c:2052 src/http.c:2219 src/http.c:3255
+#: src/http.c:2068 src/http.c:2235 src/http.c:3287
 #, c-format
 msgid "%s ERROR %d: %s.\n"
 msgstr "%s CHYBA %d: %s.\n"
 
-#: src/http.c:2054 src/http.c:2221 src/http.c:2553
+#: src/http.c:2070 src/http.c:2237 src/http.c:2572
 msgid "Malformed status line"
 msgstr "Odpověď serveru má zkomolený stavový řádek"
 
-#: src/http.c:2065
+#: src/http.c:2081
 #, c-format
 msgid "Proxy tunneling failed: %s"
 msgstr "Tunelování skrz proxy se nezdařilo: %s"
 
-#: src/http.c:2159
+#: src/http.c:2175
 #, c-format
 msgid "%s request sent, awaiting response... "
 msgstr "%s požadavek odeslán, program čeká na odpověď… "
 
-#: src/http.c:2194
+#: src/http.c:2210
 msgid "No data received.\n"
 msgstr "Nepřišla žádná data.\n"
 
-#: src/http.c:2201
+#: src/http.c:2217
 #, c-format
 msgid "Read error (%s) in headers.\n"
 msgstr "Chyba (%s) při čtení hlaviček.\n"
 
-#: src/http.c:2373
+#: src/http.c:2389
 msgid "Unknown authentication scheme.\n"
 msgstr "Server požaduje neznámý způsob autentizace.\n"
 
-#: src/http.c:2555
+#: src/http.c:2574
 msgid "(no description)"
 msgstr "(žádný popis)"
 
-#: src/http.c:2614
+#: src/http.c:2650
 #, c-format
 msgid "Location: %s%s\n"
 msgstr "Přesměrováno na: %s%s\n"
 
-#: src/http.c:2615 src/http.c:2786
+#: src/http.c:2651 src/http.c:2820
 msgid "unspecified"
 msgstr "neudáno"
 
-#: src/http.c:2616
+#: src/http.c:2652
 msgid " [following]"
 msgstr " [následuji]"
 
-#: src/http.c:2731
+#: src/http.c:2765
 msgid ""
 "\n"
 "    The file is already fully retrieved; nothing to do.\n"
@@ -904,80 +985,80 @@ msgstr ""
 "    Soubor je již plně přenesen, nebude se nic dělat.\n"
 "\n"
 
-#: src/http.c:2766
+#: src/http.c:2800
 msgid "Length: "
 msgstr "Délka: "
 
-#: src/http.c:2786
+#: src/http.c:2820
 msgid "ignored"
 msgstr "je ignorována"
 
-#: src/http.c:2930
+#: src/http.c:2961
 #, c-format
 msgid "Saving to: %s\n"
 msgstr "Ukládám do: %s\n"
 
-#: src/http.c:3001
+#: src/http.c:3031
 msgid "Warning: wildcards not supported in HTTP.\n"
 msgstr "Varování: HTTP nepodporuje žolíkové znaky.\n"
 
-#: src/http.c:3066
+#: src/http.c:3096
 msgid "Spider mode enabled. Check if remote file exists.\n"
 msgstr "Aktivován režim pavouka. Kontroluje, zda vzdálený soubor existuje.\n"
 
-#: src/http.c:3153
+#: src/http.c:3185
 #, c-format
 msgid "Cannot write to %s (%s).\n"
 msgstr "Nelze zapsat do %s (%s).\n"
 
-#: src/http.c:3164
+#: src/http.c:3196
 msgid "Required attribute missing from Header received.\n"
 msgstr "V přijaté hlavičce chybí požadovaný atribut.\n"
 
-#: src/http.c:3169
+#: src/http.c:3201
 msgid "Username/Password Authentication Failed.\n"
 msgstr "Autentizace jménem a heslem se nezdařila.\n"
 
-#: src/http.c:3175
+#: src/http.c:3207
 msgid "Cannot write to WARC file.\n"
 msgstr "Nelze zapsat do souboru WARC.\n"
 
-#: src/http.c:3181
+#: src/http.c:3213
 msgid "Cannot write to temporary WARC file.\n"
 msgstr "Nelze zapsat do dočasného souboru WARC.\n"
 
-#: src/http.c:3186
+#: src/http.c:3218
 msgid "Unable to establish SSL connection.\n"
 msgstr "Nebylo možné navázat SSL spojení.\n"
 
-#: src/http.c:3192
+#: src/http.c:3224
 #, c-format
 msgid "Cannot unlink %s (%s).\n"
 msgstr "%s nelze smazat (%s).\n"
 
 # , c-format
-#: src/http.c:3202
+#: src/http.c:3234
 #, c-format
 msgid "ERROR: Redirection (%d) without location.\n"
 msgstr "CHYBA: Přesměrování (%d) bez udané nové adresy.\n"
 
-#: src/http.c:3250
+#: src/http.c:3282
 msgid "Remote file does not exist -- broken link!!!\n"
 msgstr "Vzdálený soubor neexistuje – slepý odkaz!!!\n"
 
-#: src/http.c:3272
+#: src/http.c:3304
 msgid "Last-modified header missing -- time-stamps turned off.\n"
 msgstr ""
 "Nelze použít časová razítka, protože v odpovědi serveru \n"
 "schází hlavička „Last-modified“.\n"
 
-#: src/http.c:3280
+#: src/http.c:3312
 msgid "Last-modified header invalid -- time-stamp ignored.\n"
 msgstr ""
 "Časové razítko souboru bude ignorováno, protože hlavička \n"
 "„Last-modified“ obsahuje neplatné údaje.\n"
 
-#: src/http.c:3310
+#: src/http.c:3342
 #, c-format
 msgid ""
 "Server file no newer than local file %s -- not retrieving.\n"
@@ -986,16 +1067,16 @@ msgstr ""
 "Soubor na serveru není novější než lokální soubor %s – nebude přenášen.\n"
 "\n"
 
-#: src/http.c:3318
+#: src/http.c:3350
 #, c-format
 msgid "The sizes do not match (local %s) -- retrieving.\n"
 msgstr "Velikosti se neshodují (lokální %s), stahuji.\n"
 
-#: src/http.c:3327
+#: src/http.c:3359
 msgid "Remote file is newer, retrieving.\n"
 msgstr "Lokální soubor je starší a vzdálený soubor se proto bude přenášet.\n"
 
-#: src/http.c:3345
+#: src/http.c:3377
 msgid ""
 "Remote file exists and could contain links to other resources -- "
 "retrieving.\n"
@@ -1005,7 +1086,7 @@ msgstr ""
 "stahuji.\n"
 "\n"
 
-#: src/http.c:3351
+#: src/http.c:3383
 msgid ""
 "Remote file exists but does not contain any link -- not retrieving.\n"
 "\n"
@@ -1013,7 +1094,7 @@ msgstr ""
 "Vzdálený soubor existuje, ale neobsahuje žádné odkazy – nestahuji.\n"
 "\n"
 
-#: src/http.c:3360
+#: src/http.c:3392
 msgid ""
 "Remote file exists and could contain further links,\n"
 "but recursion is disabled -- not retrieving.\n"
@@ -1022,7 +1103,7 @@ msgstr ""
 "Vzdálený soubor existuje a možná obsahuje další odkazy,\n"
 "avšak rekurze je vypnuta – nestahuji.\n"
 
-#: src/http.c:3366
+#: src/http.c:3398
 msgid ""
 "Remote file exists.\n"
 "\n"
@@ -1030,12 +1111,12 @@ msgstr ""
 "Vzdálený soubor existuje.\n"
 "\n"
 
-#: src/http.c:3375
+#: src/http.c:3407
 #, c-format
 msgid "%s URL: %s %2d %s\n"
 msgstr "%s URL: %s %2d %s\n"
 
-#: src/http.c:3423
+#: src/http.c:3457
 #, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s/%s]\n"
@@ -1044,7 +1125,7 @@ msgstr ""
 "%s (%s) – zapsáno na standardní výstup %s[%s/%s]\n"
 "\n"
 
-#: src/http.c:3424
+#: src/http.c:3458
 #, c-format
 msgid ""
 "%s (%s) - %s saved [%s/%s]\n"
@@ -1053,57 +1134,57 @@ msgstr ""
 "%s (%s) – %s uloženo [%s/%s]\n"
 "\n"
 
-#: src/http.c:3485
+#: src/http.c:3519
 #, c-format
 msgid "%s (%s) - Connection closed at byte %s. "
 msgstr "%s (%s) – Spojení ukončeno na bajtu %s. "
 
-#: src/http.c:3508
+#: src/http.c:3542
 #, c-format
 msgid "%s (%s) - Read error at byte %s (%s)."
 msgstr "%s (%s) – Chyba při čtení dat na bajtu %s (%s)."
 
-#: src/http.c:3517
+#: src/http.c:3551
 #, c-format
 msgid "%s (%s) - Read error at byte %s/%s (%s). "
 msgstr "%s (%s) – Chyba při čtení dat na bajtu %s/%s (%s). "
 
-#: src/http.c:3749
+#: src/http.c:3786
 #, c-format
 msgid "Unsupported quality of protection '%s'.\n"
 msgstr "Nepodporovaná kvalita ochrany „%s“.\n"
 
-#: src/http.c:3755
+#: src/http.c:3792
 #, c-format
 msgid "Unsupported algorithm '%s'.\n"
 msgstr "Nepodporovaný algoritmus „%s“.\n"
 
-#: src/init.c:482
+#: src/init.c:500
 #, c-format
 msgid "%s: WGETRC points to %s, which doesn't exist.\n"
 msgstr "%s: WGETRC ukazuje na %s, který ale neexistuje.\n"
 
-#: src/init.c:587 src/netrc.c:242
+#: src/init.c:605 src/netrc.c:246
 #, c-format
 msgid "%s: Cannot read %s (%s).\n"
 msgstr "%s: Nelze přečíst %s (%s).\n"
 
-#: src/init.c:604
+#: src/init.c:622
 #, c-format
 msgid "%s: Error in %s at line %d.\n"
 msgstr "%s: Chyba v %s na řádku %d.\n"
 
-#: src/init.c:610
+#: src/init.c:628
 #, c-format
 msgid "%s: Syntax error in %s at line %d.\n"
 msgstr "%s: Syntaktická chyba v %s na řádku %d.\n"
 
-#: src/init.c:615
+#: src/init.c:633
 #, c-format
 msgid "%s: Unknown command %s in %s at line %d.\n"
 msgstr "%s: Neznámý příkaz %s v %s na řádku %d.\n"
 
-#: src/init.c:652
+#: src/init.c:670
 #, c-format
 msgid ""
 "Parsing system wgetrc file (env SYSTEM_WGETRC) failed.  Please check\n"
@@ -1115,7 +1196,7 @@ msgstr ""
 "Prosím, prověřte „%s“\n"
 "nebo určete jiný soubor pomocí --config.\n"
 
-#: src/init.c:667
+#: src/init.c:685
 #, c-format
 msgid ""
 "Parsing system wgetrc file failed.  Please check\n"
@@ -1126,61 +1207,61 @@ msgstr ""
 "„%s“\n"
 "nebo určete jiný soubor pomocí --config.\n"
 
-#: src/init.c:683
+#: src/init.c:701
 #, c-format
 msgid "%s: Warning: Both system and user wgetrc point to %s.\n"
 msgstr ""
 "%s: Varování: Globální i uživatelský wgetrc jsou shodně uloženy v %s.\n"
 
-#: src/init.c:873
+#: src/init.c:891
 #, c-format
 msgid "%s: Invalid --execute command %s\n"
 msgstr "%s: Neplatný příkaz --execute %s\n"
 
-#: src/init.c:918
+#: src/init.c:936
 #, c-format
 msgid "%s: %s: Invalid boolean %s; use `on' or `off'.\n"
 msgstr ""
 "%s: %s: Neplatná pravdivostní hodnota %s, zadejte „on“ (zapnuto) nebo "
 "„off“ (vypnuto).\n"
 
-#: src/init.c:935
+#: src/init.c:953
 #, c-format
 msgid "%s: %s: Invalid number %s.\n"
 msgstr "%s: %s: Neplatné číslo %s\n"
 
-#: src/init.c:1157 src/init.c:1176
+#: src/init.c:1175 src/init.c:1194
 #, c-format
 msgid "%s: %s: Invalid byte value %s\n"
 msgstr "%s: %s: Neplatná hodnota bajtu %s\n"
 
-#: src/init.c:1201
+#: src/init.c:1219
 #, c-format
 msgid "%s: %s: Invalid time period %s\n"
 msgstr "%s: %s: Neplatná časová perioda %s\n"
 
-#: src/init.c:1255 src/init.c:1366 src/init.c:1422 src/init.c:1486
-#: src/init.c:1503 src/init.c:1528
+#: src/init.c:1273 src/init.c:1384 src/init.c:1440 src/init.c:1504
+#: src/init.c:1523 src/init.c:1548
 #, c-format
 msgid "%s: %s: Invalid value %s.\n"
 msgstr "%s: %s: Neplatná hodnota %s.\n"
 
-#: src/init.c:1292
+#: src/init.c:1310
 #, c-format
 msgid "%s: %s: Invalid header %s.\n"
 msgstr "%s: %s: Neplatná hlavička %s\n"
 
-#: src/init.c:1313
+#: src/init.c:1331
 #, c-format
 msgid "%s: %s: Invalid WARC header %s.\n"
 msgstr "%s: %s: Neplatná hlavička WARC %s.\n"
 
-#: src/init.c:1379
+#: src/init.c:1397
 #, c-format
 msgid "%s: %s: Invalid progress type %s.\n"
 msgstr "%s: %s: Neplatný druh indikace postupu %s.\n"
 
-#: src/init.c:1459
+#: src/init.c:1477
 #, c-format
 msgid ""
 "%s: %s: Invalid restriction %s,\n"
@@ -1190,40 +1271,45 @@ msgstr ""
 "    použijte [unix|windows],[lowercase|uppercase],[nocontrol][ascii]\n"
 "    (význam česky:          [malá|velká písmena], [neřídicí].\n"
 
-#: src/iri.c:103
+#: src/iri.c:101
 #, c-format
 msgid "Encoding %s isn't valid\n"
 msgstr "Kódování %s není platné\n"
 
-#: src/iri.c:124
-msgid "locale_to_utf8: locale is unset\n"
-msgstr "locale_to_utf8: národní prostředí není nastaveno\n"
-
-#: src/iri.c:134
+#: src/iri.c:126
 #, c-format
 msgid "Conversion from %s to %s isn't supported\n"
 msgstr "Převod z %s do %s není podporován\n"
 
-#: src/iri.c:175
+#: src/iri.c:149 src/iri.c:190
+#, c-format
+msgid "converted '%s' (%s) -> '%s' (%s)\n"
+msgstr ""
+
+#: src/iri.c:158
 msgid "Incomplete or invalid multibyte sequence encountered\n"
 msgstr "Zaznamenána neúplná nebo neplatná vícebajtová posloupnost\n"
 
-#: src/iri.c:200
+#: src/iri.c:183
 #, c-format
 msgid "Unhandled errno %d\n"
 msgstr "Neobsloužená chyba č. %d\n"
 
-#: src/iri.c:229
+#: src/iri.c:204
+msgid "locale_to_utf8: locale is unset\n"
+msgstr "locale_to_utf8: národní prostředí není nastaveno\n"
+
+#: src/iri.c:238
 #, c-format
 msgid "idn_encode failed (%d): %s\n"
 msgstr "idn_encode selhala (%d): %s\n"
 
-#: src/iri.c:248
+#: src/iri.c:257
 #, c-format
 msgid "idn_decode failed (%d): %s\n"
 msgstr "idn_decode selhala (%d): %s\n"
 
-#: src/log.c:862
+#: src/log.c:867
 #, c-format
 msgid ""
 "\n"
@@ -1232,7 +1318,7 @@ msgstr ""
 "\n"
 "Obdržen signál %s, výstup přesměrován do %s.\n"
 
-#: src/log.c:872
+#: src/log.c:877
 #, c-format
 msgid ""
 "\n"
@@ -1241,17 +1327,17 @@ msgstr ""
 "\n"
 "obdržen signál %s.\n"
 
-#: src/log.c:873
+#: src/log.c:878
 #, c-format
 msgid "%s: %s; disabling logging.\n"
 msgstr "%s: %s: vypínám protokolování\n"
 
-#: src/main.c:420
+#: src/main.c:414
 #, c-format
 msgid "Usage: %s [OPTION]... [URL]...\n"
 msgstr "Použití: %s [PŘEPÍNAČ]… [URL]…\n"
 
-#: src/main.c:432
+#: src/main.c:426
 msgid ""
 "Mandatory arguments to long options are mandatory for short options too.\n"
 "\n"
@@ -1260,212 +1346,274 @@ msgstr ""
 "verze.\n"
 "\n"
 
-#: src/main.c:434
+#: src/main.c:428
 msgid "Startup:\n"
 msgstr "Rozjezd:\n"
 
-#: src/main.c:436
-msgid "  -V,  --version           display the version of Wget and exit.\n"
+#: src/main.c:430
+#, fuzzy
+msgid ""
+"  -V,  --version                   display the version of Wget and exit.\n"
 msgstr "  -V,  --version           zobrazí verzi Wgetu a skončí.\n"
 
-#: src/main.c:438
-msgid "  -h,  --help              print this help.\n"
+#: src/main.c:432
+#, fuzzy
+msgid "  -h,  --help                      print this help.\n"
 msgstr "  -h,  --help              vytiskne tuto nápovědu.\n"
 
-#: src/main.c:440
-msgid "  -b,  --background        go to background after startup.\n"
+#: src/main.c:434
+#, fuzzy
+msgid "  -b,  --background                go to background after startup.\n"
 msgstr "  -b,  --background        po spuštění přejde do pozadí.\n"
 
-#: src/main.c:442
-msgid "  -e,  --execute=COMMAND   execute a `.wgetrc'-style command.\n"
+#: src/main.c:436
+#, fuzzy
+msgid "  -e,  --execute=COMMAND           execute a `.wgetrc'-style command.\n"
 msgstr "  -e,  --execute=PŘÍKAZ    provede příkaz jako z „.wgetrc“.\n"
 
-#: src/main.c:446
+#: src/main.c:440
 msgid "Logging and input file:\n"
 msgstr "Protokolový a vstupní soubor:\n"
 
-#: src/main.c:448
-msgid "  -o,  --output-file=FILE    log messages to FILE.\n"
+#: src/main.c:442
+#, fuzzy
+msgid "  -o,  --output-file=FILE          log messages to FILE.\n"
 msgstr "  -o,  --output-file=SOUBOR  protokol zapisuje do SOUBORU.\n"
 
-#: src/main.c:450
-msgid "  -a,  --append-output=FILE  append messages to FILE.\n"
+#: src/main.c:444
+#, fuzzy
+msgid "  -a,  --append-output=FILE        append messages to FILE.\n"
 msgstr ""
 "  -a,  --append-output=SOUBOR\n"
 "                             zprávy připojuje k SOUBORU.\n"
 
-#: src/main.c:453
-msgid "  -d,  --debug               print lots of debugging information.\n"
+#: src/main.c:447
+#, fuzzy
+msgid ""
+"  -d,  --debug                     print lots of debugging information.\n"
 msgstr "  -d,  --debug               tiskne mnoho ladicích informací.\n"
 
-#: src/main.c:457
-msgid "       --wdebug              print Watt-32 debug output.\n"
+#: src/main.c:451
+#, fuzzy
+msgid "       --wdebug                    print Watt-32 debug output.\n"
 msgstr "       --wdebug              tiskne ladicí informace z Watt-32.\n"
 
-#: src/main.c:460
-msgid "  -q,  --quiet               quiet (no output).\n"
+#: src/main.c:454
+#, fuzzy
+msgid "  -q,  --quiet                     quiet (no output).\n"
 msgstr "  -q,  --quiet               tichý režim (žádný výstup).\n"
 
-#: src/main.c:462
-msgid "  -v,  --verbose             be verbose (this is the default).\n"
+#: src/main.c:456
+#, fuzzy
+msgid "  -v,  --verbose                   be verbose (this is the default).\n"
 msgstr "  -v,  --verbose             bude upovídaný (implicitní chování).\n"
 
-#: src/main.c:464
+#: src/main.c:458
+#, fuzzy
 msgid ""
-"  -nv, --no-verbose          turn off verboseness, without being quiet.\n"
+"  -nv, --no-verbose                turn off verboseness, without being "
+"quiet.\n"
 msgstr ""
 "  -nv, --no-verbose          vypne upovídanost, aniž by byl zcela zticha.\n"
 
-#: src/main.c:466
+#: src/main.c:460
+#, fuzzy
 msgid ""
-"       --report-speed=TYPE   Output bandwidth as TYPE.  TYPE can be bits.\n"
+"       --report-speed=TYPE         Output bandwidth as TYPE.  TYPE can be "
+"bits.\n"
 msgstr ""
 "       --report-speed=ZPŮSOB\n"
 "                             datový tok vypisuje daným ZPŮSOBEM.\n"
 "                             ZPŮSOB může být „bits“ (bity).\n"
 
-#: src/main.c:468
+#: src/main.c:462
+#, fuzzy
 msgid ""
-"  -i,  --input-file=FILE     download URLs found in local or external FILE.\n"
+"  -i,  --input-file=FILE           download URLs found in local or external "
+"FILE.\n"
 msgstr ""
 "  -i,  --input-file=SOUBOR   stáhne URL uvedená v místním nebo "
 "vnějším SOUBORU.\n"
 
-#: src/main.c:470
-msgid "  -F,  --force-html          treat input file as HTML.\n"
+#: src/main.c:464
+#, fuzzy
+msgid "  -F,  --force-html                treat input file as HTML.\n"
 msgstr "  -F,  --force-html          vstupní soubor považuje za HTML soubor.\n"
 
-#: src/main.c:472
+#: src/main.c:466
+#, fuzzy
 msgid ""
-"  -B,  --base=URL            resolves HTML input-file links (-i -F)\n"
-"                             relative to URL.\n"
+"  -B,  --base=URL                  resolves HTML input-file links (-i -F)\n"
+"                                   relative to URL.\n"
 msgstr ""
 "  -B,  --base=URL            vyhodnocuje odkazy ve vstupním HTML (-i -F)\n"
 "                             relativně vzhledem k URL.\n"
 
-#: src/main.c:475
-msgid "       --config=FILE         Specify config file to use.\n"
+#: src/main.c:469
+#, fuzzy
+msgid "       --config=FILE               Specify config file to use.\n"
 msgstr "       --config=SOUBOR       určuje konfigurační soubor.\n"
 
-#: src/main.c:479
+#: src/main.c:471
+#, fuzzy
+msgid "       --no-config                 Do not read any config file.\n"
+msgstr "       --no-cookies            nepoužívá cookies.\n"
+
+#: src/main.c:475
 msgid "Download:\n"
 msgstr "Stahování:\n"
 
-#: src/main.c:481
+#: src/main.c:477
+#, fuzzy
 msgid ""
-"  -t,  --tries=NUMBER            set number of retries to NUMBER (0 "
+"  -t,  --tries=NUMBER              set number of retries to NUMBER (0 "
 "unlimits).\n"
 msgstr ""
 "  -t,  --tries=POČET             nastaví POČET opakování (0 znamená "
 "neomezeno).\n"
 
-#: src/main.c:483
-msgid "       --retry-connrefused       retry even if connection is refused.\n"
+#: src/main.c:479
+#, fuzzy
+msgid ""
+"       --retry-connrefused         retry even if connection is refused.\n"
 msgstr ""
 "       --retry-connrefused       opakuje, i když spojení bude odmítnuto.\n"
 
-#: src/main.c:485
-msgid "  -O,  --output-document=FILE    write documents to FILE.\n"
+#: src/main.c:481
+#, fuzzy
+msgid "  -O,  --output-document=FILE      write documents to FILE.\n"
 msgstr "  -O,  --output-document=SOUBOR  dokumenty zapisuje do SOUBORU.\n"
 
-#: src/main.c:487
+#: src/main.c:483
+#, fuzzy
 msgid ""
-"  -nc, --no-clobber              skip downloads that would download to\n"
-"                                 existing files (overwriting them).\n"
+"  -nc, --no-clobber                skip downloads that would download to\n"
+"                                   existing files (overwriting them).\n"
 msgstr ""
 "  -nc, --no-clobber              vynechá stahování, která by přepsala již\n"
 "                                 existující soubory.\n"
 
-#: src/main.c:490
+#: src/main.c:486
+#, fuzzy
 msgid ""
-"  -c,  --continue                resume getting a partially-downloaded "
+"  -c,  --continue                  resume getting a partially-downloaded "
 "file.\n"
 msgstr ""
 "  -c,  --continue                obnoví stahování částečně staženého "
 "souboru.\n"
 
+#: src/main.c:488
+msgid ""
+"       --start-pos=OFFSET          start downloading from zero-based "
+"position OFFSET.\n"
+msgstr ""
+
+#: src/main.c:490
+#, fuzzy
+msgid "       --progress=TYPE             select progress gauge type.\n"
+msgstr "       --progress=DRUH           vybere druh indikátoru postupu.\n"
+
 #: src/main.c:492
-msgid "       --progress=TYPE           select progress gauge type.\n"
+#, fuzzy
+msgid ""
+"       --show-progress             display the progress bar in any verbosity "
+"mode.\n"
 msgstr "       --progress=DRUH           vybere druh indikátoru postupu.\n"
 
 #: src/main.c:494
+#, fuzzy
 msgid ""
-"  -N,  --timestamping            don't re-retrieve files unless newer than\n"
-"                                 local.\n"
+"  -N,  --timestamping              don't re-retrieve files unless newer "
+"than\n"
+"                                   local.\n"
 msgstr ""
 "  -N,  --timestamping            nesnaží se znovu získat soubory, jež mají\n"
 "                                 mladší místní kopii.\n"
 
 #: src/main.c:497
+#, fuzzy
 msgid ""
-"  --no-use-server-timestamps     don't set the local file's timestamp by\n"
-"                                 the one on the server.\n"
+"  --no-use-server-timestamps       don't set the local file's timestamp by\n"
+"                                   the one on the server.\n"
 msgstr ""
 "  --no-use-server-timestamps     nenastaví čas místního souboru podle "
 "souboru\n"
 "                                 na serveru.\n"
 
 #: src/main.c:500
-msgid "  -S,  --server-response         print server response.\n"
+#, fuzzy
+msgid "  -S,  --server-response           print server response.\n"
 msgstr "  -S,  --server-response         tiskne odpověď serveru.\n"
 
 #: src/main.c:502
-msgid "       --spider                  don't download anything.\n"
+#, fuzzy
+msgid "       --spider                    don't download anything.\n"
 msgstr "       --spider                  nestahuje nic.\n"
 
 #: src/main.c:504
-msgid "  -T,  --timeout=SECONDS         set all timeout values to SECONDS.\n"
+#, fuzzy
+msgid "  -T,  --timeout=SECONDS           set all timeout values to SECONDS.\n"
 msgstr ""
 "  -T,  --timeout=SEKUNDY         nastaví všechny časové limity\n"
 "                                 na SEKUND.\n"
 
 #: src/main.c:506
-msgid "       --dns-timeout=SECS        set the DNS lookup timeout to SECS.\n"
+#, fuzzy
+msgid ""
+"       --dns-timeout=SECS          set the DNS lookup timeout to SECS.\n"
 msgstr ""
 "       --dns-timeout=SEKUNDY     nastaví limit pro hledání v DNS\n"
 "                                 na SEKUND.\n"
 
 #: src/main.c:508
-msgid "       --connect-timeout=SECS    set the connect timeout to SECS.\n"
+#, fuzzy
+msgid "       --connect-timeout=SECS      set the connect timeout to SECS.\n"
 msgstr ""
 "       --connect-timeout=SEKUNDY\n"
 "                                 nastaví limit pro navázání spojení\n"
 "                                 na SEKUND.\n"
 
 #: src/main.c:510
-msgid "       --read-timeout=SECS       set the read timeout to SECS.\n"
+#, fuzzy
+msgid "       --read-timeout=SECS         set the read timeout to SECS.\n"
 msgstr "       --read-timeout=SEKUNDY    nastaví limit pro čtení na SEKUND\n"
 
 #: src/main.c:512
-msgid "  -w,  --wait=SECONDS            wait SECONDS between retrievals.\n"
+#, fuzzy
+msgid "  -w,  --wait=SECONDS              wait SECONDS between retrievals.\n"
 msgstr "  -w,  --wait=SEKUNDY            čeká SEKUND mezi každým stažením.\n"
 
 #: src/main.c:514
+#, fuzzy
 msgid ""
-"       --waitretry=SECONDS       wait 1..SECONDS between retries of a "
+"       --waitretry=SECONDS         wait 1..SECONDS between retries of a "
 "retrieval.\n"
 msgstr ""
 "       --waitretry=SEKUNDY       čeká 1 až SEKUND mezi opakováním stažení.\n"
 
 #: src/main.c:516
+#, fuzzy
 msgid ""
-"       --random-wait             wait from 0.5*WAIT...1.5*WAIT secs between "
-"retrievals.\n"
+"       --random-wait               wait from 0.5*WAIT...1.5*WAIT secs "
+"between retrievals.\n"
 msgstr ""
 "       --random-wait             čeká od 0,5*WAIT do 1,5*WAIT sekund mezi\n"
 "                                 staženími.\n"
 
 #: src/main.c:518
-msgid "       --no-proxy                explicitly turn off proxy.\n"
+#, fuzzy
+msgid "       --no-proxy                  explicitly turn off proxy.\n"
 msgstr "       --no-proxy                explicitně vypne proxy.\n"
 
 #: src/main.c:520
-msgid "  -Q,  --quota=NUMBER            set retrieval quota to NUMBER.\n"
+#, fuzzy
+msgid "  -Q,  --quota=NUMBER              set retrieval quota to NUMBER.\n"
 msgstr "  -Q,  --quota=POČET             nastaví kvótu na POČET stažení.\n"
 
 #: src/main.c:522
+#, fuzzy
 msgid ""
-"       --bind-address=ADDRESS    bind to ADDRESS (hostname or IP) on local "
+"       --bind-address=ADDRESS      bind to ADDRESS (hostname or IP) on local "
 "host.\n"
 msgstr ""
 "       --bind-address=ADRESA     přilepí se (bind) na ADRESU (jméno nebo "
@@ -1473,17 +1621,20 @@ msgstr ""
 "                                 na tomto stroji.\n"
 
 #: src/main.c:524
-msgid "       --limit-rate=RATE         limit download rate to RATE.\n"
+#, fuzzy
+msgid "       --limit-rate=RATE           limit download rate to RATE.\n"
 msgstr ""
 "       --limit-rate=RYCHLOST     omezí rychlost stahování na RYCHLOST.\n"
 
 #: src/main.c:526
-msgid "       --no-dns-cache            disable caching DNS lookups.\n"
+#, fuzzy
+msgid "       --no-dns-cache              disable caching DNS lookups.\n"
 msgstr "       --no-dns-cache            zakáže kešování DNS odpovědí.\n"
 
 #: src/main.c:528
+#, fuzzy
 msgid ""
-"       --restrict-file-names=OS  restrict chars in file names to ones OS "
+"       --restrict-file-names=OS    restrict chars in file names to ones OS "
 "allows.\n"
 msgstr ""
 "       --restrict-file-names=OS  omezí znaky ve jménech souborů na ty,\n"
@@ -1491,66 +1642,78 @@ msgstr ""
 "(OS).\n"
 
 #: src/main.c:530
+#, fuzzy
 msgid ""
-"       --ignore-case             ignore case when matching files/"
+"       --ignore-case               ignore case when matching files/"
 "directories.\n"
 msgstr ""
 "       --ignore-case             při porovnávání jmen souborů/adresářů\n"
 "                                 nebere zřetel na velikost písmen.\n"
 
 #: src/main.c:533
-msgid "  -4,  --inet4-only              connect only to IPv4 addresses.\n"
+#, fuzzy
+msgid "  -4,  --inet4-only                connect only to IPv4 addresses.\n"
 msgstr "  -4,  --inet4-only              připojuje se jen na IPv4 adresy.\n"
 
 #: src/main.c:535
-msgid "  -6,  --inet6-only              connect only to IPv6 addresses.\n"
+#, fuzzy
+msgid "  -6,  --inet6-only                connect only to IPv6 addresses.\n"
 msgstr "  -6,  --inet6-only              připojuje se jen na IPv6 adresy.\n"
 
 #: src/main.c:537
+#, fuzzy
 msgid ""
-"       --prefer-family=FAMILY    connect first to addresses of specified "
+"       --prefer-family=FAMILY      connect first to addresses of specified "
 "family,\n"
-"                                 one of IPv6, IPv4, or none.\n"
+"                                   one of IPv6, IPv4, or none.\n"
 msgstr ""
 "       --prefer-family=RODINA    připojuje se nejprve na adresu zadané\n"
 "                                 RODINY („IPv6“, „IPv4“ nebo "
 "„none“ (žádná)).\n"
 
 #: src/main.c:541
-msgid "       --user=USER               set both ftp and http user to USER.\n"
+#, fuzzy
+msgid ""
+"       --user=USER                 set both ftp and http user to USER.\n"
 msgstr ""
 "       --user=UŽIVATEL           nastaví přihlašovací jméno uživatele\n"
 "                                 pro FTP i pro HTTP na UŽIVATELE.\n"
 
 #: src/main.c:543
+#, fuzzy
 msgid ""
-"       --password=PASS           set both ftp and http password to PASS.\n"
+"       --password=PASS             set both ftp and http password to PASS.\n"
 msgstr ""
 "       --password=HESLO          nastaví heslo pro FTP i pro HTTP na HESLO.\n"
 
 #: src/main.c:545
-msgid "       --ask-password            prompt for passwords.\n"
+#, fuzzy
+msgid "       --ask-password              prompt for passwords.\n"
 msgstr "       --ask-password            ptá se na heslo.\n"
 
 #: src/main.c:547
-msgid "       --no-iri                  turn off IRI support.\n"
+#, fuzzy
+msgid "       --no-iri                    turn off IRI support.\n"
 msgstr "       --no-iri                  vypne podporu IRI.\n"
 
 #: src/main.c:549
+#, fuzzy
 msgid ""
-"       --local-encoding=ENC      use ENC as the local encoding for IRIs.\n"
+"       --local-encoding=ENC        use ENC as the local encoding for IRIs.\n"
 msgstr ""
 "       --local-encoding=KÓD      jako místní kódování IRI použije KÓD.\n"
 
 #: src/main.c:551
+#, fuzzy
 msgid ""
-"       --remote-encoding=ENC     use ENC as the default remote encoding.\n"
+"       --remote-encoding=ENC       use ENC as the default remote encoding.\n"
 msgstr ""
 "       --remote-encoding=KÓD     jako implicitní vzdálené kódování IRI\n"
 "                                 použije KÓD.\n"
 
 #: src/main.c:553
-msgid "       --unlink                  remove file before clobber.\n"
+#, fuzzy
+msgid "       --unlink                    remove file before clobber.\n"
 msgstr "       --unlink                  odstraní soubor před jeho přepisem.\n"
 
 #: src/main.c:557
@@ -1558,30 +1721,36 @@ msgid "Directories:\n"
 msgstr "Adresáře:\n"
 
 #: src/main.c:559
-msgid "  -nd, --no-directories           don't create directories.\n"
+#, fuzzy
+msgid "  -nd, --no-directories            don't create directories.\n"
 msgstr "  -nd, --no-directories           nevytváří adresáře.\n"
 
 #: src/main.c:561
-msgid "  -x,  --force-directories        force creation of directories.\n"
+#, fuzzy
+msgid "  -x,  --force-directories         force creation of directories.\n"
 msgstr "  -x,  --force-directories        vynutí vytváření adresářů.\n"
 
 #: src/main.c:563
-msgid "  -nH, --no-host-directories      don't create host directories.\n"
+#, fuzzy
+msgid "  -nH, --no-host-directories       don't create host directories.\n"
 msgstr ""
 "  -nH, --no-host-directories      nevytváří adresáře se jmény počítačů.\n"
 
 #: src/main.c:565
-msgid "       --protocol-directories     use protocol name in directories.\n"
+#, fuzzy
+msgid "       --protocol-directories      use protocol name in directories.\n"
 msgstr ""
 "       --protocol-directories     použije jméno protokolu v adresářích.\n"
 
 #: src/main.c:567
-msgid "  -P,  --directory-prefix=PREFIX  save files to PREFIX/...\n"
+#, fuzzy
+msgid "  -P,  --directory-prefix=PREFIX   save files to PREFIX/...\n"
 msgstr "  -P,  --directory-prefix=CESTA   uloží soubory do CESTA/…\n"
 
 #: src/main.c:569
+#, fuzzy
 msgid ""
-"       --cut-dirs=NUMBER          ignore NUMBER remote directory "
+"       --cut-dirs=NUMBER           ignore NUMBER remote directory "
 "components.\n"
 msgstr ""
 "       --cut-dirs=POČET           ignoruje POČET vzdálených adresářových\n"
@@ -1592,155 +1761,193 @@ msgid "HTTP options:\n"
 msgstr "Přepínače pro HTTP:\n"
 
 #: src/main.c:575
-msgid "       --http-user=USER        set http user to USER.\n"
+#, fuzzy
+msgid "       --http-user=USER            set http user to USER.\n"
 msgstr ""
 "       --http-user=UŽIVATEL    nastaví přihlašovací jméno uživatele\n"
 "                               pro HTTP na UŽIVATELE.\n"
 
 #: src/main.c:577
-msgid "       --http-password=PASS    set http password to PASS.\n"
+#, fuzzy
+msgid "       --http-password=PASS        set http password to PASS.\n"
 msgstr "       --http-password=HESLO   nastaví heslo pro HTTP na HESLO.\n"
 
 #: src/main.c:579
-msgid "       --no-cache              disallow server-cached data.\n"
+#, fuzzy
+msgid "       --no-cache                  disallow server-cached data.\n"
 msgstr "       --no-cache              zakáže kešování na straně serveru.\n"
 
 #: src/main.c:581
+#, fuzzy
 msgid ""
-"       --default-page=NAME     Change the default page name (normally\n"
-"                               this is `index.html'.).\n"
+"       --default-page=NAME         Change the default page name (normally\n"
+"                                   this is `index.html'.).\n"
 msgstr ""
 "       --default-page=NÁZEV    Změní výchozí název stránky (běžně\n"
 "                               to je „index.html“.).\n"
 
 #: src/main.c:584
+#, fuzzy
 msgid ""
-"  -E,  --adjust-extension      save HTML/CSS documents with proper "
+"  -E,  --adjust-extension          save HTML/CSS documents with proper "
 "extensions.\n"
 msgstr ""
 "  -E,  --adjust-extension      HTML/CSS dokumenty ukládá s patřičnou "
 "příponou.\n"
 
 #: src/main.c:586
-msgid "       --ignore-length         ignore `Content-Length' header field.\n"
+#, fuzzy
+msgid ""
+"       --ignore-length             ignore `Content-Length' header field.\n"
 msgstr "       --ignore-length         ignoruje hlavičku „Content-Length“.\n"
 
 #: src/main.c:588
-msgid "       --header=STRING         insert STRING among the headers.\n"
+#, fuzzy
+msgid "       --header=STRING             insert STRING among the headers.\n"
 msgstr "       --header=ŘETĚZEC        ke hlavičkám přidá ŘETĚZEC.\n"
 
 #: src/main.c:590
-msgid "       --max-redirect          maximum redirections allowed per page.\n"
+#, fuzzy
+msgid ""
+"       --max-redirect              maximum redirections allowed per page.\n"
 msgstr ""
 "       --max-redirect          maximum přesměrování povolených\n"
 "                               na stránku.\n"
 
 #: src/main.c:592
-msgid "       --proxy-user=USER       set USER as proxy username.\n"
+#, fuzzy
+msgid "       --proxy-user=USER           set USER as proxy username.\n"
 msgstr ""
 "       --proxy-user=UŽIVATEL   nastaví UŽIVATELE jako přihlašovací jméno\n"
 "                               uživatele pro proxy.\n"
 
 #: src/main.c:594
-msgid "       --proxy-password=PASS   set PASS as proxy password.\n"
+#, fuzzy
+msgid "       --proxy-password=PASS       set PASS as proxy password.\n"
 msgstr "       --proxy-password=HESLO  nastaví HESLO jako heslo pro proxy.\n"
 
 #: src/main.c:596
+#, fuzzy
 msgid ""
-"       --referer=URL           include `Referer: URL' header in HTTP "
+"       --referer=URL               include `Referer: URL' header in HTTP "
 "request.\n"
 msgstr ""
 "       --referer=URL           zahrne hlavičku „Referer: URL“ do\n"
 "                               HTTP požadavku.\n"
 
 #: src/main.c:598
-msgid "       --save-headers          save the HTTP headers to file.\n"
+#, fuzzy
+msgid "       --save-headers              save the HTTP headers to file.\n"
 msgstr "       --save-headers          hlavičky HTTP uloží do souboru.\n"
 
 #: src/main.c:600
+#, fuzzy
 msgid ""
-"  -U,  --user-agent=AGENT      identify as AGENT instead of Wget/VERSION.\n"
+"  -U,  --user-agent=AGENT          identify as AGENT instead of Wget/"
+"VERSION.\n"
 msgstr ""
 "  -U,  --user-agent=AGENT      identifikuje se jako AGENT místo Wget/VERZE.\n"
 
 #: src/main.c:602
+#, fuzzy
 msgid ""
-"       --no-http-keep-alive    disable HTTP keep-alive (persistent "
+"       --no-http-keep-alive        disable HTTP keep-alive (persistent "
 "connections).\n"
 msgstr ""
 "       --no-http-keep-alive    zakáže HTTP keep-alive (trvalá spojení).\n"
 
 #: src/main.c:604
-msgid "       --no-cookies            don't use cookies.\n"
+#, fuzzy
+msgid "       --no-cookies                don't use cookies.\n"
 msgstr "       --no-cookies            nepoužívá cookies.\n"
 
 #: src/main.c:606
-msgid "       --load-cookies=FILE     load cookies from FILE before session.\n"
+#, fuzzy
+msgid ""
+"       --load-cookies=FILE         load cookies from FILE before session.\n"
 msgstr "       --load-cookies=SOUBOR   před relací načte cookies ze SOUBORU.\n"
 
 #: src/main.c:608
-msgid "       --save-cookies=FILE     save cookies to FILE after session.\n"
+#, fuzzy
+msgid ""
+"       --save-cookies=FILE         save cookies to FILE after session.\n"
 msgstr "       --save-cookies=SOUBOR   po relaci uloží cookies do SOUBORU.\n"
 
 #: src/main.c:610
+#, fuzzy
 msgid ""
-"       --keep-session-cookies  load and save session (non-permanent) "
+"       --keep-session-cookies      load and save session (non-permanent) "
 "cookies.\n"
 msgstr ""
 "       --keep-session-cookies  načte a uloží cookies relace (ne-trvalé).\n"
 
 #: src/main.c:612
+#, fuzzy
 msgid ""
-"       --post-data=STRING      use the POST method; send STRING as the "
+"       --post-data=STRING          use the POST method; send STRING as the "
 "data.\n"
 msgstr ""
 "       --post-data=ŘETĚZEC     použije metodu POST, jako data pošle "
 "ŘETĚZEC.\n"
 
 #: src/main.c:614
+#, fuzzy
 msgid ""
-"       --post-file=FILE        use the POST method; send contents of FILE.\n"
+"       --post-file=FILE            use the POST method; send contents of "
+"FILE.\n"
 msgstr ""
 "       --post-file=SOUBOR      použije metodu POST, pošle obsah SOUBORU.\n"
 
 #: src/main.c:616
+#, fuzzy
 msgid ""
-"       --method=HTTPMethod     use method \"HTTPMethod\" in the header.\n"
+"       --method=HTTPMethod         use method \"HTTPMethod\" in the "
+"request.\n"
 msgstr "       --method=METODA_HTTP    Použije HTTP_METODOU v hlavičce.\n"
 
 #: src/main.c:618
+#, fuzzy
 msgid ""
-"       --body-data=STRING      Send STRING as data. --method MUST be set.\n"
+"       --body-data=STRING          Send STRING as data. --method MUST be "
+"set.\n"
 msgstr ""
 "       --body-data=ŘETĚZEC     jako data pošle ŘETĚZEC; --method JE nutný.\n"
 
 #: src/main.c:620
+#, fuzzy
 msgid ""
-"       --body-file=FILE        Send contents of FILE. --method MUST be set.\n"
+"       --body-file=FILE            Send contents of FILE. --method MUST be "
+"set.\n"
 msgstr ""
 "       --body-file=SOUBOR      pošle obsah SOUBORU; --method JE nutný.\n"
 
 #: src/main.c:622
+#, fuzzy
 msgid ""
-"       --content-disposition   honor the Content-Disposition header when\n"
-"                               choosing local file names (EXPERIMENTAL).\n"
+"       --content-disposition       honor the Content-Disposition header "
+"when\n"
+"                                   choosing local file names "
+"(EXPERIMENTAL).\n"
 msgstr ""
 "       --content-disposition   při volbě jména místního souboru vezme "
 "v úvahu\n"
 "                               hlavičku Content-Disposition (POKUSNÉ).\n"
 
 #: src/main.c:625
+#, fuzzy
 msgid ""
-"       --content-on-error      output the received content on server "
+"       --content-on-error          output the received content on server "
 "errors.\n"
 msgstr ""
 "       --content-on-error      po chybě serveru vypíše přijatý obsah.\n"
 
 #: src/main.c:627
+#, fuzzy
 msgid ""
-"       --auth-no-challenge     send Basic HTTP authentication information\n"
-"                               without first waiting for the server's\n"
-"                               challenge.\n"
+"       --auth-no-challenge         send Basic HTTP authentication "
+"information\n"
+"                                   without first waiting for the server's\n"
+"                                   challenge.\n"
 msgstr ""
 "       --auth-no-challenge     posílá údaje Basic HTTP autentizace, aniž by\n"
 "                               čekal na výzvu od serveru.\n"
@@ -1750,64 +1957,77 @@ msgid "HTTPS (SSL/TLS) options:\n"
 msgstr "Přepínače HTTPS (SSL/TLS):\n"
 
 #: src/main.c:636
+#, fuzzy
 msgid ""
-"       --secure-protocol=PR     choose secure protocol, one of auto, SSLv2,\n"
-"                                SSLv3, TLSv1 and PFS.\n"
+"       --secure-protocol=PR        choose secure protocol, one of auto, "
+"SSLv2,\n"
+"                                   SSLv3, TLSv1 and PFS.\n"
 msgstr ""
 "       --secure-protocol=PROT   vybere bezpečnostní protokol, jeden z auto,\n"
 "                                SSLv2, SSLv3, TLSv1 a PFS.\n"
 
 #: src/main.c:639
-msgid "       --https-only             only follow secure HTTPS links\n"
+#, fuzzy
+msgid "       --https-only                only follow secure HTTPS links\n"
 msgstr ""
 "       --https-only             následuje pouze bezpečné HTTPS odkazy\n"
 
 #: src/main.c:641
+#, fuzzy
 msgid ""
-"       --no-check-certificate   don't validate the server's certificate.\n"
+"       --no-check-certificate      don't validate the server's certificate.\n"
 msgstr "       --no-check-certificate   neověřuje certifikát serveru.\n"
 
 #: src/main.c:643
-msgid "       --certificate=FILE       client certificate file.\n"
+#, fuzzy
+msgid "       --certificate=FILE          client certificate file.\n"
 msgstr "       --certificate=SOUBOR     soubor s certifikátem klienta.\n"
 
 #: src/main.c:645
-msgid "       --certificate-type=TYPE  client certificate type, PEM or DER.\n"
+#, fuzzy
+msgid ""
+"       --certificate-type=TYPE     client certificate type, PEM or DER.\n"
 msgstr ""
 "       --certificate-type=DRUH  druh certifikátu klienta: „PEM“ nebo „DER“.\n"
 
 #: src/main.c:647
-msgid "       --private-key=FILE       private key file.\n"
+#, fuzzy
+msgid "       --private-key=FILE          private key file.\n"
 msgstr "       --private-key=SOUBOR     soubor se soukromým klíčem.\n"
 
 #: src/main.c:649
-msgid "       --private-key-type=TYPE  private key type, PEM or DER.\n"
+#, fuzzy
+msgid "       --private-key-type=TYPE     private key type, PEM or DER.\n"
 msgstr ""
 "       --private-key-type=DRUH  druh soukromého klíče: „PEM“ nebo „DER“.\n"
 
 #: src/main.c:651
-msgid "       --ca-certificate=FILE    file with the bundle of CA's.\n"
+#, fuzzy
+msgid "       --ca-certificate=FILE       file with the bundle of CA's.\n"
 msgstr ""
 "       --ca-certificate=SOUBOR  soubor se sbírkou certifikačních autorit.\n"
 
 #: src/main.c:653
+#, fuzzy
 msgid ""
-"       --ca-directory=DIR       directory where hash list of CA's is "
+"       --ca-directory=DIR          directory where hash list of CA's is "
 "stored.\n"
 msgstr ""
 "       --ca-directory=ADRESÁŘ   adresář obsahující hashe jmen\n"
 "                                certifikačních autorit.\n"
 
 #: src/main.c:655
+#, fuzzy
 msgid ""
-"       --random-file=FILE       file with random data for seeding the SSL "
+"       --random-file=FILE          file with random data for seeding the SSL "
 "PRNG.\n"
 msgstr ""
 "       --random-file=SOUBOR     soubor s náhodnými daty pro zdroj SSL PRNG.\n"
 
 #: src/main.c:657
+#, fuzzy
 msgid ""
-"       --egd-file=FILE          file naming the EGD socket with random "
+"       --egd-file=FILE             file naming the EGD socket with random "
 "data.\n"
 msgstr ""
 "       --egd-file=SOUBOR        soubor jmenující soket EGD s náhodnými "
@@ -1818,41 +2038,50 @@ msgid "FTP options:\n"
 msgstr "Přepínače FTP:\n"
 
 #: src/main.c:665
+#, fuzzy
 msgid ""
-"       --ftp-stmlf             Use Stream_LF format for all binary FTP "
+"       --ftp-stmlf                 Use Stream_LF format for all binary FTP "
 "files.\n"
 msgstr ""
 "       --ftp-stmlf             Použije formát Stream_LF pro všechny binární\n"
 "                               FTP soubory.\n"
 
 #: src/main.c:668
-msgid "       --ftp-user=USER         set ftp user to USER.\n"
+#, fuzzy
+msgid "       --ftp-user=USER             set ftp user to USER.\n"
 msgstr ""
 "       --ftp-user=UŽIVATEL     nastaví přihlašovací jméno na UŽIVATELE.\n"
 
 #: src/main.c:670
-msgid "       --ftp-password=PASS     set ftp password to PASS.\n"
+#, fuzzy
+msgid "       --ftp-password=PASS         set ftp password to PASS.\n"
 msgstr "       --ftp-password=HESLO    nastaví heslo pro FTP na HESLO.\n"
 
 #: src/main.c:672
-msgid "       --no-remove-listing     don't remove `.listing' files.\n"
+#, fuzzy
+msgid "       --no-remove-listing         don't remove `.listing' files.\n"
 msgstr "       --no-remove-listing     neodstraňuje soubory „.listing“.\n"
 
 #: src/main.c:674
-msgid "       --no-glob               turn off FTP file name globbing.\n"
+#, fuzzy
+msgid "       --no-glob                   turn off FTP file name globbing.\n"
 msgstr "       --no-glob               neexpanduje jména FTP souborů.\n"
 
 #: src/main.c:676
-msgid "       --no-passive-ftp        disable the \"passive\" transfer mode.\n"
+#, fuzzy
+msgid ""
+"       --no-passive-ftp            disable the \"passive\" transfer mode.\n"
 msgstr "       --no-passive-ftp        zakáže pasivní režim přenosu.\n"
 
 #: src/main.c:678
-msgid "       --preserve-permissions  preserve remote file permissions.\n"
+#, fuzzy
+msgid "       --preserve-permissions      preserve remote file permissions.\n"
 msgstr "       --preserve-permissions  zachová přístupová práva ze serveru.\n"
 
 #: src/main.c:680
+#, fuzzy
 msgid ""
-"       --retr-symlinks         when recursing, get linked-to files (not "
+"       --retr-symlinks             when recursing, get linked-to files (not "
 "dir).\n"
 msgstr ""
 "       --retr-symlinks         při rekurzi stáhne soubory (adresáře ne),\n"
@@ -1863,57 +2092,67 @@ msgid "WARC options:\n"
 msgstr "Přepínače WARC:\n"
 
 #: src/main.c:686
+#, fuzzy
 msgid ""
-"       --warc-file=FILENAME      save request/response data to a .warc.gz "
+"       --warc-file=FILENAME        save request/response data to a .warc.gz "
 "file.\n"
 msgstr ""
 "       --warc-file=SOUBOR        uloží požadavek/odpověď do souboru .warc."
 "gz.\n"
 
 #: src/main.c:688
+#, fuzzy
 msgid ""
-"       --warc-header=STRING      insert STRING into the warcinfo record.\n"
+"       --warc-header=STRING        insert STRING into the warcinfo record.\n"
 msgstr "       --warc-header=ŘETĚZEC     do záznamu WARC přidá ŘETĚZEC.\n"
 
 #: src/main.c:690
+#, fuzzy
 msgid ""
-"       --warc-max-size=NUMBER    set maximum size of WARC files to NUMBER.\n"
+"       --warc-max-size=NUMBER      set maximum size of WARC files to "
+"NUMBER.\n"
 msgstr ""
 "       --warc-max-size=ČÍSLO     nastaví maximální velikost souborů WARC na\n"
 "                                 ČÍSLO.\n"
 
 #: src/main.c:692
-msgid "       --warc-cdx                write CDX index files.\n"
+#, fuzzy
+msgid "       --warc-cdx                  write CDX index files.\n"
 msgstr "       --warc-cdx                zapíše indexové soubory CDX.\n"
 
 #: src/main.c:694
+#, fuzzy
 msgid ""
-"       --warc-dedup=FILENAME     do not store records listed in this CDX "
+"       --warc-dedup=FILENAME       do not store records listed in this CDX "
 "file.\n"
 msgstr ""
 "       --warc-dedup=SOUBOR       neukládá záznamy uvedené v tomto souboru "
 "CDX.\n"
 
 #: src/main.c:697
+#, fuzzy
 msgid ""
-"       --no-warc-compression     do not compress WARC files with GZIP.\n"
+"       --no-warc-compression       do not compress WARC files with GZIP.\n"
 msgstr "       --no-warc-compression     nekomprimuje soubory WARC gzipem.\n"
 
 #: src/main.c:700
-msgid "       --no-warc-digests         do not calculate SHA1 digests.\n"
+#, fuzzy
+msgid "       --no-warc-digests           do not calculate SHA1 digests.\n"
 msgstr "       --no-warc-digests         nepočítá kontrolní součty SHA1.\n"
 
 #: src/main.c:702
+#, fuzzy
 msgid ""
-"       --no-warc-keep-log        do not store the log file in a WARC "
+"       --no-warc-keep-log          do not store the log file in a WARC "
 "record.\n"
 msgstr "       --no-warc-keep-log        neuloží protokol do záznamu WARC.\n"
 
 #: src/main.c:704
+#, fuzzy
 msgid ""
-"       --warc-tempdir=DIRECTORY  location for temporary files created by "
+"       --warc-tempdir=DIRECTORY    location for temporary files created by "
 "the\n"
-"                                 WARC writer.\n"
+"                                   WARC writer.\n"
 msgstr ""
 "       --warc-tempdir=ADRESÁŘ    umístění dočasných souborů vytvářených\n"
 "                                 zapisovatelem WARC.\n"
@@ -1923,68 +2162,85 @@ msgid "Recursive download:\n"
 msgstr "Rekurzivní stahování:\n"
 
 #: src/main.c:711
-msgid "  -r,  --recursive          specify recursive download.\n"
+#, fuzzy
+msgid "  -r,  --recursive                 specify recursive download.\n"
 msgstr "  -r,  --recursive          zapne rekurzivní stahování.\n"
 
 #: src/main.c:713
+#, fuzzy
 msgid ""
-"  -l,  --level=NUMBER       maximum recursion depth (inf or 0 for "
+"  -l,  --level=NUMBER              maximum recursion depth (inf or 0 for "
 "infinite).\n"
 msgstr ""
 "  -l,  --level=POČET        maximální hloubka rekurze\n"
 "                            („inf“ nebo „0“ pro nekonečno).\n"
 
 #: src/main.c:715
+#, fuzzy
 msgid ""
-"       --delete-after       delete files locally after downloading them.\n"
+"       --delete-after              delete files locally after downloading "
+"them.\n"
 msgstr ""
 "       --delete-after       smaže soubory lokálně po té, co dokončí "
 "stahování.\n"
 
 #: src/main.c:717
+#, fuzzy
 msgid ""
-"  -k,  --convert-links      make links in downloaded HTML or CSS point to\n"
-"                            local files.\n"
+"  -k,  --convert-links             make links in downloaded HTML or CSS "
+"point to\n"
+"                                   local files.\n"
 msgstr ""
 "  -k,  --convert-links      učiní odkazy v HTML nebo CSS odkazující na\n"
 "                            místní soubory.\n"
 
 #: src/main.c:720
-msgid "  --backups=N   before writing file X, rotate up to N backup files.\n"
+#, fuzzy
+msgid ""
+"       --backups=N                 before writing file X, rotate up to N "
+"backup files.\n"
 msgstr ""
 "  --backups=N   před zápisem souboru X odrotuje až N záložních souborů.\n"
 
 #: src/main.c:724
+#, fuzzy
 msgid ""
-"  -K,  --backup-converted   before converting file X, back up as X_orig.\n"
+"  -K,  --backup-converted          before converting file X, back up as "
+"X_orig.\n"
 msgstr ""
 "  -K,  --backup-converted   před konverzí souboru X jej zazálohuje jako "
 "X_orig.\n"
 
 #: src/main.c:727
+#, fuzzy
 msgid ""
-"  -K,  --backup-converted   before converting file X, back up as X.orig.\n"
+"  -K,  --backup-converted          before converting file X, back up as X."
+"orig.\n"
 msgstr ""
 "  -K,  --backup-converted   před konverzí souboru X jej zazálohuje jako X."
 "orig.\n"
 
 #: src/main.c:730
+#, fuzzy
 msgid ""
-"  -m,  --mirror             shortcut for -N -r -l inf --no-remove-listing.\n"
+"  -m,  --mirror                    shortcut for -N -r -l inf --no-remove-"
+"listing.\n"
 msgstr ""
 "  -m,  --mirror             zkratka pro -N -r -l inf --no-remove-listing.\n"
 
 #: src/main.c:732
+#, fuzzy
 msgid ""
-"  -p,  --page-requisites    get all images, etc. needed to display HTML "
-"page.\n"
+"  -p,  --page-requisites           get all images, etc. needed to display "
+"HTML page.\n"
 msgstr ""
 "  -p,  --page-requisites    získá všechny obrázky apod. potřebné pro\n"
 "                            zobrazení HTML stránky.\n"
 
 #: src/main.c:734
+#, fuzzy
 msgid ""
-"       --strict-comments    turn on strict (SGML) handling of HTML "
+"       --strict-comments           turn on strict (SGML) handling of HTML "
 "comments.\n"
 msgstr ""
 "       --strict-comments    zapne přísné zacházení s HTML komentáři podle "
@@ -2085,8 +2341,9 @@ msgstr ""
 "                                   seznam povolených adresářů.\n"
 
 #: src/main.c:771
+#, fuzzy
 msgid ""
-"  --trust-server-names             use the name specified by the "
+"       --trust-server-names        use the name specified by the "
 "redirection\n"
 "                                   url last component.\n"
 msgstr ""
@@ -2170,7 +2427,8 @@ msgstr "    %s (globální)\n"
 #. TRANSLATORS: When available, an actual copyright character
 #. (circle-c) should be used in preference to "(C)".
 #: src/main.c:959
-msgid "Copyright (C) 2011 Free Software Foundation, Inc.\n"
+#, fuzzy, c-format
+msgid "Copyright (C) %s Free Software Foundation, Inc.\n"
 msgstr "Copyright © 2011 Free Software Foundation, Inc.\n"
 
 #: src/main.c:962
@@ -2202,27 +2460,32 @@ msgstr ""
 "anglicky). Komentáře k českému překladu zasílejte na adresu\n"
 "<translation-team-cs@lists.sourceforge.net>.\n"
 
-#: src/main.c:1024 src/main.c:1485
+#: src/main.c:1024 src/main.c:1515
 #, c-format
 msgid "Memory allocation problem\n"
 msgstr "Problém s alokací paměti\n"
 
-#: src/main.c:1069
+#: src/main.c:1075
 #, c-format
 msgid "Exiting due to error in %s\n"
 msgstr "Končí se kvůli chybě v %s\n"
 
-#: src/main.c:1098 src/main.c:1169 src/main.c:1346
+#: src/main.c:1104 src/main.c:1174 src/main.c:1376
 #, c-format
 msgid "Try `%s --help' for more options.\n"
 msgstr "Příkaz „%s --help“ vypíše další přepínače.\n"
 
-#: src/main.c:1165
+#: src/main.c:1170
 #, c-format
 msgid "%s: illegal option -- `-n%c'\n"
 msgstr "%s: nepřípustný přepínač – „-n%c“\n"
 
-#: src/main.c:1206
+#: src/main.c:1213
+#, c-format
+msgid "Debugging support not compiled in. Ignoring --debug flag.\n"
+msgstr ""
+
+#: src/main.c:1225
 #, c-format
 msgid ""
 "Both --no-clobber and --convert-links were specified, only --convert-links "
@@ -2231,22 +2494,22 @@ msgstr ""
 "Jak --no-clobber, tak --convert-links byly zadány. Použije se jen\n"
 "přepínač --convert-links.\n"
 
-#: src/main.c:1234
+#: src/main.c:1255
 #, c-format
 msgid "Can't be verbose and quiet at the same time.\n"
 msgstr "Program nemůže být upovídaný a zticha zároveň.\n"
 
-#: src/main.c:1240
+#: src/main.c:1261
 #, c-format
 msgid "Can't timestamp and not clobber old files at the same time.\n"
 msgstr "Nelze používat časová razítka a nemazat přitom staré soubory.\n"
 
-#: src/main.c:1249
+#: src/main.c:1270
 #, c-format
 msgid "Cannot specify both --inet4-only and --inet6-only.\n"
 msgstr "--inet4-only a --inet6-only nelze zadat najednou.\n"
 
-#: src/main.c:1259
+#: src/main.c:1280
 msgid ""
 "Cannot specify both -k and -O if multiple URLs are given, or in combination\n"
 "with -p or -r. See the manual for details.\n"
@@ -2255,7 +2518,7 @@ msgstr ""
 "Přepínače -k a -O  nelze spolu použít, je-li zadáno více URL nebo\n"
 "zadán přepínač -p nebo -r. Vysvětlení naleznete v manuálu.\n"
 
-#: src/main.c:1268
+#: src/main.c:1289
 msgid ""
 "WARNING: combining -O with -r or -p will mean that all downloaded content\n"
 "will be placed in the single file you specified.\n"
@@ -2265,7 +2528,7 @@ msgstr ""
 "uložen do jediného souboru, který jste určili.\n"
 "\n"
 
-#: src/main.c:1274
+#: src/main.c:1295
 msgid ""
 "WARNING: timestamping does nothing in combination with -O. See the manual\n"
 "for details.\n"
@@ -2275,12 +2538,12 @@ msgstr ""
 "v manuálu.\n"
 "\n"
 
-#: src/main.c:1283
+#: src/main.c:1304
 #, c-format
 msgid "File `%s' already there; not retrieving.\n"
 msgstr "Soubor „%s“ je již zde, nebudu jej přenášet.\n"
 
-#: src/main.c:1294
+#: src/main.c:1315
 #, c-format
 msgid ""
 "WARC output does not work with --no-clobber, --no-clobber will be disabled.\n"
@@ -2288,7 +2551,7 @@ msgstr ""
 "Výstup do WARC nefunguje spolu s --no-clobber. Přepínač --no-clobber bude\n"
 "vypnut.\n"
 
-#: src/main.c:1301
+#: src/main.c:1322
 #, c-format
 msgid ""
 "WARC output does not work with timestamping, timestamping will be disabled.\n"
@@ -2296,20 +2559,21 @@ msgstr ""
 "Výstup do WARC nefunguje spolu s porovnáváním časů. Porovnávání časů bude\n"
 "vypnuto.\n"
 
-#: src/main.c:1308
+#: src/main.c:1329
 #, c-format
 msgid "WARC output does not work with --spider.\n"
 msgstr "Výstup do WARC nefunguje spolu s přepínačem --spider.\n"
 
-#: src/main.c:1314
-#, c-format
+#: src/main.c:1335
+#, fuzzy, c-format
 msgid ""
-"WARC output does not work with --continue, --continue will be disabled.\n"
+"WARC output does not work with --continue or --start-pos, they will be "
+"disabled.\n"
 msgstr ""
 "Výstup do WARC nefunguje spolu s --continue. Přepínač --continue bude "
 "vypnut.\n"
 
-#: src/main.c:1321
+#: src/main.c:1343
 #, c-format
 msgid ""
 "Digests are disabled; WARC deduplication will not find duplicate records.\n"
@@ -2318,22 +2582,29 @@ msgstr ""
 "opakující\n"
 "se záznamy.\n"
 
-#: src/main.c:1333
+#: src/main.c:1355
 #, c-format
 msgid "Cannot specify both --ask-password and --password.\n"
 msgstr "--ask-password a --password nelze zadat najednou.\n"
 
-#: src/main.c:1341
+#: src/main.c:1363
+#, c-format
+msgid ""
+"Specifying both --start-pos and --continue is not recommended; --continue "
+"will be disabled.\n"
+msgstr ""
+
+#: src/main.c:1371
 #, c-format
 msgid "%s: missing URL\n"
 msgstr "%s: chybí URL\n"
 
-#: src/main.c:1382
+#: src/main.c:1412
 #, c-format
 msgid "You cannot specify both --post-data and --post-file.\n"
 msgstr "Přepínače --post-data a --post-file nelze zadat najednou.\n"
 
-#: src/main.c:1387
+#: src/main.c:1417
 #, c-format
 msgid ""
 "You cannot use --post-data or --post-file along with --method. --method "
@@ -2343,7 +2614,7 @@ msgstr ""
 "method. Přepínač --method očekává data skrze přepínače --body-data a --body-"
 "file"
 
-#: src/main.c:1396
+#: src/main.c:1426
 #, c-format
 msgid ""
 "You must specify a method through --method=HTTPMethod to use with --body-"
@@ -2352,28 +2623,28 @@ msgstr ""
 "Abyste mohli použít přepínače --body-data nebo --body-file, je třeba zvolit "
 "metody skrze --method=METODA_HTTP.\n"
 
-#: src/main.c:1402
+#: src/main.c:1432
 #, c-format
 msgid "You cannot specify both --body-data and --body-file.\n"
 msgstr "Přepínače --body-data a --body-file nelze zadat najednou.\n"
 
-#: src/main.c:1454
+#: src/main.c:1484
 #, c-format
 msgid "This version does not have support for IRIs\n"
 msgstr "Tato verze neobsahuje podporu pro IRI\n"
 
-#: src/main.c:1554
+#: src/main.c:1584
 #, c-format
 msgid "-k can be used together with -O only if outputting to a regular file.\n"
 msgstr ""
 "-k lze použít spolu s -O pouze tehdy, když výstupem je obyčejný soubor.\n"
 
-#: src/main.c:1659
+#: src/main.c:1689
 #, c-format
 msgid "No URLs found in %s.\n"
 msgstr "V souboru „%s“ nebyla nalezena žádná URL.\n"
 
-#: src/main.c:1680
+#: src/main.c:1710
 #, c-format
 msgid ""
 "FINISHED --%s--\n"
@@ -2384,49 +2655,49 @@ msgstr ""
 "Celkový skutečný čas: %s\n"
 "Staženo: %d souborů, %s za %s (%s)\n"
 
-#: src/main.c:1694
+#: src/main.c:1724
 #, c-format
 msgid "Download quota of %s EXCEEDED!\n"
 msgstr "Kvóta %s na stahování PŘEKROČENA!\n"
 
-#: src/mswindows.c:99
+#: src/mswindows.c:100
 #, c-format
 msgid "Continuing in background.\n"
 msgstr "Program pokračuje v běhu na pozadí.\n"
 
-#: src/mswindows.c:292
+#: src/mswindows.c:293
 #, c-format
 msgid "Continuing in background, pid %lu.\n"
 msgstr "Program pokračuje v běhu na pozadí, pid %lu.\n"
 
-#: src/mswindows.c:294 src/utils.c:481
+#: src/mswindows.c:295 src/utils.c:481
 #, c-format
 msgid "Output will be written to %s.\n"
 msgstr "Výstup bude zapsán do %s.\n"
 
-#: src/mswindows.c:326
+#: src/mswindows.c:327
 #, c-format
 msgid "fake_fork_child() failed\n"
 msgstr "volání fake_fork_child() selhalo\n"
 
-#: src/mswindows.c:334
+#: src/mswindows.c:335
 #, c-format
 msgid "fake_fork() failed\n"
 msgstr "volání fake_fork() selhalo\n"
 
-#: src/mswindows.c:462 src/mswindows.c:469
+#: src/mswindows.c:463 src/mswindows.c:470
 #, c-format
 msgid "%s: Couldn't find usable socket driver.\n"
 msgstr "%s: Nelze najít použitelný ovladač soketů.\n"
 
-#: src/mswindows.c:649
+#: src/mswindows.c:650
 #, c-format
 msgid "ioctl() failed.  The socket could not be set as blocking.\n"
 msgstr ""
 "Volání ioctl() selhalo. Socket nebylo možné přepnout do neblokujícího "
 "režimu.\n"
 
-#: src/netrc.c:350
+#: src/netrc.c:354
 #, c-format
 msgid "%s: %s:%d: warning: %s token appears before any machine name\n"
 msgstr ""
@@ -2434,51 +2705,51 @@ msgstr ""
 "počítače\n"
 
 # TODO: msgid bug: explicit quotation
-#: src/netrc.c:381
+#: src/netrc.c:385
 #, c-format
 msgid "%s: %s:%d: unknown token \"%s\"\n"
 msgstr "%s: %s:%d: neznámý token „%s“\n"
 
-#: src/netrc.c:444
+#: src/netrc.c:448
 #, c-format
 msgid "Usage: %s NETRC [HOSTNAME]\n"
 msgstr "Použití: %s NETRC [NÁZEV POČÍTAČE]\n"
 
-#: src/netrc.c:454
+#: src/netrc.c:466
 #, c-format
 msgid "%s: cannot stat %s: %s\n"
 msgstr "%s: volání „stat %s“ skončilo chybou: %s\n"
 
-#: src/openssl.c:115
+#: src/openssl.c:118
 msgid "WARNING: using a weak random seed.\n"
 msgstr "VAROVÁNÍ: používám slabý zdroj náhodných čísel.\n"
 
-#: src/openssl.c:175
+#: src/openssl.c:189
 msgid "Could not seed PRNG; consider using --random-file.\n"
 msgstr "PRNG nelze zinicializovat, zvažte použití přepínače --random-file.\n"
 
-#: src/openssl.c:604
+#: src/openssl.c:630
 #, c-format
 msgid "%s: cannot verify %s's certificate, issued by %s:\n"
 msgstr "%s: certifikát pro %s vydaný %s nelze ověřit:\n"
 
-#: src/openssl.c:613
+#: src/openssl.c:639
 msgid "  Unable to locally verify the issuer's authority.\n"
 msgstr "  Autoritu vydavatele nelze lokálně ověřit.\n"
 
-#: src/openssl.c:618
+#: src/openssl.c:644
 msgid "  Self-signed certificate encountered.\n"
 msgstr "  Nalezen certifikát podepsaný sám sebou.\n"
 
-#: src/openssl.c:621
+#: src/openssl.c:647
 msgid "  Issued certificate not yet valid.\n"
 msgstr "  Vydaný certifikát ještě nenabyl platnosti.\n"
 
-#: src/openssl.c:624
+#: src/openssl.c:650
 msgid "  Issued certificate has expired.\n"
 msgstr "  Vydanému certifikátu uplynula doba platnosti.\n"
 
-#: src/openssl.c:709
+#: src/openssl.c:735
 #, c-format
 msgid ""
 "%s: no certificate subject alternative name matches\n"
@@ -2487,7 +2758,7 @@ msgstr ""
 "%s: žádné alternativní jméno z certifikátu se neshoduje\n"
 "\ts požadovaným jménem počítače %s.\n"
 
-#: src/openssl.c:726
+#: src/openssl.c:752
 #, c-format
 msgid ""
 "    %s: certificate common name %s doesn't match requested host name %s.\n"
@@ -2495,7 +2766,7 @@ msgstr ""
 "    %s: obecné jméno (CN) certifikátu %s se neshoduje s požadovaným jménem "
 "počítače %s.\n"
 
-#: src/openssl.c:758
+#: src/openssl.c:784
 #, c-format
 msgid ""
 "    %s: certificate common name is invalid (contains a NUL character).\n"
@@ -2506,12 +2777,12 @@ msgstr ""
 "    To může ukazovat na to, že stroj není tím, za koho se vydává (to jest,\n"
 "    ve skutečnosti to není %s).\n"
 
-#: src/openssl.c:776
+#: src/openssl.c:802
 #, c-format
 msgid "To connect to %s insecurely, use `--no-check-certificate'.\n"
 msgstr "Pro nezabezpečené spojení s %s použijte „--no-check-certificate“.\n"
 
-#: src/progress.c:240
+#: src/progress.c:244
 #, c-format
 msgid ""
 "\n"
@@ -2520,19 +2791,19 @@ msgstr ""
 "\n"
 "%*s[ přeskakuje se %s K ]"
 
-#: src/progress.c:454
+#: src/progress.c:465
 #, c-format
 msgid "Invalid dot style specification %s; leaving unchanged.\n"
 msgstr "%s není platné určení způsobu indikace, ponecháno nezměněno.\n"
 
 #. TRANSLATORS: "ETA" is English-centric, but this must
 #. be short, ideally 3 chars.  Abbreviate if necessary.
-#: src/progress.c:803
-#, c-format
-msgid "  eta %s"
+#: src/progress.c:854
+#, fuzzy, c-format
+msgid "   eta %s"
 msgstr " zbývá %s"
 
-#: src/progress.c:1049
+#: src/progress.c:1150
 msgid "   in "
 msgstr "   za "
 
@@ -2555,22 +2826,22 @@ msgstr "%s nelze otevřít: %s"
 msgid "Loading robots.txt; please ignore errors.\n"
 msgstr "Načítá se „robots.txt“. Chybová hlášení ignorujte, prosím.\n"
 
-#: src/retr.c:767
+#: src/retr.c:768
 #, c-format
 msgid "Error parsing proxy URL %s: %s.\n"
 msgstr "Chyba rozebírání URL proxy serveru %s: %s.\n"
 
-#: src/retr.c:777
+#: src/retr.c:778
 #, c-format
 msgid "Error in proxy URL %s: Must be HTTP.\n"
 msgstr "Chyba v URL Proxy %s: Musí být HTTP.\n"
 
-#: src/retr.c:877
+#: src/retr.c:879
 #, c-format
 msgid "%d redirections exceeded.\n"
 msgstr "Překročeno %d přesměrování.\n"
 
-#: src/retr.c:1119
+#: src/retr.c:1126
 msgid ""
 "Giving up.\n"
 "\n"
@@ -2578,7 +2849,7 @@ msgstr ""
 "Ani poslední pokus nebyl úspěšný.\n"
 "\n"
 
-#: src/retr.c:1119
+#: src/retr.c:1126
 msgid ""
 "Retrying.\n"
 "\n"
@@ -2649,7 +2920,7 @@ msgstr "IPv6 adresy nejsou podporovány"
 msgid "Invalid IPv6 numeric address"
 msgstr "Chybná číselná IPv6 adresa"
 
-#: src/url.c:960
+#: src/url.c:959
 msgid "HTTPS support not compiled in"
 msgstr "Podpora HTTPS nebyla zakompilována do programu"
 
@@ -2675,30 +2946,30 @@ msgstr ""
 msgid "Continuing in background, pid %d.\n"
 msgstr "Program pokračuje v běhu na pozadí. pid %d\n"
 
-#: src/utils.c:552
+#: src/utils.c:555
 #, c-format
 msgid "Failed to unlink symlink %s: %s\n"
 msgstr "Nebylo možné odstranit symbolický odkaz %s: %s\n"
 
-#: src/utils.c:2270 src/utils.c:2289
+#: src/utils.c:2273 src/utils.c:2292
 #, c-format
 msgid "Invalid regular expression %s, %s\n"
 msgstr "Neplatný regulární výraz %s, %s\n"
 
-#: src/utils.c:2312 src/utils.c:2336
+#: src/utils.c:2315 src/utils.c:2339
 #, c-format
 msgid "Error while matching %s: %d\n"
 msgstr "Při porovnávání %s nastala chyba: %d\n"
 
-#: src/warc.c:219
+#: src/warc.c:222
 msgid "Error opening GZIP stream to WARC file.\n"
 msgstr "Chyba při otevírání gzipového proudu do souboru WARC.\n"
 
-#: src/warc.c:702
+#: src/warc.c:710
 msgid "Error writing warcinfo record to WARC file.\n"
 msgstr "Chyba při zápisu záznamu warcinfo do souboru WARC.\n"
 
-#: src/warc.c:763
+#: src/warc.c:771
 #, c-format
 msgid ""
 "Opening WARC file %s.\n"
@@ -2707,24 +2978,24 @@ msgstr ""
 "Otevírání souboru WARC %s.\n"
 "\n"
 
-#: src/warc.c:769
+#: src/warc.c:777
 #, c-format
 msgid "Error opening WARC file %s.\n"
 msgstr "Chyba při otevírání souboru WARC %s.\n"
 
-#: src/warc.c:966
+#: src/warc.c:974
 msgid "CDX file does not list original urls. (Missing column 'a'.)\n"
 msgstr "Soubor CDX neuvádí původní URL. (Chybí sloupec „a“.)\n"
 
-#: src/warc.c:969
+#: src/warc.c:977
 msgid "CDX file does not list checksums. (Missing column 'k'.)\n"
 msgstr "Soubor CDX neuvádí kontrolní součet. (Chybí sloupec „k“.)\n"
 
-#: src/warc.c:972
+#: src/warc.c:980
 msgid "CDX file does not list record ids. (Missing column 'u'.)\n"
 msgstr "Soubor CDX neuvádí identifikátory záznamů. (Chybí sloupec „u“.)\n"
 
-#: src/warc.c:994
+#: src/warc.c:1002
 #, c-format
 msgid ""
 "Loaded %d record from CDX.\n"
@@ -2742,32 +3013,32 @@ msgstr[2] ""
 "Načteno %d záznamů z CDX.\n"
 "\n"
 
-#: src/warc.c:1039
+#: src/warc.c:1047
 #, c-format
 msgid "Could not read CDX file %s for deduplication.\n"
 msgstr "Nebylo možné přečíst soubor CDX %s za účelem odstranění duplikátů.\n"
 
-#: src/warc.c:1049
+#: src/warc.c:1057
 msgid "Could not open temporary WARC manifest file.\n"
 msgstr "Nebylo možné otevřít dočasný soubor manifestu WARC.\n"
 
-#: src/warc.c:1059
+#: src/warc.c:1067
 msgid "Could not open temporary WARC log file.\n"
 msgstr "Nebylo možné otevřít dočasný soubor protokolu WARC.\n"
 
-#: src/warc.c:1068
+#: src/warc.c:1076
 msgid "Could not open WARC file.\n"
 msgstr "Nebylo možné otevřít soubor WARC.\n"
 
-#: src/warc.c:1077
+#: src/warc.c:1085
 msgid "Could not open CDX file for output.\n"
 msgstr "Nebylo možné otevřít soubor CDX pro výstup.\n"
 
-#: src/warc.c:1105
+#: src/warc.c:1113
 msgid "Could not open temporary WARC file.\n"
 msgstr "Nebylo možné otevřít dočasný soubor WARC.\n"
 
-#: src/warc.c:1362
+#: src/warc.c:1370
 msgid "Found exact match in CDX file. Saving revisit record to WARC.\n"
 msgstr ""
 "Nalezena přesná shoda v souboru CDX. Ukládá se záznam o opakované návštěvě "

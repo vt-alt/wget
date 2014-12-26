@@ -1,6 +1,6 @@
 /* File Transfer Protocol support.
    Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
-   2005, 2006, 2007, 2008, 2009, 2010, 2011 Free Software Foundation,
+   2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014 Free Software Foundation,
    Inc.
 
 This file is part of GNU Wget.
@@ -221,13 +221,13 @@ print_length (wgint size, wgint start, bool authoritative)
 {
   logprintf (LOG_VERBOSE, _("Length: %s"), number_to_static_string (size));
   if (size >= 1024)
-    logprintf (LOG_VERBOSE, " (%s)", human_readable (size));
+    logprintf (LOG_VERBOSE, " (%s)", human_readable (size, 10, 1));
   if (start > 0)
     {
       if (size - start >= 1024)
         logprintf (LOG_VERBOSE, _(", %s (%s) remaining"),
                    number_to_static_string (size - start),
-                   human_readable (size - start));
+                   human_readable (size - start, 10, 1));
       else
         logprintf (LOG_VERBOSE, _(", %s remaining"),
                    number_to_static_string (size - start));
@@ -243,7 +243,8 @@ static uerr_t ftp_get_listing (struct url *, ccon *, struct fileinfo **);
    is non-NULL, the downloaded data will be written there as well.  */
 static uerr_t
 getftp (struct url *u, wgint passed_expected_bytes, wgint *qtyread,
-        wgint restval, ccon *con, int count, FILE *warc_tmp)
+        wgint restval, ccon *con, int count, wgint *last_expected_bytes,
+        FILE *warc_tmp)
 {
   int csock, dtsock, local_sock, res;
   uerr_t err = RETROK;          /* appease the compiler */
@@ -802,8 +803,12 @@ Error in server response, closing control connection.\n"));
           abort ();
         }
         if (!opt.server_response)
-          logprintf (LOG_VERBOSE, expected_bytes ? "%s\n" : _("done.\n"),
-                     number_to_static_string (expected_bytes));
+          {
+            logprintf (LOG_VERBOSE, "%s\n",
+                    expected_bytes ?
+                    number_to_static_string (expected_bytes) :
+                    _("done.\n"));
+          }
     }
 
   if (cmd & DO_RETR && restval > 0 && restval == expected_bytes)
@@ -986,15 +991,14 @@ Error in server response, closing control connection.\n"));
       if (opt.spider)
         {
           bool exists = false;
-          uerr_t res;
           struct fileinfo *f;
-          res = ftp_get_listing (u, con, &f);
+          uerr_t _res = ftp_get_listing (u, con, &f);
           /* Set the DO_RETR command flag again, because it gets unset when
              calling ftp_get_listing() and would otherwise cause an assertion
              failure earlier on when this function gets repeatedly called
              (e.g., when recursing).  */
           con->cmd |= DO_RETR;
-          if (res == RETROK)
+          if (_res == RETROK)
             {
               while (f)
                 {
@@ -1075,7 +1079,7 @@ Error in server response, closing control connection.\n"));
         logputs (LOG_VERBOSE, _("done.\n"));
 
       if (! got_expected_bytes)
-        expected_bytes = ftp_expected_bytes (ftp_last_respline);
+        expected_bytes = *last_expected_bytes;
     } /* do retrieve */
 
   if (cmd & DO_LIST)
@@ -1124,7 +1128,7 @@ Error in server response, closing control connection.\n"));
         logputs (LOG_VERBOSE, _("done.\n"));
 
       if (! got_expected_bytes)
-        expected_bytes = ftp_expected_bytes (ftp_last_respline);
+        expected_bytes = *last_expected_bytes;
     } /* cmd & DO_LIST */
 
   if (!(cmd & (DO_LIST | DO_RETR)) || (opt.spider && !(cmd & DO_LIST)))
@@ -1156,7 +1160,7 @@ Error in server response, closing control connection.\n"));
   /* Open the file -- if output_stream is set, use it instead.  */
 
   /* 2005-04-17 SMS.
-     Note that having the output_stream ("-O") file opened in main()
+     Note that having the output_stream ("-O") file opened in main
      (main.c) rather limits the ability in VMS to open the file
      differently for ASCII versus binary FTP here.  (Of course, doing it
      there allows a open failure to be detected immediately, without first
@@ -1231,8 +1235,7 @@ Error in server response, closing control connection.\n"));
         {
           if (opt.unlink && file_exists_p (con->target))
             {
-              int res = unlink (con->target);
-              if (res < 0)
+              if (unlink (con->target) < 0)
                 {
                   logprintf (LOG_NOTQUIET, "%s: %s\n", con->target,
                     strerror (errno));
@@ -1306,7 +1309,7 @@ Error in server response, closing control connection.\n"));
   if (restval && rest_failed)
     flags |= rb_skip_startpos;
   rd_size = 0;
-  res = fd_read_body (dtsock, fp,
+  res = fd_read_body (con->target, dtsock, fp,
                       expected_bytes ? expected_bytes - restval : 0,
                       restval, &rd_size, qtyread, &con->dltime, flags, warc_tmp);
 
@@ -1343,6 +1346,7 @@ Error in server response, closing control connection.\n"));
 
   /* Get the server to tell us if everything is retrieved.  */
   err = ftp_response (csock, &respline);
+  *last_expected_bytes = ftp_expected_bytes (respline);
   if (err != FTPOK)
     {
       /* The control connection is decidedly closed.  Print the time
@@ -1545,6 +1549,7 @@ ftp_loop_internal (struct url *u, struct fileinfo *f, ccon *con, char **local_fi
   bool warc_enabled = (opt.warc_filename != NULL);
   FILE *warc_tmp = NULL;
   ip_address *warc_ip = NULL;
+  wgint last_expected_bytes = 0;
 
   /* Get the target, and set the name for the message accordingly. */
   if ((f == NULL) && (con->target))
@@ -1632,6 +1637,8 @@ ftp_loop_internal (struct url *u, struct fileinfo *f, ccon *con, char **local_fi
       /* Decide whether or not to restart.  */
       if (con->cmd & DO_LIST)
         restval = 0;
+      else if (opt.start_pos >= 0)
+        restval = opt.start_pos;
       else if (opt.always_rest
           && stat (locf, &st) == 0
           && S_ISREG (st.st_mode))
@@ -1669,7 +1676,8 @@ ftp_loop_internal (struct url *u, struct fileinfo *f, ccon *con, char **local_fi
 
       /* If we are working on a WARC record, getftp should also write
          to the warc_tmp file. */
-      err = getftp (u, len, &qtyread, restval, con, count, warc_tmp);
+      err = getftp (u, len, &qtyread, restval, con, count, &last_expected_bytes,
+                    warc_tmp);
 
       if (con->csock == -1)
         con->st &= ~DONE_CWD;
@@ -2203,6 +2211,29 @@ has_insecure_name_p (const char *s)
   return false;
 }
 
+/* Test if the file node is invalid. This can occur due to malformed or
+ * maliciously crafted listing files being returned by the server.
+ *
+ * Currently, this function only tests if there are multiple entries in the
+ * listing file by the same name. However this function can be expanded as more
+ * such illegal listing formats are discovered. */
+static bool
+is_invalid_entry (struct fileinfo *f)
+{
+  struct fileinfo *cur;
+  cur = f;
+  char *f_name = f->name;
+  /* If the node we're currently checking has a duplicate later, we eliminate
+   * the current node and leave the next one intact. */
+  while (cur->next)
+    {
+      cur = cur->next;
+      if (strcmp(f_name, cur->name) == 0)
+          return true;
+    }
+  return false;
+}
+
 /* A near-top-level function to retrieve the files in a directory.
    The function calls ftp_get_listing, to get a linked list of files.
    Then it weeds out the file names that do not match the pattern.
@@ -2240,11 +2271,11 @@ ftp_retrieve_glob (struct url *u, ccon *con, int action)
             f = f->next;
         }
     }
-  /* Remove all files with possible harmful names */
+  /* Remove all files with possible harmful names or invalid entries. */
   f = start;
   while (f)
     {
-      if (has_insecure_name_p (f->name))
+      if (has_insecure_name_p (f->name) || is_invalid_entry (f))
         {
           logprintf (LOG_VERBOSE, _("Rejecting %s.\n"),
                      quote (f->name));
