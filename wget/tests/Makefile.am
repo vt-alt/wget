@@ -30,9 +30,8 @@
 # see http://www.gnu.org/software/automake/manual/html_node/Parallel-Test-Harness.html#Parallel-Test-Harness
 
 #
-# Version: $(VERSION)
+# Version: @VERSION@
 #
-
 
 ../src/wget$(EXEEXT):
 	cd ../src && $(MAKE) $(AM_MAKEFLAGS)
@@ -113,6 +112,7 @@ PX_TESTS = \
              Test-O.px \
              Test--post-file.px \
              Test-proxied-https-auth.px \
+             Test-proxied-https-auth-keepalive.px \
              Test-proxy-auth-basic.px \
              Test-restrict-ascii.px \
              Test-Restrict-Lowercase.px \
@@ -135,12 +135,13 @@ EXTRA_DIST = FTPServer.pm FTPTest.pm HTTPServer.pm HTTPTest.pm \
 
 check_PROGRAMS = unit-tests
 unit_tests_SOURCES =
-LDADD = ../src/libunittest.a ../lib/libgnu.a $(LIBS)
+LDADD = ../src/libunittest.a ../lib/libgnu.a @LIBICONV@ @LIBINTL@ $(LIBS) $(LIB_CLOCK_GETTIME)
 
 CLEANFILES = *~ *.bak core core.[0-9]*
 
 TESTS = ./unit-tests$(EXEEXT) $(PX_TESTS)
 TEST_EXTENSIONS = .px
-AM_TESTS_ENVIRONMENT = export WGETRC=/dev/null; export SYSTEM_WGETRC=/dev/null;
 PX_LOG_COMPILER = $(PERL)
 AM_PX_LOG_FLAGS = -I$(srcdir)
+AM_TESTS_ENVIRONMENT = export WGETRC=/dev/null; export SYSTEM_WGETRC=/dev/null;\
+ export VALGRIND_TESTS="@VALGRIND_TESTS@";

@@ -41,6 +41,7 @@ as that of the covered work.  */
 #include "utils.h"
 #include "url.h"
 #include "host.h"  /* for is_valid_ipv6_address */
+#include "c-strcase.h"
 
 #ifdef __VMS
 #include "vms.h"
@@ -85,7 +86,7 @@ static struct scheme_data supported_schemes[] =
 /* Forward declarations: */
 
 static bool path_simplify (enum url_scheme, char *);
-
+
 /* Support for escaping and unescaping of URL strings.  */
 
 /* Table of "reserved" and "unsafe" characters.  Those terms are
@@ -272,7 +273,7 @@ url_escape_allow_passthrough (const char *s)
 {
   return url_escape_1 (s, urlchr_unsafe, true);
 }
-
+
 /* Decide whether the char at position P needs to be encoded.  (It is
    not enough to pass a single char *P because the function may need
    to inspect the surrounding context.)
@@ -418,7 +419,7 @@ reencode_escapes (const char *s)
   assert (p2 - newstr == newlen);
   return newstr;
 }
-
+
 /* Returns the scheme type if the scheme is supported, or
    SCHEME_INVALID if not.  */
 
@@ -574,8 +575,8 @@ rewrite_shorthand_url (const char *url)
         goto http;
 
       /* Turn "foo.bar.com:path" to "ftp://foo.bar.com/path". */
-      ret = aprintf ("ftp://%s", url);
-      ret[6 + (p - url)] = '/';
+      if ((ret = aprintf ("ftp://%s", url)) != NULL)
+        ret[6 + (p - url)] = '/';
     }
   else
     {
@@ -585,7 +586,7 @@ rewrite_shorthand_url (const char *url)
     }
   return ret;
 }
-
+
 static void split_path (const char *, char **, char **);
 
 /* Like strpbrk, with the exception that it returns the pointer to the
@@ -705,6 +706,7 @@ url_parse (const char *url, int *error, struct iri *iri, bool percent_encode)
         new_url = NULL;
       else
         {
+          xfree (iri->orig_url);
           iri->orig_url = xstrdup (url);
           url_encoded = reencode_escapes (new_url);
           if (url_encoded != new_url)
@@ -895,6 +897,7 @@ url_parse (const char *url, int *error, struct iri *iri, bool percent_encode)
             {
               xfree (u->host);
               u->host = new;
+              u->idn_allocated = true;
               host_modified = true;
             }
         }
@@ -915,7 +918,7 @@ url_parse (const char *url, int *error, struct iri *iri, bool percent_encode)
       u->url = url_string (u, URL_AUTH_SHOW);
 
       if (url_encoded != url)
-        xfree ((char *) url_encoded);
+        xfree (url_encoded);
     }
   else
     {
@@ -930,7 +933,7 @@ url_parse (const char *url, int *error, struct iri *iri, bool percent_encode)
  error:
   /* Cleanup in case of error: */
   if (url_encoded && url_encoded != url)
-    xfree ((char *) url_encoded);
+    xfree (url_encoded);
 
   /* Transmit the error code to the caller, if the caller wants to
      know.  */
@@ -955,7 +958,7 @@ url_error (const char *url, int error_code)
 
       if ((p = strchr (scheme, ':')))
         *p = '\0';
-      if (!strcasecmp (scheme, "https"))
+      if (!c_strcasecmp (scheme, "https"))
         error = aprintf (_("HTTPS support not compiled in"));
       else
         error = aprintf (_(parse_errors[error_code]), quote (scheme));
@@ -1171,22 +1174,31 @@ url_set_file (struct url *url, const char *newfile)
 void
 url_free (struct url *url)
 {
-  xfree (url->host);
-  xfree (url->path);
-  xfree (url->url);
+  if (url)
+    {
+      if (url->idn_allocated) {
+        idn_free (url->host);      /* A dummy if !defined(ENABLE_IRI) */
+        url->host = NULL;
+      }
+      else
+        xfree (url->host);
 
-  xfree_null (url->params);
-  xfree_null (url->query);
-  xfree_null (url->fragment);
-  xfree_null (url->user);
-  xfree_null (url->passwd);
+      xfree (url->path);
+      xfree (url->url);
 
-  xfree (url->dir);
-  xfree (url->file);
+      xfree (url->params);
+      xfree (url->query);
+      xfree (url->fragment);
+      xfree (url->user);
+      xfree (url->passwd);
 
-  xfree (url);
+      xfree (url->dir);
+      xfree (url->file);
+
+      xfree (url);
+    }
 }
-
+
 /* Create all the necessary directories for PATH (a file).  Calls
    make_directory internally.  */
 int
@@ -1238,7 +1250,7 @@ mkalldirs (const char *path)
   xfree (t);
   return res;
 }
-
+
 /* Functions for constructing the file name out of URL components.  */
 
 /* A growable string structure, used by url_file_name and friends.
@@ -1641,7 +1653,7 @@ url_file_name (const struct url *u, char *replaced_filename)
       logprintf (LOG_NOTQUIET, "New name is %s.\n", temp_fnres.base);
     }
 
-  free (fname_len_check);
+  xfree (fname_len_check);
 
   /* The filename has already been 'cleaned' by append_uri_pathel() above.  So,
    * just append it. */
@@ -1654,7 +1666,7 @@ url_file_name (const struct url *u, char *replaced_filename)
   /* Make a final check that the path length is acceptable? */
   /* TODO: check fnres.base for path length problem */
 
-  free (temp_fnres.base);
+  xfree (temp_fnres.base);
 
   /* Check the cases in which the unique extensions are not used:
      1) Clobbering is turned off (-nc).
@@ -1694,7 +1706,7 @@ url_file_name (const struct url *u, char *replaced_filename)
 
   return unique;
 }
-
+
 /* Resolve "." and ".." elements of PATH by destructively modifying
    PATH and return true if PATH has been modified, false otherwise.
 
@@ -1780,7 +1792,7 @@ path_simplify (enum url_scheme scheme, char *path)
 
   return t != h;
 }
-
+
 /* Return the length of URL's path.  Path is considered to be
    terminated by one or more of the ?query or ;params or #fragment,
    depending on the scheme.  */
@@ -1991,7 +2003,7 @@ uri_merge (const char *base, const char *link)
 
   return merge;
 }
-
+
 #define APPEND(p, s) do {                       \
   int len = strlen (s);                         \
   memcpy (p, s, len);                           \
@@ -2108,7 +2120,7 @@ url_string (const struct url *url, enum url_auth_mode auth_mode)
 
   return result;
 }
-
+
 /* Return true if scheme a is similar to scheme b.
 
    Schemes are similar if they are equal.  If SSL is supported, schemes
@@ -2126,7 +2138,7 @@ schemes_are_similar_p (enum url_scheme a, enum url_scheme b)
 #endif
   return false;
 }
-
+
 static int
 getchar_from_escaped_string (const char *str, char *c)
 {
@@ -2187,7 +2199,7 @@ are_urls_equal (const char *u1, const char *u2)
 
   return (*p == 0 && *q == 0 ? true : false);
 }
-
+
 #ifdef TESTING
 /* Debugging and testing support for path_simplify. */
 

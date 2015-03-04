@@ -45,6 +45,7 @@ as that of the covered work.  */
 #include "recur.h"
 #include "html-url.h"
 #include "css-url.h"
+#include "c-strcase.h"
 
 typedef void (*tag_handler_t) (int, struct taginfo *, struct map_context *);
 
@@ -255,7 +256,7 @@ find_attr (struct taginfo *tag, const char *name, int *attrind)
 {
   int i;
   for (i = 0; i < tag->nattrs; i++)
-    if (!strcasecmp (tag->attrs[i].name, name))
+    if (!c_strcasecmp (tag->attrs[i].name, name))
       {
         if (attrind)
           *attrind = i;
@@ -378,7 +379,7 @@ append_url (const char *link_uri, int position, int size,
 
   return newel;
 }
-
+
 static void
 check_style_attr (struct taginfo *tag, struct map_context *ctx)
 {
@@ -487,8 +488,7 @@ tag_handle_base (int tagid _GL_UNUSED, struct taginfo *tag, struct map_context *
   base_urlpos->ignore_when_downloading = 1;
   base_urlpos->link_base_p = 1;
 
-  if (ctx->base)
-    xfree (ctx->base);
+  xfree (ctx->base);
   if (ctx->parent_base)
     ctx->base = uri_merge (ctx->parent_base, newbase);
   else
@@ -536,12 +536,12 @@ tag_handle_link (int tagid _GL_UNUSED, struct taginfo *tag, struct map_context *
           char *rel = find_attr (tag, "rel", NULL);
           if (rel)
             {
-              if (0 == strcasecmp (rel, "stylesheet"))
+              if (0 == c_strcasecmp (rel, "stylesheet"))
                 {
                   up->link_inline_p = 1;
                   up->link_expect_css = 1;
                 }
-              else if (0 == strcasecmp (rel, "shortcut icon"))
+              else if (0 == c_strcasecmp (rel, "shortcut icon"))
                 {
                   up->link_inline_p = 1;
                 }
@@ -553,7 +553,7 @@ tag_handle_link (int tagid _GL_UNUSED, struct taginfo *tag, struct map_context *
                      <link rel="alternate" type="application/rss+xml" href=".../?feed=rss2" />
                   */
                   char *type = find_attr (tag, "type", NULL);
-                  if (!type || strcasecmp (type, "text/html") == 0)
+                  if (!type || c_strcasecmp (type, "text/html") == 0)
                     up->link_expect_html = 1;
                 }
             }
@@ -570,7 +570,7 @@ tag_handle_meta (int tagid _GL_UNUSED, struct taginfo *tag, struct map_context *
   char *name = find_attr (tag, "name", NULL);
   char *http_equiv = find_attr (tag, "http-equiv", NULL);
 
-  if (http_equiv && 0 == strcasecmp (http_equiv, "refresh"))
+  if (http_equiv && 0 == c_strcasecmp (http_equiv, "refresh"))
     {
       /* Some pages use a META tag to specify that the page be
          refreshed by a new page after a given number of seconds.  The
@@ -615,7 +615,7 @@ tag_handle_meta (int tagid _GL_UNUSED, struct taginfo *tag, struct map_context *
           entry->link_expect_html = 1;
         }
     }
-  else if (http_equiv && 0 == strcasecmp (http_equiv, "content-type"))
+  else if (http_equiv && 0 == c_strcasecmp (http_equiv, "content-type"))
     {
       /* Handle stuff like:
          <meta http-equiv="Content-Type" content="text/html; charset=CHARSET"> */
@@ -629,17 +629,17 @@ tag_handle_meta (int tagid _GL_UNUSED, struct taginfo *tag, struct map_context *
       if (!mcharset)
         return;
 
-      xfree_null (meta_charset);
+      xfree (meta_charset);
       meta_charset = mcharset;
     }
-  else if (name && 0 == strcasecmp (name, "robots"))
+  else if (name && 0 == c_strcasecmp (name, "robots"))
     {
       /* Handle stuff like:
          <meta name="robots" content="index,nofollow"> */
       char *content = find_attr (tag, "content", NULL);
       if (!content)
         return;
-      if (!strcasecmp (content, "none"))
+      if (!c_strcasecmp (content, "none"))
         ctx->nofollow = true;
       else
         {
@@ -651,7 +651,7 @@ tag_handle_meta (int tagid _GL_UNUSED, struct taginfo *tag, struct map_context *
               /* Find the next occurrence of ',' or whitespace,
                * or the end of the string.  */
               end = content + strcspn (content, ", \f\n\r\t\v");
-              if (!strncasecmp (content, "nofollow", end - content))
+              if (!c_strncasecmp (content, "nofollow", end - content))
                 ctx->nofollow = true;
               /* Skip past the next comma, if any. */
               if (*end == ',')
@@ -692,7 +692,7 @@ collect_tags_mapper (struct taginfo *tag, void *arg)
 
   check_style_attr (tag, ctx);
 
-  if (tag->end_tag_p && (0 == strcasecmp (tag->name, "style"))
+  if (tag->end_tag_p && (0 == c_strcasecmp (tag->name, "style"))
       && tag->contents_begin && tag->contents_end
       && tag->contents_begin <= tag->contents_end)
   {
@@ -701,7 +701,7 @@ collect_tags_mapper (struct taginfo *tag, void *arg)
                   tag->contents_end - tag->contents_begin);
   }
 }
-
+
 /* Analyze HTML tags FILE and construct a list of URLs referenced from
    it.  It merges relative links in FILE with URL.  It is aware of
    <base href=...> and does the right thing.  */
@@ -757,7 +757,7 @@ get_urls_html (const char *file, const char *url, bool *meta_disallow_follow,
   if (meta_disallow_follow)
     *meta_disallow_follow = ctx.nofollow;
 
-  xfree_null (ctx.base);
+  xfree (ctx.base);
   wget_read_file_free (fm);
   return ctx.head;
 }
@@ -788,6 +788,7 @@ get_urls_file (const char *file)
     {
       int up_error_code;
       char *url_text;
+      char *new_url;
       struct urlpos *entry;
       struct url *url;
 
@@ -822,7 +823,7 @@ get_urls_file (const char *file)
           url_text = merged;
         }
 
-      char *new_url = rewrite_shorthand_url (url_text);
+      new_url = rewrite_shorthand_url (url_text);
       if (new_url)
         {
           xfree (url_text);

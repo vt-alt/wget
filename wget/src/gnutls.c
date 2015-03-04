@@ -122,9 +122,10 @@ ssl_init (void)
           while ((dent = readdir (dir)) != NULL)
             {
               struct stat st;
-              char ca_file[dirlen + strlen(dent->d_name) + 2];
+              size_t ca_file_length = dirlen + strlen(dent->d_name) + 2;
+              char *ca_file = alloca(ca_file_length);
 
-              snprintf (ca_file, sizeof(ca_file), "%s/%s", ca_directory, dent->d_name);
+              snprintf (ca_file, ca_file_length, "%s/%s", ca_directory, dent->d_name);
               if (stat (ca_file, &st) != 0)
                 continue;
 
@@ -138,8 +139,7 @@ ssl_init (void)
               hash_table_put (inode_map, (void *)(intptr_t) st.st_ino, NULL);
               if ((rc = gnutls_certificate_set_x509_trust_file (credentials, ca_file,
                                                                 GNUTLS_X509_FMT_PEM)) <= 0)
-                logprintf (LOG_NOTQUIET, _("ERROR: Failed to open cert %s: (%d).\n"),
-                           ca_file, rc);
+                DEBUGP (("WARNING: Failed to open cert %s: (%d).\n", ca_file, rc));
               else
                 ncerts += rc;
             }
@@ -147,6 +147,36 @@ ssl_init (void)
           hash_table_destroy (inode_map);
           closedir (dir);
         }
+    }
+
+  if (opt.ca_cert)
+    {
+      int rc;
+
+      ncerts = 0;
+
+      if ((rc = gnutls_certificate_set_x509_trust_file (credentials, opt.ca_cert,
+                                                        GNUTLS_X509_FMT_PEM)) <= 0)
+        logprintf (LOG_NOTQUIET, _ ("ERROR: Failed to open cert %s: (%d).\n"),
+                   opt.ca_cert, rc);
+      else
+        {
+          ncerts += rc;
+          logprintf (LOG_NOTQUIET, _ ("Loaded CA certificate '%s'\n"), opt.ca_cert);
+        }
+    }
+
+  if (opt.crl_file)
+    {
+      int rc;
+
+      if ((rc = gnutls_certificate_set_x509_crl_file (credentials, opt.crl_file, GNUTLS_X509_FMT_PEM)) <= 0)
+        {
+          logprintf (LOG_NOTQUIET, _("ERROR: Failed to load CRL file '%s': (%d)\n"), opt.crl_file, rc);
+          return false;
+        }
+
+      logprintf (LOG_NOTQUIET, _ ("Loaded CRL file '%s'\n"), opt.crl_file);
     }
 
   DEBUGP (("Certificates loaded: %d\n", ncerts));
@@ -181,10 +211,6 @@ cert to be of the same type.\n"));
                                             type);
     }
 
-  if (opt.ca_cert)
-    gnutls_certificate_set_x509_trust_file (credentials, opt.ca_cert,
-                                            GNUTLS_X509_FMT_PEM);
-
   ssl_initialized = true;
 
   return true;
@@ -202,11 +228,6 @@ struct wgnutls_transport_context
   char peekbuf[512];
   int peeklen;
 };
-
-#ifndef MIN
-# define MIN(i, j) ((i) <= (j) ? (i) : (j))
-#endif
-
 
 static int
 wgnutls_read_timeout (int fd, char *buf, int bufsize, void *arg, double timeout)
@@ -406,9 +427,10 @@ ssl_connect_wget (int fd, const char *hostname)
 #endif
   struct wgnutls_transport_context *ctx;
   gnutls_session_t session;
-  int err,alert;
-  gnutls_init (&session, GNUTLS_CLIENT);
+  int err;
   const char *str;
+
+  gnutls_init (&session, GNUTLS_CLIENT);
 
   /* We set the server name but only if it's not an IP address. */
   if (! is_valid_ip_address (hostname))
@@ -428,27 +450,40 @@ ssl_connect_wget (int fd, const char *hostname)
   gnutls_transport_set_ptr (session, (gnutls_transport_ptr_t) FD_TO_SOCKET (fd));
 #endif
 
-  err = 0;
 #if HAVE_GNUTLS_PRIORITY_SET_DIRECT
   switch (opt.secure_protocol)
     {
     case secure_protocol_auto:
       err = gnutls_priority_set_direct (session, "NORMAL:%COMPAT:-VERS-SSL3.0", NULL);
       break;
+
     case secure_protocol_sslv2:
     case secure_protocol_sslv3:
       err = gnutls_priority_set_direct (session, "NORMAL:-VERS-TLS-ALL:+VERS-SSL3.0", NULL);
       break;
+
     case secure_protocol_tlsv1:
       err = gnutls_priority_set_direct (session, "NORMAL:-VERS-SSL3.0", NULL);
       break;
+
+    case secure_protocol_tlsv1_1:
+      err = gnutls_priority_set_direct (session, "NORMAL:-VERS-SSL3.0:-VERS-TLS1.0", NULL);
+      break;
+
+    case secure_protocol_tlsv1_2:
+      err = gnutls_priority_set_direct (session, "NORMAL:-VERS-SSL3.0:-VERS-TLS1.0:-VERS-TLS1.1", NULL);
+      break;
+
     case secure_protocol_pfs:
       err = gnutls_priority_set_direct (session, "PFS:-VERS-SSL3.0", NULL);
       if (err != GNUTLS_E_SUCCESS)
         /* fallback if PFS is not available */
         err = gnutls_priority_set_direct (session, "NORMAL:-RSA:-VERS-SSL3.0", NULL);
       break;
+
     default:
+      logprintf (LOG_NOTQUIET, _("GnuTLS: unimplemented 'secure-protocol' option value %d\n"), opt.secure_protocol);
+      logprintf (LOG_NOTQUIET, _("Please report this issue to bug-wget@gnu.org\n"));
       abort ();
     }
 #else
@@ -457,6 +492,7 @@ ssl_connect_wget (int fd, const char *hostname)
     {
     case secure_protocol_auto:
       break;
+
     case secure_protocol_sslv2:
     case secure_protocol_sslv3:
       allowed_protocols[0] = GNUTLS_SSL3;
@@ -470,7 +506,20 @@ ssl_connect_wget (int fd, const char *hostname)
       err = gnutls_protocol_set_priority (session, allowed_protocols);
       break;
 
+    case secure_protocol_tlsv1_1:
+      allowed_protocols[0] = GNUTLS_TLS1_1;
+      allowed_protocols[1] = GNUTLS_TLS1_2;
+      err = gnutls_protocol_set_priority (session, allowed_protocols);
+      break;
+
+    case secure_protocol_tlsv1_2:
+      allowed_protocols[0] = GNUTLS_TLS1_2;
+      err = gnutls_protocol_set_priority (session, allowed_protocols);
+      break;
+
     default:
+      logprintf (LOG_NOTQUIET, _("GnuTLS: unimplemented 'secure-protocol' option value %d\n"), opt.secure_protocol);
+      logprintf (LOG_NOTQUIET, _("Please report this issue to bug-wget@gnu.org\n"));
       abort ();
     }
 #endif
@@ -534,7 +583,7 @@ ssl_connect_wget (int fd, const char *hostname)
           if (err == GNUTLS_E_WARNING_ALERT_RECEIVED ||
               err == GNUTLS_E_FATAL_ALERT_RECEIVED)
             {
-              alert = gnutls_alert_get (session);
+              gnutls_alert_description_t alert = gnutls_alert_get (session);
               str = gnutls_alert_get_name (alert);
               if (str == NULL)
                 str = "(unknown)";

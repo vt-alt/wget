@@ -47,12 +47,7 @@ as that of the covered work.  */
 
 #define alloca_array(type, size) ((type *) alloca ((size) * sizeof (type)))
 
-#define xfree free
-/* Free P if it is non-NULL.  C requires free() to behaves this way by
-   default, but Wget's code is historically careful not to pass NULL
-   to free.  This allows us to assert p!=NULL in xfree to check
-   additional errors.  (But we currently don't do that!)  */
-#define xfree_null(p) if (!(p)) ; else xfree (p)
+#define xfree(p) do { free ((void *) (p)); p = NULL; } while (0)
 
 struct hash_table;
 
@@ -155,6 +150,10 @@ void stable_sort (void *, size_t, size_t, int (*) (const void *, const void *));
 const char *print_decimal (double);
 
 long get_max_length (const char *path, int length, int name);
+
+#ifndef HAVE_STRLCPY
+size_t strlcpy (char *dst, const char *src, size_t size);
+#endif
 
 extern unsigned char char_prop[];
 

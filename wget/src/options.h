@@ -133,7 +133,7 @@ struct options
   char **no_proxy;
   char *base_href;
   char *progress_type;          /* progress indicator type. */
-  bool show_progress;           /* Show only the progress bar */
+  int  show_progress;           /* Show only the progress bar */
   bool noscroll;                /* Don't scroll the filename in the progressbar */
   char *proxy_user; /*oli*/
   char *proxy_passwd;
@@ -218,6 +218,7 @@ struct options
 
   char *ca_directory;           /* CA directory (hash files) */
   char *ca_cert;                /* CA certificate file to use */
+  char *crl_file;               /* file with CRLs */
 
   char *random_file;            /* file with random data to seed the PRNG */
   char *egd_file;               /* file name of the egd daemon socket */

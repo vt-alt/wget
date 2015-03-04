@@ -8,6 +8,7 @@
 
 #include "wget.h"
 #include <stdio.h>
+#include "version.h"
 
 const char *compiled_features[] =
 {
@@ -36,7 +37,7 @@ const char *compiled_features[] =
   "-iri",
 #endif
 
-#if SIZEOF_OFF_T >= 8
+#if SIZEOF_OFF_T >= 8 || defined WINDOWS
   "+large-file",
 #else
   "-large-file",

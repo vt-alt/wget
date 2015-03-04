@@ -50,6 +50,7 @@ as that of the covered work.  */
 #include "convert.h"            /* for downloaded_file */
 #include "recur.h"              /* for INFINITE_RECURSION */
 #include "warc.h"
+#include "c-strcase.h"
 
 #ifdef __VMS
 # include "vms.h"
@@ -76,7 +77,6 @@ typedef struct
   struct url *proxy;            /* FTWK-style proxy */
 } ccon;
 
-extern int numurls;
 
 /* Look for regexp "( *[0-9]+ *byte" (literal parenthesis) anywhere in
    the string S, and return the number converted to wgint, if found, 0
@@ -102,7 +102,7 @@ ftp_expected_bytes (const char *s)
         return 0;
       if (c_tolower (*s) != 'b')
         continue;
-      if (strncasecmp (s, "byte", 4))
+      if (c_strncasecmp (s, "byte", 4))
         continue;
       else
         break;
@@ -449,7 +449,7 @@ Error in server response, closing control connection.\n"));
           return err;
         case FTPSRVERR :
           /* PWD unsupported -- assume "/". */
-          xfree_null (con->id);
+          xfree (con->id);
           con->id = xstrdup ("/");
           break;
         case FTPOK:
@@ -700,74 +700,78 @@ Error in server response, closing control connection.\n"));
 
           for (cwd_count = cwd_start; cwd_count < cwd_end; cwd_count++)
             {
-          switch (cwd_count)
-            {
-              case 0:
-                /* Step one (optional): Go to the initial directory,
-                   exactly as reported by the server.
-                */
-                targ = con->id;
-                break;
+              switch (cwd_count)
+                {
+                  case 0:
+                    /* Step one (optional): Go to the initial directory,
+                       exactly as reported by the server.
+                    */
+                    targ = con->id;
+                    break;
 
-              case 1:
-                /* Step two: Go to the target directory.  (Absolute or
-                   relative will work now.)
-                */
-                targ = target;
-                break;
+                  case 1:
+                    /* Step two: Go to the target directory.  (Absolute or
+                       relative will work now.)
+                    */
+                    targ = target;
+                    break;
 
-              case 2:
-                /* Step three (optional): "CWD []" to restore server
-                   VMS-ness.
-                */
-                targ = "[]";
-                break;
+                  case 2:
+                    /* Step three (optional): "CWD []" to restore server
+                       VMS-ness.
+                    */
+                    targ = "[]";
+                    break;
 
-              default:
-                /* Can't happen. */
-                assert (1);
-            }
+                  default:
+                    logprintf (LOG_ALWAYS, _("Logically impossible section reached in getftp()"));
+                    logprintf (LOG_ALWAYS, _("cwd_count: %d\ncwd_start: %d\ncwd_end: %d\n"),
+                                             cwd_count, cwd_start, cwd_end);
+                    abort ();
+                }
 
-          if (!opt.server_response)
-            logprintf (LOG_VERBOSE, "==> CWD (%d) %s ... ", cwd_count,
-                       quotearg_style (escape_quoting_style, target));
-          err = ftp_cwd (csock, targ);
-          /* FTPRERR, WRITEFAILED, FTPNSFOD */
-          switch (err)
-            {
-            case FTPRERR:
-              logputs (LOG_VERBOSE, "\n");
-              logputs (LOG_NOTQUIET, _("\
+              if (!opt.server_response)
+                logprintf (LOG_VERBOSE, "==> CWD (%d) %s ... ", cwd_count,
+                           quotearg_style (escape_quoting_style, target));
+
+              err = ftp_cwd (csock, targ);
+
+              /* FTPRERR, WRITEFAILED, FTPNSFOD */
+              switch (err)
+                {
+                  case FTPRERR:
+                    logputs (LOG_VERBOSE, "\n");
+                    logputs (LOG_NOTQUIET, _("\
 Error in server response, closing control connection.\n"));
-              fd_close (csock);
-              con->csock = -1;
-              return err;
-            case WRITEFAILED:
-              logputs (LOG_VERBOSE, "\n");
-              logputs (LOG_NOTQUIET,
-                       _("Write failed, closing control connection.\n"));
-              fd_close (csock);
-              con->csock = -1;
-              return err;
-            case FTPNSFOD:
-              logputs (LOG_VERBOSE, "\n");
-              logprintf (LOG_NOTQUIET, _("No such directory %s.\n\n"),
-                         quote (u->dir));
-              fd_close (csock);
-              con->csock = -1;
-              return err;
-            case FTPOK:
-              break;
-            default:
-              abort ();
-            }
-          if (!opt.server_response)
-            logputs (LOG_VERBOSE, _("done.\n"));
+                    fd_close (csock);
+                    con->csock = -1;
+                    return err;
+                  case WRITEFAILED:
+                    logputs (LOG_VERBOSE, "\n");
+                    logputs (LOG_NOTQUIET,
+                             _("Write failed, closing control connection.\n"));
+                    fd_close (csock);
+                    con->csock = -1;
+                    return err;
+                  case FTPNSFOD:
+                    logputs (LOG_VERBOSE, "\n");
+                    logprintf (LOG_NOTQUIET, _("No such directory %s.\n\n"),
+                               quote (u->dir));
+                    fd_close (csock);
+                    con->csock = -1;
+                    return err;
+                  case FTPOK:
+                    break;
+                  default:
+                    abort ();
+                }
 
-        } /* for */
+              if (!opt.server_response)
+                logputs (LOG_VERBOSE, _("done.\n"));
+
+            } /* for */
 
           /* 2004-09-20 SMS. */
-          /* End of deviant indenting. */
 
         } /* else */
     }
@@ -1346,7 +1350,6 @@ Error in server response, closing control connection.\n"));
 
   /* Get the server to tell us if everything is retrieved.  */
   err = ftp_response (csock, &respline);
-  *last_expected_bytes = ftp_expected_bytes (respline);
   if (err != FTPOK)
     {
       /* The control connection is decidedly closed.  Print the time
@@ -1362,6 +1365,7 @@ Error in server response, closing control connection.\n"));
       con->csock = -1;
       return FTPRETRINT;
     } /* err != FTPOK */
+  *last_expected_bytes = ftp_expected_bytes (respline);
   /* If retrieval failed for any reason, return FTPRETRINT, but do not
      close socket, since the control connection is still alive.  If
      there is something wrong with the control connection, it will
@@ -1560,6 +1564,7 @@ ftp_loop_internal (struct url *u, struct fileinfo *f, ccon *con, char **local_fi
   else
     {
       /* URL-derived file.  Consider "-O file" name. */
+      xfree (con->target);
       con->target = url_file_name (u, NULL);
       if (!opt.output_document)
         locf = con->target;
@@ -1702,7 +1707,7 @@ ftp_loop_internal (struct url *u, struct fileinfo *f, ccon *con, char **local_fi
           if (err == FOPEN_EXCL_ERR)
             {
               /* Re-determine the file name. */
-              xfree_null (con->target);
+              xfree (con->target);
               con->target = url_file_name (u, NULL);
               locf = con->target;
             }
@@ -2220,9 +2225,9 @@ has_insecure_name_p (const char *s)
 static bool
 is_invalid_entry (struct fileinfo *f)
 {
-  struct fileinfo *cur;
-  cur = f;
+  struct fileinfo *cur = f;
   char *f_name = f->name;
+
   /* If the node we're currently checking has a duplicate later, we eliminate
    * the current node and leave the next one intact. */
   while (cur->next)
@@ -2472,10 +2477,8 @@ ftp_loop (struct url *u, char **local_file, int *dt, struct url *proxy,
   /* If a connection was left, quench it.  */
   if (con.csock != -1)
     fd_close (con.csock);
-  xfree_null (con.id);
-  con.id = NULL;
-  xfree_null (con.target);
-  con.target = NULL;
+  xfree (con.id);
+  xfree (con.target);
   return res;
 }
 
@@ -2489,7 +2492,7 @@ delelement (struct fileinfo *f, struct fileinfo **start)
   struct fileinfo *next = f->next;
 
   xfree (f->name);
-  xfree_null (f->linkto);
+  xfree (f->linkto);
   xfree (f);
 
   if (next)

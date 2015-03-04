@@ -1,11 +1,11 @@
-/* Case-insensitive searching in a string.
-   Copyright (C) 2005-2014 Free Software Foundation, Inc.
+/* c-strcasestr.c -- case insensitive substring search in C locale
+   Copyright (C) 2005-2015 Free Software Foundation, Inc.
    Written by Bruno Haible <bruno@clisp.org>, 2005.
 
-   This program is free software; you can redistribute it and/or modify
+   This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
+   the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
 
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,34 +13,33 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include <config.h>
 
 /* Specification.  */
+#include "c-strcasestr.h"
+
+#include <stdbool.h>
 #include <string.h>
 
-#include <ctype.h>
-#include <stdbool.h>
-#include <strings.h>
-
-#define TOLOWER(Ch) (isupper (Ch) ? tolower (Ch) : (Ch))
+#include "c-ctype.h"
+#include "c-strcase.h"
 
 /* Two-Way algorithm.  */
 #define RETURN_TYPE char *
 #define AVAILABLE(h, h_l, j, n_l)                       \
   (!memchr ((h) + (h_l), '\0', (j) + (n_l) - (h_l))     \
    && ((h_l) = (j) + (n_l)))
-#define CANON_ELEMENT(c) TOLOWER (c)
+#define CANON_ELEMENT c_tolower
 #define CMP_FUNC(p1, p2, l)                             \
-  strncasecmp ((const char *) (p1), (const char *) (p2), l)
+  c_strncasecmp ((const char *) (p1), (const char *) (p2), l)
 #include "str-two-way.h"
 
-/* Find the first occurrence of NEEDLE in HAYSTACK, using
-   case-insensitive comparison.  This function gives unspecified
-   results in multibyte locales.  */
+/* Find the first occurrence of NEEDLE in HAYSTACK, using case-insensitive
+   comparison from the C locale, regardless of the current locale.  */
 char *
-strcasestr (const char *haystack_start, const char *needle_start)
+c_strcasestr (const char *haystack_start, const char *needle_start)
 {
   const char *haystack = haystack_start;
   const char *needle = needle_start;
@@ -52,12 +51,8 @@ strcasestr (const char *haystack_start, const char *needle_start)
      HAYSTACK is at least as long (no point processing all of a long
      NEEDLE if HAYSTACK is too short).  */
   while (*haystack && *needle)
-    {
-      ok &= (TOLOWER ((unsigned char) *haystack)
-             == TOLOWER ((unsigned char) *needle));
-      haystack++;
-      needle++;
-    }
+    ok &= (c_tolower ((unsigned char) *haystack++)
+           == c_tolower ((unsigned char) *needle++));
   if (*needle)
     return NULL;
   if (ok)

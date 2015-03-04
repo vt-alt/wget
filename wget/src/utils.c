@@ -64,8 +64,10 @@ as that of the covered work.  */
 #include <sys/stat.h>
 
 /* For TIOCGWINSZ and friends: */
-#include <sys/ioctl.h>
-#include <termios.h>
+#ifndef WINDOWS
+# include <sys/ioctl.h>
+# include <termios.h>
+#endif
 
 /* Needed for Unix version of run_with_timeout. */
 #include <signal.h>
@@ -99,6 +101,7 @@ as that of the covered work.  */
 #endif
 
 #include "exits.h"
+#include "c-strcase.h"
 
 static void _Noreturn
 memfatal (const char *context, long attempted_size)
@@ -267,7 +270,7 @@ sepstring (const char *s)
   res[i + 1] = NULL;
   return res;
 }
-
+
 /* Like sprintf, but prints into a string of sufficient size freshly
    allocated with malloc, which is returned.  If unable to print due
    to invalid format, returns NULL.  Inability to allocate needed
@@ -349,6 +352,32 @@ aprintf (const char *fmt, ...)
 #endif /* not HAVE_VASPRINTF */
 }
 
+#ifndef HAVE_STRLCPY
+/* strlcpy() is a BSD function that sometimes is really handy.
+ * It is the same as snprintf(dst,dstsize,"%s",src), but much faster. */
+
+size_t
+strlcpy (char *dst, const char *src, size_t size)
+{
+  const char *old = src;
+
+  /* Copy as many bytes as will fit */
+  if (size)
+    {
+      while (--size)
+        {
+          if (!(*dst++ = *src++))
+            return src - old - 1;
+        }
+
+      *dst = 0;
+    }
+
+  while (*src++);
+  return src - old - 1;
+}
+#endif
+
 /* Concatenate the NULL-terminated list of string arguments into
    freshly allocated space.  */
 
@@ -356,47 +385,30 @@ char *
 concat_strings (const char *str0, ...)
 {
   va_list args;
-  int saved_lengths[5];         /* inspired by Apache's apr_pstrcat */
-  char *ret, *p;
+  const char *arg;
+  size_t length = 0, pos = 0;
+  char *s;
 
-  const char *next_str;
-  int total_length = 0;
-  size_t argcount;
+  if (!str0)
+    return NULL;
 
-  /* Calculate the length of and allocate the resulting string. */
-
-  argcount = 0;
+  /* calculate the length of the resulting string */
   va_start (args, str0);
-  for (next_str = str0; next_str != NULL; next_str = va_arg (args, char *))
-    {
-      int len = strlen (next_str);
-      if (argcount < countof (saved_lengths))
-        saved_lengths[argcount++] = len;
-      total_length += len;
-    }
+  for (arg = str0; arg; arg = va_arg (args, const char *))
+    length += strlen(arg);
   va_end (args);
-  p = ret = xmalloc (total_length + 1);
 
-  /* Copy the strings into the allocated space. */
+  s = xmalloc (length + 1);
 
-  argcount = 0;
+  /* concatenate strings */
   va_start (args, str0);
-  for (next_str = str0; next_str != NULL; next_str = va_arg (args, char *))
-    {
-      int len;
-      if (argcount < countof (saved_lengths))
-        len = saved_lengths[argcount++];
-      else
-        len = strlen (next_str);
-      memcpy (p, next_str, len);
-      p += len;
-    }
+  for (arg = str0; arg; arg = va_arg (args, const char *))
+    pos += strlcpy(s + pos, arg, length - pos + 1);
   va_end (args);
-  *p = '\0';
 
-  return ret;
+  return s;
 }
-
+
 /* Format the provided time according to the specified format.  The
    format is a string with format elements supported by strftime.  */
 
@@ -430,7 +442,7 @@ datetime_str (time_t t)
 {
   return fmttime(t, "%Y-%m-%d %H:%M:%S");
 }
-
+
 /* The Windows versions of the following two functions are defined in
    mswindows.c. On MSDOS this function should never be called. */
 
@@ -495,7 +507,7 @@ fork_to_background (void)
 
 #endif /* def __VMS [else] */
 
-
+
 /* "Touch" FILE, i.e. make its mtime ("modified time") equal the time
    specified with TM.  The atime ("access time") is set to the current
    time.  */
@@ -805,7 +817,7 @@ fopen_excl (const char *fname, int binary)
   return fopen (fname, binary ? "wb" : "w");
 #endif /* not O_EXCL */
 }
-
+
 /* Create DIRECTORY.  If some of the pathname components of DIRECTORY
    are missing, create them first.  In case any mkdir() call fails,
    return its error status.  Returns 0 on successful completion.
@@ -871,7 +883,7 @@ file_merge (const char *base, const char *file)
 
   return result;
 }
-
+
 /* Like fnmatch, but performs a case-insensitive match.  */
 
 int
@@ -1112,11 +1124,11 @@ has_html_suffix_p (const char *fname)
 
   if ((suf = suffix (fname)) == NULL)
     return false;
-  if (!strcasecmp (suf, "html"))
+  if (!c_strcasecmp (suf, "html"))
     return true;
-  if (!strcasecmp (suf, "htm"))
+  if (!c_strcasecmp (suf, "htm"))
     return true;
-  if (suf[0] && !strcasecmp (suf + 1, "html"))
+  if (suf[0] && !c_strcasecmp (suf + 1, "html"))
     return true;
   return false;
 }
@@ -1262,7 +1274,7 @@ wget_read_file_free (struct file_memory *fm)
     }
   xfree (fm);
 }
-
+
 /* Free the pointers in a NULL-terminated vector of pointers, then
    free the pointer itself.  */
 void
@@ -1331,7 +1343,7 @@ vec_append (char **vec, const char *str)
   vec[cnt] = NULL;
   return vec;
 }
-
+
 /* Sometimes it's useful to create "sets" of strings, i.e. special
    hash tables where you want to store strings as keys and merely
    query for their existence.  Here is a set of utility routines that
@@ -1396,7 +1408,7 @@ free_keys_and_values (struct hash_table *ht)
       xfree (iter.value);
     }
 }
-
+
 /* Get digit grouping data for thousand separors by calling
    localeconv().  The data includes separator string and grouping info
    and is cached after the first call to the function.
@@ -1787,7 +1799,7 @@ convert_to_bits (wgint num)
   return num;
 }
 
-
+
 /* Determine the width of the terminal we're running on.  If that's
    not possible, return 0.  */
 
@@ -1800,7 +1812,7 @@ determine_screen_width (void)
   int fd;
   struct winsize wsz;
 
-  if (opt.lfilename != NULL)
+  if (opt.lfilename != NULL && opt.show_progress != 1)
     return 0;
 
   fd = fileno (stderr);
@@ -1817,7 +1829,7 @@ determine_screen_width (void)
   return 0;
 #endif /* neither TIOCGWINSZ nor WINDOWS */
 }
-
+
 /* Whether the rnd system (either rand or [dl]rand48) has been
    seeded.  */
 static int rnd_seeded;
@@ -1837,7 +1849,14 @@ static int rnd_seeded;
 int
 random_number (int max)
 {
-#ifdef HAVE_DRAND48
+#ifdef HAVE_RANDOM
+  if (!rnd_seeded)
+    {
+      srandom ((long) time (NULL) ^ (long) getpid ());
+      rnd_seeded = 1;
+    }
+  return random () % max;
+#elif defined HAVE_DRAND48
   if (!rnd_seeded)
     {
       srand48 ((long) time (NULL) ^ (long) getpid ());
@@ -1872,7 +1891,9 @@ random_number (int max)
 double
 random_float (void)
 {
-#ifdef HAVE_DRAND48
+#ifdef HAVE_RANDOM
+    return ((double) random_number (RAND_MAX)) / RAND_MAX;
+#elif defined HAVE_DRAND48
   if (!rnd_seeded)
     {
       srand48 ((long) time (NULL) ^ (long) getpid ());
@@ -1886,7 +1907,7 @@ random_float (void)
           + random_number (10000) / (10000.0 * 10000.0 * 10000.0 * 10000.0));
 #endif /* not HAVE_DRAND48 */
 }
-
+
 /* Implementation of run_with_timeout, a generic timeout-forcing
    routine for systems with Unix-like signal handling.  */
 
@@ -1897,7 +1918,7 @@ random_float (void)
 static sigjmp_buf run_with_timeout_env;
 
 static void _Noreturn
-abort_run_with_timeout (int sig)
+abort_run_with_timeout (int sig _GL_UNUSED)
 {
   assert (sig == SIGALRM);
   siglongjmp (run_with_timeout_env, -1);
@@ -1907,8 +1928,8 @@ abort_run_with_timeout (int sig)
 
 static jmp_buf run_with_timeout_env;
 
-static void
-abort_run_with_timeout (int sig)
+static void _Noreturn
+abort_run_with_timeout (int sig _GL_UNUSED)
 {
   assert (sig == SIGALRM);
   /* We don't have siglongjmp to preserve the set of blocked signals;
@@ -2045,7 +2066,7 @@ run_with_timeout (double timeout, void (*fun) (void *), void *arg)
 }
 #endif /* not WINDOWS */
 #endif /* not USE_SIGNAL_TIMEOUT */
-
+
 #ifndef WINDOWS
 
 /* Sleep the specified amount of seconds.  On machines without
@@ -2292,6 +2313,7 @@ compile_posix_regex (const char *str)
       fprintf (stderr, _("Invalid regular expression %s, %s\n"),
                quote (str), errbuf);
       xfree (errbuf);
+      xfree (regex);
       return NULL;
     }
 
@@ -2345,7 +2367,7 @@ match_posix_regex (const void *regex, const char *str)
 
 #undef IS_ASCII
 #undef NEXT_CHAR
-
+
 /* Simple merge sort for use by stable_sort.  Implementation courtesy
    Zeljko Vrba with additional debugging by Nenad Barbutov.  */
 
@@ -2391,7 +2413,7 @@ stable_sort (void *base, size_t nmemb, size_t size,
       mergesort_internal (base, temp, size, 0, nmemb - 1, cmpfun);
     }
 }
-
+
 /* Print a decimal number.  If it is equal to or larger than ten, the
    number is rounded.  Otherwise it is printed with one significant
    digit without trailing zeros and with no more than three fractional

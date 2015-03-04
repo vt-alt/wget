@@ -59,7 +59,7 @@ as that of the covered work.  */
 /* `gettext (FOO)' is long to write, so we use `_(FOO)'.  If NLS is
    unavailable, _(STRING) simply returns STRING.  */
 #include "gettext.h"
-#define _(string)   gettext (string)
+#define _(STRING) gettext(STRING)
 
 /* A pseudo function call that serves as a marker for the automated
    extraction of messages, but does not call gettext().  The run-time
@@ -266,7 +266,7 @@ typedef double SUM_SIZE_INT;
 /* The same as above, except the comparison is case-insensitive. */
 #define BOUNDED_EQUAL_NO_CASE(beg, end, string_literal)         \
   ((end) - (beg) == sizeof (string_literal) - 1                 \
-   && !strncasecmp (beg, string_literal, sizeof (string_literal) - 1))
+   && !c_strncasecmp (beg, string_literal, sizeof (string_literal) - 1))
 
 /* Like ptr=strdup(str), but allocates the space for PTR on the stack.
    This cannot be an expression because this is not portable:
@@ -312,8 +312,15 @@ typedef double SUM_SIZE_INT;
    in base 10. 24082 / 10000 = 8*log_{10}(2).  */
 #define MAX_INT_TO_STRING_LEN(x) ((sizeof(x) * 24082 / 10000) + 2)
 
+/* Find the minimum or maximum of two provided values */
+# define MIN(i, j) ((i) <= (j) ? (i) : (j))
+# define MAX(i, j) ((i) >= (j) ? (i) : (j))
+
+
 extern const char *exec_name;
-
+extern const char *program_name;
+extern const char *program_argstring;
+
 /* Document type ("dt") flags */
 enum
 {
@@ -337,7 +344,7 @@ typedef enum
   FTPOK, FTPLOGINC, FTPLOGREFUSED, FTPPORTERR, FTPSYSERR,
   FTPNSFOD, FTPUNKNOWNTYPE, FTPRERR,
   FTPSRVERR, FTPRETRINT, FTPRESTFAIL, URLERROR, FOPENERR,
-  FOPEN_EXCL_ERR, FWRITEERR, HEOF,
+  FOPEN_EXCL_ERR, FWRITEERR, HEOF, GATEWAYTIMEOUT,
   HERR, RETROK, RECLEVELEXC, WRONGCODE,
   FTPINVPASV, FTPNOPASV, CONTNOTSUPPORTED, RETRUNNEEDED, RETRFINISHED,
   READERR, TRYLIMEXC, FILEBADFILE, RANGEERR,

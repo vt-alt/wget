@@ -27,8 +27,10 @@
 
 
 AUTOMAKE_OPTIONS = parallel-tests
-AM_TESTS_ENVIRONMENT = export WGETRC=/dev/null; MAKE_CHECK=True; export MAKE_CHECK; export PYTHONPATH=$$PYTHONPATH:$(srcdir);
-TESTS = Test-auth-basic-fail.py             \
+AM_TESTS_ENVIRONMENT = export WGETRC=/dev/null; MAKE_CHECK=True; export MAKE_CHECK;\
+ export PYTHONPATH=$$PYTHONPATH:$(srcdir); export VALGRIND_TESTS="@VALGRIND_TESTS@";
+if HAVE_PYTHON3
+  TESTS = Test-auth-basic-fail.py           \
     Test-auth-basic.py                      \
     Test-auth-both.py                       \
     Test-auth-digest.py                     \
@@ -45,11 +47,16 @@ TESTS = Test-auth-basic-fail.py             \
     Test-cookie.py                          \
     Test-Head.py                            \
     Test--https.py                          \
+    Test--https-crl.py                      \
     Test-O.py                               \
     Test-Post.py                            \
-    Test--spider-r.py
+    Test-504.py                             \
+    Test--spider-r.py                       \
+    Test-redirect-crash.py
 
-XFAIL_TESTS = Test-auth-both.py
+  # added test cases expected to fail here and under TESTS
+  XFAIL_TESTS =
+endif
 
 EXTRA_DIST = certs conf exc misc server test README $(TESTS) $(XFAIL_TESTS)
 

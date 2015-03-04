@@ -40,8 +40,10 @@ as that of the covered work.  */
 #include <openssl/x509v3.h>
 #include <openssl/err.h>
 #include <openssl/rand.h>
+#include <openssl/bio.h>
 #if OPENSSL_VERSION_NUMBER >= 0x00907000
 #include <openssl/conf.h>
+#include <openssl/engine.h>
 #endif
 
 #include "utils.h"
@@ -89,9 +91,11 @@ init_prng (void)
   if (RAND_status ())
     return;
 
+#ifdef HAVE_RAND_EGD
   /* Get random data from EGD if opt.egd_file was used.  */
   if (opt.egd_file && *opt.egd_file)
     RAND_egd (opt.egd_file);
+#endif
 
   if (RAND_status ())
     return;
@@ -167,6 +171,9 @@ static int ssl_true_initialized = 0;
 bool
 ssl_init (void)
 {
+  SSL_METHOD const *meth;
+  long ssl_options = 0;
+
 #if OPENSSL_VERSION_NUMBER >= 0x00907000
   if (ssl_true_initialized == 0)
     {
@@ -174,8 +181,6 @@ ssl_init (void)
       ssl_true_initialized = 1;
     }
 #endif
-
-  SSL_METHOD const *meth;
 
   if (ssl_ctx)
     /* The SSL has already been initialized. */
@@ -208,23 +213,43 @@ ssl_init (void)
       meth = SSLv2_client_method ();
       break;
 #endif
+
+#ifndef OPENSSL_NO_SSL3
     case secure_protocol_sslv3:
       meth = SSLv3_client_method ();
       break;
+#endif
+
     case secure_protocol_auto:
     case secure_protocol_pfs:
+      meth = SSLv23_client_method ();
+      ssl_options |= SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3;
+      break;
     case secure_protocol_tlsv1:
       meth = TLSv1_client_method ();
       break;
-#if OPENSSL_VERSION_NUMBER >= 0x01001000
+
+#if OPENSSL_VERSION_NUMBER >= 0x10001000
     case secure_protocol_tlsv1_1:
       meth = TLSv1_1_client_method ();
       break;
+
     case secure_protocol_tlsv1_2:
       meth = TLSv1_2_client_method ();
       break;
+#else
+    case secure_protocol_tlsv1_1:
+      logprintf (LOG_NOTQUIET, _("Your OpenSSL version is too old to support TLSv1.1\n"));
+      goto error;
+
+    case secure_protocol_tlsv1_2:
+      logprintf (LOG_NOTQUIET, _("Your OpenSSL version is too old to support TLSv1.2\n"));
+      goto error;
 #endif
+
     default:
+      logprintf (LOG_NOTQUIET, _("OpenSSL: unimplemented 'secure-protocol' option value %d\n"), opt.secure_protocol);
+      logprintf (LOG_NOTQUIET, _("Please report this issue to bug-wget@gnu.org\n"));
       abort ();
     }
 
@@ -234,6 +259,9 @@ ssl_init (void)
   if (!ssl_ctx)
     goto error;
 
+  if (ssl_options)
+    SSL_CTX_set_options (ssl_ctx, ssl_options);
+
   /* OpenSSL ciphers: https://www.openssl.org/docs/apps/ciphers.html
    * Since we want a good protection, we also use HIGH (that excludes MD4 ciphers and some more)
    */
@@ -242,6 +270,18 @@ ssl_init (void)
 
   SSL_CTX_set_default_verify_paths (ssl_ctx);
   SSL_CTX_load_verify_locations (ssl_ctx, opt.ca_cert, opt.ca_directory);
+
+  if (opt.crl_file)
+    {
+      X509_STORE *store = SSL_CTX_get_cert_store (ssl_ctx);
+      X509_LOOKUP *lookup;
+
+      if (!(lookup = X509_STORE_add_lookup (store, X509_LOOKUP_file ()))
+          || (!X509_load_crl_file (lookup, opt.crl_file, X509_FILETYPE_PEM)))
+        goto error;
+
+      X509_STORE_set_flags (store, X509_V_FLAG_CRL_CHECK | X509_V_FLAG_CRL_CHECK_ALL);
+    }
 
   /* SSL_VERIFY_NONE instructs OpenSSL not to abort SSL_connect if the
      certificate is invalid.  We verify the certificate separately in
@@ -385,7 +425,7 @@ openssl_errstr (int fd _GL_UNUSED, void *arg)
     return NULL;
 
   /* Get rid of previous contents of ctx->last_error, if any.  */
-  xfree_null (ctx->last_error);
+  xfree (ctx->last_error);
 
   /* Iterate over OpenSSL's error stack and accumulate errors in the
      last_error buffer, separated by "; ".  This is better than using
@@ -429,7 +469,7 @@ openssl_close (int fd, void *arg)
 
   SSL_shutdown (conn);
   SSL_free (conn);
-  xfree_null (ctx->last_error);
+  xfree (ctx->last_error);
   xfree (ctx);
 
   close (fd);
@@ -505,7 +545,7 @@ ssl_connect_wget (int fd, const char *hostname)
     DEBUGP (("SSL handshake timed out.\n"));
     goto timeout;
   }
-  if (scwt_ctx.result <= 0 || conn->state != SSL_ST_OK)
+  if (scwt_ctx.result <= 0 || SSL_state(conn) != SSL_ST_OK)
     goto error;
 
   ctx = xnew0 (struct openssl_transport_context);
@@ -570,6 +610,27 @@ pattern_match (const char *pattern, const char *string)
   return *n == '\0';
 }
 
+static char *_get_rfc2253_formatted (X509_NAME *name)
+{
+  int len;
+  char *out = NULL;
+  BIO* b;
+
+  if ((b = BIO_new (BIO_s_mem ())))
+    {
+      if (X509_NAME_print_ex (b, name, 0, XN_FLAG_RFC2253) >= 0
+          && (len = BIO_number_written (b)) > 0)
+        {
+          out = xmalloc (len + 1);
+          BIO_read (b, out, len);
+          out[len] = 0;
+        }
+      BIO_free (b);
+    }
+
+  return out ? out : xstrdup("");
+}
+
 /* Verify the validity of the certificate presented by the server.
    Also check that the "common name" of the server, as presented by
    its certificate, corresponds to HOST.  (HOST typically comes from
@@ -613,23 +674,25 @@ ssl_check_certificate (int fd, const char *host)
 
   IF_DEBUG
     {
-      char *subject = X509_NAME_oneline (X509_get_subject_name (cert), 0, 0);
-      char *issuer = X509_NAME_oneline (X509_get_issuer_name (cert), 0, 0);
+      char *subject = _get_rfc2253_formatted (X509_get_subject_name (cert));
+      char *issuer = _get_rfc2253_formatted (X509_get_issuer_name (cert));
       DEBUGP (("certificate:\n  subject: %s\n  issuer:  %s\n",
                quotearg_n_style (0, escape_quoting_style, subject),
                quotearg_n_style (1, escape_quoting_style, issuer)));
-      OPENSSL_free (subject);
-      OPENSSL_free (issuer);
+      xfree (subject);
+      xfree (issuer);
     }
 
   vresult = SSL_get_verify_result (conn);
   if (vresult != X509_V_OK)
     {
-      char *issuer = X509_NAME_oneline (X509_get_issuer_name (cert), 0, 0);
+      char *issuer = _get_rfc2253_formatted (X509_get_issuer_name (cert));
       logprintf (LOG_NOTQUIET,
                  _("%s: cannot verify %s's certificate, issued by %s:\n"),
                  severity, quotearg_n_style (0, escape_quoting_style, host),
                  quote_n (1, issuer));
+      xfree(issuer);
+
       /* Try to print more user-friendly (and translated) messages for
          the frequent verification errors.  */
       switch (vresult)
@@ -725,7 +788,7 @@ ssl_check_certificate (int fd, const char *host)
                 }
             }
         }
-      sk_GENERAL_NAME_free (subjectAltNames);
+      sk_GENERAL_NAME_pop_free(subjectAltNames, GENERAL_NAME_free);
       if (host_in_octet_string)
         ASN1_OCTET_STRING_free(host_in_octet_string);
 

@@ -85,11 +85,11 @@ windows_main (char **exec_name)
   if (p)
     *p = '\0';
 }
-
+
 static void
 ws_cleanup (void)
 {
-  xfree ((char*)exec_name);
+  xfree (exec_name);
   WSACleanup ();
 }
 
@@ -367,8 +367,8 @@ static int old_percentage = -1;
 void
 ws_changetitle (const char *url)
 {
-  xfree_null (title_buf);
-  xfree_null (curr_url);
+  xfree (title_buf);
+  xfree (curr_url);
   title_buf = xmalloc (strlen (url) + 20);
   curr_url = xstrdup (url);
   old_percentage = -1;
@@ -477,7 +477,7 @@ ws_startup (void)
   set_sleep_mode ();
   SetConsoleCtrlHandler (ws_handler, TRUE);
 }
-
+
 /* run_with_timeout Windows implementation.  */
 
 /* Stack size 0 uses default thread stack-size (reserve+commit).

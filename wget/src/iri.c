@@ -35,10 +35,14 @@ as that of the covered work.  */
 #include <iconv.h>
 #include <stringprep.h>
 #include <idna.h>
+#include <idn-free.h>
 #include <errno.h>
 
 #include "utils.h"
 #include "url.h"
+#include "c-strcase.h"
+#include "c-strcasestr.h"
+#include "xstrndup.h"
 
 /* RFC3987 section 3.1 mandates STD3 ASCII RULES */
 #define IDNA_FLAGS  IDNA_USE_STD3_ASCII_RULES
@@ -55,7 +59,7 @@ parse_charset (char *str)
   if (!str || !*str)
     return NULL;
 
-  str = strcasestr (str, "charset=");
+  str = c_strcasestr (str, "charset=");
   if (!str)
     return NULL;
 
@@ -123,14 +127,15 @@ do_conversion (const char *tocode, const char *fromcode, char *in, size_t inlen,
   cd = iconv_open (tocode, fromcode);
   if (cd == (iconv_t)(-1))
     {
-      logprintf (LOG_VERBOSE, _("Conversion from %s to %s isn't supported\n"),
-                 quote (opt.locale), quote ("UTF-8"));
+      logprintf (LOG_VERBOSE, _("Conversion from %s to UTF-8 isn't supported\n"),
+                 quote (opt.locale));
+      *out = NULL;
       return false;
     }
 
   /* iconv() has to work on an unescaped string */
   in_org = in;
-  in_save = in = strndup(in, inlen);
+  in_save = in = xstrndup(in, inlen);
   url_unescape(in);
   inlen = strlen(in);
 
@@ -146,7 +151,7 @@ do_conversion (const char *tocode, const char *fromcode, char *in, size_t inlen,
           *(s + len - outlen - done) = '\0';
           xfree(in_save);
           iconv_close(cd);
-          logprintf (LOG_VERBOSE, _("converted '%s' (%s) -> '%s' (%s)\n"), in_org, fromcode, *out, tocode);
+          DEBUGP (("converted '%s' (%s) -> '%s' (%s)\n", in_org, fromcode, *out, tocode));
           return true;
         }
 
@@ -187,7 +192,7 @@ do_conversion (const char *tocode, const char *fromcode, char *in, size_t inlen,
 
     xfree(in_save);
     iconv_close(cd);
-    logprintf (LOG_VERBOSE, _("converted '%s' (%s) -> '%s' (%s)\n"), in_org, fromcode, *out, tocode);
+    DEBUGP (("converted '%s' (%s) -> '%s' (%s)\n", in_org, fromcode, *out, tocode));
     return false;
 }
 
@@ -205,7 +210,7 @@ locale_to_utf8 (const char *str)
       opt.locale = find_locale ();
     }
 
-  if (!opt.locale || !strcasecmp (opt.locale, "utf-8"))
+  if (!opt.locale || !c_strcasecmp (opt.locale, "utf-8"))
     return str;
 
   if (do_conversion ("UTF-8", opt.locale, (char *) str, strlen ((char *) str), &new))
@@ -275,11 +280,11 @@ remote_to_utf8 (struct iri *iri, const char *str, const char **new)
   /* When `i->uri_encoding' == "UTF-8" there is nothing to convert.  But we must
      test for non-ASCII symbols for correct hostname processing in `idn_encode'
      function. */
-  if (!strcasecmp (iri->uri_encoding, "UTF-8"))
+  if (!c_strcasecmp (iri->uri_encoding, "UTF-8"))
     {
-      const char *p = str;
-      for (p = str; *p; p++)
-        if (*p < 0)
+      const unsigned char *p;
+      for (p = (unsigned char *) str; *p; p++)
+        if (*p > 127)
           {
             *new = strdup (str);
             return true;
@@ -291,9 +296,9 @@ remote_to_utf8 (struct iri *iri, const char *str, const char **new)
     ret = true;
 
   /* Test if something was converted */
-  if (!strcmp (str, *new))
+  if (*new && !strcmp (str, *new))
     {
-      xfree ((char *) *new);
+      xfree (*new);
       return false;
     }
 
@@ -327,10 +332,13 @@ struct iri *iri_dup (const struct iri *src)
 void
 iri_free (struct iri *i)
 {
-  xfree_null (i->uri_encoding);
-  xfree_null (i->content_encoding);
-  xfree_null (i->orig_url);
-  xfree (i);
+  if (i)
+    {
+      xfree (i->uri_encoding);
+      xfree (i->content_encoding);
+      xfree (i->orig_url);
+      xfree (i);
+    }
 }
 
 /* Set uri_encoding of struct iri i. If a remote encoding was specified, use
@@ -343,7 +351,7 @@ set_uri_encoding (struct iri *i, char *charset, bool force)
     return;
   if (i->uri_encoding)
     {
-      if (charset && !strcasecmp (i->uri_encoding, charset))
+      if (charset && !c_strcasecmp (i->uri_encoding, charset))
         return;
       xfree (i->uri_encoding);
     }
@@ -360,7 +368,7 @@ set_content_encoding (struct iri *i, char *charset)
     return;
   if (i->content_encoding)
     {
-      if (charset && !strcasecmp (i->content_encoding, charset))
+      if (charset && !c_strcasecmp (i->content_encoding, charset))
         return;
       xfree (i->content_encoding);
     }

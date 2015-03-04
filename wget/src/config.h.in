@@ -55,7 +55,7 @@
 /* Define if you want the NTLM authorization support compiled in. */
 #undef ENABLE_NTLM
 
-/* Define if you want the Opie support for FTP compiled in. */
+/* Define if you want Opie support for FTP compiled in. */
 #undef ENABLE_OPIE
 
 /* Define this to 1 if F_DUPFD behavior does not match POSIX */
@@ -82,6 +82,10 @@
 #undef GETTIMEOFDAY_TIMEZONE
 
 /* Define to a C preprocessor expression that evaluates to 1 or 0, depending
+   whether the gnulib module dirname shall be considered present. */
+#undef GNULIB_DIRNAME
+
+/* Define to a C preprocessor expression that evaluates to 1 or 0, depending
    whether the gnulib module fd-safer-flag shall be considered present. */
 #undef GNULIB_FD_SAFER_FLAG
 
@@ -100,6 +104,10 @@
 /* Define to a C preprocessor expression that evaluates to 1 or 0, depending
    whether the gnulib module pipe2-safer shall be considered present. */
 #undef GNULIB_PIPE2_SAFER
+
+/* Define to 1 if printf and friends should be labeled with attribute
+   "__gnu_printf__" instead of "__printf__" */
+#undef GNULIB_PRINTF_ATTRIBUTE_FLAVOR_GNU
 
 /* Define to a C preprocessor expression that evaluates to 1 or 0, depending
    whether the gnulib module scanf shall be considered present. */
@@ -213,17 +221,26 @@
 /* Define to 1 when the gnulib module mbsinit should be tested. */
 #undef GNULIB_TEST_MBSINIT
 
+/* Define to 1 when the gnulib module mbsrtowcs should be tested. */
+#undef GNULIB_TEST_MBSRTOWCS
+
 /* Define to 1 when the gnulib module mbtowc should be tested. */
 #undef GNULIB_TEST_MBTOWC
 
 /* Define to 1 when the gnulib module memchr should be tested. */
 #undef GNULIB_TEST_MEMCHR
 
+/* Define to 1 when the gnulib module memrchr should be tested. */
+#undef GNULIB_TEST_MEMRCHR
+
 /* Define to 1 when the gnulib module mkostemp should be tested. */
 #undef GNULIB_TEST_MKOSTEMP
 
 /* Define to 1 when the gnulib module mkstemp should be tested. */
 #undef GNULIB_TEST_MKSTEMP
+
+/* Define to 1 when the gnulib module mktime should be tested. */
+#undef GNULIB_TEST_MKTIME
 
 /* Define to 1 when the gnulib module nl_langinfo should be tested. */
 #undef GNULIB_TEST_NL_LANGINFO
@@ -312,9 +329,6 @@
 /* Define to 1 when the gnulib module stat should be tested. */
 #undef GNULIB_TEST_STAT
 
-/* Define to 1 when the gnulib module strcasestr should be tested. */
-#undef GNULIB_TEST_STRCASESTR
-
 /* Define to 1 when the gnulib module strchrnul should be tested. */
 #undef GNULIB_TEST_STRCHRNUL
 
@@ -330,8 +344,20 @@
 /* Define to 1 when the gnulib module strnlen should be tested. */
 #undef GNULIB_TEST_STRNLEN
 
+/* Define to 1 when the gnulib module strptime should be tested. */
+#undef GNULIB_TEST_STRPTIME
+
 /* Define to 1 when the gnulib module strtok_r should be tested. */
 #undef GNULIB_TEST_STRTOK_R
+
+/* Define to 1 when the gnulib module strtoll should be tested. */
+#undef GNULIB_TEST_STRTOLL
+
+/* Define to 1 when the gnulib module timegm should be tested. */
+#undef GNULIB_TEST_TIMEGM
+
+/* Define to 1 when the gnulib module time_r should be tested. */
+#undef GNULIB_TEST_TIME_R
 
 /* Define to 1 when the gnulib module vasprintf should be tested. */
 #undef GNULIB_TEST_VASPRINTF
@@ -371,11 +397,11 @@
 /* Define to 1 if you have the `catgets' function. */
 #undef HAVE_CATGETS
 
-/* Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the
+/* Define to 1 if you have the Mac OS X function CFLocaleCopyCurrent in the
    CoreFoundation framework. */
 #undef HAVE_CFLOCALECOPYCURRENT
 
-/* Define to 1 if you have the MacOS X function CFPreferencesCopyAppValue in
+/* Define to 1 if you have the Mac OS X function CFPreferencesCopyAppValue in
    the CoreFoundation framework. */
 #undef HAVE_CFPREFERENCESCOPYAPPVALUE
 
@@ -476,6 +502,10 @@
    don't. */
 #undef HAVE_DECL_GETDELIM
 
+/* Define to 1 if you have the declaration of `getdtablesize', and to 0 if you
+   don't. */
+#undef HAVE_DECL_GETDTABLESIZE
+
 /* Define to 1 if you have the declaration of `getenv', and to 0 if you don't.
    */
 #undef HAVE_DECL_GETENV
@@ -508,6 +538,10 @@
    don't. */
 #undef HAVE_DECL_ISWBLANK
 
+/* Define to 1 if you have the declaration of `localtime_r', and to 0 if you
+   don't. */
+#undef HAVE_DECL_LOCALTIME_R
+
 /* Define to 1 if you have the declaration of `mbrtowc', and to 0 if you
    don't. */
 #undef HAVE_DECL_MBRTOWC
@@ -515,6 +549,14 @@
 /* Define to 1 if you have the declaration of `mbsinit', and to 0 if you
    don't. */
 #undef HAVE_DECL_MBSINIT
+
+/* Define to 1 if you have the declaration of `mbsrtowcs', and to 0 if you
+   don't. */
+#undef HAVE_DECL_MBSRTOWCS
+
+/* Define to 1 if you have the declaration of `memrchr', and to 0 if you
+   don't. */
+#undef HAVE_DECL_MEMRCHR
 
 /* Define to 1 if you have the declaration of `putchar_unlocked', and to 0 if
    you don't. */
@@ -717,7 +759,7 @@
 /* Define if libpcre is available. */
 #undef HAVE_LIBPCRE
 
-/* PSL Support Enabled */
+/* PSL support enabled */
 #undef HAVE_LIBPSL
 
 /* Define to 1 if you have the `rt' library (-lrt). */
@@ -732,11 +774,14 @@
 /* Define to 1 if you have the `ssl32' library (-lssl32). */
 #undef HAVE_LIBSSL32
 
-/* Define if libuuid is available. */
+/* Define if using libuuid. */
 #undef HAVE_LIBUUID
 
-/* Define to 1 if you have the `z' library (-lz). */
+/* Define if using zlib. */
 #undef HAVE_LIBZ
+
+/* Define to 1 if you have the `localtime_r' function. */
+#undef HAVE_LOCALTIME_R
 
 /* Define to 1 if the system has the type 'long long int'. */
 #undef HAVE_LONG_LONG_INT
@@ -763,6 +808,9 @@
 /* Define to 1 if you have the `mbsinit' function. */
 #undef HAVE_MBSINIT
 
+/* Define to 1 if you have the `mbsrtowcs' function. */
+#undef HAVE_MBSRTOWCS
+
 /* Define to 1 if <wchar.h> declares mbstate_t. */
 #undef HAVE_MBSTATE_T
 
@@ -771,6 +819,9 @@
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the `mempcpy' function. */
+#undef HAVE_MEMPCPY
 
 /* Define to 1 if you have the `memrchr' function. */
 #undef HAVE_MEMRCHR
@@ -847,6 +898,12 @@
 
 /* Define to 1 if you have the `raise' function. */
 #undef HAVE_RAISE
+
+/* Define to 1 if you have the `random' function. */
+#undef HAVE_RANDOM
+
+/* Define to 1 if you have the `RAND_egd' function. */
+#undef HAVE_RAND_EGD
 
 /* Define to 1 if you have the `rawmemchr' function. */
 #undef HAVE_RAWMEMCHR
@@ -1660,9 +1717,6 @@
 /* Define to 1 if you have the `strcasecmp' function. */
 #undef HAVE_STRCASECMP
 
-/* Define to 1 if you have the `strcasestr' function. */
-#undef HAVE_STRCASESTR
-
 /* Define to 1 if you have the `strchrnul' function. */
 #undef HAVE_STRCHRNUL
 
@@ -1677,6 +1731,9 @@
 
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
+
+/* Define to 1 if you have the `strlcpy' function. */
+#undef HAVE_STRLCPY
 
 /* Define to 1 if you have the `strncasecmp' function. */
 #undef HAVE_STRNCASECMP
@@ -1798,6 +1855,9 @@
 /* Define to 1 if you have the `timegm' function. */
 #undef HAVE_TIMEGM
 
+/* Define if struct tm has the tm_gmtoff member. */
+#undef HAVE_TM_GMTOFF
+
 /* Define to 1 if you have the `towlower' function. */
 #undef HAVE_TOWLOWER
 
@@ -1869,6 +1929,15 @@
 
 /* Define if you have the 'wint_t' type. */
 #undef HAVE_WINT_T
+
+/* Define to 1 if you have the `wmemchr' function. */
+#undef HAVE_WMEMCHR
+
+/* Define to 1 if you have the `wmemcpy' function. */
+#undef HAVE_WMEMCPY
+
+/* Define to 1 if you have the `wmempcpy' function. */
+#undef HAVE_WMEMPCPY
 
 /* Define if fnmatch.h can be included. */
 #undef HAVE_WORKING_FNMATCH_H
@@ -1947,9 +2016,6 @@
 
 /* Define if the mbrtowc function returns a wrong return value. */
 #undef MBRTOWC_RETVAL_BUG
-
-/* Define to 1 if your C compiler doesn't accept -c and -o together. */
-#undef NO_MINUS_C_MINUS_O
 
 /* Define to 1 if open() fails to recognize a trailing slash. */
 #undef OPEN_TRAILING_SLASH_BUG
@@ -2096,6 +2162,10 @@
 #ifndef _GNU_SOURCE
 # undef _GNU_SOURCE
 #endif
+/* Use GNU style printf and scanf.  */
+#ifndef __USE_MINGW_ANSI_STDIO
+# undef __USE_MINGW_ANSI_STDIO
+#endif
 /* Enable threading extensions on Solaris.  */
 #ifndef _POSIX_PTHREAD_SEMANTICS
 # undef _POSIX_PTHREAD_SEMANTICS
@@ -2229,13 +2299,28 @@
    'reference to static identifier "f" in extern inline function'.
    This bug was observed with Sun C 5.12 SunOS_i386 2011/11/16.
 
-   Suppress the use of extern inline on problematic Apple configurations.
-   OS X 10.8 and earlier mishandle it; see, e.g.,
-   <http://lists.gnu.org/archive/html/bug-gnulib/2012-12/msg00023.html>.
+   Suppress extern inline (with or without __attribute__ ((__gnu_inline__)))
+   on configurations that mistakenly use 'static inline' to implement
+   functions or macros in standard C headers like <ctype.h>.  For example,
+   if isdigit is mistakenly implemented via a static inline function,
+   a program containing an extern inline function that calls isdigit
+   may not work since the C standard prohibits extern inline functions
+   from calling static functions.  This bug is known to occur on:
+
+     OS X 10.8 and earlier; see:
+     http://lists.gnu.org/archive/html/bug-gnulib/2012-12/msg00023.html
+
+     DragonFly; see
+     http://muscles.dragonflybsd.org/bulk/bleeding-edge-potential/latest-per-pkg/ah-tty-0.3.12.log
+
+     FreeBSD; see:
+     http://lists.gnu.org/archive/html/bug-gnulib/2014-07/msg00104.html
+
    OS X 10.9 has a macro __header_inline indicating the bug is fixed for C and
    for clang but remains for g++; see <http://trac.macports.org/ticket/41033>.
-   Perhaps Apple will fix this some day.  */
-#if (defined __APPLE__ \
+   Assume DragonFly and FreeBSD will be similar.  */
+#if (((defined __APPLE__ && defined __MACH__) \
+      || defined __DragonFly__ || defined __FreeBSD__) \
      && (defined __header_inline \
          ? (defined __cplusplus && defined __GNUC_STDC_INLINE__ \
             && ! defined __clang__) \
@@ -2243,19 +2328,19 @@
              && (defined __GNUC__ || defined __cplusplus)) \
             || (defined _FORTIFY_SOURCE && 0 < _FORTIFY_SOURCE \
                 && defined __GNUC__ && ! defined __cplusplus))))
-# define _GL_EXTERN_INLINE_APPLE_BUG
+# define _GL_EXTERN_INLINE_STDHEADER_BUG
 #endif
 #if ((__GNUC__ \
       ? defined __GNUC_STDC_INLINE__ && __GNUC_STDC_INLINE__ \
       : (199901L <= __STDC_VERSION__ \
          && !defined __HP_cc \
          && !(defined __SUNPRO_C && __STDC__))) \
-     && !defined _GL_EXTERN_INLINE_APPLE_BUG)
+     && !defined _GL_EXTERN_INLINE_STDHEADER_BUG)
 # define _GL_INLINE inline
 # define _GL_EXTERN_INLINE extern inline
 # define _GL_EXTERN_INLINE_IN_USE
 #elif (2 < __GNUC__ + (7 <= __GNUC_MINOR__) && !defined __STRICT_ANSI__ \
-       && !defined _GL_EXTERN_INLINE_APPLE_BUG)
+       && !defined _GL_EXTERN_INLINE_STDHEADER_BUG)
 # if defined __GNUC_GNU_INLINE__ && __GNUC_GNU_INLINE__
    /* __gnu_inline__ suppresses a GCC 4.2 diagnostic.  */
 #  define _GL_INLINE extern inline __attribute__ ((__gnu_inline__))
@@ -2269,6 +2354,11 @@
 # define _GL_EXTERN_INLINE static _GL_UNUSED
 #endif
 
+/* In GCC, suppress bogus "no previous prototype for 'FOO'"
+   and "no previous declaration for 'FOO'" diagnostics,
+   when FOO is an inline function in the header; see
+   <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=54113> and
+   <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=63877>.  */
 #if 4 < __GNUC__ + (6 <= __GNUC_MINOR__)
 # if defined __GNUC_STDC_INLINE__ && __GNUC_STDC_INLINE__
 #  define _GL_INLINE_HEADER_CONST_PRAGMA
@@ -2276,10 +2366,6 @@
 #  define _GL_INLINE_HEADER_CONST_PRAGMA \
      _Pragma ("GCC diagnostic ignored \"-Wsuggest-attribute=const\"")
 # endif
-  /* Suppress GCC's bogus "no previous prototype for 'FOO'"
-     and "no previous declaration for 'FOO'"  diagnostics,
-     when FOO is an inline function in the header; see
-     <http://gcc.gnu.org/bugzilla/show_bug.cgi?id=54113>.  */
 # define _GL_INLINE_HEADER_BEGIN \
     _Pragma ("GCC diagnostic push") \
     _Pragma ("GCC diagnostic ignored \"-Wmissing-prototypes\"") \
@@ -2291,6 +2377,9 @@
 # define _GL_INLINE_HEADER_BEGIN
 # define _GL_INLINE_HEADER_END
 #endif
+
+/* Define to a replacement function name for fnmatch(). */
+#undef fnmatch
 
 /* Define to a replacement function name for getpass(). */
 #undef getpass
@@ -2319,6 +2408,9 @@
 
 /* Define to a type if <wchar.h> does not define. */
 #undef mbstate_t
+
+/* Define to the real name of the mktime_internal function. */
+#undef mktime_internal
 
 /* Define to `int' if <sys/types.h> does not define. */
 #undef mode_t
@@ -2419,6 +2511,16 @@
 /* The name _UNUSED_PARAMETER_ is an earlier spelling, although the name
    is a misnomer outside of parameter lists.  */
 #define _UNUSED_PARAMETER_ _GL_UNUSED
+
+/* gcc supports the "unused" attribute on possibly unused labels, and
+   g++ has since version 4.5.  Note to support C++ as well as C,
+   _GL_UNUSED_LABEL should be used with a trailing ;  */
+#if !defined __cplusplus || __GNUC__ > 4 \
+    || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)
+# define _GL_UNUSED_LABEL _GL_UNUSED
+#else
+# define _GL_UNUSED_LABEL
+#endif
 
 /* The __pure__ attribute was added in gcc 2.96.  */
 #if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 96)

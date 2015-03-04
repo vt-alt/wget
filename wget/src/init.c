@@ -69,6 +69,8 @@ as that of the covered work.  */
 #include "retr.h"               /* for output_stream */
 #include "warc.h"               /* for warc_close */
 #include "spider.h"             /* for spider_cleanup */
+#include "html-url.h"           /* for cleanup_html_url */
+#include "c-strcase.h"
 
 #ifdef TESTING
 #include "test.h"
@@ -90,6 +92,7 @@ CMD_DECLARE (cmd_number_inf);
 CMD_DECLARE (cmd_string);
 CMD_DECLARE (cmd_string_uppercase);
 CMD_DECLARE (cmd_file);
+CMD_DECLARE (cmd_file_once);
 CMD_DECLARE (cmd_directory);
 CMD_DECLARE (cmd_time);
 CMD_DECLARE (cmd_vector);
@@ -101,6 +104,7 @@ CMD_DECLARE (cmd_spec_htmlify);
 CMD_DECLARE (cmd_spec_mirror);
 CMD_DECLARE (cmd_spec_prefer_family);
 CMD_DECLARE (cmd_spec_progress);
+CMD_DECLARE (cmd_spec_progressdisp);
 CMD_DECLARE (cmd_spec_recursive);
 CMD_DECLARE (cmd_spec_regex_type);
 CMD_DECLARE (cmd_spec_restrict_file_names);
@@ -157,6 +161,9 @@ static const struct {
   { "continue",         &opt.always_rest,       cmd_boolean },
   { "convertlinks",     &opt.convert_links,     cmd_boolean },
   { "cookies",          &opt.cookies,           cmd_boolean },
+#ifdef HAVE_SSL
+  { "crlfile",          &opt.crl_file,          cmd_file_once },
+#endif
   { "cutdirs",          &opt.cut_dirs,          cmd_number },
   { "debug",            &opt.debug,             cmd_boolean },
   { "defaultpage",      &opt.default_page,      cmd_string },
@@ -269,7 +276,7 @@ static const struct {
 #endif
   { "serverresponse",   &opt.server_response,   cmd_boolean },
   { "showalldnsentries", &opt.show_all_dns_entries, cmd_boolean },
-  { "showprogress",     &opt.show_progress,      cmd_boolean },
+  { "showprogress",     &opt.show_progress,     cmd_spec_progressdisp },
   { "spanhosts",        &opt.spanhost,          cmd_boolean },
   { "spider",           &opt.spider,            cmd_boolean },
   { "startpos",         &opt.start_pos,         cmd_bytes },
@@ -315,7 +322,7 @@ command_by_name (const char *cmdname)
   while (lo <= hi)
     {
       int mid = (lo + hi) >> 1;
-      int cmp = strcasecmp (cmdname, commands[mid].name);
+      int cmp = c_strcasecmp (cmdname, commands[mid].name);
       if (cmp < 0)
         hi = mid - 1;
       else if (cmp > 0)
@@ -325,7 +332,7 @@ command_by_name (const char *cmdname)
     }
   return -1;
 }
-
+
 /* Reset the variables to default values.  */
 void
 defaults (void)
@@ -428,10 +435,10 @@ defaults (void)
 
   /* Use a negative value to mark the absence of --start-pos option */
   opt.start_pos = -1;
-  opt.show_progress = false;
+  opt.show_progress = -1;
   opt.noscroll = false;
 }
-
+
 /* Return the user's home directory (strdup-ed), or NULL if none is
    found.  */
 char *
@@ -480,7 +487,7 @@ home_dir (void)
     }
 
   ret = home ? xstrdup (home) : NULL;
-  free (buf);
+  xfree (buf);
 
   return ret;
 }
@@ -521,7 +528,7 @@ wgetrc_user_file_name (void)
   home = home_dir ();
   if (home)
     file = aprintf ("%s/.wgetrc", home);
-  xfree_null (home);
+  xfree (home);
 #endif /* def __VMS [else] */
 
   if (!file)
@@ -556,8 +563,7 @@ wgetrc_file_name (void)
   if (!file)
     {
       char *home = home_dir ();
-      xfree_null (file);
-      file = NULL;
+      xfree (file);
       home = ws_mypath ();
       if (home)
         {
@@ -565,7 +571,6 @@ wgetrc_file_name (void)
           if (!file_exists_p (file))
             {
               xfree (file);
-              file = NULL;
             }
           xfree (home);
         }
@@ -639,8 +644,8 @@ run_wgetrc (const char *file)
         default:
           abort ();
         }
-      xfree_null (com);
-      xfree_null (val);
+      xfree (com);
+      xfree (val);
       ++ln;
     }
   xfree (line);
@@ -893,7 +898,7 @@ run_command (const char *cmdopt)
       exit (WGET_EXIT_PARSE_ERROR);
     }
 }
-
+
 /* Generic helper functions, for use with `commands'. */
 
 /* Forward declarations: */
@@ -961,7 +966,7 @@ cmd_number (const char *com, const char *val, void *place)
 static bool
 cmd_number_inf (const char *com, const char *val, void *place)
 {
-  if (!strcasecmp (val, "inf"))
+  if (!c_strcasecmp (val, "inf"))
     {
       *(int *) place = 0;
       return true;
@@ -976,7 +981,7 @@ cmd_string (const char *com _GL_UNUSED, const char *val, void *place)
 {
   char **pstring = (char **)place;
 
-  xfree_null (*pstring);
+  xfree (*pstring);
   *pstring = xstrdup (val);
   return true;
 }
@@ -987,7 +992,7 @@ cmd_string_uppercase (const char *com _GL_UNUSED, const char *val, void *place)
 {
   char *q, **pstring;
   pstring = (char **)place;
-  xfree_null (*pstring);
+  xfree (*pstring);
 
   *pstring = xmalloc (strlen (val) + 1);
 
@@ -1007,7 +1012,7 @@ cmd_file (const char *com _GL_UNUSED, const char *val, void *place)
 {
   char **pstring = (char **)place;
 
-  xfree_null (*pstring);
+  xfree (*pstring);
 
   /* #### If VAL is empty, perhaps should set *PLACE to NULL.  */
 
@@ -1023,6 +1028,20 @@ cmd_file (const char *com _GL_UNUSED, const char *val, void *place)
   }
 #endif
   return true;
+}
+
+/* like cmd_file, but insist on just a single option usage */
+static bool
+cmd_file_once (const char *com _GL_UNUSED, const char *val, void *place)
+{
+  if (*(char **)place)
+    {
+      fprintf (stderr, _("%s: %s must only be used once\n"),
+               exec_name, com);
+      return false;
+    }
+
+  return cmd_file(com, val, place);
 }
 
 /* Like cmd_file, but strips trailing '/' characters.  */
@@ -1274,7 +1293,7 @@ cmd_cert_type (const char *com, const char *val, void *place)
   return ok;
 }
 #endif
-
+
 /* Specialized helper functions, used by `commands' to handle some
    options specially.  */
 
@@ -1398,7 +1417,7 @@ cmd_spec_progress (const char *com, const char *val, void *place_ignored _GL_UNU
                exec_name, com, quote (val));
       return false;
     }
-  xfree_null (opt.progress_type);
+  xfree (opt.progress_type);
 
   /* Don't call set_progress_implementation here.  It will be called
      in main when it becomes clear what the log output is.  */
@@ -1499,7 +1518,7 @@ cmd_spec_restrict_file_names (const char *com, const char *val, void *place_igno
 static bool
 cmd_spec_report_speed (const char *com, const char *val, void *place_ignored _GL_UNUSED)
 {
-  opt.report_bps = strcasecmp (val, "bits") == 0;
+  opt.report_bps = c_strcasecmp (val, "bits") == 0;
   if (!opt.report_bps)
     fprintf (stderr, _("%s: %s: Invalid value %s.\n"), exec_name, com, quote (val));
   return opt.report_bps;
@@ -1549,10 +1568,26 @@ cmd_spec_useragent (const char *com, const char *val, void *place_ignored _GL_UN
                exec_name, com, quote (val));
       return false;
     }
-  xfree_null (opt.useragent);
+  xfree (opt.useragent);
   opt.useragent = xstrdup (val);
   return true;
 }
+
+/* The --show-progress option is not a cmd_boolean since we need to keep track
+ * of whether the user explicitly requested the option or not. -1 means
+ * uninitialized. */
+static bool
+cmd_spec_progressdisp (const char *com, const char *val, void *place _GL_UNUSED)
+{
+  bool flag;
+  if (cmd_boolean (com, val, &flag))
+    {
+      opt.show_progress = flag;
+      return true;
+    }
+  return false;
+}
+
 
 /* The "verbose" option cannot be cmd_boolean because the variable is
    not bool -- it's of type int (-1 means uninitialized because of
@@ -1565,11 +1600,12 @@ cmd_spec_verbose (const char *com, const char *val, void *place_ignored _GL_UNUS
   if (cmd_boolean (com, val, &flag))
     {
       opt.verbose = flag;
+      opt.show_progress = -1;
       return true;
     }
   return false;
 }
-
+
 /* Miscellaneous useful routines.  */
 
 /* A very simple atoi clone, more useful than atoi because it works on
@@ -1704,7 +1740,7 @@ decode_string (const char *val, const struct decode_item *items, int itemcount,
 {
   int i;
   for (i = 0; i < itemcount; i++)
-    if (0 == strcasecmp (val, items[i].name))
+    if (0 == c_strcasecmp (val, items[i].name))
       {
         *place = items[i].code;
         return true;
@@ -1747,55 +1783,57 @@ cleanup (void)
   spider_cleanup ();
   host_cleanup ();
   log_cleanup ();
-  netrc_cleanup (netrc_list);
+  netrc_cleanup ();
 
-  for (i = 0; i < nurl; i++)
-    xfree (url[i]);
-
-  xfree_null (opt.choose_config);
-  xfree_null (opt.lfilename);
-  xfree_null (opt.dir_prefix);
-  xfree_null (opt.input_filename);
-  xfree_null (opt.output_document);
+  xfree (opt.choose_config);
+  xfree (opt.lfilename);
+  xfree (opt.dir_prefix);
+  xfree (opt.input_filename);
+  xfree (opt.output_document);
   free_vec (opt.accepts);
   free_vec (opt.rejects);
-  free_vec (opt.excludes);
-  free_vec (opt.includes);
+  free_vec ((char **)opt.excludes);
+  free_vec ((char **)opt.includes);
   free_vec (opt.domains);
   free_vec (opt.follow_tags);
   free_vec (opt.ignore_tags);
-  xfree_null (opt.progress_type);
-  xfree_null (opt.ftp_user);
-  xfree_null (opt.ftp_passwd);
-  xfree_null (opt.ftp_proxy);
-  xfree_null (opt.https_proxy);
-  xfree_null (opt.http_proxy);
+  xfree (opt.progress_type);
+  xfree (opt.ftp_user);
+  xfree (opt.ftp_passwd);
+  xfree (opt.ftp_proxy);
+  xfree (opt.https_proxy);
+  xfree (opt.http_proxy);
   free_vec (opt.no_proxy);
-  xfree_null (opt.useragent);
-  xfree_null (opt.referer);
-  xfree_null (opt.http_user);
-  xfree_null (opt.http_passwd);
+  xfree (opt.useragent);
+  xfree (opt.referer);
+  xfree (opt.http_user);
+  xfree (opt.http_passwd);
   free_vec (opt.user_headers);
   free_vec (opt.warc_user_headers);
 # ifdef HAVE_SSL
-  xfree_null (opt.cert_file);
-  xfree_null (opt.private_key);
-  xfree_null (opt.ca_directory);
-  xfree_null (opt.ca_cert);
-  xfree_null (opt.random_file);
-  xfree_null (opt.egd_file);
+  xfree (opt.cert_file);
+  xfree (opt.private_key);
+  xfree (opt.ca_directory);
+  xfree (opt.ca_cert);
+  xfree (opt.crl_file);
+  xfree (opt.random_file);
+  xfree (opt.egd_file);
 # endif
-  xfree_null (opt.bind_address);
-  xfree_null (opt.cookies_input);
-  xfree_null (opt.cookies_output);
-  xfree_null (opt.user);
-  xfree_null (opt.passwd);
-  xfree_null (opt.base_href);
-  xfree_null (opt.method);
+  xfree (opt.bind_address);
+  xfree (opt.cookies_input);
+  xfree (opt.cookies_output);
+  xfree (opt.user);
+  xfree (opt.passwd);
+  xfree (opt.base_href);
+  xfree (opt.method);
+  xfree (opt.post_file_name);
+  xfree (opt.post_data);
+  xfree (opt.body_data);
+  xfree (opt.body_file);
 
 #endif /* DEBUG_MALLOC */
 }
-
+
 /* Unit testing routines.  */
 
 #ifdef TESTING
@@ -1807,7 +1845,7 @@ test_commands_sorted(void)
 
   for (i = 1; i < countof(commands); ++i)
     {
-      if (strcasecmp (commands[i - 1].name, commands[i].name) > 0)
+      if (c_strcasecmp (commands[i - 1].name, commands[i].name) > 0)
         {
           mu_assert ("FAILED", false);
           break;
@@ -1823,7 +1861,7 @@ test_cmd_spec_restrict_file_names(void)
   static const struct {
     const char *val;
     int expected_restrict_files_os;
-    int expected_restrict_files_ctrl;
+    bool expected_restrict_files_ctrl;
     int expected_restrict_files_case;
     bool result;
   } test_array[] = {
@@ -1848,9 +1886,9 @@ test_cmd_spec_restrict_file_names(void)
       */
       mu_assert ("test_cmd_spec_restrict_file_names: wrong result",
                  res == test_array[i].result
-                 && opt.restrict_files_os   == test_array[i].expected_restrict_files_os
+                 && (int) opt.restrict_files_os   == test_array[i].expected_restrict_files_os
                  && opt.restrict_files_ctrl == test_array[i].expected_restrict_files_ctrl
-                 && opt.restrict_files_case == test_array[i].expected_restrict_files_case);
+                 && (int) opt.restrict_files_case == test_array[i].expected_restrict_files_case);
     }
 
   return NULL;

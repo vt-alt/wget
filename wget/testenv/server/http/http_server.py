@@ -38,13 +38,15 @@ class HTTPSServer (StoppableHTTPServer):
         import ssl
         BaseServer.__init__ (self, address, handler)
         # step one up because test suite change directory away from $srcdir (don't do that !!!)
-        CERTFILE = os.path.abspath(os.path.join('..', os.getenv('srcdir', '.'), 'certs', 'wget-cert.pem'))
+        CERTFILE = os.path.abspath(os.path.join('..', os.getenv('srcdir', '.'), 'certs', 'server-cert.pem'))
+        KEYFILE = os.path.abspath(os.path.join('..', os.getenv('srcdir', '.'), 'certs', 'server-key.pem'))
         fop = open (CERTFILE)
         print (fop.readline())
         self.socket = ssl.wrap_socket (
             sock = socket.socket (self.address_family, self.socket_type),
             ssl_version = ssl.PROTOCOL_TLSv1,
             certfile = CERTFILE,
+            keyfile = KEYFILE,
             server_side = True
         )
         self.server_bind()
@@ -203,34 +205,37 @@ class _Handler (BaseHTTPRequestHandler):
         return string.decode ('utf-8')
 
     def send_challenge (self, auth_type):
-        if auth_type == "Both":
-            self.send_challenge ("Digest")
-            self.send_challenge ("Basic")
+        auth_type = auth_type.lower()
+        if auth_type == "both":
+            self.send_challenge ("basic")
+            self.send_challenge ("digest")
             return
-        if auth_type == "Basic":
-            challenge_str = 'Basic realm="Wget-Test"'
-        elif auth_type == "Digest" or auth_type == "Both_inline":
+        if auth_type == "basic":
+            challenge_str = 'BasIc realm="Wget-Test"'
+        elif auth_type == "digest" or auth_type == "both_inline":
             self.nonce = md5 (str (random ()).encode ('utf-8')).hexdigest()
             self.opaque = md5 (str (random ()).encode ('utf-8')).hexdigest()
-            challenge_str = 'Digest realm="Test", nonce="%s", opaque="%s"' % (
+            # 'DIgest' to provoke a Wget failure with turkish locales
+            challenge_str = 'DIgest realm="Test", nonce="%s", opaque="%s"' % (
                             self.nonce,
                             self.opaque)
             challenge_str += ', qop="auth"'
-            if auth_type == "Both_inline":
-                challenge_str = 'Basic realm="Wget-Test", ' + challenge_str
+            if auth_type == "both_inline":
+                # 'BasIc' to provoke a Wget failure with turkish locales
+                challenge_str = 'BasIc realm="Wget-Test", ' + challenge_str
         self.send_header ("WWW-Authenticate", challenge_str)
 
-    def authorize_Basic (self, auth_header, auth_rule):
-        if auth_header is None or auth_header.split(' ')[0] != 'Basic':
+    def authorize_basic (self, auth_header, auth_rule):
+        if auth_header is None or auth_header.split(' ')[0].lower() != 'basic':
             return False
         else:
             self.user = auth_rule.auth_user
             self.passw = auth_rule.auth_pass
-            auth_str = "Basic " + self.base64 (self.user + ":" + self.passw)
-            return True if auth_str == auth_header else False
+            auth_str = "basic " + self.base64 (self.user + ":" + self.passw)
+            return True if auth_str.lower() == auth_header.lower() else False
 
     def parse_auth_header (self, auth_header):
-        n = len("Digest ")
+        n = len("digest ")
         auth_header = auth_header[n:].strip()
         items = auth_header.split(", ")
         keyvals = [i.split("=", 1) for i in items]
@@ -262,8 +267,8 @@ class _Handler (BaseHTTPRequestHandler):
 
         return True if resp == params['response'] else False
 
-    def authorize_Digest (self, auth_header, auth_rule):
-        if auth_header is None or auth_header.split(' ')[0] != 'Digest':
+    def authorize_digest (self, auth_header, auth_rule):
+        if auth_header is None or auth_header.split(' ')[0].lower() != 'digest':
             return False
         else:
             self.user = auth_rule.auth_user
@@ -282,10 +287,10 @@ class _Handler (BaseHTTPRequestHandler):
                 pass_auth = False
             return pass_auth
 
-    def authorize_Both (self, auth_header, auth_rule):
+    def authorize_both (self, auth_header, auth_rule):
         return False
 
-    def authorize_Both_inline (self, auth_header, auth_rule):
+    def authorize_both_inline (self, auth_header, auth_rule):
         return False
 
     def Authentication (self, auth_rule):
@@ -300,16 +305,16 @@ class _Handler (BaseHTTPRequestHandler):
     def handle_auth (self, auth_rule):
         is_auth = True
         auth_header = self.headers.get ("Authorization")
-        required_auth = auth_rule.auth_type
-        if required_auth == "Both" or required_auth == "Both_inline":
-            auth_type = auth_header.split(' ')[0] if auth_header else required_auth
+        required_auth = auth_rule.auth_type.lower()
+        if required_auth == "both" or required_auth == "both_inline":
+            auth_type = auth_header.split(' ')[0].lower() if auth_header else required_auth
         else:
             auth_type = required_auth
         try:
             assert hasattr (self, "authorize_" + auth_type)
             is_auth = getattr (self, "authorize_" + auth_type) (auth_header, auth_rule)
         except AssertionError:
-            raise ServerError ("Authentication Mechanism " + auth_rule + " not supported")
+            raise ServerError ("Authentication Mechanism " + auth_type + " not supported")
         except AttributeError as ae:
             raise ServerError (ae.__str__())
         if is_auth is False:
@@ -331,7 +336,7 @@ class _Handler (BaseHTTPRequestHandler):
         for header_line in rej_headers:
             header_recd = self.headers.get (header_line)
             if header_recd is not None and header_recd == rej_headers[header_line]:
-                self.send_error (400, 'Blackisted Header ' + header_line + ' received')
+                self.send_error (400, 'Blacklisted Header ' + header_line + ' received')
                 self.finish_headers ()
                 raise ServerError ("Header " + header_line + ' received')
 
