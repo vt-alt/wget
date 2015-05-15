@@ -113,8 +113,8 @@ host_triplet = @host@
 bin_PROGRAMS = wget$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(srcdir)/config.h.in http-ntlm.c gnutls.c openssl.c \
-	ftp-opie.c mswindows.c $(top_srcdir)/build-aux/depcomp
+	$(srcdir)/config.h.in ftp-opie.c gnutls.c openssl.c \
+	http-ntlm.c mswindows.c $(top_srcdir)/build-aux/depcomp
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/absolute-header.m4 $(top_srcdir)/m4/alloca.m4 \
