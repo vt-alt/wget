@@ -1,7 +1,7 @@
 /* Various utility functions.
    Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
-   2005, 2006, 2007, 2008, 2009, 2010, 2011 Free Software Foundation,
-   Inc.
+   2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015 Free Software
+   Foundation, Inc.
 
 This file is part of GNU Wget.
 
@@ -336,7 +336,7 @@ aprintf (const char *fmt, ...)
         {                               /* maybe we have some wrong
                                            format string? */
           logprintf (LOG_ALWAYS,
-                     _("%s: aprintf: text buffer is too big (%ld bytes), "
+                     _("%s: aprintf: text buffer is too big (%d bytes), "
                        "aborting.\n"),
                      exec_name, size);  /* printout a log message */
           abort ();                     /* and abort... */
@@ -1284,7 +1284,10 @@ free_vec (char **vec)
     {
       char **p = vec;
       while (*p)
-        xfree (*p++);
+        {
+          xfree (*p);
+          p++;
+        }
       xfree (vec);
     }
 }
@@ -2501,6 +2504,21 @@ get_max_length (const char *path, int length, int name)
     }
 
   return ret;
+}
+
+void
+wg_hex_to_string (char *str_buffer, const char *hex_buffer, size_t hex_len)
+{
+  size_t i;
+
+  for (i = 0; i < hex_len; i++)
+    {
+      /* Each byte takes 2 characters.  */
+      sprintf (str_buffer + 2 * i, "%02x", hex_buffer[i] & 0xFF);
+    }
+
+  /* Null-terminate result.  */
+  str_buffer[2 * i] = '\0';
 }
 
 #ifdef TESTING

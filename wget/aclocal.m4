@@ -1,6 +1,6 @@
-# generated automatically by aclocal 1.14.1 -*- Autoconf -*-
+# generated automatically by aclocal 1.15 -*- Autoconf -*-
 
-# Copyright (C) 1996-2013 Free Software Foundation, Inc.
+# Copyright (C) 1996-2014 Free Software Foundation, Inc.
 
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -19,6 +19,245 @@ m4_if(m4_defn([AC_AUTOCONF_VERSION]), [2.69],,
 You have another version of autoconf.  It may work, but is not guaranteed to.
 If you have problems, you may need to regenerate the build system entirely.
 To do so, use the procedure documented by the package, typically 'autoreconf'.])])
+
+# gpgme.m4 - autoconf macro to detect GPGME.
+# Copyright (C) 2002, 2003, 2004 g10 Code GmbH
+#
+# This file is free software; as a special exception the author gives
+# unlimited permission to copy and/or distribute it, with or without
+# modifications, as long as this notice is preserved.
+#
+# This file is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+AC_DEFUN([_AM_PATH_GPGME_CONFIG],
+[ AC_ARG_WITH(gpgme-prefix,
+            AC_HELP_STRING([--with-gpgme-prefix=PFX],
+                           [prefix where GPGME is installed (optional)]),
+     gpgme_config_prefix="$withval", gpgme_config_prefix="")
+  if test "x$gpgme_config_prefix" != x ; then
+      GPGME_CONFIG="$gpgme_config_prefix/bin/gpgme-config"
+  fi
+  AC_PATH_PROG(GPGME_CONFIG, gpgme-config, no)
+
+  if test "$GPGME_CONFIG" != "no" ; then
+    gpgme_version=`$GPGME_CONFIG --version`
+  fi
+  gpgme_version_major=`echo $gpgme_version | \
+               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\).*/\1/'`
+  gpgme_version_minor=`echo $gpgme_version | \
+               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\).*/\2/'`
+  gpgme_version_micro=`echo $gpgme_version | \
+               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\).*/\3/'`
+])
+
+dnl AM_PATH_GPGME([MINIMUM-VERSION,
+dnl               [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND ]]])
+dnl Test for libgpgme and define GPGME_CFLAGS and GPGME_LIBS.
+dnl
+AC_DEFUN([AM_PATH_GPGME],
+[ AC_REQUIRE([_AM_PATH_GPGME_CONFIG])dnl
+  tmp=ifelse([$1], ,1:0.4.2,$1)
+  if echo "$tmp" | grep ':' >/dev/null 2>/dev/null ; then
+     req_gpgme_api=`echo "$tmp"     | sed 's/\(.*\):\(.*\)/\1/'`
+     min_gpgme_version=`echo "$tmp" | sed 's/\(.*\):\(.*\)/\2/'`
+  else
+     req_gpgme_api=0
+     min_gpgme_version="$tmp"
+  fi
+
+  AC_MSG_CHECKING(for GPGME - version >= $min_gpgme_version)
+  ok=no
+  if test "$GPGME_CONFIG" != "no" ; then
+    req_major=`echo $min_gpgme_version | \
+               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\1/'`
+    req_minor=`echo $min_gpgme_version | \
+               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\2/'`
+    req_micro=`echo $min_gpgme_version | \
+               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\3/'`
+    if test "$gpgme_version_major" -gt "$req_major"; then
+        ok=yes
+    else 
+        if test "$gpgme_version_major" -eq "$req_major"; then
+            if test "$gpgme_version_minor" -gt "$req_minor"; then
+               ok=yes
+            else
+               if test "$gpgme_version_minor" -eq "$req_minor"; then
+                   if test "$gpgme_version_micro" -ge "$req_micro"; then
+                     ok=yes
+                   fi
+               fi
+            fi
+        fi
+    fi
+  fi
+  if test $ok = yes; then
+     # If we have a recent GPGME, we should also check that the
+     # API is compatible.
+     if test "$req_gpgme_api" -gt 0 ; then
+        tmp=`$GPGME_CONFIG --api-version 2>/dev/null || echo 0`
+        if test "$tmp" -gt 0 ; then
+           if test "$req_gpgme_api" -ne "$tmp" ; then
+             ok=no
+           fi
+        fi
+     fi
+  fi
+  if test $ok = yes; then
+    GPGME_CFLAGS=`$GPGME_CONFIG --cflags`
+    GPGME_LIBS=`$GPGME_CONFIG --libs`
+    AC_MSG_RESULT(yes)
+    ifelse([$2], , :, [$2])
+  else
+    GPGME_CFLAGS=""
+    GPGME_LIBS=""
+    AC_MSG_RESULT(no)
+    ifelse([$3], , :, [$3])
+  fi
+  AC_SUBST(GPGME_CFLAGS)
+  AC_SUBST(GPGME_LIBS)
+])
+
+dnl AM_PATH_GPGME_PTHREAD([MINIMUM-VERSION,
+dnl                       [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND ]]])
+dnl Test for libgpgme and define GPGME_PTHREAD_CFLAGS
+dnl  and GPGME_PTHREAD_LIBS.
+dnl
+AC_DEFUN([AM_PATH_GPGME_PTHREAD],
+[ AC_REQUIRE([_AM_PATH_GPGME_CONFIG])dnl
+  tmp=ifelse([$1], ,1:0.4.2,$1)
+  if echo "$tmp" | grep ':' >/dev/null 2>/dev/null ; then
+     req_gpgme_api=`echo "$tmp"     | sed 's/\(.*\):\(.*\)/\1/'`
+     min_gpgme_version=`echo "$tmp" | sed 's/\(.*\):\(.*\)/\2/'`
+  else
+     req_gpgme_api=0
+     min_gpgme_version="$tmp"
+  fi
+
+  AC_MSG_CHECKING(for GPGME pthread - version >= $min_gpgme_version)
+  ok=no
+  if test "$GPGME_CONFIG" != "no" ; then
+    if `$GPGME_CONFIG --thread=pthread 2> /dev/null` ; then
+      req_major=`echo $min_gpgme_version | \
+               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\1/'`
+      req_minor=`echo $min_gpgme_version | \
+               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\2/'`
+      req_micro=`echo $min_gpgme_version | \
+               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\3/'`
+      if test "$gpgme_version_major" -gt "$req_major"; then
+        ok=yes
+      else 
+        if test "$gpgme_version_major" -eq "$req_major"; then
+          if test "$gpgme_version_minor" -gt "$req_minor"; then
+            ok=yes
+          else
+            if test "$gpgme_version_minor" -eq "$req_minor"; then
+              if test "$gpgme_version_micro" -ge "$req_micro"; then
+                ok=yes
+              fi
+            fi
+          fi
+        fi
+      fi
+    fi
+  fi
+  if test $ok = yes; then
+     # If we have a recent GPGME, we should also check that the
+     # API is compatible.
+     if test "$req_gpgme_api" -gt 0 ; then
+        tmp=`$GPGME_CONFIG --api-version 2>/dev/null || echo 0`
+        if test "$tmp" -gt 0 ; then
+           if test "$req_gpgme_api" -ne "$tmp" ; then
+             ok=no
+           fi
+        fi
+     fi
+  fi
+  if test $ok = yes; then
+    GPGME_PTHREAD_CFLAGS=`$GPGME_CONFIG --thread=pthread --cflags`
+    GPGME_PTHREAD_LIBS=`$GPGME_CONFIG --thread=pthread --libs`
+    AC_MSG_RESULT(yes)
+    ifelse([$2], , :, [$2])
+  else
+    GPGME_PTHREAD_CFLAGS=""
+    GPGME_PTHREAD_LIBS=""
+    AC_MSG_RESULT(no)
+    ifelse([$3], , :, [$3])
+  fi
+  AC_SUBST(GPGME_PTHREAD_CFLAGS)
+  AC_SUBST(GPGME_PTHREAD_LIBS)
+])
+
+
+dnl AM_PATH_GPGME_GLIB([MINIMUM-VERSION,
+dnl               [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND ]]])
+dnl Test for libgpgme-glib and define GPGME_GLIB_CFLAGS and GPGME_GLIB_LIBS.
+dnl
+AC_DEFUN([AM_PATH_GPGME_GLIB],
+[ AC_REQUIRE([_AM_PATH_GPGME_CONFIG])dnl
+  tmp=ifelse([$1], ,1:0.4.2,$1)
+  if echo "$tmp" | grep ':' >/dev/null 2>/dev/null ; then
+     req_gpgme_api=`echo "$tmp"     | sed 's/\(.*\):\(.*\)/\1/'`
+     min_gpgme_version=`echo "$tmp" | sed 's/\(.*\):\(.*\)/\2/'`
+  else
+     req_gpgme_api=0
+     min_gpgme_version="$tmp"
+  fi
+
+  AC_MSG_CHECKING(for GPGME - version >= $min_gpgme_version)
+  ok=no
+  if test "$GPGME_CONFIG" != "no" ; then
+    req_major=`echo $min_gpgme_version | \
+               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\1/'`
+    req_minor=`echo $min_gpgme_version | \
+               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\2/'`
+    req_micro=`echo $min_gpgme_version | \
+               sed 's/\([[0-9]]*\)\.\([[0-9]]*\)\.\([[0-9]]*\)/\3/'`
+    if test "$gpgme_version_major" -gt "$req_major"; then
+        ok=yes
+    else 
+        if test "$gpgme_version_major" -eq "$req_major"; then
+            if test "$gpgme_version_minor" -gt "$req_minor"; then
+               ok=yes
+            else
+               if test "$gpgme_version_minor" -eq "$req_minor"; then
+                   if test "$gpgme_version_micro" -ge "$req_micro"; then
+                     ok=yes
+                   fi
+               fi
+            fi
+        fi
+    fi
+  fi
+  if test $ok = yes; then
+     # If we have a recent GPGME, we should also check that the
+     # API is compatible.
+     if test "$req_gpgme_api" -gt 0 ; then
+        tmp=`$GPGME_CONFIG --api-version 2>/dev/null || echo 0`
+        if test "$tmp" -gt 0 ; then
+           if test "$req_gpgme_api" -ne "$tmp" ; then
+             ok=no
+           fi
+        fi
+     fi
+  fi
+  if test $ok = yes; then
+    GPGME_GLIB_CFLAGS=`$GPGME_CONFIG --glib --cflags`
+    GPGME_GLIB_LIBS=`$GPGME_CONFIG --glib --libs`
+    AC_MSG_RESULT(yes)
+    ifelse([$2], , :, [$2])
+  else
+    GPGME_GLIB_CFLAGS=""
+    GPGME_GLIB_LIBS=""
+    AC_MSG_RESULT(no)
+    ifelse([$3], , :, [$3])
+  fi
+  AC_SUBST(GPGME_GLIB_CFLAGS)
+  AC_SUBST(GPGME_GLIB_LIBS)
+])
+
 
 # pkg.m4 - Macros to locate and utilise pkg-config.            -*- Autoconf -*-
 # serial 1 (pkg-config-0.24)
@@ -235,7 +474,7 @@ AS_VAR_COPY([$1], [pkg_cv_][$1])
 AS_VAR_IF([$1], [""], [$5], [$4])dnl
 ])# PKG_CHECK_VAR
 
-# Copyright (C) 2002-2013 Free Software Foundation, Inc.
+# Copyright (C) 2002-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -247,10 +486,10 @@ AS_VAR_IF([$1], [""], [$5], [$4])dnl
 # generated from the m4 files accompanying Automake X.Y.
 # (This private macro should not be called outside this file.)
 AC_DEFUN([AM_AUTOMAKE_VERSION],
-[am__api_version='1.14'
+[am__api_version='1.15'
 dnl Some users find AM_AUTOMAKE_VERSION and mistake it for a way to
 dnl require some minimum version.  Point them to the right macro.
-m4_if([$1], [1.14.1], [],
+m4_if([$1], [1.15], [],
       [AC_FATAL([Do not call $0, use AM_INIT_AUTOMAKE([$1]).])])dnl
 ])
 
@@ -266,14 +505,74 @@ m4_define([_AM_AUTOCONF_VERSION], [])
 # Call AM_AUTOMAKE_VERSION and AM_AUTOMAKE_VERSION so they can be traced.
 # This function is AC_REQUIREd by AM_INIT_AUTOMAKE.
 AC_DEFUN([AM_SET_CURRENT_AUTOMAKE_VERSION],
-[AM_AUTOMAKE_VERSION([1.14.1])dnl
+[AM_AUTOMAKE_VERSION([1.15])dnl
 m4_ifndef([AC_AUTOCONF_VERSION],
   [m4_copy([m4_PACKAGE_VERSION], [AC_AUTOCONF_VERSION])])dnl
 _AM_AUTOCONF_VERSION(m4_defn([AC_AUTOCONF_VERSION]))])
 
+# Copyright (C) 2011-2014 Free Software Foundation, Inc.
+#
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# AM_PROG_AR([ACT-IF-FAIL])
+# -------------------------
+# Try to determine the archiver interface, and trigger the ar-lib wrapper
+# if it is needed.  If the detection of archiver interface fails, run
+# ACT-IF-FAIL (default is to abort configure with a proper error message).
+AC_DEFUN([AM_PROG_AR],
+[AC_BEFORE([$0], [LT_INIT])dnl
+AC_BEFORE([$0], [AC_PROG_LIBTOOL])dnl
+AC_REQUIRE([AM_AUX_DIR_EXPAND])dnl
+AC_REQUIRE_AUX_FILE([ar-lib])dnl
+AC_CHECK_TOOLS([AR], [ar lib "link -lib"], [false])
+: ${AR=ar}
+
+AC_CACHE_CHECK([the archiver ($AR) interface], [am_cv_ar_interface],
+  [AC_LANG_PUSH([C])
+   am_cv_ar_interface=ar
+   AC_COMPILE_IFELSE([AC_LANG_SOURCE([[int some_variable = 0;]])],
+     [am_ar_try='$AR cru libconftest.a conftest.$ac_objext >&AS_MESSAGE_LOG_FD'
+      AC_TRY_EVAL([am_ar_try])
+      if test "$ac_status" -eq 0; then
+        am_cv_ar_interface=ar
+      else
+        am_ar_try='$AR -NOLOGO -OUT:conftest.lib conftest.$ac_objext >&AS_MESSAGE_LOG_FD'
+        AC_TRY_EVAL([am_ar_try])
+        if test "$ac_status" -eq 0; then
+          am_cv_ar_interface=lib
+        else
+          am_cv_ar_interface=unknown
+        fi
+      fi
+      rm -f conftest.lib libconftest.a
+     ])
+   AC_LANG_POP([C])])
+
+case $am_cv_ar_interface in
+ar)
+  ;;
+lib)
+  # Microsoft lib, so override with the ar-lib wrapper script.
+  # FIXME: It is wrong to rewrite AR.
+  # But if we don't then we get into trouble of one sort or another.
+  # A longer-term fix would be to have automake use am__AR in this case,
+  # and then we could set am__AR="$am_aux_dir/ar-lib \$(AR)" or something
+  # similar.
+  AR="$am_aux_dir/ar-lib $AR"
+  ;;
+unknown)
+  m4_default([$1],
+             [AC_MSG_ERROR([could not determine $AR interface])])
+  ;;
+esac
+AC_SUBST([AR])dnl
+])
+
 # AM_AUX_DIR_EXPAND                                         -*- Autoconf -*-
 
-# Copyright (C) 2001-2013 Free Software Foundation, Inc.
+# Copyright (C) 2001-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -318,15 +617,14 @@ _AM_AUTOCONF_VERSION(m4_defn([AC_AUTOCONF_VERSION]))])
 # configured tree to be moved without reconfiguration.
 
 AC_DEFUN([AM_AUX_DIR_EXPAND],
-[dnl Rely on autoconf to set up CDPATH properly.
-AC_PREREQ([2.50])dnl
-# expand $ac_aux_dir to an absolute path
-am_aux_dir=`cd $ac_aux_dir && pwd`
+[AC_REQUIRE([AC_CONFIG_AUX_DIR_DEFAULT])dnl
+# Expand $ac_aux_dir to an absolute path.
+am_aux_dir=`cd "$ac_aux_dir" && pwd`
 ])
 
 # AM_CONDITIONAL                                            -*- Autoconf -*-
 
-# Copyright (C) 1997-2013 Free Software Foundation, Inc.
+# Copyright (C) 1997-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -357,7 +655,7 @@ AC_CONFIG_COMMANDS_PRE(
 Usually this means the macro was only invoked conditionally.]])
 fi])])
 
-# Copyright (C) 1999-2013 Free Software Foundation, Inc.
+# Copyright (C) 1999-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -548,7 +846,7 @@ _AM_SUBST_NOTMAKE([am__nodep])dnl
 
 # Generate code to set up dependency tracking.              -*- Autoconf -*-
 
-# Copyright (C) 1999-2013 Free Software Foundation, Inc.
+# Copyright (C) 1999-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -624,7 +922,7 @@ AC_DEFUN([AM_OUTPUT_DEPENDENCY_COMMANDS],
 
 # Do all the work for Automake.                             -*- Autoconf -*-
 
-# Copyright (C) 1996-2013 Free Software Foundation, Inc.
+# Copyright (C) 1996-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -714,8 +1012,8 @@ AC_REQUIRE([AC_PROG_MKDIR_P])dnl
 # <http://lists.gnu.org/archive/html/automake/2012-07/msg00001.html>
 # <http://lists.gnu.org/archive/html/automake/2012-07/msg00014.html>
 AC_SUBST([mkdir_p], ['$(MKDIR_P)'])
-# We need awk for the "check" target.  The system "awk" is bad on
-# some platforms.
+# We need awk for the "check" target (and possibly the TAP driver).  The
+# system "awk" is bad on some platforms.
 AC_REQUIRE([AC_PROG_AWK])dnl
 AC_REQUIRE([AC_PROG_MAKE_SET])dnl
 AC_REQUIRE([AM_SET_LEADING_DOT])dnl
@@ -788,7 +1086,11 @@ to "yes", and re-run configure.
 END
     AC_MSG_ERROR([Your 'rm' program is bad, sorry.])
   fi
-fi])
+fi
+dnl The trailing newline in this macro's definition is deliberate, for
+dnl backward compatibility and to allow trailing 'dnl'-style comments
+dnl after the AM_INIT_AUTOMAKE invocation. See automake bug#16841.
+])
 
 dnl Hook into '_AC_COMPILER_EXEEXT' early to learn its expansion.  Do not
 dnl add the conditional right here, as _AC_COMPILER_EXEEXT may be further
@@ -817,7 +1119,7 @@ for _am_header in $config_headers :; do
 done
 echo "timestamp for $_am_arg" >`AS_DIRNAME(["$_am_arg"])`/stamp-h[]$_am_stamp_count])
 
-# Copyright (C) 2001-2013 Free Software Foundation, Inc.
+# Copyright (C) 2001-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -828,7 +1130,7 @@ echo "timestamp for $_am_arg" >`AS_DIRNAME(["$_am_arg"])`/stamp-h[]$_am_stamp_co
 # Define $install_sh.
 AC_DEFUN([AM_PROG_INSTALL_SH],
 [AC_REQUIRE([AM_AUX_DIR_EXPAND])dnl
-if test x"${install_sh}" != xset; then
+if test x"${install_sh+set}" != xset; then
   case $am_aux_dir in
   *\ * | *\	*)
     install_sh="\${SHELL} '$am_aux_dir/install-sh'" ;;
@@ -838,7 +1140,7 @@ if test x"${install_sh}" != xset; then
 fi
 AC_SUBST([install_sh])])
 
-# Copyright (C) 2003-2013 Free Software Foundation, Inc.
+# Copyright (C) 2003-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -859,7 +1161,7 @@ AC_SUBST([am__leading_dot])])
 
 # Check to see how 'make' treats includes.	            -*- Autoconf -*-
 
-# Copyright (C) 2001-2013 Free Software Foundation, Inc.
+# Copyright (C) 2001-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -909,7 +1211,7 @@ rm -f confinc confmf
 
 # Fake the existence of programs that GNU maintainers use.  -*- Autoconf -*-
 
-# Copyright (C) 1997-2013 Free Software Foundation, Inc.
+# Copyright (C) 1997-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -948,7 +1250,7 @@ fi
 
 # Helper functions for option handling.                     -*- Autoconf -*-
 
-# Copyright (C) 2001-2013 Free Software Foundation, Inc.
+# Copyright (C) 2001-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -977,7 +1279,7 @@ AC_DEFUN([_AM_SET_OPTIONS],
 AC_DEFUN([_AM_IF_OPTION],
 [m4_ifset(_AM_MANGLE_OPTION([$1]), [$2], [$3])])
 
-# Copyright (C) 1999-2013 Free Software Foundation, Inc.
+# Copyright (C) 1999-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1024,7 +1326,7 @@ AC_LANG_POP([C])])
 # For backward compatibility.
 AC_DEFUN_ONCE([AM_PROG_CC_C_O], [AC_REQUIRE([AC_PROG_CC])])
 
-# Copyright (C) 1999-2013 Free Software Foundation, Inc.
+# Copyright (C) 1999-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1259,7 +1561,7 @@ for i in list(range(0, 4)): minverhex = (minverhex << 8) + minver[[i]]
 sys.exit(sys.hexversion < minverhex)"
   AS_IF([AM_RUN_LOG([$1 -c "$prog"])], [$3], [$4])])
 
-# Copyright (C) 2001-2013 Free Software Foundation, Inc.
+# Copyright (C) 2001-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1278,7 +1580,7 @@ AC_DEFUN([AM_RUN_LOG],
 
 # Check to make sure that the build environment is sane.    -*- Autoconf -*-
 
-# Copyright (C) 1996-2013 Free Software Foundation, Inc.
+# Copyright (C) 1996-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1359,7 +1661,7 @@ AC_CONFIG_COMMANDS_PRE(
 rm -f conftest.file
 ])
 
-# Copyright (C) 2009-2013 Free Software Foundation, Inc.
+# Copyright (C) 2009-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1419,7 +1721,7 @@ AC_SUBST([AM_BACKSLASH])dnl
 _AM_SUBST_NOTMAKE([AM_BACKSLASH])dnl
 ])
 
-# Copyright (C) 2001-2013 Free Software Foundation, Inc.
+# Copyright (C) 2001-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1447,7 +1749,7 @@ fi
 INSTALL_STRIP_PROGRAM="\$(install_sh) -c -s"
 AC_SUBST([INSTALL_STRIP_PROGRAM])])
 
-# Copyright (C) 2006-2013 Free Software Foundation, Inc.
+# Copyright (C) 2006-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1466,7 +1768,7 @@ AC_DEFUN([AM_SUBST_NOTMAKE], [_AM_SUBST_NOTMAKE($@)])
 
 # Check how to create a tarball.                            -*- Autoconf -*-
 
-# Copyright (C) 2004-2013 Free Software Foundation, Inc.
+# Copyright (C) 2004-2014 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -1712,6 +2014,7 @@ m4_include([m4/secure_getenv.m4])
 m4_include([m4/select.m4])
 m4_include([m4/servent.m4])
 m4_include([m4/sha1.m4])
+m4_include([m4/sha256.m4])
 m4_include([m4/sig_atomic_t.m4])
 m4_include([m4/sigaction.m4])
 m4_include([m4/signal_h.m4])

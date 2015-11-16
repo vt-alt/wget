@@ -1,6 +1,6 @@
 /* NTLM code.
-   Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011 Free Software
-   Foundation, Inc.
+   Copyright (C) 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015 Free
+   Software Foundation, Inc.
    Contributed by Daniel Stenberg.
 
 This file is part of GNU Wget.
@@ -523,13 +523,13 @@ ntlm_output (struct ntlmdata *ntlm, const char *user, const char *passwd,
               0x0, 0x0,
 
 #ifdef USE_NTRESPONSES
-                SHORTPAIR (0x18), /* NT-response length, twice */
+              SHORTPAIR (0x18), /* NT-response length, twice */
               SHORTPAIR (0x18),
 #else
-                0x0, 0x0,
+              0x0, 0x0,
               0x0, 0x0,
 #endif
-                SHORTPAIR (ntrespoff),
+              SHORTPAIR (ntrespoff),
               0x0, 0x0,
 
               SHORTPAIR (domlen),

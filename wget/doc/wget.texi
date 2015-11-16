@@ -2,6 +2,7 @@
 
 @c %**start of header
 @setfilename wget.info
+@documentencoding UTF-8
 @include version.texi
 @settitle GNU Wget @value{VERSION} Manual
 @c Disable the monstrous rectangles beside overfull hbox-es.
@@ -31,8 +32,8 @@ data.
 
 @c man begin COPYRIGHT
 Copyright @copyright{} 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003,
-2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Free Software Foundation,
-Inc.
+2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015 Free Software
+Foundation, Inc.
 
 @iftex
 Permission is granted to make and distribute verbatim copies of
@@ -59,11 +60,11 @@ Texts.  A copy of the license is included in the section entitled
 @title GNU Wget @value{VERSION}
 @subtitle The non-interactive download utility
 @subtitle Updated for Wget @value{VERSION}, @value{UPDATED}
-@author by Hrvoje Nik@v{s}i@'{c} and others
+@author by Hrvoje Nikšić and others
 
 @ignore
 @c man begin AUTHOR
-Originally written by Hrvoje Niksic <hniksic@xemacs.org>.
+Originally written by Hrvoje Nikšić <hniksic@xemacs.org>.
 @c man end
 @c man begin SEEALSO
 This is @strong{not} the complete manual for GNU Wget.
@@ -506,6 +507,23 @@ treated as @samp{html} if the Content-Type matches @samp{text/html}.
 Furthermore, the @var{file}'s location will be implicitly used as base
 href if none was specified.
 
+@cindex input-metalink
+@item --input-metalink=@var{file}
+Downloads files covered in local Metalink @var{file}. Metalink version 3
+and 4 are supported.
+
+@cindex metalink-over-http
+@item --metalink-over-http
+Issues HTTP HEAD request instead of GET and extracts Metalink metadata
+from response headers. Then it switches to Metalink download.
+If no valid Metalink metadata is found, it falls back to ordinary HTTP download.
+
+@cindex preferred-location
+@item --preferred-location
+Set preferred location for Metalink resources. This has effect if multiple
+resources with same priority are available.
+
+
 @cindex force html
 @item -F
 @itemx --force-html
@@ -533,6 +551,11 @@ would be resolved to @samp{http://foo/baz/b.html}.
 @cindex specify config 
 @item --config=@var{FILE}
 Specify the location of a startup file you wish to use.
+
+@item --rejected-log=@var{logfile}
+Logs all URL rejections to @var{logfile} as comma separated values.  The values
+include the reason of rejection, the URL and the parent URL it was found in.
+
 @end table
 
 @node Download Options, Directory Options, Logging and Input File Options, Invoking
@@ -585,6 +608,9 @@ content will be placed in @var{file}. This was disabled in version
 1.11, but has been reinstated (with a warning) in 1.11.2, as there are
 some cases where this behavior can actually have some use.
 
+A combination with @samp{-nc} is only accepted if the given output
+file does not exist.
+
 Note that a combination with @samp{-k} is only permitted when
 downloading a single document, as in that case it will just convert
 all relative URIs to external ones; @samp{-k} makes no sense for
@@ -625,6 +651,9 @@ When running Wget with @samp{-N}, with or without @samp{-r} or
 of a file depends on the local and remote timestamp and size of the
 file (@pxref{Time-Stamping}).  @samp{-nc} may not be specified at the
 same time as @samp{-N}.
+
+A combination with @samp{-O}/@samp{--output-document} is only accepted
+if the given output file does not exist.
 
 Note that when @samp{-nc} is specified, files with the suffixes
 @samp{.html} or @samp{.htm} will be loaded from the local disk and
@@ -786,6 +815,10 @@ used alongside the @samp{--logfile} option.
 @item -N
 @itemx --timestamping
 Turn on time-stamping.  @xref{Time-Stamping}, for details.
+
+@item --no-if-modified-since
+Do not send If-Modified-Since header in @samp{-N} mode. Send preliminary HEAD
+request instead. This has only effect in @samp{-N} mode.
 
 @item --no-use-server-timestamps
 Don't set the local file's timestamp by the one on the server.
@@ -1521,6 +1554,11 @@ Please note that wget does not require the content to be of the form
 simply transmit whatever data is provided to it. Most servers however expect
 the POST data to be in the above format when processing HTML Forms.
 
+When sending a POST request using the @samp{--post-file} option, Wget treats
+the file as a binary file and will send every character in the POST request
+without stripping trailing newline or formfeed characters. Any other control
+characters in the text will also be sent as-is in the POST request.
+
 Please be aware that Wget needs to know the size of the POST data in
 advance.  Therefore the argument to @code{--post-file} must be a regular
 file; specifying a FIFO or something like @file{/dev/stdin} won't work.
@@ -1637,8 +1675,9 @@ form-based authentication.
 
 @cindex SSL
 To support encrypted HTTP (HTTPS) downloads, Wget must be compiled
-with an external SSL library, currently OpenSSL.  If Wget is compiled
-without SSL support, none of these options are available.
+with an external SSL library. The current default is GnuTLS.
+In addition, Wget also supports HSTS (HTTP Strict Transport Security).
+If Wget is compiled without SSL support, none of these options are available.
 
 @table @samp
 @cindex SSL protocol, choose
@@ -1768,6 +1807,71 @@ read random data from EGD socket specified using this option.
 If this option is not specified (and the equivalent startup command is
 not used), EGD is never contacted.  EGD is not needed on modern Unix
 systems that support @file{/dev/urandom}.
+
+@cindex HSTS
+@item --no-hsts
+Wget supports HSTS (HTTP Strict Transport Security, RFC 6797) by default.
+Use @samp{--no-hsts} to make Wget act as a non-HSTS-compliant UA. As a
+consequence, Wget would ignore all the @code{Strict-Transport-Security}
+headers, and would not enforce any existing HSTS policy.
+
+@item --hsts-file=@var{file}
+By default, Wget stores its HSTS database in @file{~/.wget-hsts}.
+You can use @samp{--hsts-file} to override this. Wget will use
+the supplied file as the HSTS database. Such file must conform to the
+correct HSTS database format used by Wget. If Wget cannot parse the provided
+file, the behaviour is unspecified.
+
+The Wget's HSTS database is a plain text file. Each line contains an HSTS entry
+(ie. a site that has issued a @code{Strict-Transport-Security} header and that
+therefore has specified a concrete HSTS policy to be applied). Lines starting with
+a dash (@code{#}) are ignored by Wget. Please note that in spite of this convenient
+human-readability hand-hacking the HSTS database is generally not a good idea.
+
+An HSTS entry line consists of several fields separated by one or more whitespace:
+
+@code{<hostname> SP [<port>] SP <include subdomains> SP <created> SP <max-age>}
+
+The @var{hostname} and @var{port} fields indicate the hostname and port to which
+the given HSTS policy applies. The @var{port} field may be zero, and it will, in
+most of the cases. That means that the port number will not be taken into account
+when deciding whether such HSTS policy should be applied on a given request (only
+the hostname will be evaluated). When @var{port} is different to zero, both the
+target hostname and the port will be evaluated and the HSTS policy will only be applied
+if both of them match. This feature has been included for testing/development purposes only.
+The Wget testsuite (in @file{testenv/}) creates HSTS databases with explicit ports
+with the purpose of ensuring Wget's correct behaviour. Applying HSTS policies to ports
+other than the default ones is discouraged by RFC 6797 (see Appendix B "Differences
+between HSTS Policy and Same-Origin Policy"). Thus, this functionality should not be used
+in production environments and @var{port} will typically be zero. The last three fields
+do what they are expected to. The field @var{include_subdomains} can either be @code{1}
+or @code{0} and it signals whether the subdomains of the target domain should be
+part of the given HSTS policy as well. The @var{created} and @var{max-age} fields
+hold the timestamp values of when such entry was created (first seen by Wget) and the
+HSTS-defined value 'max-age', which states how long should that HSTS policy remain active,
+measured in seconds elapsed since the timestamp stored in @var{created}. Once that time
+has passed, that HSTS policy will no longer be valid and will eventually be removed
+from the database.
+
+If you supply your own HSTS database via @samp{--hsts-file}, be aware that Wget
+may modify the provided file if any change occurs between the HSTS policies
+requested by the remote servers and those in the file. When Wget exists,
+it effectively updates the HSTS database by rewriting the database file with the new entries.
+
+If the supplied file does not exist, Wget will create one. This file will contain the new HSTS
+entries. If no HSTS entries were generated (no @code{Strict-Transport-Security} headers
+were sent by any of the servers) then no file will be created, not even an empty one. This
+behaviour applies to the default database file (@file{~/.wget-hsts}) as well: it will not be
+created until some server enforces an HSTS policy.
+
+Care is taken not to override possible changes made by other Wget processes at
+the same time over the HSTS database. Before dumping the updated HSTS entries
+on the file, Wget will re-read it and merge the changes.
+
+Using a custom HSTS database and/or modifying an existing one is discouraged.
+For more information about the potential security threats arised from such practice,
+see section 14 "Security Considerations" of RFC 6797, specially section 14.9
+"Creative Manipulation of HSTS Policy Store".
 @end table
 
 @cindex WARC
@@ -1910,6 +2014,43 @@ this option has no effect.  Symbolic links are always traversed in this
 case.
 @end table
 
+@section FTPS Options
+
+@table @samp
+@item --ftps-implicit
+This option tells Wget to use FTPS implicitly. Implicit FTPS consists of initializing
+SSL/TLS from the very beginning of the control connection. This option does not send
+an @code{AUTH TLS} command: it assumes the server speaks FTPS and directly starts an
+SSL/TLS connection. If the attempt is successful, the session continues just like
+regular FTPS (@code{PBSZ} and @code{PROT} are sent, etc.).
+Implicit FTPS is no longer a requirement for FTPS implementations, and thus
+many servers may not support it. If @samp{--ftps-implicit} is passed and no explicit
+port number specified, the default port for implicit FTPS, 990, will be used, instead
+of the default port for the "normal" (explicit) FTPS which is the same as that of FTP,
+21.
+
+@item --no-ftps-resume-ssl
+Do not resume the SSL/TLS session in the data channel. When starting a data connection,
+Wget tries to resume the SSL/TLS session previously started in the control connection.
+SSL/TLS session resumption avoids performing an entirely new handshake by reusing
+the SSL/TLS parameters of a previous session. Typically, the FTPS servers want it that way,
+so Wget does this by default. Under rare circumstances however, one might want to
+start an entirely new SSL/TLS session in every data connection.
+This is what @samp{--no-ftps-resume-ssl} is for.
+
+@item --ftps-clear-data-connection
+All the data connections will be in plain text. Only the control connection will be
+under SSL/TLS. Wget will send a @code{PROT C} command to achieve this, which must be
+approved by the server.
+
+@item --ftps-fallback-to-ftp
+Fall back to FTP if FTPS is not supported by the target server. For security reasons,
+this option is not asserted by default. The default behaviour is to exit with an error.
+If a server does not successfully reply to the initial @code{AUTH TLS} command, or in the
+case of implicit FTPS, if the initial SSL/TLS connection attempt is rejected, it is
+considered that such server does not support FTPS.
+@end table
+
 @node Recursive Retrieval Options, Recursive Accept/Reject Options, FTP Options, Invoking
 @section Recursive Retrieval Options
 
@@ -1987,6 +2128,23 @@ another directory.
 Note that only at the end of the download can Wget know which links have
 been downloaded.  Because of that, the work done by @samp{-k} will be
 performed at the end of all the downloads.
+
+@item --convert-file-only
+This option converts only the filename part of the URLs, leaving the rest
+of the URLs untouched. This filename part is sometimes referred to as the
+"basename", although we avoid that term here in order not to cause confusion.
+
+It works particularly well in conjunction with @samp{--adjust-extension}, although
+this coupling is not enforced. It proves useful to populate Internet caches
+with files downloaded from different hosts.
+
+Example: if some link points to @file{//foo.com/bar.cgi?xyz} with
+@samp{--adjust-extension} asserted and its local destination is intended to be
+@file{./foo.com/bar.cgi?xyz.css}, then the link would be converted to
+@file{//foo.com/bar.cgi?xyz.css}. Note that only the filename part has been
+modified. The rest of the URL has been left untouched, including the net path
+(@code{//}) which would otherwise be processed by Wget and converted to the
+effective scheme (ie. @code{http://}).
 
 @cindex backing up converted files
 @item -K
@@ -4096,12 +4254,7 @@ me).
 @section Contributors
 @cindex contributors
 
-@iftex
-GNU Wget was written by Hrvoje Nik@v{s}i@'{c} @email{hniksic@@xemacs.org},
-@end iftex
-@ifnottex
-GNU Wget was written by Hrvoje Niksic @email{hniksic@@xemacs.org}.
-@end ifnottex
+GNU Wget was written by Hrvoje Nikšić @email{hniksic@@xemacs.org},
 
 However, the development of Wget could never have gone as far as it has, were
 it not for the help of many people, either with bug reports, feature proposals,
@@ -4141,14 +4294,8 @@ portability fixes.
 Gordon Matzigkeit---@file{.netrc} support.
 
 @item
-@iftex
-Zlatko @v{C}alu@v{s}i@'{c}, Tomislav Vujec and Dra@v{z}en
-Ka@v{c}ar---feature suggestions and ``philosophical'' discussions.
-@end iftex
-@ifnottex
-Zlatko Calusic, Tomislav Vujec and Drazen Kacar---feature suggestions
-and ``philosophical'' discussions.
-@end ifnottex
+Zlatko Čalušić, Tomislav Vujec and Dražen
+Kačar---feature suggestions and ``philosophical'' discussions.
 
 @item
 Darko Budor---initial port to Windows.
@@ -4158,21 +4305,11 @@ Antonio Rosella---help and suggestions, plus the initial Italian
 translation.
 
 @item
-@iftex
-Tomislav Petrovi@'{c}, Mario Miko@v{c}evi@'{c}---many bug reports and
+Tomislav Petrović, Mario Mikočević---many bug reports and
 suggestions.
-@end iftex
-@ifnottex
-Tomislav Petrovic, Mario Mikocevic---many bug reports and suggestions.
-@end ifnottex
 
 @item
-@iftex
-Fran@,{c}ois Pinard---many thorough bug reports and discussions.
-@end iftex
-@ifnottex
-Francois Pinard---many thorough bug reports and discussions.
-@end ifnottex
+François Pinard---many thorough bug reports and discussions.
 
 @item
 Karl Eichwalder---lots of help with internationalization, Makefile
@@ -4235,12 +4372,7 @@ Wanderlei Cavassin,
 Gilles Cedoc,
 Tim Charron,
 Noel Cragg,
-@iftex
-Kristijan @v{C}onka@v{s},
-@end iftex
-@ifnottex
-Kristijan Conkas,
-@end ifnottex
+Kristijan Čonkaš,
 John Daily,
 Andreas Damm,
 Ahmon Dancy,
@@ -4250,27 +4382,12 @@ Alexander Dergachev,
 Andrew Deryabin,
 Ulrich Drepper,
 Marc Duponcheel,
-@iftex
-Damir D@v{z}eko,
-@end iftex
-@ifnottex
-Damir Dzeko,
-@end ifnottex
+Damir Džeko,
 Alan Eldridge,
 Hans-Andreas Engel,
-@iftex
-Aleksandar Erkalovi@'{c},
-@end iftex
-@ifnottex
-Aleksandar Erkalovic,
-@end ifnottex
+Aleksandar Erkalović,
 Andy Eskilsson,
-@iftex
-Jo@~{a}o Ferreira,
-@end iftex
-@ifnottex
-Joao Ferreira,
-@end ifnottex
+João Ferreira,
 Christian Fraenkel,
 David Fritz,
 Mike Frysinger,
@@ -4295,25 +4412,10 @@ Richard Huveneers,
 Jonas Jensen,
 Larry Jones,
 Simon Josefsson,
-@iftex
-Mario Juri@'{c},
-@end iftex
-@ifnottex
-Mario Juric,
-@end ifnottex
-@iftex
-Hack Kampbj@o rn,
-@end iftex
-@ifnottex
-Hack Kampbjorn,
-@end ifnottex
+Mario Jurić,
+Hack Kampbjørn,
 Const Kaplinsky,
-@iftex
-Goran Kezunovi@'{c},
-@end iftex
-@ifnottex
-Goran Kezunovic,
-@end ifnottex
+Goran Kezunović,
 Igor Khristophorov,
 Robert Kleine,
 KOJIMA Haime,
@@ -4322,31 +4424,14 @@ Alexander Kourakos,
 Martin Kraemer,
 Sami Krank,
 Jay Krell,
-@tex
-$\Sigma\acute{\iota}\mu o\varsigma\;
-\Xi\varepsilon\nu\iota\tau\acute{\epsilon}\lambda\lambda\eta\varsigma$
-(Simos KSenitellis),
-@end tex
-@ifnottex
-Simos KSenitellis,
-@end ifnottex
+Σίμος Ξενιτέλλης (Simos KSenitellis),
 Christian Lackas,
 Hrvoje Lacko,
 Daniel S.@: Lewart,
-@iftex
-Nicol@'{a}s Lichtmeier,
-@end iftex
-@ifnottex
-Nicolas Lichtmeier,
-@end ifnottex
+Nicolás Lichtmeier,
 Dave Love,
 Alexander V.@: Lukyanov,
-@iftex
-Thomas Lu@ss{}nig,
-@end iftex
-@ifnottex
-Thomas Lussnig,
-@end ifnottex
+Thomas Lußnig,
 Andre Majorel,
 Aurelien Marchand,
 Matthew J.@: Mellon,
@@ -4367,31 +4452,15 @@ Leonid Petrov,
 Simone Piunno,
 Andrew Pollock,
 Steve Pothier,
-@iftex
-Jan P@v{r}ikryl,
-@end iftex
-@ifnottex
-Jan Prikryl,
-@end ifnottex
+Jan Přikryl,
 Marin Purgar,
-@iftex
-Csaba R@'{a}duly,
-@end iftex
-@ifnottex
-Csaba Raduly,
-@end ifnottex
+Csaba Ráduly,
 Keith Refson,
 Bill Richardson,
 Tyler Riddle,
 Tobias Ringstrom,
 Jochen Roderburg,
-@c Texinfo doesn't grok @'{@i}, so we have to use TeX itself.
-@tex
-Juan Jos\'{e} Rodr\'{\i}guez,
-@end tex
-@ifnottex
-Juan Jose Rodriguez,
-@end ifnottex
+Juan José Rodríguez,
 Maciej W.@: Rozycki,
 Edward J.@: Sabol,
 Heinz Salzmann,
@@ -4418,12 +4487,7 @@ Dave Turner,
 Gisle Vanem,
 Rabin Vincent,
 Russell Vincent,
-@iftex
-@v{Z}eljko Vrba,
-@end iftex
-@ifnottex
-Zeljko Vrba,
-@end ifnottex
+Željko Vrba,
 Charles G Waldman,
 Douglas E.@: Wegscheid,
 Ralf Wildenhues,
@@ -4432,12 +4496,7 @@ Benjamin Wolsey,
 Saint Xavier,
 YAMAZAKI Makoto,
 Jasmin Zainul,
-@iftex
-Bojan @v{Z}drnja,
-@end iftex
-@ifnottex
-Bojan Zdrnja,
-@end ifnottex
+Bojan Ždrnja,
 Kristijan Zimmer,
 Xin Zou.
 

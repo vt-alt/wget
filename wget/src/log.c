@@ -1,6 +1,6 @@
 /* Messages logging.
    Copyright (C) 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006,
-   2007, 2008, 2009, 2010, 2011 Free Software Foundation, Inc.
+   2007, 2008, 2009, 2010, 2011, 2015 Free Software Foundation, Inc.
 
 This file is part of GNU Wget.
 
@@ -598,11 +598,18 @@ log_init (const char *file, bool appendp)
 {
   if (file)
     {
-      logfp = fopen (file, appendp ? "a" : "w");
-      if (!logfp)
+      if (HYPHENP (file))
         {
-          fprintf (stderr, "%s: %s: %s\n", exec_name, file, strerror (errno));
-          exit (WGET_EXIT_GENERIC_ERROR);
+          logfp = stdout;
+        }
+      else
+        {
+          logfp = fopen (file, appendp ? "a" : "w");
+          if (!logfp)
+            {
+              fprintf (stderr, "%s: %s: %s\n", exec_name, file, strerror (errno));
+              exit (WGET_EXIT_GENERIC_ERROR);
+            }
         }
     }
   else

@@ -1,7 +1,7 @@
 /* Reading/parsing the initialization file.
    Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
-   2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014 Free Software Foundation,
-   Inc.
+   2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015 Free
+   Software Foundation, Inc.
 
 This file is part of GNU Wget.
 
@@ -159,6 +159,7 @@ static const struct {
   { "contentdisposition", &opt.content_disposition, cmd_boolean },
   { "contentonerror",   &opt.content_on_error,  cmd_boolean },
   { "continue",         &opt.always_rest,       cmd_boolean },
+  { "convertfileonly",  &opt.convert_file_only, cmd_boolean },
   { "convertlinks",     &opt.convert_links,     cmd_boolean },
   { "cookies",          &opt.cookies,           cmd_boolean },
 #ifdef HAVE_SSL
@@ -188,12 +189,22 @@ static const struct {
   { "ftppasswd",        &opt.ftp_passwd,        cmd_string }, /* deprecated */
   { "ftppassword",      &opt.ftp_passwd,        cmd_string },
   { "ftpproxy",         &opt.ftp_proxy,         cmd_string },
+#ifdef HAVE_SSL
+  { "ftpscleardataconnection", &opt.ftps_clear_data_connection, cmd_boolean },
+  { "ftpsfallbacktoftp", &opt.ftps_fallback_to_ftp, cmd_boolean },
+  { "ftpsimplicit",     &opt.ftps_implicit,     cmd_boolean },
+  { "ftpsresumessl",    &opt.ftps_resume_ssl,   cmd_boolean },
+#endif
 #ifdef __VMS
   { "ftpstmlf",         &opt.ftp_stmlf,         cmd_boolean },
 #endif /* def __VMS */
   { "ftpuser",          &opt.ftp_user,          cmd_string },
   { "glob",             &opt.ftp_glob,          cmd_boolean },
   { "header",           NULL,                   cmd_spec_header },
+#ifdef HAVE_HSTS
+  { "hsts",             &opt.hsts,              cmd_boolean },
+  { "hsts-file",        &opt.hsts_file,         cmd_file },
+#endif
   { "htmlextension",    &opt.adjust_extension,  cmd_boolean }, /* deprecated */
   { "htmlify",          NULL,                   cmd_spec_htmlify },
   { "httpkeepalive",    &opt.http_keep_alive,   cmd_boolean },
@@ -205,6 +216,7 @@ static const struct {
 #endif
   { "httpsproxy",       &opt.https_proxy,       cmd_string },
   { "httpuser",         &opt.http_user,         cmd_string },
+  { "if-modified-since", &opt.if_modified_since, cmd_boolean },
   { "ignorecase",       &opt.ignore_case,       cmd_boolean },
   { "ignorelength",     &opt.ignore_length,     cmd_boolean },
   { "ignoretags",       &opt.ignore_tags,       cmd_vector },
@@ -214,6 +226,9 @@ static const struct {
   { "inet6only",        &opt.ipv6_only,         cmd_boolean },
 #endif
   { "input",            &opt.input_filename,    cmd_file },
+#ifdef HAVE_METALINK
+  { "input-metalink",   &opt.input_metalink,    cmd_file },
+#endif
   { "iri",              &opt.enable_iri,        cmd_boolean },
   { "keepsessioncookies", &opt.keep_session_cookies, cmd_boolean },
   { "limitrate",        &opt.limit_rate,        cmd_bytes },
@@ -222,6 +237,9 @@ static const struct {
   { "logfile",          &opt.lfilename,         cmd_file },
   { "login",            &opt.ftp_user,          cmd_string },/* deprecated*/
   { "maxredirect",      &opt.max_redirect,      cmd_number },
+#ifdef HAVE_METALINK
+  { "metalink-over-http", &opt.metalink_over_http, cmd_boolean },
+#endif
   { "method",           &opt.method,            cmd_string_uppercase },
   { "mirror",           NULL,                   cmd_spec_mirror },
   { "netrc",            &opt.netrc,             cmd_boolean },
@@ -238,6 +256,9 @@ static const struct {
   { "postdata",         &opt.post_data,         cmd_string },
   { "postfile",         &opt.post_file_name,    cmd_file },
   { "preferfamily",     NULL,                   cmd_spec_prefer_family },
+#ifdef HAVE_METALINK
+  { "preferred-location", &opt.preferred_location, cmd_string },
+#endif
   { "preservepermissions", &opt.preserve_perm,  cmd_boolean },
 #ifdef HAVE_SSL
   { "privatekey",       &opt.private_key,       cmd_file },
@@ -260,6 +281,7 @@ static const struct {
   { "referer",          &opt.referer,           cmd_string },
   { "regextype",        &opt.regex_type,        cmd_spec_regex_type },
   { "reject",           &opt.rejects,           cmd_vector },
+  { "rejectedlog",      &opt.rejected_log,      cmd_file },
   { "rejectregex",      &opt.rejectregex_s,     cmd_string },
   { "relativeonly",     &opt.relative_only,     cmd_boolean },
   { "remoteencoding",   &opt.encoding_remote,   cmd_string },
@@ -356,11 +378,13 @@ defaults (void)
   opt.htmlify = true;
   opt.http_keep_alive = true;
   opt.use_proxy = true;
+  opt.convert_file_only = false;
   tmp = getenv ("no_proxy");
   if (tmp)
     opt.no_proxy = sepstring (tmp);
   opt.prefer_family = prefer_none;
   opt.allow_cache = true;
+  opt.if_modified_since = true;
 
   opt.read_timeout = 900;
   opt.use_robots = true;
@@ -392,11 +416,17 @@ defaults (void)
 
 #ifdef HAVE_SSL
   opt.check_cert = true;
+  opt.ftps_resume_ssl = true;
+  opt.ftps_fallback_to_ftp = false;
+  opt.ftps_implicit = false;
+  opt.ftps_clear_data_connection = false;
 #endif
 
   /* The default for file name restriction defaults to the OS type. */
 #if defined(WINDOWS) || defined(MSDOS) || defined(__CYGWIN__)
   opt.restrict_files_os = restrict_windows;
+#elif defined(__VMS)
+  opt.restrict_files_os = restrict_vms;
 #else
   opt.restrict_files_os = restrict_unix;
 #endif
@@ -437,6 +467,11 @@ defaults (void)
   opt.start_pos = -1;
   opt.show_progress = -1;
   opt.noscroll = false;
+
+#ifdef HAVE_HSTS
+  /* HSTS is enabled by default */
+  opt.hsts = true;
+#endif
 }
 
 /* Return the user's home directory (strdup-ed), or NULL if none is
@@ -562,9 +597,7 @@ wgetrc_file_name (void)
      SYSTEM_WGETRC should not be defined under WINDOWS.  */
   if (!file)
     {
-      char *home = home_dir ();
-      xfree (file);
-      home = ws_mypath ();
+      char *home = ws_mypath ();
       if (home)
         {
           file = aprintf ("%s/wget.ini", home);
@@ -1481,6 +1514,8 @@ cmd_spec_restrict_file_names (const char *com, const char *val, void *place_igno
 
       if (VAL_IS ("unix"))
         restrict_os = restrict_unix;
+      else if (VAL_IS ("vms"))
+        restrict_os = restrict_vms;
       else if (VAL_IS ("windows"))
         restrict_os = restrict_windows;
       else if (VAL_IS ("lowercase"))
@@ -1495,7 +1530,7 @@ cmd_spec_restrict_file_names (const char *com, const char *val, void *place_igno
         {
           fprintf (stderr, _("\
 %s: %s: Invalid restriction %s,\n\
-    use [unix|windows],[lowercase|uppercase],[nocontrol],[ascii].\n"),
+    use [unix|vms|windows],[lowercase|uppercase],[nocontrol],[ascii].\n"),
                    exec_name, com, quote (val));
           return false;
         }
@@ -1789,6 +1824,10 @@ cleanup (void)
   xfree (opt.lfilename);
   xfree (opt.dir_prefix);
   xfree (opt.input_filename);
+#ifdef HAVE_METALINK
+  xfree (opt.input_metalink);
+  xfree (opt.preferred_location);
+#endif
   xfree (opt.output_document);
   free_vec (opt.accepts);
   free_vec (opt.rejects);
@@ -1830,6 +1869,7 @@ cleanup (void)
   xfree (opt.post_data);
   xfree (opt.body_data);
   xfree (opt.body_file);
+  xfree (opt.rejected_log);
 
 #endif /* DEBUG_MALLOC */
 }

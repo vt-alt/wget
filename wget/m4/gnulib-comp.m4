@@ -37,7 +37,11 @@ AC_DEFUN([gl_EARLY],
   m4_pattern_allow([^gl_ES$])dnl a valid locale name
   m4_pattern_allow([^gl_LIBOBJS$])dnl a variable
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
+
+  # Pre-early section.
+  AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
   AC_REQUIRE([gl_PROG_AR_RANLIB])
+
   AC_REQUIRE([AM_PROG_CC_C_O])
   # Code from module absolute-header:
   # Code from module accept:
@@ -60,6 +64,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module connect:
   # Code from module crypto/md5:
   # Code from module crypto/sha1:
+  # Code from module crypto/sha256:
   # Code from module dirname:
   # Code from module dirname-lgpl:
   # Code from module dosname:
@@ -70,7 +75,6 @@ AC_DEFUN([gl_EARLY],
   # Code from module error:
   # Code from module exitfail:
   # Code from module extensions:
-  AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
   # Code from module extern-inline:
   # Code from module fatal-signal:
   # Code from module fcntl:
@@ -308,6 +312,7 @@ AC_DEFUN([gl_INIT],
   gl_SYS_SOCKET_MODULE_INDICATOR([connect])
   gl_MD5
   gl_SHA1
+  gl_SHA256
   gl_DIRNAME
   gl_MODULE_INDICATOR([dirname])
   gl_DIRNAME_LGPL
@@ -890,7 +895,7 @@ AC_DEFUN([gl_INIT],
   gl_UNISTD_SAFER
   gl_LIBUNISTRING_LIBHEADER([0.9.4], [unitypes.h])
   gl_LIBUNISTRING_LIBHEADER([0.9.4], [uniwidth.h])
-  gl_LIBUNISTRING_MODULE([0.9.5], [uniwidth/width])
+  gl_LIBUNISTRING_MODULE([0.9.6], [uniwidth/width])
   gl_FUNC_GLIBC_UNLOCKED_IO
   gl_UTIMENS
   gl_FUNC_VASNPRINTF
@@ -1235,6 +1240,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/setsockopt.c
   lib/sha1.c
   lib/sha1.h
+  lib/sha256.c
+  lib/sha256.h
   lib/sig-handler.c
   lib/sig-handler.h
   lib/sigaction.c
@@ -1469,6 +1476,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/select.m4
   m4/servent.m4
   m4/sha1.m4
+  m4/sha256.m4
   m4/sig_atomic_t.m4
   m4/sigaction.m4
   m4/signal_h.m4

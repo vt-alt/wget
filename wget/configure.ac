@@ -71,10 +71,13 @@ AC_ARG_WITH([ssl],
   [AS_HELP_STRING([--with-ssl={gnutls,openssl}], [specify SSL backend. GNU TLS is the default.])])
 
 
-dnl Zlib: Configure use iof zlib for compression
+dnl Zlib: Configure use of zlib for compression
 AC_ARG_WITH([zlib],
   [AS_HELP_STRING([--without-zlib], [disable zlib.])])
 
+dnl Metalink: Configure use of the Metalink library
+AC_ARG_WITH([metalink],
+  [AS_HELP_STRING([--with-metalink], [enable support for metalinks.])])
 
 dnl
 dnl Process features
@@ -475,6 +478,34 @@ else
   fi
 fi
 
+dnl
+dnl Check for libmetalink
+dnl
+AS_IF([test x"$with_metalink" != xno], [
+  PKG_CHECK_MODULES([METALINK], libmetalink, [
+      LIBS="$METALINK_LIBS $LIBS"
+      CFLAGS="$METALINK_CFLAGS $CFLAGS"
+      AC_DEFINE([HAVE_METALINK], [1], [Define if using metalink.])
+      with_metalink=yes
+    ], [
+      with_metalink=no
+    ])
+
+  have_gpg=no
+  AS_IF([test x"$with_metalink" = xyes], [
+    dnl
+    dnl Check for GPGME
+    dnl
+    m4_ifdef([AM_PATH_GPGME], [
+      AM_PATH_GPGME([], [
+        LIBS="$GPGME_LIBS $LIBS"
+        CFLAGS="$GPGME_CFLAGS $CFLAGS"
+        AC_DEFINE([HAVE_GPGME], [1], [Define if GPGME is available.])
+        have_gpg=yes
+      ])
+    ])
+  ])
+])
 
 dnl **********************************************************************
 dnl Checks for IPv6
@@ -714,7 +745,8 @@ AS_IF([test "X$enable_pcre" != "Xno"],[
 
 dnl Needed by src/Makefile.am
 AM_CONDITIONAL([IRI_IS_ENABLED], [test "X$iri" != "Xno"])
-
+AM_CONDITIONAL([WITH_SSL], [test "X$with_ssl" != "Xno"])
+AM_CONDITIONAL([METALINK_IS_ENABLED], [test "X$with_metalink" != "Xno"])
 
 dnl
 dnl Create output
@@ -743,4 +775,6 @@ AC_MSG_NOTICE([Summary of build options:
   Debugging:         $ENABLE_DEBUG
   Assertions:        $ENABLE_ASSERTION
   Valgrind:          $VALGRIND_INFO
+  Metalink:          $with_metalink
+  GPGME:             $have_gpg
 ])

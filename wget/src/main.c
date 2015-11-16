@@ -1,5 +1,7 @@
 /* Command line parsing.
-   Copyright (C) 1996-2014 Free Software Foundation, Inc.
+   Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
+   2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Free
+   Software Foundation, Inc.
 
 This file is part of GNU Wget.
 
@@ -52,6 +54,7 @@ as that of the covered work.  */
 #include "convert.h"
 #include "spider.h"
 #include "http.h"               /* for save_cookies */
+#include "hsts.h"               /* for initializing hsts_store to NULL */
 #include "ptimer.h"
 #include "warc.h"
 #include "version.h"
@@ -60,6 +63,11 @@ as that of the covered work.  */
 #include <getopt.h>
 #include <getpass.h>
 #include <quote.h>
+
+#ifdef HAVE_METALINK
+# include <metalink/metalink_parser.h>
+# include "metalink.h"
+#endif
 
 #ifdef WINDOWS
 # include <io.h>
@@ -134,6 +142,72 @@ i18n_initialize (void)
 #endif /* ENABLE_NLS */
 }
 
+#ifdef HAVE_HSTS
+/* make the HSTS store global */
+hsts_store_t hsts_store;
+
+static char*
+get_hsts_database (void)
+{
+  char *home;
+
+  if (opt.hsts_file)
+    return xstrdup (opt.hsts_file);
+
+  home = home_dir ();
+  if (home)
+    {
+      char *dir = aprintf ("%s/.wget-hsts", home);
+      xfree(home);
+      return dir;
+    }
+
+  return NULL;
+}
+
+static void
+load_hsts (void)
+{
+  if (!hsts_store)
+    {
+      char *filename = get_hsts_database ();
+
+      if (filename)
+        {
+          DEBUGP (("Reading HSTS entries from %s\n", filename));
+
+          hsts_store = hsts_store_open (filename);
+
+          if (!hsts_store)
+            logprintf (LOG_NOTQUIET, "ERROR: could not open HSTS store at '%s'. "
+                       "HSTS will be disabled.\n",
+                       filename);
+        }
+      else
+        logprintf (LOG_NOTQUIET, "ERROR: could not open HSTS store. HSTS will be disabled.\n");
+
+      xfree (filename);
+    }
+}
+
+static void
+save_hsts (void)
+{
+  if (hsts_store)
+    {
+      char *filename = get_hsts_database ();
+
+      if (filename)
+        DEBUGP (("Saving HSTS entries to %s\n", filename));
+
+      hsts_store_save (hsts_store, filename);
+      hsts_store_close (hsts_store);
+
+      xfree (filename);
+    }
+}
+#endif
+
 /* Definition of command-line options. */
 
 static void _Noreturn print_help (void);
@@ -190,6 +264,7 @@ static struct cmdline_option option_data[] =
     { "config", 0, OPT_VALUE, "chooseconfig", -1 },
     { "connect-timeout", 0, OPT_VALUE, "connecttimeout", -1 },
     { "continue", 'c', OPT_BOOLEAN, "continue", -1 },
+    { "convert-file-only", 0, OPT_BOOLEAN, "convertfileonly", -1 },
     { "convert-links", 'k', OPT_BOOLEAN, "convertlinks", -1 },
     { "content-disposition", 0, OPT_BOOLEAN, "contentdisposition", -1 },
     { "content-on-error", 0, OPT_BOOLEAN, "contentonerror", -1 },
@@ -219,10 +294,20 @@ static struct cmdline_option option_data[] =
     { "ftp-stmlf", 0, OPT_BOOLEAN, "ftpstmlf", -1 },
 #endif /* def __VMS */
     { "ftp-user", 0, OPT_VALUE, "ftpuser", -1 },
+#ifdef HAVE_SSL
+    { "ftps-clear-data-connection", 0, OPT_BOOLEAN, "ftpscleardataconnection", -1 },
+    { "ftps-fallback-to-ftp", 0, OPT_BOOLEAN, "ftpsfallbacktoftp", -1 },
+    { "ftps-implicit", 0, OPT_BOOLEAN, "ftpsimplicit", -1 },
+    { "ftps-resume-ssl", 0, OPT_BOOLEAN, "ftpsresumessl", -1 },
+#endif
     { "glob", 0, OPT_BOOLEAN, "glob", -1 },
     { "header", 0, OPT_VALUE, "header", -1 },
     { "help", 'h', OPT_FUNCALL, (void *)print_help, no_argument },
     { "host-directories", 0, OPT_BOOLEAN, "addhostdir", -1 },
+#ifdef HAVE_HSTS
+    { "hsts", 0, OPT_BOOLEAN, "hsts", -1},
+    { "hsts-file", 0, OPT_VALUE, "hsts-file", -1 },
+#endif
     { "html-extension", 'E', OPT_BOOLEAN, "adjustextension", -1 }, /* deprecated */
     { "htmlify", 0, OPT_BOOLEAN, "htmlify", -1 },
     { "http-keep-alive", 0, OPT_BOOLEAN, "httpkeepalive", -1 },
@@ -239,13 +324,20 @@ static struct cmdline_option option_data[] =
     { "inet6-only", '6', OPT_BOOLEAN, "inet6only", -1 },
 #endif
     { "input-file", 'i', OPT_VALUE, "input", -1 },
+#ifdef HAVE_METALINK
+    { "input-metalink", 0, OPT_VALUE, "input-metalink", -1 },
+#endif
     { "iri", 0, OPT_BOOLEAN, "iri", -1 },
     { "keep-session-cookies", 0, OPT_BOOLEAN, "keepsessioncookies", -1 },
     { "level", 'l', OPT_VALUE, "reclevel", -1 },
     { "limit-rate", 0, OPT_VALUE, "limitrate", -1 },
     { "load-cookies", 0, OPT_VALUE, "loadcookies", -1 },
     { "local-encoding", 0, OPT_VALUE, "localencoding", -1 },
+    { "rejected-log", 0, OPT_VALUE, "rejectedlog", -1 },
     { "max-redirect", 0, OPT_VALUE, "maxredirect", -1 },
+#ifdef HAVE_METALINK
+    { "metalink-over-http", 0, OPT_BOOLEAN, "metalink-over-http", -1 },
+#endif
     { "method", 0, OPT_VALUE, "method", -1 },
     { "mirror", 'm', OPT_BOOLEAN, "mirror", -1 },
     { "no", 'n', OPT__NO, NULL, required_argument },
@@ -261,6 +353,9 @@ static struct cmdline_option option_data[] =
     { "post-data", 0, OPT_VALUE, "postdata", -1 },
     { "post-file", 0, OPT_VALUE, "postfile", -1 },
     { "prefer-family", 0, OPT_VALUE, "preferfamily", -1 },
+#ifdef HAVE_METALINK
+    { "preferred-location", 0, OPT_VALUE, "preferred-location", -1 },
+#endif
     { "preserve-permissions", 0, OPT_BOOLEAN, "preservepermissions", -1 },
     { IF_SSL ("private-key"), 0, OPT_VALUE, "privatekey", -1 },
     { IF_SSL ("private-key-type"), 0, OPT_VALUE, "privatekeytype", -1 },
@@ -299,6 +394,7 @@ static struct cmdline_option option_data[] =
     { "strict-comments", 0, OPT_BOOLEAN, "strictcomments", -1 },
     { "timeout", 'T', OPT_VALUE, "timeout", -1 },
     { "timestamping", 'N', OPT_BOOLEAN, "timestamping", -1 },
+    { "if-modified-since", 0, OPT_BOOLEAN, "if-modified-since", -1 },
     { "tries", 't', OPT_VALUE, "tries", -1 },
     { "unlink", 0, OPT_BOOLEAN, "unlink", -1 },
     { "trust-server-names", 0, OPT_BOOLEAN, "trustservernames", -1 },
@@ -480,6 +576,10 @@ Logging and input file:\n"),
        --report-speed=TYPE         output bandwidth as TYPE.  TYPE can be bits\n"),
     N_("\
   -i,  --input-file=FILE           download URLs found in local or external FILE\n"),
+#ifdef HAVE_METALINK
+    N_("\
+       --input-metalink=FILE       download files covered in local Metalink FILE\n"),
+#endif
     N_("\
   -F,  --force-html                treat input file as HTML\n"),
     N_("\
@@ -489,6 +589,8 @@ Logging and input file:\n"),
        --config=FILE               specify config file to use\n"),
     N_("\
        --no-config                 do not read any config file\n"),
+    N_("\
+       --rejected-log=FILE         log reasons for URL rejection to FILE\n"),
     "\n",
 
     N_("\
@@ -514,7 +616,10 @@ Download:\n"),
   -N,  --timestamping              don't re-retrieve files unless newer than\n\
                                      local\n"),
     N_("\
-  --no-use-server-timestamps       don't set the local file's timestamp by\n\
+       --no-if-modified-since      don't use conditional if-modified-since get\n\
+                                     requests in timestamping mode\n"),
+    N_("\
+       --no-use-server-timestamps  don't set the local file's timestamp by\n\
                                      the one on the server\n"),
     N_("\
   -S,  --server-response           print server response\n"),
@@ -571,6 +676,12 @@ Download:\n"),
        --remote-encoding=ENC       use ENC as the default remote encoding\n"),
     N_("\
        --unlink                    remove file before clobber\n"),
+#ifdef HAVE_METALINK
+    N_("\
+       --metalink-over-http        use Metalink metadata from HTTP response headers\n"),
+    N_("\
+       --preferred-location        preferred location for Metalink resources\n"),
+#endif
     "\n",
 
     N_("\
@@ -684,6 +795,16 @@ HTTPS (SSL/TLS) options:\n"),
     "\n",
 #endif /* HAVE_SSL */
 
+#ifdef HAVE_HSTS
+    N_("\
+HSTS options:\n"),
+    N_("\
+       --no-hsts                   disable HSTS\n"),
+    N_("\
+       --hsts-file                 path of HSTS database (will override default)\n"),
+    "\n",
+#endif
+
     N_("\
 FTP options:\n"),
 #ifdef __VMS
@@ -705,6 +826,20 @@ FTP options:\n"),
     N_("\
        --retr-symlinks             when recursing, get linked-to files (not dir)\n"),
     "\n",
+
+#ifdef HAVE_SSL
+    N_("\
+FTPS options:\n"),
+    N_("\
+       --ftps-implicit                 use implicit FTPS (default port is 990)\n"),
+    N_("\
+       --ftps-resume-ssl               resume the SSL/TLS session started in the control connection when\n"
+        "                                         opening a data connection\n"),
+    N_("\
+       --ftps-clear-data-connection    cipher the control channel only; all the data will be in plaintext\n"),
+    N_("\
+       --ftps-fallback-to-ftp          fall back to FTP if FTPS is not supported in the target server\n"),
+#endif
 
     N_("\
 WARC options:\n"),
@@ -742,6 +877,8 @@ Recursive download:\n"),
     N_("\
   -k,  --convert-links             make links in downloaded HTML or CSS point to\n\
                                      local files\n"),
+    N_("\
+       --convert-file-only         convert the file part of the URLs only (usually known as the basename)\n"),
     N_("\
        --backups=N                 before writing file X, rotate up to N backup files\n"),
 
@@ -873,7 +1010,10 @@ format_and_print_line (const char *prefix, const char *line,
   line_dup = xstrdup (line);
 
   if (printf ("%s", prefix) < 0)
-    return -1;
+    {
+      xfree (line_dup);
+      return -1;
+    }
 
   /* Wrap to new line after prefix. */
   remaining_chars = 0;
@@ -888,7 +1028,10 @@ format_and_print_line (const char *prefix, const char *line,
       if (remaining_chars <= (int) strlen (token))
         {
           if (printf ("\n%*c", TABULATION, ' ') < 0)
-            return -1;
+            {
+              xfree (line_dup);
+              return -1;
+            }
           remaining_chars = line_length - TABULATION;
         }
       if (printf ("%s ", token) < 0)
@@ -901,7 +1044,10 @@ format_and_print_line (const char *prefix, const char *line,
     }
 
   if (printf ("\n") < 0)
-    return -1;
+    {
+      xfree (line_dup);
+      return -1;
+    }
 
   xfree (line_dup);
   return 0;
@@ -985,7 +1131,7 @@ print_version (void)
   /* TRANSLATORS: When available, an actual copyright character
      (circle-c) should be used in preference to "(C)". */
   if (printf (_("\
-Copyright (C) %s Free Software Foundation, Inc.\n"), "2014") < 0)
+Copyright (C) %s Free Software Foundation, Inc.\n"), "2015") < 0)
     exit (WGET_EXIT_IO_FAIL);
   if (fputs (_("\
 License GPLv3+: GNU GPL version 3 or later\n\
@@ -1244,11 +1390,14 @@ main (int argc, char **argv)
   /* All user options have now been processed, so it's now safe to do
      interoption dependency checks. */
 
-  if (opt.noclobber && opt.convert_links)
+  if (opt.noclobber && (opt.convert_links || opt.convert_file_only))
     {
       fprintf (stderr,
-               _("Both --no-clobber and --convert-links were specified,"
-                 " only --convert-links will be used.\n"));
+               opt.convert_links ?
+                   _("Both --no-clobber and --convert-links were specified,"
+                     " only --convert-links will be used.\n") :
+                    _("Both --no-clobber and --convert-file-only were specified,"
+                      " only --convert-file-only will be used.\n"));
       opt.noclobber = false;
     }
 
@@ -1302,11 +1451,11 @@ Can't timestamp and not clobber old files at the same time.\n"));
 #endif
   if (opt.output_document)
     {
-      if (opt.convert_links
+      if ((opt.convert_links || opt.convert_file_only)
           && (nurl > 1 || opt.page_requisites || opt.recursive))
         {
           fputs (_("\
-Cannot specify both -k and -O if multiple URLs are given, or in combination\n\
+Cannot specify both -k or --convert-file-only and -O if multiple URLs are given, or in combination\n\
 with -p or -r. See the manual for details.\n\n"), stderr);
           print_usage (1);
           exit (WGET_EXIT_GENERIC_ERROR);
@@ -1393,7 +1542,11 @@ for details.\n\n"));
       opt.always_rest = false;
     }
 
-  if (!nurl && !opt.input_filename)
+  if (!nurl && !opt.input_filename
+#ifdef HAVE_METALINK
+      && !opt.input_metalink
+#endif
+      )
     {
       /* No URL specified.  */
       fprintf (stderr, _("%s: missing URL\n"), exec_name);
@@ -1607,11 +1760,16 @@ for details.\n\n"));
           if (fstat (fileno (output_stream), &st) == 0 && S_ISREG (st.st_mode))
             output_stream_regular = true;
         }
-      if (!output_stream_regular && opt.convert_links)
+      if (!output_stream_regular && (opt.convert_links || opt.recursive))
         {
-          fprintf (stderr, _("-k can be used together with -O only if \
+          fprintf (stderr, _("-k or -r can be used together with -O only if \
 outputting to a regular file.\n"));
-          print_usage (1);
+          exit (WGET_EXIT_GENERIC_ERROR);
+        }
+      if (!output_stream_regular && (opt.convert_links || opt.convert_file_only))
+        {
+          fprintf (stderr, _("--convert-links or --convert-file-only can be used together \
+only if outputting to a regular file.\n"));
           exit (WGET_EXIT_GENERIC_ERROR);
         }
     }
@@ -1650,6 +1808,16 @@ outputting to a regular file.\n"));
   signal (SIGWINCH, progress_handle_sigwinch);
 #endif
 
+#ifdef HAVE_HSTS
+  /* Load the HSTS database.
+     Maybe all the URLs are FTP(S), in which case HSTS would not be needed,
+     but this is the best place to do it, and it shouldn't be a critical
+     performance hit.
+   */
+  if (opt.hsts)
+    load_hsts ();
+#endif
+
   /* Retrieve the URLs from argument list.  */
   for (t = url; *t; t++)
     {
@@ -1674,12 +1842,13 @@ outputting to a regular file.\n"));
       else
         {
           if ((opt.recursive || opt.page_requisites)
-              && (url_scheme (*t) != SCHEME_FTP || url_uses_proxy (url_parsed)))
+              && ((url_scheme (*t) != SCHEME_FTP && url_scheme (*t) != SCHEME_FTPS)
+                  || url_uses_proxy (url_parsed)))
             {
               int old_follow_ftp = opt.follow_ftp;
 
               /* Turn opt.follow_ftp on in case of recursive FTP retrieval */
-              if (url_scheme (*t) == SCHEME_FTP)
+              if (url_scheme (*t) == SCHEME_FTP || url_scheme (*t) == SCHEME_FTPS)
                 opt.follow_ftp = 1;
 
               retrieve_tree (url_parsed, NULL);
@@ -1687,10 +1856,10 @@ outputting to a regular file.\n"));
               opt.follow_ftp = old_follow_ftp;
             }
           else
-          {
-            retrieve_url (url_parsed, *t, &filename, &redirected_URL, NULL,
-                          &dt, opt.recursive, iri, true);
-          }
+            {
+              retrieve_url (url_parsed, *t, &filename, &redirected_URL, NULL,
+                            &dt, opt.recursive, iri, true);
+            }
 
           if (opt.delete_after && filename != NULL && file_exists_p (filename))
             {
@@ -1717,6 +1886,57 @@ outputting to a regular file.\n"));
         logprintf (LOG_NOTQUIET, _("No URLs found in %s.\n"),
                    opt.input_filename);
     }
+
+#ifdef HAVE_METALINK
+  /* Finally, from metlink file, if any.  */
+  if (opt.input_metalink)
+    {
+      metalink_error_t meta_err;
+      uerr_t retr_err;
+      metalink_t *metalink;
+
+      meta_err = metalink_parse_file (opt.input_metalink, &metalink);
+
+      if (meta_err)
+        {
+          logprintf (LOG_NOTQUIET, _("Unable to parse metalink file %s.\n"),
+                     opt.input_metalink);
+          retr_err = METALINK_PARSE_ERROR;
+        }
+      else
+        {
+          /* We need to sort the resources if preferred location
+             was specified by the user.  */
+          if (opt.preferred_location && opt.preferred_location[0])
+            {
+              metalink_file_t **mfile_ptr;
+              for (mfile_ptr = metalink->files; *mfile_ptr; mfile_ptr++)
+                {
+                  metalink_resource_t **mres_ptr;
+                  metalink_file_t *mfile = *mfile_ptr;
+                  size_t mres_count = 0;
+
+                  for (mres_ptr = mfile->resources; *mres_ptr; mres_ptr++)
+                    mres_count++;
+
+                  stable_sort (mfile->resources,
+                               mres_count,
+                               sizeof (metalink_resource_t *),
+                               metalink_res_cmp);
+                }
+            }
+          retr_err = retrieve_from_metalink (metalink);
+          if (retr_err != RETROK)
+            {
+              logprintf (LOG_NOTQUIET,
+                         _("Could not download all resources from %s.\n"),
+                         quote (opt.input_metalink));
+            }
+          metalink_delete (metalink);
+        }
+      inform_exit_status (retr_err);
+    }
+#endif /* HAVE_METALINK */
 
   /* Print broken links. */
   if (opt.recursive && opt.spider)
@@ -1757,7 +1977,12 @@ outputting to a regular file.\n"));
   if (opt.cookies_output)
     save_cookies ();
 
-  if (opt.convert_links && !opt.delete_after)
+#ifdef HAVE_HSTS
+  if (opt.hsts && hsts_store)
+    save_hsts ();
+#endif
+
+  if ((opt.convert_links || opt.convert_file_only) && !opt.delete_after)
     convert_all_links ();
 
   cleanup ();

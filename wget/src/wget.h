@@ -1,7 +1,7 @@
 /* Miscellaneous declarations.
    Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
-   2005, 2006, 2007, 2008, 2009, 2010, 2011 Free Software Foundation,
-   Inc.
+   2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015 Free Software
+   Foundation, Inc.
 
 This file is part of GNU Wget.
 
@@ -54,6 +54,7 @@ as that of the covered work.  */
 /* Is OpenSSL or GNUTLS available? */
 #if defined HAVE_LIBSSL || defined HAVE_LIBSSL32 || defined HAVE_LIBGNUTLS
 # define HAVE_SSL
+# define HAVE_HSTS /* There's no sense in enabling HSTS without SSL */
 #endif
 
 /* `gettext (FOO)' is long to write, so we use `_(FOO)'.  If NLS is
@@ -331,7 +332,9 @@ enum
   SEND_NOCACHE         = 0x0008,        /* send Pragma: no-cache directive */
   ACCEPTRANGES         = 0x0010,        /* Accept-ranges header was found */
   ADDED_HTML_EXTENSION = 0x0020,        /* added ".html" extension due to -E */
-  TEXTCSS              = 0x0040         /* document is of type text/css */
+  TEXTCSS              = 0x0040,        /* document is of type text/css */
+  IF_MODIFIED_SINCE    = 0x0080,        /* use if-modified-since header */
+  METALINK_METADATA    = 0x0100         /* use HTTP response for Metalink metadata */
 };
 
 /* Universal error type -- used almost everywhere.  Error reporting of
@@ -346,12 +349,17 @@ typedef enum
   FTPSRVERR, FTPRETRINT, FTPRESTFAIL, URLERROR, FOPENERR,
   FOPEN_EXCL_ERR, FWRITEERR, HEOF, GATEWAYTIMEOUT,
   HERR, RETROK, RECLEVELEXC, WRONGCODE,
-  FTPINVPASV, FTPNOPASV, CONTNOTSUPPORTED, RETRUNNEEDED, RETRFINISHED,
+  FTPINVPASV, FTPNOPASV, FTPNOPBSZ, FTPNOPROT, FTPNOAUTH,
+  CONTNOTSUPPORTED, RETRUNNEEDED, RETRFINISHED,
   READERR, TRYLIMEXC, FILEBADFILE, RANGEERR,
   RETRBADPATTERN, PROXERR,
   AUTHFAILED, QUOTEXC, WRITEFAILED, SSLINITFAILED, VERIFCERTERR,
   UNLINKERR, NEWLOCATION_KEEP_POST, CLOSEFAILED, ATTRMISSING, UNKNOWNATTR,
-  WARC_ERR, WARC_TMP_FOPENERR, WARC_TMP_FWRITEERR
+  WARC_ERR, WARC_TMP_FOPENERR, WARC_TMP_FWRITEERR,
+  TIMECONV_ERR,
+  METALINK_PARSE_ERROR, METALINK_RETR_ERROR,
+  METALINK_CHKSUM_ERROR, METALINK_SIG_ERROR, METALINK_MISSING_RESOURCE,
+  RETR_WITH_METALINK
 } uerr_t;
 
 /* 2005-02-19 SMS.

@@ -680,6 +680,9 @@
 /* Define to 1 if you have the `gnutls_priority_set_direct' function. */
 #undef HAVE_GNUTLS_PRIORITY_SET_DIRECT
 
+/* Define if GPGME is available. */
+#undef HAVE_GPGME
+
 /* Define if you have the iconv() function and it works. */
 #undef HAVE_ICONV
 
@@ -826,6 +829,9 @@
 /* Define to 1 if you have the `memrchr' function. */
 #undef HAVE_MEMRCHR
 
+/* Define if using metalink. */
+#undef HAVE_METALINK
+
 /* Define to 1 if you have the `mkostemp' function. */
 #undef HAVE_MKOSTEMP
 
@@ -865,6 +871,9 @@
 
 /* Define to 1 if libcrypto is used for SHA1. */
 #undef HAVE_OPENSSL_SHA1
+
+/* Define to 1 if libcrypto is used for SHA256. */
+#undef HAVE_OPENSSL_SHA256
 
 /* Define to 1 if you have the `pathconf' function. */
 #undef HAVE_PATHCONF
@@ -2354,12 +2363,13 @@
 # define _GL_EXTERN_INLINE static _GL_UNUSED
 #endif
 
-/* In GCC, suppress bogus "no previous prototype for 'FOO'"
+/* In GCC 4.6 (inclusive) to 5.1 (exclusive),
+   suppress bogus "no previous prototype for 'FOO'"
    and "no previous declaration for 'FOO'" diagnostics,
    when FOO is an inline function in the header; see
    <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=54113> and
    <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=63877>.  */
-#if 4 < __GNUC__ + (6 <= __GNUC_MINOR__)
+#if __GNUC__ == 4 && 6 <= __GNUC_MINOR__
 # if defined __GNUC_STDC_INLINE__ && __GNUC_STDC_INLINE__
 #  define _GL_INLINE_HEADER_CONST_PRAGMA
 # else

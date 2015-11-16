@@ -1,7 +1,7 @@
 /* File retrieval.
    Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004,
-   2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014 Free Software Foundation,
-   Inc.
+   2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015 Free Software
+   Foundation, Inc.
 
 This file is part of GNU Wget.
 
@@ -56,6 +56,7 @@ as that of the covered work.  */
 #include "ptimer.h"
 #include "html-url.h"
 #include "iri.h"
+#include "hsts.h"
 
 /* Total size of downloaded files.  Used to enforce quota.  */
 SUM_SIZE_INT total_downloaded_bytes;
@@ -725,7 +726,7 @@ retrieve_url (struct url * orig_parsed, const char *origurl, char **file,
   char *mynewloc, *proxy;
   struct url *u = orig_parsed, *proxy_url;
   int up_error_code;            /* url parse error code */
-  char *local_file;
+  char *local_file = NULL;
   int redirection_count = 0;
 
   bool method_suspended = false;
@@ -753,7 +754,7 @@ retrieve_url (struct url * orig_parsed, const char *origurl, char **file,
 
   result = NOCONERROR;
   mynewloc = NULL;
-  local_file = NULL;
+  xfree(local_file);
   proxy_url = NULL;
 
   proxy = getproxy (u);
@@ -772,6 +773,8 @@ retrieve_url (struct url * orig_parsed, const char *origurl, char **file,
                      proxy, error);
           xfree (url);
           xfree (error);
+          xfree (proxy);
+          iri_free (pi);
           RESTORE_METHOD;
           result = PROXERR;
           goto bail;
@@ -781,6 +784,8 @@ retrieve_url (struct url * orig_parsed, const char *origurl, char **file,
           logprintf (LOG_NOTQUIET, _("Error in proxy URL %s: Must be HTTP.\n"), proxy);
           url_free (proxy_url);
           xfree (url);
+          xfree (proxy);
+          iri_free (pi);
           RESTORE_METHOD;
           result = PROXERR;
           goto bail;
@@ -795,10 +800,28 @@ retrieve_url (struct url * orig_parsed, const char *origurl, char **file,
 #endif
       || (proxy_url && proxy_url->scheme == SCHEME_HTTP))
     {
+#ifdef HAVE_HSTS
+#ifdef TESTING
+      /* we don't link against main.o when we're testing */
+      hsts_store_t hsts_store = NULL;
+#else
+      extern hsts_store_t hsts_store;
+#endif
+
+      if (opt.hsts && hsts_store)
+	{
+	  if (hsts_match (hsts_store, u))
+	    logprintf (LOG_VERBOSE, "URL transformed to HTTPS due to an HSTS policy\n");
+	}
+#endif
       result = http_loop (u, orig_parsed, &mynewloc, &local_file, refurl, dt,
                           proxy_url, iri);
     }
-  else if (u->scheme == SCHEME_FTP)
+  else if (u->scheme == SCHEME_FTP
+#ifdef HAVE_SSL
+      || u->scheme == SCHEME_FTPS
+#endif
+      )
     {
       /* If this is a redirection, temporarily turn off opt.ftp_glob
          and opt.recursive, both being undesirable when following
@@ -814,7 +837,7 @@ retrieve_url (struct url * orig_parsed, const char *origurl, char **file,
          FTP.  In these cases we must decide whether the text is HTML
          according to the suffix.  The HTML suffixes are `.html',
          `.htm' and a few others, case-insensitive.  */
-      if (redirection_count && local_file && u->scheme == SCHEME_FTP)
+      if (redirection_count && local_file && (u->scheme == SCHEME_FTP || u->scheme == SCHEME_FTPS))
         {
           if (has_html_suffix_p (local_file))
             *dt |= TEXTHTML;
@@ -941,7 +964,7 @@ retrieve_url (struct url * orig_parsed, const char *origurl, char **file,
           DEBUGP (("[Couldn't fallback to non-utf8 for %s\n", quote (url)));
     }
 
-  if (local_file && u && *dt & RETROKF)
+  if (local_file && u && (*dt & RETROKF || opt.content_on_error))
     {
       register_download (u->url, local_file);
 
@@ -984,6 +1007,7 @@ retrieve_url (struct url * orig_parsed, const char *origurl, char **file,
 bail:
   if (register_status)
     inform_exit_status (result);
+
   return result;
 }
 
@@ -1019,6 +1043,7 @@ retrieve_from_file (const char *file, bool html, int *count)
           char *error = url_error (url, url_err);
           logprintf (LOG_NOTQUIET, "%s: %s.\n", url, error);
           xfree (error);
+          iri_free (iri);
           return URLERROR;
         }
 
@@ -1074,12 +1099,12 @@ retrieve_from_file (const char *file, bool html, int *count)
 
       proxy = getproxy (cur_url->url);
       if ((opt.recursive || opt.page_requisites)
-          && (cur_url->url->scheme != SCHEME_FTP || proxy))
+          && ((cur_url->url->scheme != SCHEME_FTP && cur_url->url->scheme != SCHEME_FTPS) || proxy))
         {
           int old_follow_ftp = opt.follow_ftp;
 
           /* Turn opt.follow_ftp on in case of recursive FTP retrieval */
-          if (cur_url->url->scheme == SCHEME_FTP)
+          if (cur_url->url->scheme == SCHEME_FTP || cur_url->url->scheme == SCHEME_FTPS)
             opt.follow_ftp = 1;
 
           status = retrieve_tree (parsed_url ? parsed_url : cur_url->url,
@@ -1259,6 +1284,9 @@ getproxy (struct url *u)
 #ifdef HAVE_SSL
     case SCHEME_HTTPS:
       proxy = opt.https_proxy ? opt.https_proxy : getenv ("https_proxy");
+      break;
+    case SCHEME_FTPS:
+      proxy = opt.ftp_proxy ? opt.ftp_proxy : getenv ("ftps_proxy");
       break;
 #endif
     case SCHEME_FTP:
