@@ -49,6 +49,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module alloca-opt:
   # Code from module announce-gen:
   # Code from module arpa_inet:
+  # Code from module array-mergesort:
   # Code from module base32:
   # Code from module binary-io:
   # Code from module bind:
@@ -116,6 +117,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module gitlog-to-changelog:
   # Code from module gnumakefile:
   # Code from module gnupload:
+  # Code from module gperf:
   # Code from module hard-locale:
   # Code from module havelib:
   # Code from module hostent:
@@ -258,11 +260,27 @@ AC_DEFUN([gl_EARLY],
   # Code from module tmpdir:
   # Code from module u64:
   # Code from module unicase/base:
+  # Code from module unicase/cased:
+  # Code from module unicase/empty-prefix-context:
+  # Code from module unicase/empty-suffix-context:
+  # Code from module unicase/ignorable:
+  # Code from module unicase/special-casing:
   # Code from module unicase/tolower:
+  # Code from module unicase/u8-casemap:
+  # Code from module unicase/u8-tolower:
+  # Code from module unictype/base:
+  # Code from module unictype/combining-class:
+  # Code from module unictype/property-soft-dotted:
   # Code from module uninorm/base:
+  # Code from module uninorm/decompose-internal:
+  # Code from module uninorm/u8-normalize:
   # Code from module unistd:
   # Code from module unistd-safer:
   # Code from module unistr/base:
+  # Code from module unistr/u8-cpy:
+  # Code from module unistr/u8-mbtouc-unsafe:
+  # Code from module unistr/u8-strlen:
+  # Code from module unistr/u8-uctomb:
   # Code from module unitypes:
   # Code from module uniwidth/base:
   # Code from module uniwidth/width:
@@ -982,11 +1000,28 @@ AC_DEFUN([gl_INIT],
   gl_TIMESPEC
   gt_TMPDIR
   gl_LIBUNISTRING_LIBHEADER([0.9.4], [unicase.h])
+  AC_REQUIRE([AC_C_INLINE])
+  gl_LIBUNISTRING_MODULE([0.9.1], [unicase/empty-prefix-context])
+  gl_LIBUNISTRING_MODULE([0.9.1], [unicase/empty-suffix-context])
+  AC_REQUIRE([AC_C_INLINE])
   gl_LIBUNISTRING_MODULE([0.9.6], [unicase/tolower])
+  gl_LIBUNISTRING_MODULE([0.9.6], [unicase/u8-tolower])
+  gl_LIBUNISTRING_LIBHEADER([0.9.4], [unictype.h])
+  gl_LIBUNISTRING_MODULE([0.9.6], [unictype/combining-class])
+  AC_REQUIRE([AC_C_INLINE])
+  gl_LIBUNISTRING_MODULE([0.9.6], [unictype/property-soft-dotted])
   gl_LIBUNISTRING_LIBHEADER([0.9.4], [uninorm.h])
+  gl_MODULE_INDICATOR_FOR_TESTS([uninorm/u8-normalize])
+  gl_LIBUNISTRING_MODULE([0.9.6], [uninorm/u8-normalize])
   gl_UNISTD_H
   gl_UNISTD_SAFER
   gl_LIBUNISTRING_LIBHEADER([0.9.4], [unistr.h])
+  gl_LIBUNISTRING_MODULE([0.9], [unistr/u8-cpy])
+  gl_MODULE_INDICATOR([unistr/u8-mbtouc-unsafe])
+  gl_LIBUNISTRING_MODULE([0.9.4], [unistr/u8-mbtouc-unsafe])
+  gl_LIBUNISTRING_MODULE([0.9], [unistr/u8-strlen])
+  gl_MODULE_INDICATOR([unistr/u8-uctomb])
+  gl_LIBUNISTRING_MODULE([0.9], [unistr/u8-uctomb])
   gl_LIBUNISTRING_LIBHEADER([0.9.4], [unitypes.h])
   gl_LIBUNISTRING_LIBHEADER([0.9.4], [uniwidth.h])
   gl_LIBUNISTRING_MODULE([0.9.6], [uniwidth/width])
@@ -1191,6 +1226,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/alloca.c
   lib/alloca.in.h
   lib/arpa_inet.in.h
+  lib/array-mergesort.h
   lib/asnprintf.c
   lib/asprintf.c
   lib/base32.c
@@ -1445,15 +1481,48 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/u64.c
   lib/u64.h
   lib/unicase.in.h
+  lib/unicase/cased.c
+  lib/unicase/cased.h
+  lib/unicase/caseprop.h
+  lib/unicase/context.h
+  lib/unicase/empty-prefix-context.c
+  lib/unicase/empty-suffix-context.c
+  lib/unicase/ignorable.c
+  lib/unicase/ignorable.h
   lib/unicase/simple-mapping.h
+  lib/unicase/special-casing-table.gperf
+  lib/unicase/special-casing.c
+  lib/unicase/special-casing.h
   lib/unicase/tolower.c
   lib/unicase/tolower.h
+  lib/unicase/u-casemap.h
+  lib/unicase/u8-casemap.c
+  lib/unicase/u8-tolower.c
+  lib/unicase/unicasemap.h
+  lib/unictype.in.h
+  lib/unictype/bitmap.h
+  lib/unictype/combiningclass.c
+  lib/unictype/combiningclass.h
+  lib/unictype/pr_soft_dotted.c
+  lib/unictype/pr_soft_dotted.h
   lib/uninorm.in.h
+  lib/uninorm/decompose-internal.c
+  lib/uninorm/decompose-internal.h
+  lib/uninorm/normalize-internal.h
+  lib/uninorm/u-normalize-internal.h
+  lib/uninorm/u8-normalize.c
   lib/unistd--.h
   lib/unistd-safer.h
   lib/unistd.c
   lib/unistd.in.h
   lib/unistr.in.h
+  lib/unistr/u-cpy.h
+  lib/unistr/u8-cpy.c
+  lib/unistr/u8-mbtouc-unsafe-aux.c
+  lib/unistr/u8-mbtouc-unsafe.c
+  lib/unistr/u8-strlen.c
+  lib/unistr/u8-uctomb-aux.c
+  lib/unistr/u8-uctomb.c
   lib/unitypes.in.h
   lib/uniwidth.in.h
   lib/uniwidth/cjk.h

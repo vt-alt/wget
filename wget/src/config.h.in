@@ -396,6 +396,10 @@
 /* Define to 1 when the gnulib module time_r should be tested. */
 #undef GNULIB_TEST_TIME_R
 
+/* Define to 1 when the gnulib module uninorm/u8-normalize should be tested.
+   */
+#undef GNULIB_TEST_UNINORM_U8_NORMALIZE
+
 /* Define to 1 when the gnulib module unlink should be tested. */
 #undef GNULIB_TEST_UNLINK
 
@@ -416,6 +420,15 @@
 
 /* Define to 1 when the gnulib module write should be tested. */
 #undef GNULIB_TEST_WRITE
+
+/* Define to a C preprocessor expression that evaluates to 1 or 0, depending
+   whether the gnulib module unistr/u8-mbtouc-unsafe shall be considered
+   present. */
+#undef GNULIB_UNISTR_U8_MBTOUC_UNSAFE
+
+/* Define to a C preprocessor expression that evaluates to 1 or 0, depending
+   whether the gnulib module unistr/u8-uctomb shall be considered present. */
+#undef GNULIB_UNISTR_U8_UCTOMB
 
 /* Define to 1 if you have 'alloca' after including <alloca.h>, a header that
    may be supplied by this distribution. */
@@ -762,9 +775,6 @@
 
 /* Define to 1 if you have the `gnutls_priority_set_direct' function. */
 #undef HAVE_GNUTLS_PRIORITY_SET_DIRECT
-
-/* Define if GPGME is available. */
-#undef HAVE_GPGME
 
 /* Define if you have the iconv() function and it works. */
 #undef HAVE_ICONV

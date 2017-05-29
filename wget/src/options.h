@@ -43,6 +43,7 @@ struct options
   bool quiet;                   /* Are we quiet? */
   int ntry;                     /* Number of tries per URL */
   bool retry_connrefused;       /* Treat CONNREFUSED as non-fatal. */
+  char *retry_on_http_error;    /* Treat given HTTP errors as non-fatal. */
   bool background;              /* Whether we should work in background. */
   bool ignore_length;           /* Do we heed content-length at all?  */
   bool recursive;               /* Are we recursive? */
@@ -61,7 +62,7 @@ struct options
   bool add_hostdir;             /* Do we add hostname directory? */
   bool protocol_directories;    /* Whether to prepend "http"/"ftp" to dirs. */
   bool noclobber;               /* Disables clobbering of existing data. */
-  bool unlink;                  /* remove file before clobbering */
+  bool unlink_requested;        /* remove file before clobbering */
   char *dir_prefix;             /* The top of directory tree */
   char *lfilename;              /* Log filename */
   char *input_filename;         /* Input filename */
