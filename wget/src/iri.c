@@ -39,8 +39,10 @@ as that of the covered work.  */
 # include <iconv.h>
 #endif
 #include <idn2.h>
-#include <unicase.h>
-#include <unistr.h>
+#if IDN2_VERSION_NUMBER < 0x00140000
+# include <unicase.h>
+# include <unistr.h>
+#endif
 
 #include "utils.h"
 #include "url.h"
@@ -119,6 +121,7 @@ check_encoding_name (const char *encoding)
   return true;
 }
 
+#ifdef HAVE_ICONV
 /* Do the conversion according to the passed conversion descriptor cd. *out
    will contain the transcoded string on success. *out content is
    unspecified otherwise. */
@@ -210,6 +213,15 @@ do_conversion (const char *tocode, const char *fromcode, char const *in_org, siz
     }
     return false;
 }
+#else
+static bool
+do_conversion (const char *tocode _GL_UNUSED, const char *fromcode _GL_UNUSED,
+               char const *in_org _GL_UNUSED, size_t inlen _GL_UNUSED, char **out)
+{
+  *out = NULL;
+  return false;
+}
+#endif
 
 /* Try converting string str from locale to UTF-8. Return a new string
    on success, or str on error or if conversion isn't needed. */
@@ -253,7 +265,7 @@ idn_encode (const struct iri *i, const char *host)
   if (!i->utf8_encode)
     {
       if (!remote_to_utf8 (i, host, &utf8_encoded))
-          return NULL;  /* Nothing to encode or an error occured */
+          return NULL;  /* Nothing to encode or an error occurred */
       src = utf8_encoded;
     }
   else
@@ -261,11 +273,14 @@ idn_encode (const struct iri *i, const char *host)
 
 #if IDN2_VERSION_NUMBER >= 0x00140000
   /* IDN2_TRANSITIONAL implies input NFC encoding */
-  if ((ret = idn2_lookup_u8 ((uint8_t *) src, (uint8_t **) &ascii_encoded, IDN2_NONTRANSITIONAL)) != IDN2_OK)
-    {
-      logprintf (LOG_VERBOSE, _("idn_encode failed (%d): %s\n"), ret,
-                 quote (idn2_strerror (ret)));
-    }
+  ret = idn2_lookup_u8 ((uint8_t *) src, (uint8_t **) &ascii_encoded, IDN2_NONTRANSITIONAL);
+  if (ret != IDN2_OK)
+    /* fall back to TR46 Transitional mode, max IDNA2003 compatibility */
+    ret = idn2_lookup_u8 ((uint8_t *) src, (uint8_t **) &ascii_encoded, IDN2_TRANSITIONAL);
+
+  if (ret != IDN2_OK)
+    logprintf (LOG_VERBOSE, _("idn_encode failed (%d): %s\n"), ret,
+               quote (idn2_strerror (ret)));
 #else
   /* we need a conversion to lowercase */
   lower = u8_tolower ((uint8_t *) src, u8_strlen ((uint8_t *) src) + 1, 0, UNINORM_NFKC, NULL, &len);
@@ -287,6 +302,13 @@ idn_encode (const struct iri *i, const char *host)
 #endif
 
   xfree (utf8_encoded);
+
+  if (ret == IDN2_OK && ascii_encoded)
+    {
+      char *tmp = xstrdup (ascii_encoded);
+      idn2_free (ascii_encoded);
+      ascii_encoded = tmp;
+    }
 
   return ret == IDN2_OK ? ascii_encoded : NULL;
 }
