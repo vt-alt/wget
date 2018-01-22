@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget 1.18.109\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2018-01-19 19:53+0100\n"
+"POT-Creation-Date: 2018-01-21 11:01+0100\n"
 "PO-Revision-Date: 2017-01-19 17:45+0100\n"
 "Last-Translator: Jakub Bogusz <qboosh@pld-linux.org>\n"
 "Language-Team: Polish <translation-team-pl@lists.sourceforge.net>\n"
@@ -436,12 +436,12 @@ msgstr " (%s bajtów)"
 msgid "Length: %s"
 msgstr "Długość: %s"
 
-#: src/ftp.c:231 src/http.c:4028
+#: src/ftp.c:231 src/http.c:4029
 #, c-format
 msgid ", %s (%s) remaining"
 msgstr ", %s (%s) pozostało"
 
-#: src/ftp.c:235 src/http.c:4032
+#: src/ftp.c:235 src/http.c:4033
 #, c-format
 msgid ", %s remaining"
 msgstr ", %s pozostało"
@@ -638,12 +638,12 @@ msgstr "Przerwano przesyłanie danych.\n"
 msgid "File %s already there; not retrieving.\n"
 msgstr "Plik %s już istnieje, bez pobierania.\n"
 
-#: src/ftp.c:1948 src/http.c:4298
+#: src/ftp.c:1948 src/http.c:4299
 #, c-format
 msgid "(try:%2d)"
 msgstr "(próba:%2d)"
 
-#: src/ftp.c:2036 src/http.c:4714
+#: src/ftp.c:2036 src/http.c:4715
 #, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s]\n"
@@ -652,7 +652,7 @@ msgstr ""
 "%s (%s) - zapisano na standardowe wyjście %s[%s]\n"
 "\n"
 
-#: src/ftp.c:2037 src/http.c:4715
+#: src/ftp.c:2037 src/http.c:4716
 #, c-format
 msgid ""
 "%s (%s) - %s saved [%s]\n"
@@ -993,7 +993,7 @@ msgstr "Ponowne użycie połączenia do %s:%d.\n"
 msgid "Failed reading proxy response: %s\n"
 msgstr "Nie powiodło się odczytanie odpowiedzi proxy: %s.\n"
 
-#: src/http.c:2169 src/http.c:3408 src/http.c:4508
+#: src/http.c:2169 src/http.c:3408 src/http.c:4509
 #, c-format
 msgid "%s ERROR %d: %s.\n"
 msgstr "%s BŁĄD %d: %s.\n"
@@ -1075,20 +1075,20 @@ msgstr "Błąd odczytu (%s) w nagłówkach.\n"
 msgid "(no description)"
 msgstr "(brak opisu)"
 
-#: src/http.c:3787
+#: src/http.c:3788
 #, c-format
 msgid "Location: %s%s\n"
 msgstr "Lokalizacja: %s%s\n"
 
-#: src/http.c:3788 src/http.c:4038
+#: src/http.c:3789 src/http.c:4039
 msgid "unspecified"
 msgstr "nieznana"
 
-#: src/http.c:3789
+#: src/http.c:3790
 msgid " [following]"
 msgstr " [podążanie]"
 
-#: src/http.c:3871
+#: src/http.c:3872
 #, c-format
 msgid ""
 "File %s not modified on server. Omitting download.\n"
@@ -1097,7 +1097,7 @@ msgstr ""
 "Plik %s nie został zmodyfikowany na serwerze. Pominięto pobranie.\n"
 "\n"
 
-#: src/http.c:3944
+#: src/http.c:3945
 #, c-format
 msgid ""
 "Server ignored If-Modified-Since header for file %s.\n"
@@ -1108,7 +1108,7 @@ msgstr ""
 "Może warto dodać opcję --no-if-modified-since.\n"
 "\n"
 
-#: src/http.c:3974
+#: src/http.c:3975
 msgid ""
 "\n"
 "    The file is already fully retrieved; nothing to do.\n"
@@ -1118,58 +1118,58 @@ msgstr ""
 "    Plik już został w pełni pobrany; nic do roboty.\n"
 "\n"
 
-#: src/http.c:4018
+#: src/http.c:4019
 msgid "Length: "
 msgstr "Długość: "
 
-#: src/http.c:4038
+#: src/http.c:4039
 msgid "ignored"
 msgstr "zignorowano"
 
-#: src/http.c:4206
+#: src/http.c:4207
 msgid "Warning: wildcards not supported in HTTP.\n"
 msgstr "Ostrzeżenie: znaki globalne nie są obsługiwane w HTTP.\n"
 
-#: src/http.c:4288
+#: src/http.c:4289
 msgid "Spider mode enabled. Check if remote file exists.\n"
 msgstr "Tryb spider włączony. Sprawdź czy zdalny plik istnieje.\n"
 
-#: src/http.c:4378
+#: src/http.c:4379
 #, c-format
 msgid "Cannot write to %s (%s).\n"
 msgstr "Nie można zapisać do %s (%s).\n"
 
-#: src/http.c:4389
+#: src/http.c:4390
 msgid "Required attribute missing from Header received.\n"
 msgstr "W odebranym nagłówku brak wymaganego atrybutu.\n"
 
-#: src/http.c:4394
+#: src/http.c:4395
 msgid "Username/Password Authentication Failed.\n"
 msgstr "Uwierzytelnienie użytkownik/hasło nie powiodło się.\n"
 
-#: src/http.c:4400
+#: src/http.c:4401
 msgid "Cannot write to WARC file.\n"
 msgstr "Nie można zapisać do pliku WARC.\n"
 
-#: src/http.c:4406
+#: src/http.c:4407
 msgid "Cannot write to temporary WARC file.\n"
 msgstr "Nie można zapisać do tymczasowego pliku WARC.\n"
 
-#: src/http.c:4411
+#: src/http.c:4412
 msgid "Unable to establish SSL connection.\n"
 msgstr "Niemożliwe utworzenie połączenia SSL.\n"
 
-#: src/http.c:4417
+#: src/http.c:4418
 #, c-format
 msgid "Cannot unlink %s (%s).\n"
 msgstr "Nie można usunąć %s (%s).\n"
 
-#: src/http.c:4427
+#: src/http.c:4428
 #, c-format
 msgid "ERROR: Redirection (%d) without location.\n"
 msgstr "BŁĄD: Przekierowanie (%d) bez lokalizacji.\n"
 
-#: src/http.c:4449
+#: src/http.c:4450
 msgid ""
 "Could not find Metalink data in HTTP response. Downloading file using HTTP "
 "GET.\n"
@@ -1177,23 +1177,23 @@ msgstr ""
 "Nie udało się odnaleźć danych Metalink w odpowiedzi HTTP. Pobieranie pliku "
 "przy użyciu HTTP GET.\n"
 
-#: src/http.c:4458
+#: src/http.c:4459
 msgid "Metalink headers found. Switching to Metalink mode.\n"
 msgstr "Napotkano nagłówek Metalink. Przełączanie w tryb Metalink.\n"
 
-#: src/http.c:4498
+#: src/http.c:4499
 msgid "Remote file does not exist -- broken link!!!\n"
 msgstr "Zdalny plik nie istnieje -- zepsuty odnośnik!!!\n"
 
-#: src/http.c:4525
+#: src/http.c:4526
 msgid "Last-modified header missing -- time-stamps turned off.\n"
 msgstr "Brak nagłówka Last-modified -- znaczniki czasu wyłączone.\n"
 
-#: src/http.c:4533
+#: src/http.c:4534
 msgid "Last-modified header invalid -- time-stamp ignored.\n"
 msgstr "Błędny nagłówek Last-modified -- znacznik czasu zignorowany.\n"
 
-#: src/http.c:4563
+#: src/http.c:4564
 #, c-format
 msgid ""
 "Server file no newer than local file %s -- not retrieving.\n"
@@ -1202,16 +1202,16 @@ msgstr ""
 "Plik po stronie serwera nie nowszy niż plik lokalny %s -- bez pobierania.\n"
 "\n"
 
-#: src/http.c:4571
+#: src/http.c:4572
 #, c-format
 msgid "The sizes do not match (local %s) -- retrieving.\n"
 msgstr "Rozmiary się różnią (lokalny %s) -- pobieranie.\n"
 
-#: src/http.c:4580
+#: src/http.c:4581
 msgid "Remote file is newer, retrieving.\n"
 msgstr "Plik na zdalnym serwerze jest nowszy, pobieranie.\n"
 
-#: src/http.c:4598
+#: src/http.c:4599
 msgid ""
 "Remote file exists and could contain links to other resources -- "
 "retrieving.\n"
@@ -1220,7 +1220,7 @@ msgstr ""
 "Plik po stronie serwera istnieje i zawiera odnośniki do innych źródeł -- "
 "pobieranie.\n"
 
-#: src/http.c:4604
+#: src/http.c:4605
 msgid ""
 "Remote file exists but does not contain any link -- not retrieving.\n"
 "\n"
@@ -1229,7 +1229,7 @@ msgstr ""
 "pobieram.\n"
 "\n"
 
-#: src/http.c:4613
+#: src/http.c:4614
 msgid ""
 "Remote file exists and could contain further links,\n"
 "but recursion is disabled -- not retrieving.\n"
@@ -1239,7 +1239,7 @@ msgstr ""
 "jednak rekurencja jest wyłączona -- nie pobieram.\n"
 "\n"
 
-#: src/http.c:4619
+#: src/http.c:4620
 msgid ""
 "Remote file exists.\n"
 "\n"
@@ -1247,12 +1247,12 @@ msgstr ""
 "Plik na zdalnym serwerze istnieje.\n"
 "\n"
 
-#: src/http.c:4628
+#: src/http.c:4629
 #, c-format
 msgid "%s URL: %s %2d %s\n"
 msgstr "%s URL: %s %2d %s\n"
 
-#: src/http.c:4678
+#: src/http.c:4679
 #, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s/%s]\n"
@@ -1261,7 +1261,7 @@ msgstr ""
 "%s (%s) - zapisano na standardowe wyjście %s[%s/%s]\n"
 "\n"
 
-#: src/http.c:4679
+#: src/http.c:4680
 #, c-format
 msgid ""
 "%s (%s) - %s saved [%s/%s]\n"
@@ -1270,27 +1270,27 @@ msgstr ""
 "%s (%s) - zapisano %s [%s/%s]\n"
 "\n"
 
-#: src/http.c:4740
+#: src/http.c:4741
 #, c-format
 msgid "%s (%s) - Connection closed at byte %s. "
 msgstr "%s (%s) - Połączenie zamknięte przy %s bajcie. "
 
-#: src/http.c:4763
+#: src/http.c:4764
 #, c-format
 msgid "%s (%s) - Read error at byte %s (%s)."
 msgstr "%s (%s) - Błąd podczas odczytu przy bajcie %s (%s)."
 
-#: src/http.c:4772
+#: src/http.c:4773
 #, c-format
 msgid "%s (%s) - Read error at byte %s/%s (%s). "
 msgstr "%s (%s) - Błąd podczas odczytu przy bajcie %s/%s (%s). "
 
-#: src/http.c:5010
+#: src/http.c:5011
 #, c-format
 msgid "Unsupported quality of protection '%s'.\n"
 msgstr "Nieobsługiwana jakość zabezpieczenia '%s'.\n"
 
-#: src/http.c:5015
+#: src/http.c:5016
 #, c-format
 msgid "Unsupported algorithm '%s'.\n"
 msgstr "Nieobsługiwany algorytm '%s'.\n"
@@ -2006,12 +2006,10 @@ msgid "       --header=STRING             insert STRING among the headers\n"
 msgstr "       --header=ŁAŃCUCH            wstawienie ŁAŃCUCHa w nagłówki\n"
 
 #: src/main.c:779
-#, fuzzy
 msgid ""
 "       --compression=TYPE          choose compression, one of auto, gzip and "
-"none\n"
+"none. (default: none)\n"
 msgstr ""
-"       --progress=TYP              ustawia tryb wizualizacji postępów\n"
 
 #: src/main.c:782
 msgid ""

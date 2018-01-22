@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget 1.18\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2018-01-19 19:53+0100\n"
+"POT-Creation-Date: 2018-01-21 11:01+0100\n"
 "PO-Revision-Date: 2016-06-19 17:43+0200\n"
 "Last-Translator: Gabor Kelemen <kelemeng@gnome.hu>\n"
 "Language-Team: Hungarian <translation-team-hu@lists.sourceforge.net>\n"
@@ -434,12 +434,12 @@ msgstr " (%s bájt)"
 msgid "Length: %s"
 msgstr "Hossz: %s"
 
-#: src/ftp.c:231 src/http.c:4028
+#: src/ftp.c:231 src/http.c:4029
 #, c-format
 msgid ", %s (%s) remaining"
 msgstr ", %s (%s) van hátra"
 
-#: src/ftp.c:235 src/http.c:4032
+#: src/ftp.c:235 src/http.c:4033
 #, c-format
 msgid ", %s remaining"
 msgstr ", %s van hátra"
@@ -638,12 +638,12 @@ msgstr "Adatátvitel megszakítva.\n"
 msgid "File %s already there; not retrieving.\n"
 msgstr "A fájl (%s) már megvan, nem kerül letöltésre.\n"
 
-#: src/ftp.c:1948 src/http.c:4298
+#: src/ftp.c:1948 src/http.c:4299
 #, c-format
 msgid "(try:%2d)"
 msgstr "(próba:%2d)"
 
-#: src/ftp.c:2036 src/http.c:4714
+#: src/ftp.c:2036 src/http.c:4715
 #, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s]\n"
@@ -652,7 +652,7 @@ msgstr ""
 "%s (%s) -- szabványos kimenetre mentve %s[%s]\n"
 "\n"
 
-#: src/ftp.c:2037 src/http.c:4715
+#: src/ftp.c:2037 src/http.c:4716
 #, c-format
 msgid ""
 "%s (%s) - %s saved [%s]\n"
@@ -993,7 +993,7 @@ msgstr "Újrahasználom a kapcsolatot a következőhöz: %s:%d.\n"
 msgid "Failed reading proxy response: %s\n"
 msgstr "A proxy válasz olvasása meghiúsult: %s\n"
 
-#: src/http.c:2169 src/http.c:3408 src/http.c:4508
+#: src/http.c:2169 src/http.c:3408 src/http.c:4509
 #, c-format
 msgid "%s ERROR %d: %s.\n"
 msgstr "%s HIBA %d: %s.\n"
@@ -1073,20 +1073,20 @@ msgstr "Olvasási hiba (%s) a fejlécekben.\n"
 msgid "(no description)"
 msgstr "(nincs leírás)"
 
-#: src/http.c:3787
+#: src/http.c:3788
 #, c-format
 msgid "Location: %s%s\n"
 msgstr "Hely: %s%s\n"
 
-#: src/http.c:3788 src/http.c:4038
+#: src/http.c:3789 src/http.c:4039
 msgid "unspecified"
 msgstr "nincs megadva"
 
-#: src/http.c:3789
+#: src/http.c:3790
 msgid " [following]"
 msgstr " [következik]"
 
-#: src/http.c:3871
+#: src/http.c:3872
 #, c-format
 msgid ""
 "File %s not modified on server. Omitting download.\n"
@@ -1095,7 +1095,7 @@ msgstr ""
 "A fájl (%s) nem módosult a kiszolgálón. A letöltés elmarad.\n"
 "\n"
 
-#: src/http.c:3944
+#: src/http.c:3945
 #, c-format
 msgid ""
 "Server ignored If-Modified-Since header for file %s.\n"
@@ -1107,7 +1107,7 @@ msgstr ""
 "Érdemes lehet megadni a --no-if-modified-since kapcsolót.\n"
 "\n"
 
-#: src/http.c:3974
+#: src/http.c:3975
 msgid ""
 "\n"
 "    The file is already fully retrieved; nothing to do.\n"
@@ -1117,58 +1117,58 @@ msgstr ""
 "    A fájl már teljesen le van töltve; nincs teendő.\n"
 "\n"
 
-#: src/http.c:4018
+#: src/http.c:4019
 msgid "Length: "
 msgstr "Hossz: "
 
-#: src/http.c:4038
+#: src/http.c:4039
 msgid "ignored"
 msgstr "figyelmen kívül hagyva"
 
-#: src/http.c:4206
+#: src/http.c:4207
 msgid "Warning: wildcards not supported in HTTP.\n"
 msgstr "Figyelmeztetés: a helyettesítő karaktereket a HTTP nem támogatja.\n"
 
-#: src/http.c:4288
+#: src/http.c:4289
 msgid "Spider mode enabled. Check if remote file exists.\n"
 msgstr "A „spider” mód bekapcsolva. A távoli fájl létezésének ellenőrzése.\n"
 
-#: src/http.c:4378
+#: src/http.c:4379
 #, c-format
 msgid "Cannot write to %s (%s).\n"
 msgstr "%s nem írható (%s).\n"
 
-#: src/http.c:4389
+#: src/http.c:4390
 msgid "Required attribute missing from Header received.\n"
 msgstr "A kapott fejlécből hiányzik egy kötelező attribútum.\n"
 
-#: src/http.c:4394
+#: src/http.c:4395
 msgid "Username/Password Authentication Failed.\n"
 msgstr "A felhasználónév/jelszó hitelesítés meghiúsult.\n"
 
-#: src/http.c:4400
+#: src/http.c:4401
 msgid "Cannot write to WARC file.\n"
 msgstr "Nem írható a WARC fájl.\n"
 
-#: src/http.c:4406
+#: src/http.c:4407
 msgid "Cannot write to temporary WARC file.\n"
 msgstr "Az ideiglenes WARC fájl nem írható.\n"
 
-#: src/http.c:4411
+#: src/http.c:4412
 msgid "Unable to establish SSL connection.\n"
 msgstr "Nem lehet létrehozni SSL-kapcsolatot.\n"
 
-#: src/http.c:4417
+#: src/http.c:4418
 #, c-format
 msgid "Cannot unlink %s (%s).\n"
 msgstr "%s nem törölhető (%s).\n"
 
-#: src/http.c:4427
+#: src/http.c:4428
 #, c-format
 msgid "ERROR: Redirection (%d) without location.\n"
 msgstr "HIBA: Átirányítás (%d) hely nélkül.\n"
 
-#: src/http.c:4449
+#: src/http.c:4450
 msgid ""
 "Could not find Metalink data in HTTP response. Downloading file using HTTP "
 "GET.\n"
@@ -1176,25 +1176,25 @@ msgstr ""
 "Nem találhatók Metalink adatok a HTTP válaszban. A fájl letöltése HTTP GET-"
 "tel.\n"
 
-#: src/http.c:4458
+#: src/http.c:4459
 msgid "Metalink headers found. Switching to Metalink mode.\n"
 msgstr "Metalink fejlécek megtalálva. Váltás Metalink módba.\n"
 
-#: src/http.c:4498
+#: src/http.c:4499
 msgid "Remote file does not exist -- broken link!!!\n"
 msgstr "A távoli fájl nem létezik -- hibás hivatkozás!\n"
 
-#: src/http.c:4525
+#: src/http.c:4526
 msgid "Last-modified header missing -- time-stamps turned off.\n"
 msgstr "Az Utolsó módosítás fejléc hiányzik -- az időbélyegek kikapcsolva.\n"
 
-#: src/http.c:4533
+#: src/http.c:4534
 msgid "Last-modified header invalid -- time-stamp ignored.\n"
 msgstr ""
 "Az Utolsó módosítás fejléc érvénytelen -- az időbélyeg figyelmen kívül "
 "hagyva.\n"
 
-#: src/http.c:4563
+#: src/http.c:4564
 #, c-format
 msgid ""
 "Server file no newer than local file %s -- not retrieving.\n"
@@ -1203,16 +1203,16 @@ msgstr ""
 "A kiszolgálón lévő %s fájl nem újabb mint a helyi -- nem kerül letöltésre.\n"
 "\n"
 
-#: src/http.c:4571
+#: src/http.c:4572
 #, c-format
 msgid "The sizes do not match (local %s) -- retrieving.\n"
 msgstr "A méretek nem egyeznek (a helyi: %s) -- letöltésre kerül.\n"
 
-#: src/http.c:4580
+#: src/http.c:4581
 msgid "Remote file is newer, retrieving.\n"
 msgstr "A távoli fájl újabb, letöltésre kerül.\n"
 
-#: src/http.c:4598
+#: src/http.c:4599
 msgid ""
 "Remote file exists and could contain links to other resources -- "
 "retrieving.\n"
@@ -1222,7 +1222,7 @@ msgstr ""
 "letöltésre kerül.\n"
 "\n"
 
-#: src/http.c:4604
+#: src/http.c:4605
 msgid ""
 "Remote file exists but does not contain any link -- not retrieving.\n"
 "\n"
@@ -1230,7 +1230,7 @@ msgstr ""
 "A távoli fájl létezik, de nem tartalmaz hivatkozásokat -- nem kerül "
 "letöltésre.\n"
 
-#: src/http.c:4613
+#: src/http.c:4614
 msgid ""
 "Remote file exists and could contain further links,\n"
 "but recursion is disabled -- not retrieving.\n"
@@ -1240,7 +1240,7 @@ msgstr ""
 "de a rekurzió le van tiltva -- nem kerül letöltésre.\n"
 "\n"
 
-#: src/http.c:4619
+#: src/http.c:4620
 msgid ""
 "Remote file exists.\n"
 "\n"
@@ -1248,12 +1248,12 @@ msgstr ""
 "A távoli fájl létezik.\n"
 "\n"
 
-#: src/http.c:4628
+#: src/http.c:4629
 #, c-format
 msgid "%s URL: %s %2d %s\n"
 msgstr "%s URL: %s %2d %s\n"
 
-#: src/http.c:4678
+#: src/http.c:4679
 #, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s/%s]\n"
@@ -1262,7 +1262,7 @@ msgstr ""
 "%s (%s) -- %s kiírva a szabványos kimenetre [%s/%s]\n"
 "\n"
 
-#: src/http.c:4679
+#: src/http.c:4680
 #, c-format
 msgid ""
 "%s (%s) - %s saved [%s/%s]\n"
@@ -1271,27 +1271,27 @@ msgstr ""
 "%s (%s) -- %s mentve [%s/%s]\n"
 "\n"
 
-#: src/http.c:4740
+#: src/http.c:4741
 #, c-format
 msgid "%s (%s) - Connection closed at byte %s. "
 msgstr "%s (%s) -- A kapcsolat lezárva a(z) %s. bájtnál. "
 
-#: src/http.c:4763
+#: src/http.c:4764
 #, c-format
 msgid "%s (%s) - Read error at byte %s (%s)."
 msgstr "%s (%s) -- Olvasási hiba a(z) %s. bájtnál (%s). "
 
-#: src/http.c:4772
+#: src/http.c:4773
 #, c-format
 msgid "%s (%s) - Read error at byte %s/%s (%s). "
 msgstr "%s (%s) -- Olvasási hiba a(z) %s/%s. bájtnál (%s). "
 
-#: src/http.c:5010
+#: src/http.c:5011
 #, c-format
 msgid "Unsupported quality of protection '%s'.\n"
 msgstr "Nem támogatott védelmi minőség: „%s”.\n"
 
-#: src/http.c:5015
+#: src/http.c:5016
 #, c-format
 msgid "Unsupported algorithm '%s'.\n"
 msgstr "Nem támogatott algoritmus: „%s”.\n"
@@ -2008,13 +2008,10 @@ msgstr ""
 "       --header=KARAKTERLÁNC   a KARAKTERLÁNC beszúrása a fejlécek közé\n"
 
 #: src/main.c:779
-#, fuzzy
 msgid ""
 "       --compression=TYPE          choose compression, one of auto, gzip and "
-"none\n"
+"none. (default: none)\n"
 msgstr ""
-"       --progress=TÍPUS          az előrehaladás mérése típusának "
-"kiválasztása\n"
 
 #: src/main.c:782
 msgid ""

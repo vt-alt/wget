@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget-1.18.109\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2018-01-19 19:53+0100\n"
+"POT-Creation-Date: 2018-01-21 11:01+0100\n"
 "PO-Revision-Date: 2017-01-27 08:00+0200\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian <(nothing)>\n"
@@ -431,12 +431,12 @@ msgstr " (%s бајт(ов)(а))"
 msgid "Length: %s"
 msgstr "Дужина: %s"
 
-#: src/ftp.c:231 src/http.c:4028
+#: src/ftp.c:231 src/http.c:4029
 #, c-format
 msgid ", %s (%s) remaining"
 msgstr ", %s (%s) је простало"
 
-#: src/ftp.c:235 src/http.c:4032
+#: src/ftp.c:235 src/http.c:4033
 #, c-format
 msgid ", %s remaining"
 msgstr ", %s је простало"
@@ -633,12 +633,12 @@ msgstr "Пренос података је прекинут.\n"
 msgid "File %s already there; not retrieving.\n"
 msgstr "Датотека „%s“ већ постоји; нећу је преузети.\n"
 
-#: src/ftp.c:1948 src/http.c:4298
+#: src/ftp.c:1948 src/http.c:4299
 #, c-format
 msgid "(try:%2d)"
 msgstr "(пробајте:%2d)"
 
-#: src/ftp.c:2036 src/http.c:4714
+#: src/ftp.c:2036 src/http.c:4715
 #, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s]\n"
@@ -647,7 +647,7 @@ msgstr ""
 "%s (%s) — записано у стандардни излаз %s[%s]\n"
 "\n"
 
-#: src/ftp.c:2037 src/http.c:4715
+#: src/ftp.c:2037 src/http.c:4716
 #, c-format
 msgid ""
 "%s (%s) - %s saved [%s]\n"
@@ -985,7 +985,7 @@ msgstr "Поново користим постојећу везу са %s:%d.\n"
 msgid "Failed reading proxy response: %s\n"
 msgstr "Нисам успео да прочитам одговор посредника: %s\n"
 
-#: src/http.c:2169 src/http.c:3408 src/http.c:4508
+#: src/http.c:2169 src/http.c:3408 src/http.c:4509
 #, c-format
 msgid "%s ERROR %d: %s.\n"
 msgstr "%s ГРЕШКА %d: %s.\n"
@@ -1067,20 +1067,20 @@ msgstr "Грешка читања (%s) у заглављима.\n"
 msgid "(no description)"
 msgstr "(нема описа)"
 
-#: src/http.c:3787
+#: src/http.c:3788
 #, c-format
 msgid "Location: %s%s\n"
 msgstr "Место: %s%s\n"
 
-#: src/http.c:3788 src/http.c:4038
+#: src/http.c:3789 src/http.c:4039
 msgid "unspecified"
 msgstr "није наведено"
 
-#: src/http.c:3789
+#: src/http.c:3790
 msgid " [following]"
 msgstr " [пратим]"
 
-#: src/http.c:3871
+#: src/http.c:3872
 #, c-format
 msgid ""
 "File %s not modified on server. Omitting download.\n"
@@ -1089,7 +1089,7 @@ msgstr ""
 "Датотека „%s“ није измењена на серверу. Изостављам преузимање.\n"
 "\n"
 
-#: src/http.c:3944
+#: src/http.c:3945
 #, c-format
 msgid ""
 "Server ignored If-Modified-Since header for file %s.\n"
@@ -1100,7 +1100,7 @@ msgstr ""
 "Можда ћете желети да додате опцију „--no-if-modified-since“.\n"
 "\n"
 
-#: src/http.c:3974
+#: src/http.c:3975
 msgid ""
 "\n"
 "    The file is already fully retrieved; nothing to do.\n"
@@ -1110,58 +1110,58 @@ msgstr ""
 "    Датотека је већ преузета у целини; неће бити поново преузета.\n"
 "\n"
 
-#: src/http.c:4018
+#: src/http.c:4019
 msgid "Length: "
 msgstr "Дужина: "
 
-#: src/http.c:4038
+#: src/http.c:4039
 msgid "ignored"
 msgstr "занемарено"
 
-#: src/http.c:4206
+#: src/http.c:4207
 msgid "Warning: wildcards not supported in HTTP.\n"
 msgstr "Упозорење: џокер знаци се не користе за ХТТП.\n"
 
-#: src/http.c:4288
+#: src/http.c:4289
 msgid "Spider mode enabled. Check if remote file exists.\n"
 msgstr "Укључен је режим паука. Проверавам да ли постоји удаљена датотека.\n"
 
-#: src/http.c:4378
+#: src/http.c:4379
 #, c-format
 msgid "Cannot write to %s (%s).\n"
 msgstr "Не могу писати у „%s“ (%s).\n"
 
-#: src/http.c:4389
+#: src/http.c:4390
 msgid "Required attribute missing from Header received.\n"
 msgstr "Неопходан атрибут недостаје у примљеном заглављу.\n"
 
-#: src/http.c:4394
+#: src/http.c:4395
 msgid "Username/Password Authentication Failed.\n"
 msgstr "Није успело потврђивање идентитета корисничког имена/лозинке.\n"
 
-#: src/http.c:4400
+#: src/http.c:4401
 msgid "Cannot write to WARC file.\n"
 msgstr "Не могу да пишем у ВАРЦ датотеку.\n"
 
-#: src/http.c:4406
+#: src/http.c:4407
 msgid "Cannot write to temporary WARC file.\n"
 msgstr "Не могу да пишем у привремену ВАРЦ датотеку.\n"
 
-#: src/http.c:4411
+#: src/http.c:4412
 msgid "Unable to establish SSL connection.\n"
 msgstr "Не могу да успоставим ССЛ везу.\n"
 
-#: src/http.c:4417
+#: src/http.c:4418
 #, c-format
 msgid "Cannot unlink %s (%s).\n"
 msgstr "Не могу да поништим везу „%s“ (%s).\n"
 
-#: src/http.c:4427
+#: src/http.c:4428
 #, c-format
 msgid "ERROR: Redirection (%d) without location.\n"
 msgstr "ГРЕШКА: Преусмерење (%d) нема одредиште.\n"
 
-#: src/http.c:4449
+#: src/http.c:4450
 msgid ""
 "Could not find Metalink data in HTTP response. Downloading file using HTTP "
 "GET.\n"
@@ -1169,26 +1169,26 @@ msgstr ""
 "Не могу да пронађем податке мета везе у ХТТП одговору. Преузимам датотеку "
 "користећи „HTTP GET“.\n"
 
-#: src/http.c:4458
+#: src/http.c:4459
 msgid "Metalink headers found. Switching to Metalink mode.\n"
 msgstr "Нађох заглавља мета везе. Пребацујем на режим мета везе.\n"
 
-#: src/http.c:4498
+#: src/http.c:4499
 msgid "Remote file does not exist -- broken link!!!\n"
 msgstr "Удаљена датотека не постоји -- оштећена веза!!!\n"
 
-#: src/http.c:4525
+#: src/http.c:4526
 msgid "Last-modified header missing -- time-stamps turned off.\n"
 msgstr ""
 "Заглавље датума последње измене недостаје -- бележење времена је искључено.\n"
 
-#: src/http.c:4533
+#: src/http.c:4534
 msgid "Last-modified header invalid -- time-stamp ignored.\n"
 msgstr ""
 "Заглавље датума последње измене је неисправно -- бележење времена је "
 "занемарено.\n"
 
-#: src/http.c:4563
+#: src/http.c:4564
 #, c-format
 msgid ""
 "Server file no newer than local file %s -- not retrieving.\n"
@@ -1197,16 +1197,16 @@ msgstr ""
 "Датотека на серверу није новија од локалне датотеке „%s“ -- не преузимам.\n"
 "\n"
 
-#: src/http.c:4571
+#: src/http.c:4572
 #, c-format
 msgid "The sizes do not match (local %s) -- retrieving.\n"
 msgstr "Величине се не поклапају (локална %s) -- преузимам.\n"
 
-#: src/http.c:4580
+#: src/http.c:4581
 msgid "Remote file is newer, retrieving.\n"
 msgstr "Удаљена датотека је новија, преузимам.\n"
 
-#: src/http.c:4598
+#: src/http.c:4599
 msgid ""
 "Remote file exists and could contain links to other resources -- "
 "retrieving.\n"
@@ -1215,7 +1215,7 @@ msgstr ""
 "Удаљена датотека постоји и можда садржи везе до других извора -- преузимам.\n"
 "\n"
 
-#: src/http.c:4604
+#: src/http.c:4605
 msgid ""
 "Remote file exists but does not contain any link -- not retrieving.\n"
 "\n"
@@ -1223,7 +1223,7 @@ msgstr ""
 "Удаљена датотека постоји али не садржи ниједну везу -- не преузимам.\n"
 "\n"
 
-#: src/http.c:4613
+#: src/http.c:4614
 msgid ""
 "Remote file exists and could contain further links,\n"
 "but recursion is disabled -- not retrieving.\n"
@@ -1233,7 +1233,7 @@ msgstr ""
 "али дубачење је искључено -- не преузимам.\n"
 "\n"
 
-#: src/http.c:4619
+#: src/http.c:4620
 msgid ""
 "Remote file exists.\n"
 "\n"
@@ -1241,12 +1241,12 @@ msgstr ""
 "Удаљена датотека постоји.\n"
 "\n"
 
-#: src/http.c:4628
+#: src/http.c:4629
 #, c-format
 msgid "%s URL: %s %2d %s\n"
 msgstr "%s адреса: %s %2d %s\n"
 
-#: src/http.c:4678
+#: src/http.c:4679
 #, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s/%s]\n"
@@ -1255,7 +1255,7 @@ msgstr ""
 "%s (%s) — записано у стандардни излаз %s[%s/%s]\n"
 "\n"
 
-#: src/http.c:4679
+#: src/http.c:4680
 #, c-format
 msgid ""
 "%s (%s) - %s saved [%s/%s]\n"
@@ -1264,27 +1264,27 @@ msgstr ""
 "%s (%s) — %s је сачувано [%s/%s]\n"
 "\n"
 
-#: src/http.c:4740
+#: src/http.c:4741
 #, c-format
 msgid "%s (%s) - Connection closed at byte %s. "
 msgstr "%s (%s) — Веза је затворена при бајту %s. "
 
-#: src/http.c:4763
+#: src/http.c:4764
 #, c-format
 msgid "%s (%s) - Read error at byte %s (%s)."
 msgstr "%s (%s) — Грешка читања при бајту %s (%s)."
 
-#: src/http.c:4772
+#: src/http.c:4773
 #, c-format
 msgid "%s (%s) - Read error at byte %s/%s (%s). "
 msgstr "%s (%s) — Грешка читања при бајту %s/%s (%s). "
 
-#: src/http.c:5010
+#: src/http.c:5011
 #, c-format
 msgid "Unsupported quality of protection '%s'.\n"
 msgstr "Неподржан квалитет заштите „%s“.\n"
 
-#: src/http.c:5015
+#: src/http.c:5016
 #, c-format
 msgid "Unsupported algorithm '%s'.\n"
 msgstr "Неподржан алгоритам „%s“.\n"
@@ -2005,11 +2005,10 @@ msgid "       --header=STRING             insert STRING among the headers\n"
 msgstr "       --header=НИСКА                умеће НИСКУ у заглавља\n"
 
 #: src/main.c:779
-#, fuzzy
 msgid ""
 "       --compression=TYPE          choose compression, one of auto, gzip and "
-"none\n"
-msgstr "       --progress=ВРСТА              бира врсту опсега напредовања\n"
+"none. (default: none)\n"
+msgstr ""
 
 #: src/main.c:782
 msgid ""

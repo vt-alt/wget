@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget 1.14\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2018-01-19 19:53+0100\n"
+"POT-Creation-Date: 2018-01-21 11:01+0100\n"
 "PO-Revision-Date: 2012-11-11 23:30+0100\n"
 "Last-Translator: Leandro Regueiro <leandro.regueiro@gmail.com>\n"
 "Language-Team: Galician <proxecto@trasno.net>\n"
@@ -446,12 +446,12 @@ msgstr " (%s bytes)"
 msgid "Length: %s"
 msgstr "Lonxitude: %s"
 
-#: src/ftp.c:231 src/http.c:4028
+#: src/ftp.c:231 src/http.c:4029
 #, c-format
 msgid ", %s (%s) remaining"
 msgstr ", quedan %s (%s)"
 
-#: src/ftp.c:235 src/http.c:4032
+#: src/ftp.c:235 src/http.c:4033
 #, c-format
 msgid ", %s remaining"
 msgstr ", quedan %s"
@@ -645,12 +645,12 @@ msgstr "Transferencia de datos interrompida.\n"
 msgid "File %s already there; not retrieving.\n"
 msgstr "O ficheiro %s xa está aí, non se ha descargar.\n"
 
-#: src/ftp.c:1948 src/http.c:4298
+#: src/ftp.c:1948 src/http.c:4299
 #, c-format
 msgid "(try:%2d)"
 msgstr "(intento:%2d)"
 
-#: src/ftp.c:2036 src/http.c:4714
+#: src/ftp.c:2036 src/http.c:4715
 #, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s]\n"
@@ -659,7 +659,7 @@ msgstr ""
 "%s (%s) - escrito en stdout %s[%s]\n"
 "\n"
 
-#: src/ftp.c:2037 src/http.c:4715
+#: src/ftp.c:2037 src/http.c:4716
 #, c-format
 msgid ""
 "%s (%s) - %s saved [%s]\n"
@@ -1001,7 +1001,7 @@ msgstr "Reutilizando a conexión existente con %s:%d.\n"
 msgid "Failed reading proxy response: %s\n"
 msgstr "Produciuse un erro ao ler a resposta do proxy: %s\n"
 
-#: src/http.c:2169 src/http.c:3408 src/http.c:4508
+#: src/http.c:2169 src/http.c:3408 src/http.c:4509
 #, c-format
 msgid "%s ERROR %d: %s.\n"
 msgstr "%s ERRO %d: %s.\n"
@@ -1077,27 +1077,27 @@ msgstr "Erro ao ler (%s) nas cabeceiras.\n"
 msgid "(no description)"
 msgstr "(sen descrición)"
 
-#: src/http.c:3787
+#: src/http.c:3788
 #, c-format
 msgid "Location: %s%s\n"
 msgstr "Localización: %s%s\n"
 
-#: src/http.c:3788 src/http.c:4038
+#: src/http.c:3789 src/http.c:4039
 msgid "unspecified"
 msgstr "non especificado"
 
-#: src/http.c:3789
+#: src/http.c:3790
 msgid " [following]"
 msgstr " [seguíndoo]"
 
-#: src/http.c:3871
+#: src/http.c:3872
 #, c-format
 msgid ""
 "File %s not modified on server. Omitting download.\n"
 "\n"
 msgstr ""
 
-#: src/http.c:3944
+#: src/http.c:3945
 #, c-format
 msgid ""
 "Server ignored If-Modified-Since header for file %s.\n"
@@ -1105,7 +1105,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: src/http.c:3974
+#: src/http.c:3975
 msgid ""
 "\n"
 "    The file is already fully retrieved; nothing to do.\n"
@@ -1115,80 +1115,80 @@ msgstr ""
 "    O ficheiro xa está completo; non hai nada que facer.\n"
 "\n"
 
-#: src/http.c:4018
+#: src/http.c:4019
 msgid "Length: "
 msgstr "Lonxitude: "
 
-#: src/http.c:4038
+#: src/http.c:4039
 msgid "ignored"
 msgstr "ignorado"
 
-#: src/http.c:4206
+#: src/http.c:4207
 msgid "Warning: wildcards not supported in HTTP.\n"
 msgstr "Aviso: comodíns non compatíbeis en HTTP.\n"
 
-#: src/http.c:4288
+#: src/http.c:4289
 msgid "Spider mode enabled. Check if remote file exists.\n"
 msgstr ""
 
-#: src/http.c:4378
+#: src/http.c:4379
 #, c-format
 msgid "Cannot write to %s (%s).\n"
 msgstr "Non é posíbel escribir en %s (%s).\n"
 
-#: src/http.c:4389
+#: src/http.c:4390
 msgid "Required attribute missing from Header received.\n"
 msgstr ""
 
-#: src/http.c:4394
+#: src/http.c:4395
 msgid "Username/Password Authentication Failed.\n"
 msgstr ""
 
-#: src/http.c:4400
+#: src/http.c:4401
 msgid "Cannot write to WARC file.\n"
 msgstr "Non é posíbel escribir no ficheiro WARC.\n"
 
-#: src/http.c:4406
+#: src/http.c:4407
 msgid "Cannot write to temporary WARC file.\n"
 msgstr "Non é posíbel escribir no ficheiro WARC temporal.\n"
 
-#: src/http.c:4411
+#: src/http.c:4412
 msgid "Unable to establish SSL connection.\n"
 msgstr "Non foi posíbel establecer a conexión SSL.\n"
 
-#: src/http.c:4417
+#: src/http.c:4418
 #, c-format
 msgid "Cannot unlink %s (%s).\n"
 msgstr "Non é posíbel desligar %s (%s).\n"
 
-#: src/http.c:4427
+#: src/http.c:4428
 #, c-format
 msgid "ERROR: Redirection (%d) without location.\n"
 msgstr "ERROR: Redirección (%d) sen destino.\n"
 
-#: src/http.c:4449
+#: src/http.c:4450
 msgid ""
 "Could not find Metalink data in HTTP response. Downloading file using HTTP "
 "GET.\n"
 msgstr ""
 
-#: src/http.c:4458
+#: src/http.c:4459
 msgid "Metalink headers found. Switching to Metalink mode.\n"
 msgstr ""
 
-#: src/http.c:4498
+#: src/http.c:4499
 msgid "Remote file does not exist -- broken link!!!\n"
 msgstr "O ficheiro remoto non exite -- ligazón rota!!!\n"
 
-#: src/http.c:4525
+#: src/http.c:4526
 msgid "Last-modified header missing -- time-stamps turned off.\n"
 msgstr "Falta a cabeceira Last-modified -- marcas de tempo desactivadas.\n"
 
-#: src/http.c:4533
+#: src/http.c:4534
 msgid "Last-modified header invalid -- time-stamp ignored.\n"
 msgstr "Cabeceira Last-modified incorrecta -- ignorouse a marca de tempo.\n"
 
-#: src/http.c:4563
+#: src/http.c:4564
 #, c-format
 msgid ""
 "Server file no newer than local file %s -- not retrieving.\n"
@@ -1198,16 +1198,16 @@ msgstr ""
 "descarga.\n"
 "\n"
 
-#: src/http.c:4571
+#: src/http.c:4572
 #, c-format
 msgid "The sizes do not match (local %s) -- retrieving.\n"
 msgstr "Os tamaños non coinciden (local %s) -- descargando.\n"
 
-#: src/http.c:4580
+#: src/http.c:4581
 msgid "Remote file is newer, retrieving.\n"
 msgstr "O ficheiro remoto é máis novo, descargando.\n"
 
-#: src/http.c:4598
+#: src/http.c:4599
 msgid ""
 "Remote file exists and could contain links to other resources -- "
 "retrieving.\n"
@@ -1217,7 +1217,7 @@ msgstr ""
 "descargando.\n"
 "\n"
 
-#: src/http.c:4604
+#: src/http.c:4605
 msgid ""
 "Remote file exists but does not contain any link -- not retrieving.\n"
 "\n"
@@ -1226,14 +1226,14 @@ msgstr ""
 "descarga.\n"
 "\n"
 
-#: src/http.c:4613
+#: src/http.c:4614
 msgid ""
 "Remote file exists and could contain further links,\n"
 "but recursion is disabled -- not retrieving.\n"
 "\n"
 msgstr ""
 
-#: src/http.c:4619
+#: src/http.c:4620
 msgid ""
 "Remote file exists.\n"
 "\n"
@@ -1241,12 +1241,12 @@ msgstr ""
 "O ficheiro remoto existe.\n"
 "\n"
 
-#: src/http.c:4628
+#: src/http.c:4629
 #, c-format
 msgid "%s URL: %s %2d %s\n"
 msgstr "%s URL: %s %2d %s\n"
 
-#: src/http.c:4678
+#: src/http.c:4679
 #, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s/%s]\n"
@@ -1255,7 +1255,7 @@ msgstr ""
 "%s (%s) - escrito en stdout %s[%s/%s]\n"
 "\n"
 
-#: src/http.c:4679
+#: src/http.c:4680
 #, c-format
 msgid ""
 "%s (%s) - %s saved [%s/%s]\n"
@@ -1264,27 +1264,27 @@ msgstr ""
 "%s (%s) - gardouse %s [%s/%s]\n"
 "\n"
 
-#: src/http.c:4740
+#: src/http.c:4741
 #, c-format
 msgid "%s (%s) - Connection closed at byte %s. "
 msgstr "%s (%s) - Conexión pechada no byte %s. "
 
-#: src/http.c:4763
+#: src/http.c:4764
 #, c-format
 msgid "%s (%s) - Read error at byte %s (%s)."
 msgstr "%s (%s) - Erro de lectura no byte %s (%s)."
 
-#: src/http.c:4772
+#: src/http.c:4773
 #, c-format
 msgid "%s (%s) - Read error at byte %s/%s (%s). "
 msgstr "%s (%s) - Erro de lectura no byte %s/%s (%s). "
 
-#: src/http.c:5010
+#: src/http.c:5011
 #, c-format
 msgid "Unsupported quality of protection '%s'.\n"
 msgstr ""
 
-#: src/http.c:5015
+#: src/http.c:5016
 #, fuzzy, c-format
 msgid "Unsupported algorithm '%s'.\n"
 msgstr "Esquema %s non compatíbel"
@@ -1934,7 +1934,7 @@ msgstr "       --header=CADEA          inserir CADEA entre as cabeceiras.\n"
 #: src/main.c:779
 msgid ""
 "       --compression=TYPE          choose compression, one of auto, gzip and "
-"none\n"
+"none. (default: none)\n"
 msgstr ""
 
 #: src/main.c:782

@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget 1.18.109\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2018-01-19 19:53+0100\n"
+"POT-Creation-Date: 2018-01-21 11:01+0100\n"
 "PO-Revision-Date: 2017-11-15 22:30+0800\n"
 "Last-Translator: Boyuan Yang <073plan@gmail.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
@@ -435,12 +435,12 @@ msgstr " (%s 字节)"
 msgid "Length: %s"
 msgstr "长度：%s"
 
-#: src/ftp.c:231 src/http.c:4028
+#: src/ftp.c:231 src/http.c:4029
 #, c-format
 msgid ", %s (%s) remaining"
 msgstr "，剩余 %s (%s)"
 
-#: src/ftp.c:235 src/http.c:4032
+#: src/ftp.c:235 src/http.c:4033
 #, c-format
 msgid ", %s remaining"
 msgstr "，剩余 %s"
@@ -637,12 +637,12 @@ msgstr "数据传输已被中止。\n"
 msgid "File %s already there; not retrieving.\n"
 msgstr "文件 %s 已存在；不获取。\n"
 
-#: src/ftp.c:1948 src/http.c:4298
+#: src/ftp.c:1948 src/http.c:4299
 #, c-format
 msgid "(try:%2d)"
 msgstr "(尝试次数：%2d)"
 
-#: src/ftp.c:2036 src/http.c:4714
+#: src/ftp.c:2036 src/http.c:4715
 #, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s]\n"
@@ -651,7 +651,7 @@ msgstr ""
 "%s (%s) - 已写入标准输出 %s[%s]\n"
 "\n"
 
-#: src/ftp.c:2037 src/http.c:4715
+#: src/ftp.c:2037 src/http.c:4716
 #, c-format
 msgid ""
 "%s (%s) - %s saved [%s]\n"
@@ -985,7 +985,7 @@ msgstr "再次使用存在的到 %s:%d 的连接。\n"
 msgid "Failed reading proxy response: %s\n"
 msgstr "无法读取代理响应：%s\n"
 
-#: src/http.c:2169 src/http.c:3408 src/http.c:4508
+#: src/http.c:2169 src/http.c:3408 src/http.c:4509
 #, c-format
 msgid "%s ERROR %d: %s.\n"
 msgstr "%s 错误 %d：%s。\n"
@@ -1065,20 +1065,20 @@ msgstr "读取文件头错误 (%s)。\n"
 msgid "(no description)"
 msgstr "(没有描述)"
 
-#: src/http.c:3787
+#: src/http.c:3788
 #, c-format
 msgid "Location: %s%s\n"
 msgstr "位置：%s%s\n"
 
-#: src/http.c:3788 src/http.c:4038
+#: src/http.c:3789 src/http.c:4039
 msgid "unspecified"
 msgstr "未指定"
 
-#: src/http.c:3789
+#: src/http.c:3790
 msgid " [following]"
 msgstr " [跟随至新的 URL]"
 
-#: src/http.c:3871
+#: src/http.c:3872
 #, c-format
 msgid ""
 "File %s not modified on server. Omitting download.\n"
@@ -1087,7 +1087,7 @@ msgstr ""
 "文件 %s 在服务器上未被更改。忽略此下载。\n"
 "\n"
 
-#: src/http.c:3944
+#: src/http.c:3945
 #, c-format
 msgid ""
 "Server ignored If-Modified-Since header for file %s.\n"
@@ -1098,7 +1098,7 @@ msgstr ""
 "你也许应该附加 --no-if-modified-since 选项。\n"
 "\n"
 
-#: src/http.c:3974
+#: src/http.c:3975
 msgid ""
 "\n"
 "    The file is already fully retrieved; nothing to do.\n"
@@ -1108,80 +1108,80 @@ msgstr ""
 "    文件已下载完成；不会进行任何操作。\n"
 "\n"
 
-#: src/http.c:4018
+#: src/http.c:4019
 msgid "Length: "
 msgstr "长度："
 
-#: src/http.c:4038
+#: src/http.c:4039
 msgid "ignored"
 msgstr "已忽略"
 
-#: src/http.c:4206
+#: src/http.c:4207
 msgid "Warning: wildcards not supported in HTTP.\n"
 msgstr "警告：HTTP 不支持通配符。\n"
 
-#: src/http.c:4288
+#: src/http.c:4289
 msgid "Spider mode enabled. Check if remote file exists.\n"
 msgstr "打开 Spider 模式。检查是否存在远程文件。\n"
 
-#: src/http.c:4378
+#: src/http.c:4379
 #, c-format
 msgid "Cannot write to %s (%s).\n"
 msgstr "无法写入 %s (%s)。\n"
 
-#: src/http.c:4389
+#: src/http.c:4390
 msgid "Required attribute missing from Header received.\n"
 msgstr "接收的响应头中缺少必要的属性。\n"
 
-#: src/http.c:4394
+#: src/http.c:4395
 msgid "Username/Password Authentication Failed.\n"
 msgstr "用户名/密码认证失败。\n"
 
-#: src/http.c:4400
+#: src/http.c:4401
 msgid "Cannot write to WARC file.\n"
 msgstr "无法写入 WARC 文件。\n"
 
-#: src/http.c:4406
+#: src/http.c:4407
 msgid "Cannot write to temporary WARC file.\n"
 msgstr "无法写入临时 WARC 文件。\n"
 
-#: src/http.c:4411
+#: src/http.c:4412
 msgid "Unable to establish SSL connection.\n"
 msgstr "无法建立 SSL 连接。\n"
 
-#: src/http.c:4417
+#: src/http.c:4418
 #, c-format
 msgid "Cannot unlink %s (%s).\n"
 msgstr "无法清除 %s 的链接 (%s)。\n"
 
-#: src/http.c:4427
+#: src/http.c:4428
 #, c-format
 msgid "ERROR: Redirection (%d) without location.\n"
 msgstr "错误：重定向 (%d) 但没有指定位置。\n"
 
-#: src/http.c:4449
+#: src/http.c:4450
 msgid ""
 "Could not find Metalink data in HTTP response. Downloading file using HTTP "
 "GET.\n"
 msgstr "无法从 HTTP 响应中找到 Metalink 数据。使用 HTTP GET 下载文件。\n"
 
-#: src/http.c:4458
+#: src/http.c:4459
 msgid "Metalink headers found. Switching to Metalink mode.\n"
 msgstr "发现 Metalink 响应头。将切换到 Metalink 模式。\n"
 
-#: src/http.c:4498
+#: src/http.c:4499
 msgid "Remote file does not exist -- broken link!!!\n"
 msgstr "远程文件不存在 -- 链接失效！！！\n"
 
-#: src/http.c:4525
+#: src/http.c:4526
 msgid "Last-modified header missing -- time-stamps turned off.\n"
 msgstr "缺少“Last-modified”文件头 -- 关闭时间戳标记。\n"
 
-#: src/http.c:4533
+#: src/http.c:4534
 msgid "Last-modified header invalid -- time-stamp ignored.\n"
 msgstr "无效的“Last-modified”文件头 -- 忽略时间戳标记。\n"
 
-#: src/http.c:4563
+#: src/http.c:4564
 #, c-format
 msgid ""
 "Server file no newer than local file %s -- not retrieving.\n"
@@ -1190,16 +1190,16 @@ msgstr ""
 "远程文件比本地文件 %s 更老 -- 不获取。\n"
 "\n"
 
-#: src/http.c:4571
+#: src/http.c:4572
 #, c-format
 msgid "The sizes do not match (local %s) -- retrieving.\n"
 msgstr "文件大小不符 (本地文件 %s) -- 获取。\n"
 
-#: src/http.c:4580
+#: src/http.c:4581
 msgid "Remote file is newer, retrieving.\n"
 msgstr "远程文件较新，获取。\n"
 
-#: src/http.c:4598
+#: src/http.c:4599
 msgid ""
 "Remote file exists and could contain links to other resources -- "
 "retrieving.\n"
@@ -1208,7 +1208,7 @@ msgstr ""
 "存在远程文件且可能含有到其它资源的链接 -- 获取。\n"
 "\n"
 
-#: src/http.c:4604
+#: src/http.c:4605
 msgid ""
 "Remote file exists but does not contain any link -- not retrieving.\n"
 "\n"
@@ -1216,7 +1216,7 @@ msgstr ""
 "存在远程文件但不含任何链接 -- 无法获取。\n"
 "\n"
 
-#: src/http.c:4613
+#: src/http.c:4614
 msgid ""
 "Remote file exists and could contain further links,\n"
 "but recursion is disabled -- not retrieving.\n"
@@ -1226,7 +1226,7 @@ msgstr ""
 "但不能进行递归操作 -- 无法获取。\n"
 "\n"
 
-#: src/http.c:4619
+#: src/http.c:4620
 msgid ""
 "Remote file exists.\n"
 "\n"
@@ -1234,12 +1234,12 @@ msgstr ""
 "存在远程文件。\n"
 "\n"
 
-#: src/http.c:4628
+#: src/http.c:4629
 #, c-format
 msgid "%s URL: %s %2d %s\n"
 msgstr "%s URL: %s %2d %s\n"
 
-#: src/http.c:4678
+#: src/http.c:4679
 #, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s/%s]\n"
@@ -1248,7 +1248,7 @@ msgstr ""
 "%s (%s) - 已写入至标准输出 %s[%s/%s]\n"
 "\n"
 
-#: src/http.c:4679
+#: src/http.c:4680
 #, c-format
 msgid ""
 "%s (%s) - %s saved [%s/%s]\n"
@@ -1257,27 +1257,27 @@ msgstr ""
 "%s (%s) - 已保存 %s [%s/%s])\n"
 "\n"
 
-#: src/http.c:4740
+#: src/http.c:4741
 #, c-format
 msgid "%s (%s) - Connection closed at byte %s. "
 msgstr "%s (%s) - 在 %s 字节处连接关闭。"
 
-#: src/http.c:4763
+#: src/http.c:4764
 #, c-format
 msgid "%s (%s) - Read error at byte %s (%s)."
 msgstr "%s (%s) - 在 %s 字节处发生读取错误 (%s)。"
 
-#: src/http.c:4772
+#: src/http.c:4773
 #, c-format
 msgid "%s (%s) - Read error at byte %s/%s (%s). "
 msgstr "%s (%s) - 在 %s/%s 字节处发生读取错误 (%s)。"
 
-#: src/http.c:5010
+#: src/http.c:5011
 #, c-format
 msgid "Unsupported quality of protection '%s'.\n"
 msgstr "不支持的保护质量 '%s'。\n"
 
-#: src/http.c:5015
+#: src/http.c:5016
 #, c-format
 msgid "Unsupported algorithm '%s'.\n"
 msgstr "不支持的算法‘%s’。\n"
@@ -1911,11 +1911,10 @@ msgid "       --header=STRING             insert STRING among the headers\n"
 msgstr "       --header=字符串             在头部插入 <字符串>\n"
 
 #: src/main.c:779
-#, fuzzy
 msgid ""
 "       --compression=TYPE          choose compression, one of auto, gzip and "
-"none\n"
-msgstr "       --progress=类型             选择进度条类型\n"
+"none. (default: none)\n"
+msgstr ""
 
 #: src/main.c:782
 msgid ""

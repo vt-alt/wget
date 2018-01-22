@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget 1.12-pre7\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2018-01-19 19:53+0100\n"
+"POT-Creation-Date: 2018-01-21 11:01+0100\n"
 "PO-Revision-Date: 2010-11-17 20:05+0100\n"
 "Last-Translator: Andrej ®nidar¹iè <andrej.znidarsic@gmail.com>\n"
 "Language-Team: Slovenian <translation-team-sl@lists.sourceforge.net>\n"
@@ -455,12 +455,12 @@ msgstr " (%s bajtov)"
 msgid "Length: %s"
 msgstr "Dol¾ina: %s"
 
-#: src/ftp.c:231 src/http.c:4028
+#: src/ftp.c:231 src/http.c:4029
 #, c-format
 msgid ", %s (%s) remaining"
 msgstr ", %s (%s) preostalo"
 
-#: src/ftp.c:235 src/http.c:4032
+#: src/ftp.c:235 src/http.c:4033
 #, c-format
 msgid ", %s remaining"
 msgstr ", %s preostalo"
@@ -654,12 +654,12 @@ msgstr "Prenos podatkov prekinjen.\n"
 msgid "File %s already there; not retrieving.\n"
 msgstr "Datoteka %s je ¾e tam; prejem preskoèen.\n"
 
-#: src/ftp.c:1948 src/http.c:4298
+#: src/ftp.c:1948 src/http.c:4299
 #, c-format
 msgid "(try:%2d)"
 msgstr "(posk:%2d)"
 
-#: src/ftp.c:2036 src/http.c:4714
+#: src/ftp.c:2036 src/http.c:4715
 #, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s]\n"
@@ -668,7 +668,7 @@ msgstr ""
 "%s (%s) - zapisan v stdout %s[%s]\n"
 "\n"
 
-#: src/ftp.c:2037 src/http.c:4715
+#: src/ftp.c:2037 src/http.c:4716
 #, c-format
 msgid ""
 "%s (%s) - %s saved [%s]\n"
@@ -1007,7 +1007,7 @@ msgstr "Ponovna uporaba povezave z %s:%d.\n"
 msgid "Failed reading proxy response: %s\n"
 msgstr "Napaka med branjem odgovora posredni¹kega stre¾nika: %s\n"
 
-#: src/http.c:2169 src/http.c:3408 src/http.c:4508
+#: src/http.c:2169 src/http.c:3408 src/http.c:4509
 #, c-format
 msgid "%s ERROR %d: %s.\n"
 msgstr "%s NAPAKA %d: %s.\n"
@@ -1083,27 +1083,27 @@ msgstr "Napaka med branjem glav (%s).\n"
 msgid "(no description)"
 msgstr "(brez opisa)"
 
-#: src/http.c:3787
+#: src/http.c:3788
 #, c-format
 msgid "Location: %s%s\n"
 msgstr "Polo¾aj: %s%s\n"
 
-#: src/http.c:3788 src/http.c:4038
+#: src/http.c:3789 src/http.c:4039
 msgid "unspecified"
 msgstr "nedoloèeno"
 
-#: src/http.c:3789
+#: src/http.c:3790
 msgid " [following]"
 msgstr " [spremljanje]"
 
-#: src/http.c:3871
+#: src/http.c:3872
 #, c-format
 msgid ""
 "File %s not modified on server. Omitting download.\n"
 "\n"
 msgstr ""
 
-#: src/http.c:3944
+#: src/http.c:3945
 #, c-format
 msgid ""
 "Server ignored If-Modified-Since header for file %s.\n"
@@ -1111,7 +1111,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: src/http.c:3974
+#: src/http.c:3975
 msgid ""
 "\n"
 "    The file is already fully retrieved; nothing to do.\n"
@@ -1121,82 +1121,82 @@ msgstr ""
 "    Datoteka je ¾e popolnoma prene¹ena; niè ni za storiti.\n"
 "\n"
 
-#: src/http.c:4018
+#: src/http.c:4019
 msgid "Length: "
 msgstr "Dol¾ina: "
 
-#: src/http.c:4038
+#: src/http.c:4039
 msgid "ignored"
 msgstr "prezrto"
 
-#: src/http.c:4206
+#: src/http.c:4207
 msgid "Warning: wildcards not supported in HTTP.\n"
 msgstr "Opozorilo: HTTP ne podpira nadomestnih znakov.\n"
 
-#: src/http.c:4288
+#: src/http.c:4289
 msgid "Spider mode enabled. Check if remote file exists.\n"
 msgstr "Omogoèen naèin pajka. Preverite, èe obstaja oddaljena datoteka.\n"
 
-#: src/http.c:4378
+#: src/http.c:4379
 #, c-format
 msgid "Cannot write to %s (%s).\n"
 msgstr "V %s ni mogoèe zapisovati (%s).\n"
 
-#: src/http.c:4389
+#: src/http.c:4390
 msgid "Required attribute missing from Header received.\n"
 msgstr ""
 
-#: src/http.c:4394
+#: src/http.c:4395
 msgid "Username/Password Authentication Failed.\n"
 msgstr ""
 
-#: src/http.c:4400
+#: src/http.c:4401
 #, fuzzy
 msgid "Cannot write to WARC file.\n"
 msgstr "V %s ni mogoèe zapisovati (%s).\n"
 
-#: src/http.c:4406
+#: src/http.c:4407
 #, fuzzy
 msgid "Cannot write to temporary WARC file.\n"
 msgstr "V %s ni mogoèe zapisovati (%s).\n"
 
-#: src/http.c:4411
+#: src/http.c:4412
 msgid "Unable to establish SSL connection.\n"
 msgstr "Povezave SSL ni bilo moè vzpostaviti.\n"
 
-#: src/http.c:4417
+#: src/http.c:4418
 #, fuzzy, c-format
 msgid "Cannot unlink %s (%s).\n"
 msgstr "V %s ni mogoèe zapisovati (%s).\n"
 
-#: src/http.c:4427
+#: src/http.c:4428
 #, c-format
 msgid "ERROR: Redirection (%d) without location.\n"
 msgstr "NAPAKA: Preusmeritev (%d) brez nove lokacije.\n"
 
-#: src/http.c:4449
+#: src/http.c:4450
 msgid ""
 "Could not find Metalink data in HTTP response. Downloading file using HTTP "
 "GET.\n"
 msgstr ""
 
-#: src/http.c:4458
+#: src/http.c:4459
 msgid "Metalink headers found. Switching to Metalink mode.\n"
 msgstr ""
 
-#: src/http.c:4498
+#: src/http.c:4499
 msgid "Remote file does not exist -- broken link!!!\n"
 msgstr "Oddaljena datoteka ne obstaja -- pokvarjena povezava!!!\n"
 
-#: src/http.c:4525
+#: src/http.c:4526
 msgid "Last-modified header missing -- time-stamps turned off.\n"
 msgstr "Glava ,Last-Modified` manjka - izklapljanje èasovnega ¾iga.\n"
 
-#: src/http.c:4533
+#: src/http.c:4534
 msgid "Last-modified header invalid -- time-stamp ignored.\n"
 msgstr "Neveljavna glava `Last-Modified' -- prezrtje èasovnega ¾iga.\n"
 
-#: src/http.c:4563
+#: src/http.c:4564
 #, c-format
 msgid ""
 "Server file no newer than local file %s -- not retrieving.\n"
@@ -1206,16 +1206,16 @@ msgstr ""
 "preskoèeno.\n"
 "\n"
 
-#: src/http.c:4571
+#: src/http.c:4572
 #, c-format
 msgid "The sizes do not match (local %s) -- retrieving.\n"
 msgstr "Velikosti se ne ujemata (krajevna %s) -- prena¹anje.\n"
 
-#: src/http.c:4580
+#: src/http.c:4581
 msgid "Remote file is newer, retrieving.\n"
 msgstr "Oddaljena datoteka je novej¹a, pridobivanje.\n"
 
-#: src/http.c:4598
+#: src/http.c:4599
 msgid ""
 "Remote file exists and could contain links to other resources -- "
 "retrieving.\n"
@@ -1225,7 +1225,7 @@ msgstr ""
 "pridobivanje.\n"
 "\n"
 
-#: src/http.c:4604
+#: src/http.c:4605
 msgid ""
 "Remote file exists but does not contain any link -- not retrieving.\n"
 "\n"
@@ -1234,7 +1234,7 @@ msgstr ""
 "preskoèeno.\n"
 "\n"
 
-#: src/http.c:4613
+#: src/http.c:4614
 msgid ""
 "Remote file exists and could contain further links,\n"
 "but recursion is disabled -- not retrieving.\n"
@@ -1244,7 +1244,7 @@ msgstr ""
 "povezave, vendar je rekurzija onemogoèena -- prejemanje preskoèeno.\n"
 "\n"
 
-#: src/http.c:4619
+#: src/http.c:4620
 msgid ""
 "Remote file exists.\n"
 "\n"
@@ -1252,12 +1252,12 @@ msgstr ""
 "Oddaljena datoteka obstaja.\n"
 "\n"
 
-#: src/http.c:4628
+#: src/http.c:4629
 #, c-format
 msgid "%s URL: %s %2d %s\n"
 msgstr "%s URL: %s %2d %s\n"
 
-#: src/http.c:4678
+#: src/http.c:4679
 #, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s/%s]\n"
@@ -1266,7 +1266,7 @@ msgstr ""
 "%s (%s) - zapisano v stdout %s[%s/%s]\n"
 "\n"
 
-#: src/http.c:4679
+#: src/http.c:4680
 #, c-format
 msgid ""
 "%s (%s) - %s saved [%s/%s]\n"
@@ -1275,27 +1275,27 @@ msgstr ""
 "%s (%s) - %s shranjeno [%s/%s]\n"
 "\n"
 
-#: src/http.c:4740
+#: src/http.c:4741
 #, c-format
 msgid "%s (%s) - Connection closed at byte %s. "
 msgstr "%s (%s) - Povezava zaprta na bajtu %s. "
 
-#: src/http.c:4763
+#: src/http.c:4764
 #, c-format
 msgid "%s (%s) - Read error at byte %s (%s)."
 msgstr "%s (%s) - Napaka med branjem na bajtu %s (%s)."
 
-#: src/http.c:4772
+#: src/http.c:4773
 #, c-format
 msgid "%s (%s) - Read error at byte %s/%s (%s). "
 msgstr "%s (%s) - Napaka med branjem na bajtu %s/%s (%s). "
 
-#: src/http.c:5010
+#: src/http.c:5011
 #, c-format
 msgid "Unsupported quality of protection '%s'.\n"
 msgstr ""
 
-#: src/http.c:5015
+#: src/http.c:5016
 #, fuzzy, c-format
 msgid "Unsupported algorithm '%s'.\n"
 msgstr "Nepodprta shema %s"
@@ -2021,11 +2021,10 @@ msgid "       --header=STRING             insert STRING among the headers\n"
 msgstr "       --header=NIZ            vstavi NIZ med glave.\n"
 
 #: src/main.c:779
-#, fuzzy
 msgid ""
 "       --compression=TYPE          choose compression, one of auto, gzip and "
-"none\n"
-msgstr "       --progress=VRSTA          doloèi slog prikaza prejemanja.\n"
+"none. (default: none)\n"
+msgstr ""
 
 #: src/main.c:782
 #, fuzzy

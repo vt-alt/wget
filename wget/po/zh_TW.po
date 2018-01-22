@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget 1.10.1-b1\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2018-01-19 19:53+0100\n"
+"POT-Creation-Date: 2018-01-21 11:01+0100\n"
 "PO-Revision-Date: 2005-08-17 13:30+0800\n"
 "Last-Translator: Abel Cheung <abelcheung@gmail.com>\n"
 "Language-Team: Chinese (traditional) <zh-l10n@linux.org.tw>\n"
@@ -436,12 +436,12 @@ msgstr " (%s 位元組)"
 msgid "Length: %s"
 msgstr "長度: %s"
 
-#: src/ftp.c:231 src/http.c:4028
+#: src/ftp.c:231 src/http.c:4029
 #, c-format
 msgid ", %s (%s) remaining"
 msgstr "，剩餘 %s (%s)"
 
-#: src/ftp.c:235 src/http.c:4032
+#: src/ftp.c:235 src/http.c:4033
 #, c-format
 msgid ", %s remaining"
 msgstr "，剩餘 %s"
@@ -638,12 +638,12 @@ msgstr "已中止傳送資料。\n"
 msgid "File %s already there; not retrieving.\n"
 msgstr "檔案 ‘%s’ 已存在，不會下載。\n"
 
-#: src/ftp.c:1948 src/http.c:4298
+#: src/ftp.c:1948 src/http.c:4299
 #, c-format
 msgid "(try:%2d)"
 msgstr "(嘗試第 %2d 次)"
 
-#: src/ftp.c:2036 src/http.c:4714
+#: src/ftp.c:2036 src/http.c:4715
 #, fuzzy, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s]\n"
@@ -652,7 +652,7 @@ msgstr ""
 "%s (%s) -- 已儲存 ‘%s’ [%s/%s])\n"
 "\n"
 
-#: src/ftp.c:2037 src/http.c:4715
+#: src/ftp.c:2037 src/http.c:4716
 #, fuzzy, c-format
 msgid ""
 "%s (%s) - %s saved [%s]\n"
@@ -988,7 +988,7 @@ msgstr "繼續使用和 %s:%d 的連線。\n"
 msgid "Failed reading proxy response: %s\n"
 msgstr "無法讀取代理伺服器回應: %s。\n"
 
-#: src/http.c:2169 src/http.c:3408 src/http.c:4508
+#: src/http.c:2169 src/http.c:3408 src/http.c:4509
 #, c-format
 msgid "%s ERROR %d: %s.\n"
 msgstr "%s 錯誤 %d: %s。\n"
@@ -1064,27 +1064,27 @@ msgstr "讀取標頭時發生錯誤 (%s)。\n"
 msgid "(no description)"
 msgstr "(沒有任何說明)"
 
-#: src/http.c:3787
+#: src/http.c:3788
 #, c-format
 msgid "Location: %s%s\n"
 msgstr "位置: %s%s\n"
 
-#: src/http.c:3788 src/http.c:4038
+#: src/http.c:3789 src/http.c:4039
 msgid "unspecified"
 msgstr "未指定"
 
-#: src/http.c:3789
+#: src/http.c:3790
 msgid " [following]"
 msgstr " [跟隨至新的 URL]"
 
-#: src/http.c:3871
+#: src/http.c:3872
 #, c-format
 msgid ""
 "File %s not modified on server. Omitting download.\n"
 "\n"
 msgstr ""
 
-#: src/http.c:3944
+#: src/http.c:3945
 #, c-format
 msgid ""
 "Server ignored If-Modified-Since header for file %s.\n"
@@ -1092,7 +1092,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: src/http.c:3974
+#: src/http.c:3975
 msgid ""
 "\n"
 "    The file is already fully retrieved; nothing to do.\n"
@@ -1102,81 +1102,81 @@ msgstr ""
 "    檔案早已下載完成；不會進行任何操作。\n"
 "\n"
 
-#: src/http.c:4018
+#: src/http.c:4019
 msgid "Length: "
 msgstr "長度: "
 
-#: src/http.c:4038
+#: src/http.c:4039
 msgid "ignored"
 msgstr "忽略"
 
-#: src/http.c:4206
+#: src/http.c:4207
 msgid "Warning: wildcards not supported in HTTP.\n"
 msgstr "警告: HTTP 不支援萬用字元。\n"
 
-#: src/http.c:4288
+#: src/http.c:4289
 msgid "Spider mode enabled. Check if remote file exists.\n"
 msgstr ""
 
-#: src/http.c:4378
+#: src/http.c:4379
 #, fuzzy, c-format
 msgid "Cannot write to %s (%s).\n"
 msgstr "無法寫入‘%s’(%s)。\n"
 
-#: src/http.c:4389
+#: src/http.c:4390
 msgid "Required attribute missing from Header received.\n"
 msgstr ""
 
-#: src/http.c:4394
+#: src/http.c:4395
 msgid "Username/Password Authentication Failed.\n"
 msgstr ""
 
-#: src/http.c:4400
+#: src/http.c:4401
 #, fuzzy
 msgid "Cannot write to WARC file.\n"
 msgstr "無法寫入‘%s’(%s)。\n"
 
-#: src/http.c:4406
+#: src/http.c:4407
 msgid "Cannot write to temporary WARC file.\n"
 msgstr ""
 
-#: src/http.c:4411
+#: src/http.c:4412
 msgid "Unable to establish SSL connection.\n"
 msgstr "無法建立 SSL 連線。\n"
 
-#: src/http.c:4417
+#: src/http.c:4418
 #, fuzzy, c-format
 msgid "Cannot unlink %s (%s).\n"
 msgstr "無法寫入‘%s’(%s)。\n"
 
-#: src/http.c:4427
+#: src/http.c:4428
 #, c-format
 msgid "ERROR: Redirection (%d) without location.\n"
 msgstr "錯誤: 重新導向 (%d) 但沒有指定位置。\n"
 
-#: src/http.c:4449
+#: src/http.c:4450
 msgid ""
 "Could not find Metalink data in HTTP response. Downloading file using HTTP "
 "GET.\n"
 msgstr ""
 
-#: src/http.c:4458
+#: src/http.c:4459
 msgid "Metalink headers found. Switching to Metalink mode.\n"
 msgstr ""
 
-#: src/http.c:4498
+#: src/http.c:4499
 msgid "Remote file does not exist -- broken link!!!\n"
 msgstr ""
 
-#: src/http.c:4525
+#: src/http.c:4526
 msgid "Last-modified header missing -- time-stamps turned off.\n"
 msgstr "缺少了最後修改時間標頭 ─ 關閉時間標記。\n"
 
-#: src/http.c:4533
+#: src/http.c:4534
 msgid "Last-modified header invalid -- time-stamp ignored.\n"
 msgstr "無效的最後修改時間標頭 ─ 忽略時間標記。\n"
 
-#: src/http.c:4563
+#: src/http.c:4564
 #, fuzzy, c-format
 msgid ""
 "Server file no newer than local file %s -- not retrieving.\n"
@@ -1185,16 +1185,16 @@ msgstr ""
 "遠端檔案不比本機檔案‘%s’新 ─ 不會下載。\n"
 "\n"
 
-#: src/http.c:4571
+#: src/http.c:4572
 #, c-format
 msgid "The sizes do not match (local %s) -- retrieving.\n"
 msgstr "檔案大小不符 (本機檔案為 %s) -- 會下載檔案。\n"
 
-#: src/http.c:4580
+#: src/http.c:4581
 msgid "Remote file is newer, retrieving.\n"
 msgstr "遠端檔案較新，會下載檔案。\n"
 
-#: src/http.c:4598
+#: src/http.c:4599
 #, fuzzy
 msgid ""
 "Remote file exists and could contain links to other resources -- "
@@ -1202,33 +1202,33 @@ msgid ""
 "\n"
 msgstr "遠端檔案較本機檔案‘%s’新 ─ 會下載檔案。\n"
 
-#: src/http.c:4604
+#: src/http.c:4605
 #, fuzzy
 msgid ""
 "Remote file exists but does not contain any link -- not retrieving.\n"
 "\n"
 msgstr "遠端檔案不比本機檔案‘%s’新 ─ 不會下載。\n"
 
-#: src/http.c:4613
+#: src/http.c:4614
 msgid ""
 "Remote file exists and could contain further links,\n"
 "but recursion is disabled -- not retrieving.\n"
 "\n"
 msgstr ""
 
-#: src/http.c:4619
+#: src/http.c:4620
 #, fuzzy
 msgid ""
 "Remote file exists.\n"
 "\n"
 msgstr "遠端檔案較新，會下載檔案。\n"
 
-#: src/http.c:4628
+#: src/http.c:4629
 #, fuzzy, c-format
 msgid "%s URL: %s %2d %s\n"
 msgstr "%s: URL ‘%s’ 無效: %s\n"
 
-#: src/http.c:4678
+#: src/http.c:4679
 #, fuzzy, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s/%s]\n"
@@ -1237,7 +1237,7 @@ msgstr ""
 "%s (%s) -- 已儲存 ‘%s’ [%s/%s])\n"
 "\n"
 
-#: src/http.c:4679
+#: src/http.c:4680
 #, fuzzy, c-format
 msgid ""
 "%s (%s) - %s saved [%s/%s]\n"
@@ -1246,27 +1246,27 @@ msgstr ""
 "%s (%s) -- 已儲存 ‘%s’ [%s/%s])\n"
 "\n"
 
-#: src/http.c:4740
+#: src/http.c:4741
 #, c-format
 msgid "%s (%s) - Connection closed at byte %s. "
 msgstr "%s (%s) - 在 %s 位元組後連線突然中斷。 "
 
-#: src/http.c:4763
+#: src/http.c:4764
 #, c-format
 msgid "%s (%s) - Read error at byte %s (%s)."
 msgstr "%s (%s) - 讀取至 %s 位元組時發生錯誤 (%s)。"
 
-#: src/http.c:4772
+#: src/http.c:4773
 #, c-format
 msgid "%s (%s) - Read error at byte %s/%s (%s). "
 msgstr "%s (%s) - 讀取至 %s/%s 位元組時發生錯誤 (%s)。"
 
-#: src/http.c:5010
+#: src/http.c:5011
 #, c-format
 msgid "Unsupported quality of protection '%s'.\n"
 msgstr ""
 
-#: src/http.c:5015
+#: src/http.c:5016
 #, fuzzy, c-format
 msgid "Unsupported algorithm '%s'.\n"
 msgstr "不支援這種 URL 格式"
@@ -1933,11 +1933,10 @@ msgid "       --header=STRING             insert STRING among the headers\n"
 msgstr "       --header=字串           在連線資料標頭中加入指定字串\n"
 
 #: src/main.c:779
-#, fuzzy
 msgid ""
 "       --compression=TYPE          choose compression, one of auto, gzip and "
-"none\n"
-msgstr "       --progress=方式           選擇下載進度的表示方式\n"
+"none. (default: none)\n"
+msgstr ""
 
 #: src/main.c:782
 msgid ""
