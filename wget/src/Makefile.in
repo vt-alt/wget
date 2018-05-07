@@ -216,8 +216,9 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/strings_h.m4 $(top_srcdir)/m4/strndup.m4 \
 	$(top_srcdir)/m4/strnlen.m4 $(top_srcdir)/m4/strpbrk.m4 \
 	$(top_srcdir)/m4/strptime.m4 $(top_srcdir)/m4/strtok_r.m4 \
-	$(top_srcdir)/m4/strtoll.m4 $(top_srcdir)/m4/symlink.m4 \
-	$(top_srcdir)/m4/sys_file_h.m4 $(top_srcdir)/m4/sys_ioctl_h.m4 \
+	$(top_srcdir)/m4/strtol.m4 $(top_srcdir)/m4/strtoll.m4 \
+	$(top_srcdir)/m4/symlink.m4 $(top_srcdir)/m4/sys_file_h.m4 \
+	$(top_srcdir)/m4/sys_ioctl_h.m4 \
 	$(top_srcdir)/m4/sys_select_h.m4 \
 	$(top_srcdir)/m4/sys_socket_h.m4 \
 	$(top_srcdir)/m4/sys_stat_h.m4 $(top_srcdir)/m4/sys_time_h.m4 \
@@ -263,7 +264,7 @@ am__libunittest_a_SOURCES_DIST = connect.c convert.c cookies.c ftp.c \
 	http-ntlm.h init.h log.h mswindows.h netrc.h options.h \
 	progress.h ptimer.h recur.h res.h retr.h spider.h ssl.h \
 	sysdep.h url.h warc.h utils.h wget.h iri.h exits.h version.h \
-	metalink.h xattr.h test.c test.h
+	metalink.h xattr.h
 @WITH_XATTR_TRUE@am__objects_1 = libunittest_a-xattr.$(OBJEXT)
 @IRI_IS_ENABLED_TRUE@am__objects_2 = libunittest_a-iri.$(OBJEXT)
 @METALINK_IS_ENABLED_TRUE@am__objects_3 =  \
@@ -288,7 +289,6 @@ am__objects_4 = libunittest_a-connect.$(OBJEXT) \
 	libunittest_a-build_info.$(OBJEXT) $(am__objects_2) \
 	$(am__objects_3)
 am_libunittest_a_OBJECTS = $(am__objects_4) \
-	libunittest_a-test.$(OBJEXT) \
 	libunittest_a-build_info.$(OBJEXT)
 nodist_libunittest_a_OBJECTS = libunittest_a-version.$(OBJEXT)
 libunittest_a_OBJECTS = $(am_libunittest_a_OBJECTS) \
@@ -1080,6 +1080,7 @@ LIBUNISTRING_UNITYPES_H = @LIBUNISTRING_UNITYPES_H@
 LIBUNISTRING_UNIWIDTH_H = @LIBUNISTRING_UNIWIDTH_H@
 LIB_CLOCK_GETTIME = @LIB_CLOCK_GETTIME@
 LIB_CRYPTO = @LIB_CRYPTO@
+LIB_FUZZING_ENGINE = @LIB_FUZZING_ENGINE@
 LIB_NANOSLEEP = @LIB_NANOSLEEP@
 LIB_POSIX_SPAWN = @LIB_POSIX_SPAWN@
 LIB_SELECT = @LIB_SELECT@
@@ -1495,7 +1496,7 @@ LDADD = $(LIBOBJS) ../lib/libgnu.a $(GETADDRINFO_LIB) $(HOSTENT_LIB)\
 AM_CPPFLAGS = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 ESCAPEQUOTE = sed -e 's/[\\"]/\\&/g' -e 's/\\"/"/' -e 's/\\";$$/";/'
 check_LIBRARIES = libunittest.a
-libunittest_a_SOURCES = $(wget_SOURCES) test.c build_info.c test.h
+libunittest_a_SOURCES = $(wget_SOURCES) build_info.c
 nodist_libunittest_a_SOURCES = version.c
 libunittest_a_CPPFLAGS = -DTESTING "-I$(top_builddir)/lib" "-I$(top_srcdir)/lib"
 libunittest_a_LIBADD = $(LIBOBJS)
@@ -1661,7 +1662,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libunittest_a-res.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libunittest_a-retr.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libunittest_a-spider.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libunittest_a-test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libunittest_a-url.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libunittest_a-utils.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libunittest_a-version.Po@am__quote@
@@ -2144,20 +2144,6 @@ libunittest_a-metalink.obj: metalink.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='metalink.c' object='libunittest_a-metalink.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libunittest_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libunittest_a-metalink.obj `if test -f 'metalink.c'; then $(CYGPATH_W) 'metalink.c'; else $(CYGPATH_W) '$(srcdir)/metalink.c'; fi`
-
-libunittest_a-test.o: test.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libunittest_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libunittest_a-test.o -MD -MP -MF $(DEPDIR)/libunittest_a-test.Tpo -c -o libunittest_a-test.o `test -f 'test.c' || echo '$(srcdir)/'`test.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libunittest_a-test.Tpo $(DEPDIR)/libunittest_a-test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='test.c' object='libunittest_a-test.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libunittest_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libunittest_a-test.o `test -f 'test.c' || echo '$(srcdir)/'`test.c
-
-libunittest_a-test.obj: test.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libunittest_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libunittest_a-test.obj -MD -MP -MF $(DEPDIR)/libunittest_a-test.Tpo -c -o libunittest_a-test.obj `if test -f 'test.c'; then $(CYGPATH_W) 'test.c'; else $(CYGPATH_W) '$(srcdir)/test.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libunittest_a-test.Tpo $(DEPDIR)/libunittest_a-test.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='test.c' object='libunittest_a-test.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libunittest_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libunittest_a-test.obj `if test -f 'test.c'; then $(CYGPATH_W) 'test.c'; else $(CYGPATH_W) '$(srcdir)/test.c'; fi`
 
 libunittest_a-version.o: version.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libunittest_a_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libunittest_a-version.o -MD -MP -MF $(DEPDIR)/libunittest_a-version.Tpo -c -o libunittest_a-version.o `test -f 'version.c' || echo '$(srcdir)/'`version.c

@@ -107,7 +107,6 @@ AC_DEFUN([gl_EARLY],
   # Code from module getpeername:
   # Code from module getprogname:
   # Code from module getsockname:
-  # Code from module gettext:
   # Code from module gettext-h:
   # Code from module gettime:
   # Code from module gettimeofday:
@@ -241,6 +240,7 @@ AC_DEFUN([gl_EARLY],
   # Code from module strpbrk:
   # Code from module strptime:
   # Code from module strtok_r:
+  # Code from module strtol:
   # Code from module strtoll:
   # Code from module symlink:
   # Code from module sys_file:
@@ -520,8 +520,6 @@ AC_DEFUN([gl_INIT],
     AC_LIBOBJ([getsockname])
   fi
   gl_SYS_SOCKET_MODULE_INDICATOR([getsockname])
-  dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
-  AM_GNU_GETTEXT_VERSION([0.18.1])
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
   gl_GETTIME
@@ -979,6 +977,10 @@ AC_DEFUN([gl_INIT],
     gl_PREREQ_STRTOK_R
   fi
   gl_STRING_MODULE_INDICATOR([strtok_r])
+  gl_FUNC_STRTOL
+  if test $ac_cv_func_strtol = no; then
+    AC_LIBOBJ([strtol])
+  fi
   gl_FUNC_STRTOLL
   if test $HAVE_STRTOLL = 0; then
     AC_LIBOBJ([strtoll])
@@ -1655,11 +1657,9 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/getopt.m4
   m4/getpass.m4
   m4/getprogname.m4
-  m4/gettext.m4
   m4/gettime.m4
   m4/gettimeofday.m4
   m4/gl-openssl.m4
-  m4/glibc2.m4
   m4/glibc21.m4
   m4/gnulib-common.m4
   m4/group-member.m4
@@ -1671,11 +1671,6 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/include_next.m4
   m4/inet_ntop.m4
   m4/inline.m4
-  m4/intdiv0.m4
-  m4/intl.m4
-  m4/intldir.m4
-  m4/intlmacosx.m4
-  m4/intmax.m4
   m4/intmax_t.m4
   m4/inttypes-pri.m4
   m4/inttypes.m4
@@ -1684,7 +1679,6 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/iswblank.m4
   m4/langinfo_h.m4
   m4/largefile.m4
-  m4/lcmessage.m4
   m4/lib-ld.m4
   m4/lib-link.m4
   m4/lib-prefix.m4
@@ -1732,7 +1726,6 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/netdb_h.m4
   m4/netinet_in_h.m4
   m4/nl_langinfo.m4
-  m4/nls.m4
   m4/nocrash.m4
   m4/off_t.m4
   m4/open-cloexec.m4
@@ -1740,11 +1733,8 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/pathmax.m4
   m4/pipe.m4
   m4/pipe2.m4
-  m4/po.m4
   m4/posix_spawn.m4
-  m4/printf-posix.m4
   m4/printf.m4
-  m4/progtest.m4
   m4/pthread_rwlock_rdlock.m4
   m4/quote.m4
   m4/quotearg.m4
@@ -1793,6 +1783,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/strpbrk.m4
   m4/strptime.m4
   m4/strtok_r.m4
+  m4/strtol.m4
   m4/strtoll.m4
   m4/symlink.m4
   m4/sys_file_h.m4
@@ -1812,7 +1803,6 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/timespec.m4
   m4/tm_gmtoff.m4
   m4/tmpdir.m4
-  m4/uintmax_t.m4
   m4/unistd-safer.m4
   m4/unistd_h.m4
   m4/unlink.m4
@@ -1823,7 +1813,6 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/utimes.m4
   m4/vasnprintf.m4
   m4/vasprintf.m4
-  m4/visibility.m4
   m4/vsnprintf.m4
   m4/wait-process.m4
   m4/waitpid.m4

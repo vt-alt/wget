@@ -71,7 +71,7 @@ as that of the covered work.  */
 #endif
 
 #ifdef TESTING
-#include "test.h"
+#include "../tests/unit-tests.h"
 #endif
 
 #ifdef __VMS
@@ -613,9 +613,9 @@ struct response {
    resp_header_*.  */
 
 static struct response *
-resp_new (const char *head)
+resp_new (char *head)
 {
-  const char *hdr;
+  char *hdr;
   int count, size;
 
   struct response *resp = xnew0 (struct response);
@@ -644,15 +644,23 @@ resp_new (const char *head)
         break;
 
       /* Find the end of HDR, including continuations. */
-      do
+      for (;;)
         {
-          const char *end = strchr (hdr, '\n');
+          char *end = strchr (hdr, '\n');
+
           if (end)
             hdr = end + 1;
           else
             hdr += strlen (hdr);
+
+          if (*hdr != ' ' && *hdr != '\t')
+            break;
+
+          // continuation, transform \r and \n into spaces
+          *end = ' ';
+          if (end > head && end[-1] == '\r')
+            end[-1] = ' ';
         }
-      while (*hdr == ' ' || *hdr == '\t');
     }
   DO_REALLOC (resp->headers, size, count + 1, const char *);
   resp->headers[count] = NULL;
@@ -1927,10 +1935,10 @@ initialize_request (const struct url *u, struct http_stat *hs, int *dt, struct u
 
   /* Check for ~/.netrc if none of the above match */
   if (opt.netrc && (!*user || !*passwd))
-    search_netrc (u->host, (const char **) user, (const char **) passwd, 0);
+    search_netrc (u->host, (const char **) user, (const char **) passwd, 0, NULL);
 
   /* We only do "site-wide" authentication with "global" user/password
-   * values unless --auth-no-challange has been requested; URL user/password
+   * values unless --auth-no-challenge has been requested; URL user/password
    * info overrides. */
   if (*user && *passwd && (!u->user || opt.auth_without_challenge))
     {
@@ -3795,7 +3803,7 @@ gethttp (const struct url *u, struct url *original_url, struct http_stat *hs,
           hs->restval = 0;
 
           /* Normally we are not interested in the response body of a redirect.
-             But if we are writing a WARC file we are: we like to keep everyting.  */
+             But if we are writing a WARC file we are: we like to keep everything.  */
           if (warc_enabled)
             {
               int _err = read_response_body (hs, sock, NULL, contlen, 0,
@@ -4594,7 +4602,7 @@ The sizes do not match (local %s) -- retrieving.\n"),
                   bool finished = true;
                   if (opt.recursive)
                     {
-                      if (*dt & TEXTHTML)
+                      if ((*dt & TEXTHTML) || (*dt & TEXTCSS))
                         {
                           logputs (LOG_VERBOSE, _("\
 Remote file exists and could contain links to other resources -- retrieving.\n\n"));
@@ -4609,7 +4617,7 @@ Remote file exists but does not contain any link -- not retrieving.\n\n"));
                     }
                   else
                     {
-                      if (*dt & TEXTHTML)
+                      if ((*dt & TEXTHTML) || (*dt & TEXTCSS))
                         {
                           logprintf (LOG_VERBOSE, _("\
 Remote file exists and could contain further links,\n\

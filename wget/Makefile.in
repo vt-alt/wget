@@ -215,8 +215,9 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/strings_h.m4 $(top_srcdir)/m4/strndup.m4 \
 	$(top_srcdir)/m4/strnlen.m4 $(top_srcdir)/m4/strpbrk.m4 \
 	$(top_srcdir)/m4/strptime.m4 $(top_srcdir)/m4/strtok_r.m4 \
-	$(top_srcdir)/m4/strtoll.m4 $(top_srcdir)/m4/symlink.m4 \
-	$(top_srcdir)/m4/sys_file_h.m4 $(top_srcdir)/m4/sys_ioctl_h.m4 \
+	$(top_srcdir)/m4/strtol.m4 $(top_srcdir)/m4/strtoll.m4 \
+	$(top_srcdir)/m4/symlink.m4 $(top_srcdir)/m4/sys_file_h.m4 \
+	$(top_srcdir)/m4/sys_ioctl_h.m4 \
 	$(top_srcdir)/m4/sys_select_h.m4 \
 	$(top_srcdir)/m4/sys_socket_h.m4 \
 	$(top_srcdir)/m4/sys_stat_h.m4 $(top_srcdir)/m4/sys_time_h.m4 \
@@ -314,9 +315,11 @@ am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(top_srcdir)/build-aux/missing \
 	$(top_srcdir)/tests/certs/interca.conf.in \
 	$(top_srcdir)/tests/certs/rootca.conf.in ABOUT-NLS AUTHORS \
-	COPYING ChangeLog INSTALL NEWS README build-aux/compile \
-	build-aux/config.guess build-aux/config.rpath \
-	build-aux/config.sub build-aux/install-sh build-aux/missing
+	COPYING ChangeLog INSTALL NEWS README build-aux/ar-lib \
+	build-aux/compile build-aux/config.guess \
+	build-aux/config.rpath build-aux/config.sub build-aux/depcomp \
+	build-aux/install-sh build-aux/ltmain.sh build-aux/mdate-sh \
+	build-aux/missing build-aux/texinfo.tex
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -1039,6 +1042,7 @@ LIBUNISTRING_UNITYPES_H = @LIBUNISTRING_UNITYPES_H@
 LIBUNISTRING_UNIWIDTH_H = @LIBUNISTRING_UNIWIDTH_H@
 LIB_CLOCK_GETTIME = @LIB_CLOCK_GETTIME@
 LIB_CRYPTO = @LIB_CRYPTO@
+LIB_FUZZING_ENGINE = @LIB_FUZZING_ENGINE@
 LIB_NANOSLEEP = @LIB_NANOSLEEP@
 LIB_POSIX_SPAWN = @LIB_POSIX_SPAWN@
 LIB_SELECT = @LIB_SELECT@
@@ -1439,7 +1443,7 @@ distuninstallcheck_listfiles = find . -type f | \
 ACLOCAL_AMFLAGS = -I m4
 
 # subdirectories in the distribution
-SUBDIRS = lib src doc po tests util testenv
+SUBDIRS = lib src doc po util fuzz tests testenv
 EXTRA_DIST = MAILING-LIST \
              msdos/config.h msdos/Makefile.DJ \
              msdos/Makefile.WC ABOUT-NLS \

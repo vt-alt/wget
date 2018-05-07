@@ -64,6 +64,12 @@ as that of the covered work.  */
 #include <getpass.h>
 #include <quote.h>
 
+#ifdef TESTING
+/* Rename the main function so we can have a main() in fuzzing code
+   and call the original main. */
+# define main main_wget
+#endif
+
 #ifdef HAVE_METALINK
 # include <metalink/metalink_parser.h>
 # include "metalink.h"
@@ -109,7 +115,6 @@ const char *exec_name;
 /* Number of successfully downloaded URLs */
 int numurls = 0;
 
-#ifndef TESTING
 /* Initialize I18N/L10N.  That amounts to invoking setlocale, and
    setting up gettext's message catalog using bindtextdomain and
    textdomain.  Does nothing if NLS is disabled or missing.  */
@@ -167,16 +172,12 @@ hsts_store_t hsts_store;
 static char*
 get_hsts_database (void)
 {
-  char *home;
-
   if (opt.hsts_file)
     return xstrdup (opt.hsts_file);
 
-  home = home_dir ();
-  if (home)
+  if (opt.homedir)
     {
-      char *dir = aprintf ("%s/.wget-hsts", home);
-      xfree(home);
+      char *dir = aprintf ("%s/.wget-hsts", opt.homedir);
       return dir;
     }
 
@@ -222,6 +223,7 @@ save_hsts (void)
         }
 
       hsts_store_close (hsts_store);
+      xfree (hsts_store);
 
       xfree (filename);
     }
@@ -390,6 +392,7 @@ static struct cmdline_option option_data[] =
     { "preferred-location", 0, OPT_VALUE, "preferredlocation", -1 },
 #endif
     { "preserve-permissions", 0, OPT_BOOLEAN, "preservepermissions", -1 },
+    { IF_SSL ("ciphers"), 0, OPT_VALUE, "ciphers", -1 },
     { IF_SSL ("private-key"), 0, OPT_VALUE, "privatekey", -1 },
     { IF_SSL ("private-key-type"), 0, OPT_VALUE, "privatekeytype", -1 },
     { "progress", 0, OPT_VALUE, "progress", -1 },
@@ -497,8 +500,14 @@ static unsigned char optmap[96];
 static void
 init_switches (void)
 {
+  static bool initialized;
   char *p = short_options;
   size_t i, o = 0;
+
+  if (initialized)
+    return;
+  initialized = 1;
+
   for (i = 0; i < countof (option_data); i++)
     {
       struct cmdline_option *cmdopt = &option_data[i];
@@ -560,10 +569,14 @@ init_switches (void)
 
 /* Print the usage message.  */
 static int
-print_usage (int error)
+print_usage (_GL_UNUSED int error)
 {
+#ifndef TESTING
   return fprintf (error ? stderr : stdout,
                   _("Usage: %s [OPTION]... [URL]...\n"), exec_name);
+#else
+  return 0;
+#endif
 }
 
 /* Print the help message, describing all the available options.  If
@@ -571,6 +584,7 @@ print_usage (int error)
 _Noreturn static void
 print_help (void)
 {
+#ifndef TESTING
   /* We split the help text this way to ease translation of individual
      entries.  */
   static const char *help[] = {
@@ -636,6 +650,8 @@ Download:\n"),
   -t,  --tries=NUMBER              set number of retries to NUMBER (0 unlimits)\n"),
     N_("\
        --retry-connrefused         retry even if connection is refused\n"),
+    N_("\
+       --retry-on-http-error=ERRORS    comma-separated list of HTTP errors to retry\n"),
     N_("\
   -O,  --output-document=FILE      write documents to FILE\n"),
     N_("\
@@ -860,6 +876,10 @@ HTTPS (SSL/TLS) options:\n"),
        --egd-file=FILE             file naming the EGD socket with random data\n"),
 #endif
     "\n",
+    N_("\
+       --ciphers=STR           Set the priority string (GnuTLS) or cipher list string (OpenSSL) directly.\n\
+                                   Use with care. This option overrides --secure-protocol.\n\
+                                   The format and syntax of this string depend on the specific SSL/TLS engine.\n"),
 #endif /* HAVE_SSL */
 
 #ifdef HAVE_HSTS
@@ -1005,7 +1025,8 @@ Recursive accept/reject:\n"),
     N_("\
   -np, --no-parent                 don't ascend to the parent directory\n"),
     "\n",
-    N_("Mail bug reports and suggestions to <bug-wget@gnu.org>\n")
+    N_("Email bug reports, questions, discussions to <bug-wget@gnu.org>\n"),
+    N_("and/or open issues at https://savannah.gnu.org/bugs/?func=additem&group=wget.\n")
   };
 
   size_t i;
@@ -1019,7 +1040,7 @@ Recursive accept/reject:\n"),
   for (i = 0; i < countof (help); i++)
     if (fputs (_(help[i]), stdout) < 0)
       exit (WGET_EXIT_IO_FAIL);
-
+#endif /* TESTING */
   exit (WGET_EXIT_SUCCESS);
 }
 
@@ -1056,7 +1077,12 @@ prompt_for_password (void)
     fprintf (stderr, _("Password for user %s: "), quote (opt.user));
   else
     fprintf (stderr, _("Password: "));
+#ifndef TESTING
+  /* gnulib's getpass() uses static variables internally, bad for fuzing */
   return getpass("");
+#else
+  return xstrdup("");
+#endif
 }
 
 
@@ -1317,6 +1343,8 @@ There is NO WARRANTY, to the extent permitted by law.\n"), stdout) < 0)
 
 const char *program_name; /* Needed by lib/error.c. */
 const char *program_argstring; /* Needed by wget_warc.c. */
+struct ptimer *timer;
+int cleaned_up;
 
 int
 main (int argc, char **argv)
@@ -1330,7 +1358,9 @@ main (int argc, char **argv)
   bool noconfig = false;
   bool append_to_log = false;
 
-  struct ptimer *timer = ptimer_new ();
+  cleaned_up = 0; /* do cleanup later */
+
+  timer = ptimer_new ();
   double start_time = ptimer_measure (timer);
 
   total_downloaded_bytes = 0;
@@ -1375,6 +1405,7 @@ main (int argc, char **argv)
 
   /* Load the hard-coded defaults.  */
   defaults ();
+  opt.homedir = home_dir();
 
   init_switches ();
 
@@ -1416,7 +1447,8 @@ main (int argc, char **argv)
 
   /* If the user did not specify a config, read the system wgetrc and ~/.wgetrc. */
   if (noconfig == false && use_userconfig == false)
-    initialize ();
+    if ((ret = initialize ()))
+      return ret;
 
   opterr = 0;
   optind = 0;
@@ -1737,12 +1769,14 @@ for details.\n\n"));
       )
     {
       /* No URL specified.  */
+#ifndef TESTING
       fprintf (stderr, _("%s: missing URL\n"), exec_name);
       print_usage (1);
       fprintf (stderr, "\n");
       /* #### Something nicer should be printed here -- similar to the
          pre-1.5 `--help' page.  */
       fprintf (stderr, _("Try `%s --help' for more options.\n"), exec_name);
+#endif
       exit (WGET_EXIT_GENERIC_ERROR);
     }
 
@@ -1837,13 +1871,13 @@ for details.\n\n"));
   if (opt.enable_iri)
     {
       if (opt.locale && !check_encoding_name (opt.locale))
-        opt.locale = NULL;
+        xfree (opt.locale);
 
       if (!opt.locale)
         opt.locale = find_locale ();
 
       if (opt.encoding_remote && !check_encoding_name (opt.encoding_remote))
-        opt.encoding_remote = NULL;
+        xfree (opt.encoding_remote);
     }
 #else
   memset (&dummy_iri, 0, sizeof (dummy_iri));
@@ -1877,9 +1911,14 @@ for details.\n\n"));
   if (opt.wdebug)
      dbug_init();
   sock_init();
-#else
+#elif ! defined TESTING
   if (opt.background)
-    fork_to_background ();
+    {
+      bool logfile_changed = fork_to_background ();
+
+      if (logfile_changed)
+        log_init (opt.lfilename, append_to_log);
+    }
 #endif
 
   /* Initialize progress.  Have to do this after the options are
@@ -2212,7 +2251,7 @@ only if outputting to a regular file.\n"));
       char *wall_time = xstrdup (secs_to_human_time (end_time - start_time));
       char *download_time = xstrdup (secs_to_human_time (total_download_time));
 
-      ptimer_destroy (timer);
+      ptimer_destroy (timer); timer = NULL;
 
       logprintf (LOG_NOTQUIET,
                  _("FINISHED --%s--\nTotal wall clock time: %s\n"
@@ -2248,8 +2287,6 @@ only if outputting to a regular file.\n"));
 
   exit (get_exit_status ());
 }
-
-#endif /* TESTING */
 
 /*
  * vim: et ts=2 sw=2

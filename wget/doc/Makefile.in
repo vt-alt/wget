@@ -204,8 +204,9 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/00gnulib.m4 \
 	$(top_srcdir)/m4/strings_h.m4 $(top_srcdir)/m4/strndup.m4 \
 	$(top_srcdir)/m4/strnlen.m4 $(top_srcdir)/m4/strpbrk.m4 \
 	$(top_srcdir)/m4/strptime.m4 $(top_srcdir)/m4/strtok_r.m4 \
-	$(top_srcdir)/m4/strtoll.m4 $(top_srcdir)/m4/symlink.m4 \
-	$(top_srcdir)/m4/sys_file_h.m4 $(top_srcdir)/m4/sys_ioctl_h.m4 \
+	$(top_srcdir)/m4/strtol.m4 $(top_srcdir)/m4/strtoll.m4 \
+	$(top_srcdir)/m4/symlink.m4 $(top_srcdir)/m4/sys_file_h.m4 \
+	$(top_srcdir)/m4/sys_ioctl_h.m4 \
 	$(top_srcdir)/m4/sys_select_h.m4 \
 	$(top_srcdir)/m4/sys_socket_h.m4 \
 	$(top_srcdir)/m4/sys_stat_h.m4 $(top_srcdir)/m4/sys_time_h.m4 \
@@ -1009,6 +1010,7 @@ LIBUNISTRING_UNITYPES_H = @LIBUNISTRING_UNITYPES_H@
 LIBUNISTRING_UNIWIDTH_H = @LIBUNISTRING_UNIWIDTH_H@
 LIB_CLOCK_GETTIME = @LIB_CLOCK_GETTIME@
 LIB_CRYPTO = @LIB_CRYPTO@
+LIB_FUZZING_ENGINE = @LIB_FUZZING_ENGINE@
 LIB_NANOSLEEP = @LIB_NANOSLEEP@
 LIB_POSIX_SPAWN = @LIB_POSIX_SPAWN@
 LIB_SELECT = @LIB_SELECT@

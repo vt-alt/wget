@@ -103,7 +103,7 @@ as that of the covered work.  */
 #endif /* def __VMS */
 
 #ifdef TESTING
-#include "test.h"
+#include "../tests/unit-tests.h"
 #endif
 
 #include "exits.h"
@@ -469,7 +469,7 @@ fork_to_background (void)
 #else /* def __VMS */
 
 #if !defined(WINDOWS) && !defined(MSDOS)
-void
+bool
 fork_to_background (void)
 {
   pid_t pid;
@@ -514,6 +514,8 @@ fork_to_background (void)
     DEBUGP (("Failed to redirect stdout to /dev/null.\n"));
   if (freopen ("/dev/null", "w", stderr) == NULL)
     DEBUGP (("Failed to redirect stderr to /dev/null.\n"));
+
+  return logfile_changed;
 }
 #endif /* !WINDOWS && !MSDOS */
 
@@ -527,40 +529,13 @@ fork_to_background (void)
 void
 touch (const char *file, time_t tm)
 {
-#if HAVE_UTIME
-# ifdef HAVE_STRUCT_UTIMBUF
   struct utimbuf times;
-# else
-  struct {
-    time_t actime;
-    time_t modtime;
-  } times;
-# endif
+
   times.modtime = tm;
   times.actime = time (NULL);
+
   if (utime (file, &times) == -1)
     logprintf (LOG_NOTQUIET, "utime(%s): %s\n", file, strerror (errno));
-#else
-  struct timespec timespecs[2];
-  int fd;
-
-  fd = open (file, O_WRONLY);
-  if (fd < 0)
-    {
-      logprintf (LOG_NOTQUIET, "open(%s): %s\n", file, strerror (errno));
-      return;
-    }
-
-  timespecs[0].tv_sec = time (NULL);
-  timespecs[0].tv_nsec = 0L;
-  timespecs[1].tv_sec = tm;
-  timespecs[1].tv_nsec = 0L;
-
-  if (futimens (fd, timespecs) == -1)
-    logprintf (LOG_NOTQUIET, "futimens(%s): %s\n", file, strerror (errno));
-
-  close (fd);
-#endif
 }
 
 /* Checks if FILE is a symbolic link, and removes it if it is.  Does
@@ -873,7 +848,12 @@ fopen_stat(const char *fname, const char *mode, file_stats_t *fstats)
   FILE *fp;
   struct stat fdstats;
 
+#if defined FUZZING && defined TESTING
+  fp = fopen_wgetrc (fname, mode);
+  return fp;
+#else
   fp = fopen (fname, mode);
+#endif
   if (fp == NULL)
   {
     logprintf (LOG_NOTQUIET, _("Failed to Fopen file %s\n"), fname);
@@ -1173,7 +1153,7 @@ accdir (const char *directory)
 bool
 match_tail (const char *string, const char *tail, bool fold_case)
 {
-  int pos = strlen (string) - strlen (tail);
+  int pos = (int) strlen (string) - (int) strlen (tail);
 
   if (pos < 0)
     return false;  /* tail is longer than string.  */
@@ -1299,6 +1279,7 @@ wget_read_file (const char *file)
 
   /* Some magic in the finest tradition of Perl and its kin: if FILE
      is "-", just use stdin.  */
+#ifndef FUZZING
   if (HYPHENP (file))
     {
       fd = fileno (stdin);
@@ -1307,6 +1288,7 @@ wget_read_file (const char *file)
          redirected from a regular file, mmap() will still work.  */
     }
   else
+#endif
     fd = open (file, O_RDONLY);
   if (fd < 0)
     return NULL;
@@ -2466,6 +2448,11 @@ void *
 compile_posix_regex (const char *str)
 {
   regex_t *regex = xmalloc (sizeof (regex_t));
+#ifdef TESTING
+  /* regcomp might be *very* cpu+memory intensive,
+   *  see https://sourceware.org/glibc/wiki/Security%20Exceptions */
+  str = "a";
+#endif
   int errcode = regcomp ((regex_t *) regex, str, REG_EXTENDED | REG_NOSUB);
   if (errcode != 0)
     {

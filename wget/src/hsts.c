@@ -36,7 +36,7 @@ as that of the covered work.  */
 #include "hash.h"
 #include "c-ctype.h"
 #ifdef TESTING
-#include "test.h"
+#include "../tests/unit-tests.h"
 #endif
 
 #include <unistd.h>
@@ -83,6 +83,9 @@ enum hsts_kh_match {
 
 /* Hashing and comparison functions for the hash table */
 
+#ifdef __clang__
+__attribute__((no_sanitize("integer")))
+#endif
 static unsigned long
 hsts_hash_func (const void *key)
 {
@@ -621,19 +624,17 @@ hsts_store_close (hsts_store_t store)
 static char *
 get_hsts_store_filename (void)
 {
-  char *home = NULL, *filename = NULL;
+  char *filename = NULL;
   FILE *fp = NULL;
 
-  home = home_dir ();
-  if (home)
+  if (opt.homedir)
     {
-      filename = aprintf ("%s/.wget-hsts-test", home);
+      filename = aprintf ("%s/.wget-hsts-test", opt.homedir);
       fp = fopen (filename, "w");
       if (fp)
         fclose (fp);
     }
 
-  xfree (home);
   return filename;
 }
 
@@ -786,14 +787,13 @@ const char*
 test_hsts_read_database (void)
 {
   hsts_store_t table;
-  char *home = home_dir();
   char *file = NULL;
   FILE *fp = NULL;
   time_t created = time(NULL) - 10;
 
-  if (home)
+  if (opt.homedir)
     {
-      file = aprintf ("%s/.wget-hsts-testing", home);
+      file = aprintf ("%s/.wget-hsts-testing", opt.homedir);
       fp = fopen (file, "w");
       if (fp)
         {
@@ -818,7 +818,6 @@ test_hsts_read_database (void)
           unlink (file);
         }
       xfree (file);
-      xfree (home);
     }
 
   return NULL;
