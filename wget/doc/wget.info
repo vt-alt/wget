@@ -18,8 +18,8 @@ END-INFO-DIR-ENTRY
 
 File: wget.info,  Node: Top,  Next: Overview,  Prev: (dir),  Up: (dir)
 
-Wget 1.20
-*********
+Wget 1.20.1
+***********
 
 This file documents the GNU Wget utility for downloading network data.
 
@@ -405,6 +405,13 @@ File: wget.info,  Node: Logging and Input File Options,  Next: Download Options,
 ‘--preferred-location’
      Set preferred location for Metalink resources.  This has effect if
      multiple resources with same priority are available.
+
+‘--xattr’
+     Enable use of file system’s extended attributes to save the
+     original URL and the Referer HTTP header value if used.
+
+     Be aware that the URL might contain private information like access
+     tokens or credentials.
 
 ‘-F’
 ‘--force-html’
@@ -3798,7 +3805,8 @@ File: wget.info,  Node: Distribution,  Next: Web Site,  Prev: Proxies,  Up: Vari
 
 Like all GNU utilities, the latest version of Wget can be found at the
 master GNU archive site ftp.gnu.org, and its mirrors.  For example, Wget
-1.20 can be found at <https://ftp.gnu.org/pub/gnu/wget/wget-1.20.tar.gz>
+1.20.1 can be found at
+<https://ftp.gnu.org/pub/gnu/wget/wget-1.20.1.tar.gz>
 
 
 File: wget.info,  Node: Web Site,  Next: Mailing Lists,  Prev: Distribution,  Up: Various
@@ -4735,7 +4743,7 @@ Concept Index
 * backing up files:                      Download Options.    (line 107)
 * bandwidth, limit:                      Download Options.    (line 330)
 * base for relative links in input file: Logging and Input File Options.
-                                                              (line 104)
+                                                              (line 111)
 * bind address:                          Download Options.    (line   6)
 * bind DNS address:                      Download Options.    (line  11)
 * bug reports:                           Reporting Bugs.      (line   6)
@@ -4807,7 +4815,7 @@ Concept Index
 * following ftp links:                   FTP Links.           (line   6)
 * following links:                       Following Links.     (line   6)
 * force html:                            Logging and Input File Options.
-                                                              (line  97)
+                                                              (line 104)
 * ftp authentication:                    FTP Options.         (line   6)
 * ftp password:                          FTP Options.         (line   6)
 * ftp time-stamping:                     FTP Time-Stamping Internals.
@@ -4937,7 +4945,7 @@ Concept Index
 * signal handling:                       Signals.             (line   6)
 * spanning hosts:                        Spanning Hosts.      (line   6)
 * specify config:                        Logging and Input File Options.
-                                                              (line 117)
+                                                              (line 124)
 * spider:                                Download Options.    (line 279)
 * SSL:                                   HTTPS (SSL/TLS) Options.
                                                               (line   6)
@@ -4999,63 +5007,65 @@ Concept Index
 * wildcards, accept:                     Types of Files.      (line  15)
 * wildcards, reject:                     Types of Files.      (line  39)
 * Windows file names:                    Download Options.    (line 433)
+* xattr:                                 Logging and Input File Options.
+                                                              (line  97)
 
 
 
 Tag Table:
 Node: Top744
-Node: Overview2072
-Node: Invoking5764
-Node: URL Format6624
-Ref: URL Format-Footnote-19303
-Node: Option Syntax9409
-Node: Basic Startup Options12187
-Node: Logging and Input File Options13045
-Node: Download Options18429
-Node: Directory Options47995
-Node: HTTP Options50846
-Node: HTTPS (SSL/TLS) Options71498
-Node: FTP Options84657
-Node: Recursive Retrieval Options91719
-Node: Recursive Accept/Reject Options100976
-Node: Exit Status105181
-Node: Recursive Download106216
-Node: Following Links109455
-Node: Spanning Hosts110421
-Node: Types of Files112690
-Node: Directory-Based Limits117584
-Node: Relative Links120851
-Node: FTP Links121701
-Node: Time-Stamping122592
-Node: Time-Stamping Usage124264
-Node: HTTP Time-Stamping Internals126136
-Ref: HTTP Time-Stamping Internals-Footnote-1127484
-Node: FTP Time-Stamping Internals127687
-Node: Startup File129174
-Node: Wgetrc Location130114
-Node: Wgetrc Syntax130968
-Node: Wgetrc Commands131733
-Node: Sample Wgetrc148326
-Node: Examples154354
-Node: Simple Usage154715
-Node: Advanced Usage156164
-Node: Very Advanced Usage159980
-Node: Various161524
-Node: Proxies162233
-Node: Distribution165190
-Node: Web Site165530
-Node: Mailing Lists165830
-Node: Internet Relay Chat167567
-Node: Reporting Bugs167862
-Node: Portability170590
-Node: Signals172237
-Node: Appendices172944
-Node: Robot Exclusion173292
-Node: Security Considerations177154
-Node: Contributors178364
-Node: Copying this manual184094
-Node: GNU Free Documentation License184334
-Node: Concept Index209686
+Node: Overview2076
+Node: Invoking5768
+Node: URL Format6628
+Ref: URL Format-Footnote-19307
+Node: Option Syntax9413
+Node: Basic Startup Options12191
+Node: Logging and Input File Options13049
+Node: Download Options18678
+Node: Directory Options48244
+Node: HTTP Options51095
+Node: HTTPS (SSL/TLS) Options71747
+Node: FTP Options84906
+Node: Recursive Retrieval Options91968
+Node: Recursive Accept/Reject Options101225
+Node: Exit Status105430
+Node: Recursive Download106465
+Node: Following Links109704
+Node: Spanning Hosts110670
+Node: Types of Files112939
+Node: Directory-Based Limits117833
+Node: Relative Links121100
+Node: FTP Links121950
+Node: Time-Stamping122841
+Node: Time-Stamping Usage124513
+Node: HTTP Time-Stamping Internals126385
+Ref: HTTP Time-Stamping Internals-Footnote-1127733
+Node: FTP Time-Stamping Internals127936
+Node: Startup File129423
+Node: Wgetrc Location130363
+Node: Wgetrc Syntax131217
+Node: Wgetrc Commands131982
+Node: Sample Wgetrc148575
+Node: Examples154603
+Node: Simple Usage154964
+Node: Advanced Usage156413
+Node: Very Advanced Usage160229
+Node: Various161773
+Node: Proxies162482
+Node: Distribution165439
+Node: Web Site165783
+Node: Mailing Lists166083
+Node: Internet Relay Chat167820
+Node: Reporting Bugs168115
+Node: Portability170843
+Node: Signals172490
+Node: Appendices173197
+Node: Robot Exclusion173545
+Node: Security Considerations177407
+Node: Contributors178617
+Node: Copying this manual184347
+Node: GNU Free Documentation License184587
+Node: Concept Index209939
 
 End Tag Table
 
