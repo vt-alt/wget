@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget 1.16.1.46\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2018-12-26 21:10+0100\n"
+"POT-Creation-Date: 2019-04-01 20:28+0200\n"
 "PO-Revision-Date: 2015-08-04 09:23+0200\n"
 "Last-Translator: Jordi Mallach <jordi@gnu.org>\n"
 "Language-Team: Catalan <ca@dodds.net>\n"
@@ -28,7 +28,7 @@ msgstr "S'ha produït un error del sistema desconegut"
 msgid "Address family for hostname not supported"
 msgstr "La família d'adreces per al nom del servidor no està implementada"
 
-#: lib/gai_strerror.c:58 src/host.c:371
+#: lib/gai_strerror.c:58 src/host.c:372
 msgid "Temporary failure in name resolution"
 msgstr "S'ha produït un error temporal en la resolució de noms"
 
@@ -96,7 +96,7 @@ msgstr "Ha estat interromput per un senyal"
 msgid "Parameter string not correctly encoded"
 msgstr "La cadena del paràmetre no està codificada correctament"
 
-#: lib/gai_strerror.c:87 src/host.c:373
+#: lib/gai_strerror.c:87 src/host.c:374
 msgid "Unknown error"
 msgstr "S'ha produït un error desconegut"
 
@@ -236,7 +236,7 @@ msgstr "L'expressió regular %s no és vàlida, %s\n"
 msgid "Unmatched ) or \\)"
 msgstr ") o \\) desaparellat"
 
-#: lib/regcomp.c:688
+#: lib/regcomp.c:676
 msgid "No previous regular expression"
 msgstr "No hi ha una expressió regular %s prèvia"
 
@@ -246,8 +246,8 @@ msgstr "No hi ha una expressió regular %s prèvia"
 msgid "cannot create pipe"
 msgstr "no es pot crear una canonada"
 
-#: lib/spawn-pipe.c:235 lib/spawn-pipe.c:349 lib/wait-process.c:282
-#: lib/wait-process.c:356
+#: lib/spawn-pipe.c:235 lib/spawn-pipe.c:349 lib/wait-process.c:290
+#: lib/wait-process.c:364
 #, c-format
 msgid "%s subprocess failed"
 msgstr "El subprocés %s ha fallat"
@@ -262,12 +262,12 @@ msgstr "_open_osfhandle ha fallat"
 msgid "cannot restore fd %d: dup2 failed"
 msgstr "no es pot restaurar el fd %d: dup2 ha fallat"
 
-#: lib/wait-process.c:223 lib/wait-process.c:255 lib/wait-process.c:317
+#: lib/wait-process.c:231 lib/wait-process.c:263 lib/wait-process.c:325
 #, c-format
 msgid "%s subprocess"
 msgstr "subprocés %s"
 
-#: lib/wait-process.c:274 lib/wait-process.c:346
+#: lib/wait-process.c:282 lib/wait-process.c:354
 #, c-format
 msgid "%s subprocess got fatal signal %d"
 msgstr "El subprocés %s ha obtingut el senyal fatal %d"
@@ -277,53 +277,53 @@ msgid "memory exhausted"
 msgstr "la memòria s'ha exhaurit"
 
 # Bind? jm
-#: src/connect.c:200
+#: src/connect.c:201
 #, c-format
 msgid "%s: unable to resolve bind address %s; disabling bind.\n"
 msgstr ""
 "%s: no s'ha pogut resoldre l'adreça de vinculació %s; s'està inhabilitant la "
 "connexió.\n"
 
-#: src/connect.c:281
+#: src/connect.c:282
 #, c-format
 msgid "Connecting to %s|%s|:%d... "
 msgstr "S'està connectant a %s|%s|:%d… "
 
-#: src/connect.c:289
+#: src/connect.c:290
 #, c-format
 msgid "Connecting to %s:%d... "
 msgstr "S'està connectant a %s:%d… "
 
-#: src/connect.c:292
+#: src/connect.c:293
 #, c-format
 msgid "Connecting to [%s]:%d... "
 msgstr "S'està connectant a [%s]:%d… "
 
-#: src/connect.c:328
+#: src/connect.c:329
 #, c-format
 msgid "setsockopt SO_RCVBUF failed: %s\n"
 msgstr ""
 
-#: src/connect.c:356
+#: src/connect.c:357
 msgid "connected.\n"
 msgstr "connectat.\n"
 
-#: src/connect.c:375 src/host.c:914 src/host.c:952
+#: src/connect.c:376 src/host.c:915 src/host.c:953
 #, c-format
 msgid "failed: %s.\n"
 msgstr "error: %s.\n"
 
-#: src/connect.c:399 src/http.c:2108
+#: src/connect.c:400 src/http.c:2108
 #, c-format
 msgid "%s: unable to resolve host address %s\n"
 msgstr "%s: no s'ha pogut resoldre l'adreça del servidor «%s»\n"
 
-#: src/connect.c:469
+#: src/connect.c:470
 #, c-format
 msgid "setsockopt SO_REUSEADDR failed: %s\n"
 msgstr ""
 
-#: src/connect.c:690 src/connect.c:737
+#: src/connect.c:691 src/connect.c:738
 #, c-format
 msgid "Too many fds open.  Cannot use select on a fd >= %d\n"
 msgstr ""
@@ -357,39 +357,39 @@ msgstr "No s'ha pogut suprimir %s: %s\n"
 msgid "Cannot back up %s as %s: %s\n"
 msgstr "No es pot fer una còpia de %s com a %s: %s\n"
 
-#: src/cookies.c:310
+#: src/cookies.c:311
 #, c-format
 msgid "Unable to get cookie for %s\n"
 msgstr "No s'ha pogut obtenir la galeta per a %s\n"
 
-#: src/cookies.c:457
+#: src/cookies.c:458
 #, c-format
 msgid "Syntax error in Set-Cookie: %s at position %d.\n"
 msgstr ""
 "S'ha produït un error de sintaxi a la capçalera Set-Cookie: %s a la posició "
 "%d.\n"
 
-#: src/cookies.c:771
+#: src/cookies.c:772
 #, c-format
 msgid "Cookie coming from %s attempted to set domain to "
 msgstr "La galeta provinent de %s ha intentat establir el domini a "
 
-#: src/cookies.c:774 src/spider.c:92
+#: src/cookies.c:775 src/spider.c:91
 #, c-format
 msgid "%s\n"
 msgstr "%s\n"
 
-#: src/cookies.c:1225 src/cookies.c:1346
+#: src/cookies.c:1226 src/cookies.c:1347
 #, c-format
 msgid "Cannot open cookies file %s: %s\n"
 msgstr "No es pot obrir el fitxer de cookies %s: %s\n"
 
-#: src/cookies.c:1383
+#: src/cookies.c:1384
 #, c-format
 msgid "Error writing to %s: %s\n"
 msgstr "S'ha produït un error en escriure a %s: %s\n"
 
-#: src/cookies.c:1386
+#: src/cookies.c:1387
 #, c-format
 msgid "Error closing %s: %s\n"
 msgstr "S'ha produït un error en tancar %s: %s\n"
@@ -669,8 +669,8 @@ msgstr ""
 "%s (%s) - s'ha desat %s [%s]\n"
 "\n"
 
-#: src/ftp.c:2100 src/main.c:2172 src/metalink.c:1135 src/recur.c:511
-#: src/recur.c:749 src/retr.c:1309
+#: src/ftp.c:2100 src/main.c:2172 src/metalink.c:1135 src/recur.c:512
+#: src/recur.c:750 src/retr.c:1309
 #, c-format
 msgid "Removing %s.\n"
 msgstr "S'està suprimint %s.\n"
@@ -801,172 +801,178 @@ msgstr "S'ha escrit un índex HTMLitzat a %s [%s].\n"
 msgid "Wrote HTML-ized index to %s.\n"
 msgstr "S'ha escrit un índex HTMLitzat a %s.\n"
 
-#: src/gnutls.c:119
+#: src/gnutls.c:120
 #, c-format
 msgid "ERROR: Cannot open directory %s.\n"
 msgstr "ERROR: No es pot obrir el directori %s.\n"
 
-#: src/gnutls.c:169
+#: src/gnutls.c:170
 #, c-format
 msgid "ERROR: Failed to open cert %s: (%d).\n"
 msgstr "ERROR: No s'ha pogut obrir el certificat %s: (%d).\n"
 
-#: src/gnutls.c:174
+#: src/gnutls.c:175
 #, fuzzy, c-format
 msgid "Loaded CA certificate '%s'\n"
 msgstr "S'ha produït un error en analitzar el certificat: %s\n"
 
-#: src/gnutls.c:184
+#: src/gnutls.c:185
 #, c-format
 msgid "ERROR: Failed to load CRL file '%s': (%d)\n"
 msgstr "ERROR: No s'ha pogut carregar el fitxer CRL «%s»: (%d)\n"
 
-#: src/gnutls.c:188
+#: src/gnutls.c:189
 #, c-format
 msgid "Loaded CRL file '%s'\n"
 msgstr "S'ha carregat el fitxer CRL «%s»\n"
 
-#: src/gnutls.c:212
+#: src/gnutls.c:213
 msgid "ERROR: GnuTLS requires the key and the cert to be of the same type.\n"
 msgstr ""
 "ERROR: GnuTLS requereix que la clau i certificat siguen del mateix tipus.\n"
 
-#: src/gnutls.c:664 src/gnutls.c:728
+#: src/gnutls.c:665 src/gnutls.c:729
 #, fuzzy
 msgid "Your GnuTLS version is too old to support TLS 1.3\n"
 msgstr "La vostra versió d'OpenSSL és massa antiga per suportar TLSv1.1\n"
 
-#: src/gnutls.c:676
+#: src/gnutls.c:677
 #, fuzzy, c-format
 msgid "GnuTLS: unimplemented 'secure-protocol' option value %u\n"
 msgstr ""
 "GnuTLS: el valor %d per l'opció «secure-protocol» no està implementat\n"
 
-#: src/gnutls.c:678 src/gnutls.c:734 src/host.c:157 src/openssl.c:284
+#: src/gnutls.c:679 src/gnutls.c:735 src/host.c:158 src/openssl.c:285
 msgid "Please report this issue to bug-wget@gnu.org\n"
 msgstr "Informeu d'aquest problema a bug-wget@gnu.org\n"
 
-#: src/gnutls.c:733
+#: src/gnutls.c:734
 #, c-format
 msgid "GnuTLS: unimplemented 'secure-protocol' option value %d\n"
 msgstr ""
 "GnuTLS: el valor %d per l'opció «secure-protocol» no està implementat\n"
 
-#: src/gnutls.c:786
+#: src/gnutls.c:787
 msgid ""
 "GnuTLS: Cannot set prio string directly. Falling back to default priority.\n"
 msgstr ""
 
-#: src/gnutls.c:914 src/openssl.c:825
+#: src/gnutls.c:915 src/openssl.c:855
 msgid "ERROR"
 msgstr "ERROR"
 
-#: src/gnutls.c:914 src/openssl.c:825
+#: src/gnutls.c:915 src/openssl.c:855
 msgid "WARNING"
 msgstr "AVÍS"
 
-#: src/gnutls.c:925 src/openssl.c:838
+#: src/gnutls.c:926 src/openssl.c:868
 #, c-format
 msgid "%s: No certificate presented by %s.\n"
 msgstr "%s: %s no ha presentat cap certificat.\n"
 
-#: src/gnutls.c:931
+#: src/gnutls.c:932
 #, c-format
 msgid "%s: The certificate of %s is not trusted.\n"
 msgstr "%s: No es confia en el certificat de %s.\n"
 
-#: src/gnutls.c:932
+#: src/gnutls.c:933
 #, fuzzy, c-format
 msgid "%s: The certificate of %s doesn't have a known issuer.\n"
 msgstr "%s: El certificat de %s no té un emissor conegut.\n"
 
-#: src/gnutls.c:933
+#: src/gnutls.c:934
 #, c-format
 msgid "%s: The certificate of %s has been revoked.\n"
 msgstr "%s: El certificat de %s s'ha revocat.\n"
 
-#: src/gnutls.c:934
+#: src/gnutls.c:935
 #, fuzzy, c-format
 msgid "%s: The certificate signer of %s was not a CA.\n"
 msgstr "%s: No es confia en el certificat de %s.\n"
 
-#: src/gnutls.c:935
+#: src/gnutls.c:936
 #, fuzzy, c-format
 msgid "%s: The certificate of %s was signed using an insecure algorithm.\n"
 msgstr "%s: El certificat de %s no té un emissor conegut.\n"
 
-#: src/gnutls.c:936
+#: src/gnutls.c:937
 #, fuzzy, c-format
 msgid "%s: The certificate of %s is not yet activated.\n"
 msgstr "%s: No es confia en el certificat de %s.\n"
 
-#: src/gnutls.c:937
+#: src/gnutls.c:938
 #, fuzzy, c-format
 msgid "%s: The certificate of %s has expired.\n"
 msgstr "%s: El certificat de %s s'ha revocat.\n"
 
-#: src/gnutls.c:949
+#: src/gnutls.c:950
 #, c-format
 msgid "Error initializing X509 certificate: %s\n"
 msgstr "S'ha produït un error en inicialitzar el certificat X509: %s\n"
 
-#: src/gnutls.c:958
+#: src/gnutls.c:959
 msgid "No certificate found\n"
 msgstr "No s'ha trobat cap certificat\n"
 
-#: src/gnutls.c:965
+#: src/gnutls.c:966
 #, c-format
 msgid "Error parsing certificate: %s\n"
 msgstr "S'ha produït un error en analitzar el certificat: %s\n"
 
-#: src/gnutls.c:972
+#: src/gnutls.c:973
 msgid "The certificate has not yet been activated\n"
 msgstr "El certificat encara no s'ha activat\n"
 
-#: src/gnutls.c:977
+#: src/gnutls.c:978
 msgid "The certificate has expired\n"
 msgstr "El certificat ha caducat\n"
 
-#: src/gnutls.c:984
+#: src/gnutls.c:985
 #, c-format
 msgid "The certificate's owner does not match hostname %s\n"
 msgstr "El propietari del certificat no concorda amb el nom del servidor %s\n"
 
-#: src/gnutls.c:993 src/openssl.c:1034
+#: src/gnutls.c:994 src/openssl.c:1064
 msgid "The public key does not match pinned public key!\n"
 msgstr ""
 
-#: src/gnutls.c:1002
+#: src/gnutls.c:1003
 msgid "Certificate must be X.509\n"
 msgstr "El certificat ha de ser X.509\n"
 
-#: src/host.c:156
+#: src/host.c:157
 msgid "Error in handling the address list.\n"
 msgstr "S'ha produït un error en gestionar la llista d'adreces.\n"
 
-#: src/host.c:367
+#: src/host.c:368
 msgid "Unknown host"
 msgstr "Servidor desconegut"
 
-#: src/host.c:849
+#: src/host.c:850
 #, c-format
 msgid "Resolving %s... "
 msgstr "S'està resolent %s… "
 
-#: src/host.c:925
+#: src/host.c:926
 msgid "failed: No IPv4/IPv6 addresses for host.\n"
 msgstr "error: No hi ha adreces IPv4/IPv6 per al servidor.\n"
 
-#: src/host.c:955
+#: src/host.c:956
 msgid "failed: timed out.\n"
 msgstr "error: s'ha exhaurit el temps.\n"
 
-#: src/html-url.c:305
+#: src/html-url.c:306
 #, c-format
 msgid "%s: Cannot resolve incomplete link %s.\n"
 msgstr "%s: No s'ha pogut resoldre l'enllaç incomplet %s.\n"
 
-#: src/html-url.c:939
+#: src/html-url.c:841
+#, c-format
+msgid ""
+"no-follow attribute found in %s. Will not follow any links on this page\n"
+msgstr ""
+
+#: src/html-url.c:944
 #, c-format
 msgid "%s: Invalid URL %s: %s\n"
 msgstr "%s: L'URL %s no és vàlid: %s\n"
@@ -1439,40 +1445,40 @@ msgstr ""
 "%s: %s: La restricció «%s» no és vàlida,\n"
 "    empreu [unix|windows],[lowercase|uppercase],[nocontrol],[ascii].\n"
 
-#: src/iri.c:113
+#: src/iri.c:114
 #, c-format
 msgid "Encoding %s isn't valid\n"
 msgstr "La codificació %s no és vàlida\n"
 
-#: src/iri.c:139 src/url.c:1570
+#: src/iri.c:140 src/url.c:1571
 #, fuzzy, c-format
 msgid "Conversion from %s to %s isn't supported\n"
 msgstr "La conversió de %s a %s no és implementada\n"
 
-#: src/iri.c:179 src/url.c:1600
+#: src/iri.c:180 src/url.c:1601
 msgid "Incomplete or invalid multibyte sequence encountered\n"
 msgstr "S'ha trobat una seqüència multioctet incompleta o invàlida\n"
 
-#: src/iri.c:198 src/url.c:1617
+#: src/iri.c:199 src/url.c:1618
 #, c-format
 msgid "Unhandled errno %d\n"
 msgstr "Número d'error no gestionat %d\n"
 
-#: src/iri.c:235
+#: src/iri.c:236
 msgid "locale_to_utf8: locale is unset\n"
 msgstr "locale_to_utf8: el locale no és establert\n"
 
-#: src/iri.c:281 src/iri.c:296
+#: src/iri.c:282 src/iri.c:297
 #, c-format
 msgid "idn_encode failed (%d): %s\n"
 msgstr "Ha fallat «idn_encode» (%d): %s\n"
 
-#: src/iri.c:288
+#: src/iri.c:289
 #, fuzzy, c-format
 msgid "Failed to convert to lower: %d: %s\n"
 msgstr "no s'ha pogut connectar a %s port %d: %s\n"
 
-#: src/log.c:931 src/log.c:950
+#: src/log.c:932 src/log.c:951
 #, fuzzy, c-format
 msgid ""
 "\n"
@@ -1481,7 +1487,7 @@ msgstr ""
 "\n"
 "%s rebut, la sortida es redirigeix a %s.\n"
 
-#: src/log.c:943
+#: src/log.c:944
 #, c-format
 msgid "%s: %s; disabling logging.\n"
 msgstr "%s: %s; s'està inhabilitant el registre.\n"
@@ -3317,7 +3323,7 @@ msgstr "S'esta continuant en segon terme.\n"
 msgid "Continuing in background, pid %lu.\n"
 msgstr "S'està continuant en segon terme, pid %lu.\n"
 
-#: src/mswindows.c:291 src/utils.c:508
+#: src/mswindows.c:291 src/utils.c:509
 #, c-format
 msgid "Output will be written to %s.\n"
 msgstr "La sortida s'escriurà a %s.\n"
@@ -3363,67 +3369,75 @@ msgstr "Forma d'ús: %s NETRC [HOST]\n"
 msgid "%s: cannot stat %s: %s\n"
 msgstr "%s: no s'ha pogut determinar l'estat de %s: %s\n"
 
-#: src/openssl.c:114
+#: src/openssl.c:115
 msgid "WARNING: using a weak random seed.\n"
 msgstr "AVÍS: s'està utilitzant una llavor aleatòria febla.\n"
 
-#: src/openssl.c:192
+#: src/openssl.c:193
 msgid "Could not seed PRNG; consider using --random-file.\n"
 msgstr ""
 "No s'ha pogut donar una llavor al PRNG; considereu emprar --random-file.\n"
 
-#: src/openssl.c:267
+#: src/openssl.c:268
 #, fuzzy
 msgid "Your OpenSSL version is too old to support TLS 1.3\n"
 msgstr "La vostra versió d'OpenSSL és massa antiga per suportar TLSv1.1\n"
 
-#: src/openssl.c:273
+#: src/openssl.c:274
 msgid "Your OpenSSL version is too old to support TLSv1.1\n"
 msgstr "La vostra versió d'OpenSSL és massa antiga per suportar TLSv1.1\n"
 
-#: src/openssl.c:277
+#: src/openssl.c:278
 msgid "Your OpenSSL version is too old to support TLSv1.2\n"
 msgstr "La vostra versió d'OpenSSL és massa antiga per suportar TLSv1.2\n"
 
-#: src/openssl.c:283
+#: src/openssl.c:284
 #, c-format
 msgid "OpenSSL: unimplemented 'secure-protocol' option value %d\n"
 msgstr ""
 "OpenSSL: el valor %d per l'opció «secure-protocol» no està implementat\n"
 
-#: src/openssl.c:323
+#: src/openssl.c:324
 #, fuzzy, c-format
 msgid "OpenSSL: Invalid cipher list: %s\n"
 msgstr "%s: L'URL %s no és vàlid: %s\n"
 
-#: src/openssl.c:640
+#: src/openssl.c:350
+msgid "OpenSSL: Failed set trust to partial chain\n"
+msgstr ""
+
+#: src/openssl.c:356
+msgid "OpenSSL: Failed to allocate verification param\n"
+msgstr ""
+
+#: src/openssl.c:670
 #, fuzzy
 msgid "WARNING: Could not seed PRNG. Consider using --random-file.\n"
 msgstr ""
 "No s'ha pogut donar una llavor al PRNG; considereu emprar --random-file.\n"
 
-#: src/openssl.c:860
+#: src/openssl.c:890
 #, c-format
 msgid "%s: cannot verify %s's certificate, issued by %s:\n"
 msgstr "%s: no es pot verificar el certificat de %s, emès per %s:\n"
 
-#: src/openssl.c:871
+#: src/openssl.c:901
 msgid "  Unable to locally verify the issuer's authority.\n"
 msgstr "  No s'ha pogut verificar localment l'autoritat de l'emetent.\n"
 
-#: src/openssl.c:876
+#: src/openssl.c:906
 msgid "  Self-signed certificate encountered.\n"
 msgstr "  S'ha trobat un certificat autosignat.\n"
 
-#: src/openssl.c:879
+#: src/openssl.c:909
 msgid "  Issued certificate not yet valid.\n"
 msgstr "  El certificat encara no és vàlid.\n"
 
-#: src/openssl.c:882
+#: src/openssl.c:912
 msgid "  Issued certificate has expired.\n"
 msgstr "  El certificat ha caducat.\n"
 
-#: src/openssl.c:970
+#: src/openssl.c:1000
 #, c-format
 msgid ""
 "%s: no certificate subject alternative name matches\n"
@@ -3432,7 +3446,7 @@ msgstr ""
 "%s: cap nom comú alternatiu del certificat concorda\n"
 "\tamb el nom del servidor demanat %s.\n"
 
-#: src/openssl.c:989
+#: src/openssl.c:1019
 #, c-format
 msgid ""
 "    %s: certificate common name %s doesn't match requested host name %s.\n"
@@ -3440,7 +3454,7 @@ msgstr ""
 "%s: el nom comú «%s» del certificat no concorda amb el nom del servidor "
 "demanat %s.\n"
 
-#: src/openssl.c:1021
+#: src/openssl.c:1051
 #, c-format
 msgid ""
 "    %s: certificate common name is invalid (contains a NUL character).\n"
@@ -3451,13 +3465,13 @@ msgstr ""
 "    Això pot ser un indicador de que el servidor no és qui diu que és\n"
 "    (és a dir, no és el %s real).\n"
 
-#: src/openssl.c:1046
+#: src/openssl.c:1076
 #, c-format
 msgid "To connect to %s insecurely, use `--no-check-certificate'.\n"
 msgstr ""
 "Per a connectar a %s de manera insegura, useu «--no-check-certificate».\n"
 
-#: src/progress.c:244
+#: src/progress.c:245
 #, c-format
 msgid ""
 "\n"
@@ -3466,29 +3480,29 @@ msgstr ""
 "\n"
 "%*s[ s'està ometent %sK ]"
 
-#: src/progress.c:465
+#: src/progress.c:466
 #, c-format
 msgid "Invalid dot style specification %s; leaving unchanged.\n"
 msgstr "L'especificació de l'estil de progrés %s no és vàlida; no es canvia.\n"
 
 #. TRANSLATORS: "ETA" is English-centric, but this must
 #. be short, ideally 3 chars.  Abbreviate if necessary.
-#: src/progress.c:857
+#: src/progress.c:858
 #, fuzzy, c-format
 msgid "    eta %s"
 msgstr "   eta %s"
 
-#: src/progress.c:1147
+#: src/progress.c:1148
 #, fuzzy
 msgid "    in "
 msgstr "   en "
 
-#: src/ptimer.c:157
+#: src/ptimer.c:158
 #, c-format
 msgid "Cannot get REALTIME clock frequency: %s\n"
 msgstr "No es pot obtenir la frequència del rellotge en TEMPS REAL: %s\n"
 
-#: src/recur.c:512
+#: src/recur.c:513
 #, c-format
 msgid "Removing %s since it should be rejected.\n"
 msgstr "S'està suprimint %s ja que no s'hauria de baixar.\n"
@@ -3535,7 +3549,7 @@ msgstr ""
 "S'està reintentant.\n"
 "\n"
 
-#: src/spider.c:75
+#: src/spider.c:74
 msgid ""
 "Found no broken links.\n"
 "\n"
@@ -3543,7 +3557,7 @@ msgstr ""
 "No s'ha trobat cap enllaç trencat.\n"
 "\n"
 
-#: src/spider.c:82
+#: src/spider.c:81
 #, c-format
 msgid ""
 "Found %d broken link.\n"
@@ -3558,151 +3572,151 @@ msgstr[1] ""
 "S'han trobat %d enllaços trencats.\n"
 "\n"
 
-#: src/url.c:674
+#: src/url.c:675
 msgid "No error"
 msgstr "Cap error"
 
-#: src/url.c:676
+#: src/url.c:677
 #, c-format
 msgid "Unsupported scheme %s"
 msgstr "L'esquema %s no està implementat"
 
-#: src/url.c:678
+#: src/url.c:679
 msgid "Scheme missing"
 msgstr "Manca l'esquema"
 
-#: src/url.c:680
+#: src/url.c:681
 msgid "Invalid host name"
 msgstr "El nom del servidor és invàlid"
 
-#: src/url.c:682
+#: src/url.c:683
 msgid "Bad port number"
 msgstr "El número de port és incorrecte"
 
-#: src/url.c:684
+#: src/url.c:685
 msgid "Invalid user name"
 msgstr "Nom d'usuari no vàlid"
 
-#: src/url.c:686
+#: src/url.c:687
 msgid "Unterminated IPv6 numeric address"
 msgstr "L'adreça numèrica IPv6 no està terminada"
 
-#: src/url.c:688
+#: src/url.c:689
 msgid "IPv6 addresses not supported"
 msgstr "Les adreces IPv6 no estan implementades"
 
-#: src/url.c:690
+#: src/url.c:691
 msgid "Invalid IPv6 numeric address"
 msgstr "L'adreça numèrica IPv6 no és vàlida"
 
-#: src/url.c:1006
+#: src/url.c:1007
 msgid "HTTPS support not compiled in"
 msgstr "La implementació d'HTTPS no s'ha inclòs a la construcció"
 
-#: src/url.c:1603
+#: src/url.c:1604
 #, fuzzy
 msgid "Unconvertable multibyte sequence encountered\n"
 msgstr "S'ha trobat una seqüència multioctet incompleta o invàlida\n"
 
-#: src/utils.c:128
+#: src/utils.c:129
 #, c-format
 msgid "%s: %s: Failed to allocate enough memory; memory exhausted.\n"
 msgstr ""
 "%s: %s: No s'ha pogut la memòria suficient; s'ha exhaurit la memòria.\n"
 
-#: src/utils.c:134
+#: src/utils.c:135
 #, c-format
 msgid "%s: %s: Failed to allocate %ld bytes; memory exhausted.\n"
 msgstr "%s: %s: No s'ha pogut assignar %ld octets; s'ha exhaurit la memòria.\n"
 
-#: src/utils.c:354
+#: src/utils.c:355
 #, fuzzy, c-format
 msgid "%s: aprintf: text buffer is too big (%d bytes), aborting.\n"
 msgstr ""
 "%s: aprintf: la memòria intermèdia de text és massa gran (%ld octets), "
 "s'està avortant.\n"
 
-#: src/utils.c:506
+#: src/utils.c:507
 #, c-format
 msgid "Continuing in background, pid %d.\n"
 msgstr "Es continua en segon terme, pid %d.\n"
 
-#: src/utils.c:557
+#: src/utils.c:558
 #, c-format
 msgid "Failed to unlink symlink %s: %s\n"
 msgstr "No s'ha pogut suprimir l'enllaç simbòlic %s: %s\n"
 
-#: src/utils.c:865
+#: src/utils.c:866
 #, fuzzy, c-format
 msgid "Failed to Fopen file %s\n"
 msgstr "ERROR: No s'ha pogut obrir el certificat %s: (%d).\n"
 
-#: src/utils.c:871
+#: src/utils.c:872
 #, fuzzy, c-format
 msgid "Failed to get FD for file %s\n"
 msgstr "No s'ha pogut obtenir la galeta per a %s\n"
 
-#: src/utils.c:878
+#: src/utils.c:879
 #, c-format
 msgid "Failed to stat file %s, (check permissions)\n"
 msgstr ""
 
-#: src/utils.c:888
+#: src/utils.c:889
 #, c-format
 msgid "File %s changed since the last check. Security check failed."
 msgstr ""
 
-#: src/utils.c:923
+#: src/utils.c:924
 #, fuzzy, c-format
 msgid "Failed to open file %s, reason :%s\n"
 msgstr "ERROR: No s'ha pogut obrir el certificat %s: (%d).\n"
 
-#: src/utils.c:929
+#: src/utils.c:930
 #, fuzzy, c-format
 msgid "Failed to stat file %s, error: %s\n"
 msgstr "No s'ha pogut suprimir l'enllaç simbòlic %s: %s\n"
 
-#: src/utils.c:939
+#: src/utils.c:940
 #, c-format
 msgid ""
 "Trying to open file %s but it changed since last check. Security check "
 "failed."
 msgstr ""
 
-#: src/utils.c:2445
+#: src/utils.c:2446
 #, fuzzy, c-format
 msgid "Invalid regular expression %s, PCRE2 error %d\n"
 msgstr "L'expressió regular %s no és vàlida, %s\n"
 
-#: src/utils.c:2462 src/utils.c:2485
+#: src/utils.c:2463 src/utils.c:2486
 #, c-format
 msgid "Invalid regular expression %s, %s\n"
 msgstr "L'expressió regular %s no és vàlida, %s\n"
 
-#: src/utils.c:2515 src/utils.c:2537 src/utils.c:2561
+#: src/utils.c:2516 src/utils.c:2538 src/utils.c:2562
 #, c-format
 msgid "Error while matching %s: %d\n"
 msgstr "S'ha produït un error en la coincidència de %s: %d\n"
 
-#: src/utils.c:2854
+#: src/utils.c:2855
 #, c-format
 msgid "Skipping key with wrong size (%d/%d): %s\n"
 msgstr ""
 
-#: src/warc.c:222
+#: src/warc.c:223
 #, fuzzy
 msgid "Error duplicating WARC file file descriptor.\n"
 msgstr "S'ha produït un error en obrir el fitxer WARC %s.\n"
 
-#: src/warc.c:233
+#: src/warc.c:234
 msgid "Error opening GZIP stream to WARC file.\n"
 msgstr "S'ha produït un error en obrir el flux GZIP al fitxer WARC.\n"
 
-#: src/warc.c:809
+#: src/warc.c:810
 msgid "Error writing warcinfo record to WARC file.\n"
 msgstr "No s'ha pogut escriure el registre warcinfo al fitxer WARC.\n"
 
-#: src/warc.c:872
+#: src/warc.c:873
 #, c-format
 msgid ""
 "Opening WARC file %s.\n"
@@ -3711,26 +3725,26 @@ msgstr ""
 "S'està obrint el fitxer WARC %s.\n"
 "\n"
 
-#: src/warc.c:878
+#: src/warc.c:879
 #, c-format
 msgid "Error opening WARC file %s.\n"
 msgstr "S'ha produït un error en obrir el fitxer WARC %s.\n"
 
-#: src/warc.c:1075
+#: src/warc.c:1076
 msgid "CDX file does not list original urls. (Missing column 'a'.)\n"
 msgstr "El fitxer CDX no llista les url originals. (Manca la columna «a».)\n"
 
-#: src/warc.c:1078
+#: src/warc.c:1079
 msgid "CDX file does not list checksums. (Missing column 'k'.)\n"
 msgstr ""
 "El fitxer CDX no llista les sumes de comprovació. (Manca la columna «k».)\n"
 
-#: src/warc.c:1081
+#: src/warc.c:1082
 msgid "CDX file does not list record ids. (Missing column 'u'.)\n"
 msgstr ""
 "El fitxer CDX no llista les id dels registres. (Manca la columna «u».)\n"
 
-#: src/warc.c:1105
+#: src/warc.c:1106
 #, c-format
 msgid ""
 "Loaded %d record from CDX.\n"
@@ -3741,35 +3755,35 @@ msgid_plural ""
 msgstr[0] "S'ha carregat %d registre de CDX.\n"
 msgstr[1] "S'han carregat %d registres de CDX.\n"
 
-#: src/warc.c:1151
+#: src/warc.c:1152
 #, c-format
 msgid "Could not read CDX file %s for deduplication.\n"
 msgstr "No s'ha pogut llegir el fitxer CDX %s per a deduplicar.\n"
 
-#: src/warc.c:1161
+#: src/warc.c:1162
 #, fuzzy
 msgid "Could not open temporary WARC manifest file.\n"
 msgstr "No s'ha pogut escriure al fitxer temporal WARC.\n"
 
-#: src/warc.c:1171
+#: src/warc.c:1172
 #, fuzzy
 msgid "Could not open temporary WARC log file.\n"
 msgstr "No s'ha pogut escriure al fitxer temporal WARC.\n"
 
-#: src/warc.c:1180
+#: src/warc.c:1181
 #, fuzzy
 msgid "Could not open WARC file.\n"
 msgstr "No s'ha pogut escriure al fitxer WARC.\n"
 
-#: src/warc.c:1189
+#: src/warc.c:1190
 msgid "Could not open CDX file for output.\n"
 msgstr "No s'ha pogut obrir el fitxer CDX per escriure l'eixida.\n"
 
-#: src/warc.c:1219
+#: src/warc.c:1220
 msgid "Could not open temporary WARC file.\n"
 msgstr "No s'ha pogut obrir el fitxer temporal WARC.\n"
 
-#: src/warc.c:1495
+#: src/warc.c:1496
 msgid "Found exact match in CDX file. Saving revisit record to WARC.\n"
 msgstr ""
 "S'ha trobat la coincidència exacta al fitxer CDX. S'està desant el registre "

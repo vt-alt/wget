@@ -1,3 +1,117 @@
+2019-04-01  Darshit Shah  <darnir@gnu.org>
+
+	* NEWS: Update NEWS for new release
+
+	* gnulib: Pull forward
+
+2019-03-26  Tim Rühsen  <tim.ruehsen@gmx.de>
+
+	* fuzz/main.c (test_all_from): Fix indentation
+
+2019-03-25  Tim Rühsen  <tim.ruehsen@gmx.de>
+
+	Fix corner case in processing server response
+	* src/http.c (response_head_terminator): Don't access uninitialized data
+	* fuzz/wget_read_hunk_fuzzer.c: Sync response_head_terminator()
+
+	Add new fuzzer wget_read_hunk_fuzzer.c
+	* fuzz/Makefile.am: Add wget_read_hunk_fuzzer
+	* fuzz/wget_read_hunk_fuzzer.c: New file
+	* fuzz/wget_read_hunk_fuzzer.in/*: Fuzz corpora
+	* src/connect.c: Add connect_cleanup()
+	* src/connect.h: Add prototype for connect_cleanup()
+
+2019-03-03  Tim Rühsen  <tim.ruehsen@gmx.de>
+
+	* fuzz/wget_netrc_fuzzer.c: Fix fuzzer
+
+	* fuzz/wget_ftpls_fuzzer.c: Fix fuzzer
+
+2019-02-22  Jeffrey Walton  <noloader@gmail.com>
+
+	* src/openssl.c (ssl_init): Trust partial cert chain
+
+2019-02-20  Tim Rühsen  <tim.ruehsen@gmx.de>
+
+	* src/ftp-ls.c (ftp_parse_vms_ls): Use snprintf instead of strcpy/strcat
+
+2019-02-19  Darshit Shah  <darnir@gnu.org>
+
+	* src/html-url.c(get_urls_html_fm): Add message in verbose mode with no-follow attribute
+
+2019-02-19  Tim Rühsen  <tim.ruehsen@gmx.de>
+
+	Fix fuzz/ tests for OpenBSD
+	* fuzz/wget_*_fuzzer.c: Take care when calling exit()
+
+	* fuzz/Makefile.am: Remove hard-coded gcc flags
+
+	Fix STDERR closing/restoring in fuzzers
+	* fuzz/fuzzer.h: Add CLOSE_STDERR and RESTORE_STDERR
+	* fuzz/wget_*_fuzzer.c: Use CLOSE_STDERR and RESTORE_STDERR
+
+	* configure.ac: Rearrange AM_ICONV before gl_INIT
+
+2019-02-19  Tim Rühsen  <tim.ruehsen@gmx.de>
+
+	Do not hard-code -ldl in fuzz/Makefile.am
+	* configure.ac: Search for dlopen and add library to $FUZZ_LIBS
+	* fuzz/Makefile.am: Link with $FUZZ_LIBS instead of -ldl
+
+	This fixes linking on BSD systems.
+
+	Reported-by: Nam Nguyen
+
+2019-02-14  Tim Rühsen  <tim.ruehsen@gmx.de>
+
+	* doc/wget.texi: Correct --logfile -> --output-file
+
+2019-02-10  Darshit Shah  <darnir@gnu.org>
+
+	Update gnulib
+
+	Update copyright statements
+
+2019-01-23  Leon Klingele  <git@leonklingele.de>  (tiny change)
+
+	docs: --no-cache also sets the 'Cache-Control: no-cache' header
+	* doc/wget.texi: Add Cache-Control to docs
+	* src/wget.h: Add Cache-Control to comment of SEND_NOCACHE
+
+2019-01-20  Tim Rühsen  <tim.ruehsen@gmx.de>
+
+	* .gitlab-ci.yml: Add minimal build
+
+	* src/init.c (cleanup): Check HAVE_HSTS
+	Reported-by: Simon Dales
+
+2018-12-31  André Wolski  <andre@dena-design.de>
+
+	NTLM restart authentication (trivial change)
+	* src/http-ntlm.c (ntlm_input): Continue on NTLMSTATE_LAST,
+	  error on NTLMSTATE_TYPE3
+
+	The code comes from the cURL project. Thanks to Daniel Stenberg
+	for donating the code.
+
+	https://lists.gnu.org/archive/html/bug-wget/2018-12/msg00030.html
+
+2018-12-28  Tim Rühsen  <tim.ruehsen@gmx.de>
+
+	* contrib/spell-checker: Remove trailing whitespace
+
+	Fix typos detected by codespell (via contrib/spell-checker)
+
+	* contrib/spell-checker: Add script for spell checking
+
+2018-12-27  Tim Rühsen  <tim.ruehsen@gmx.de>
+
+	* fuzz/Makefile.am: Fix order of libraries for linking
+
+	* src/wget.h: #undef _Noreturn when building with C++
+
+	* src/gnutls.c (ssl_connect_wget): Fix call to gnutls_set_default_priority()
+
 2018-12-26  Tim Rühsen  <tim.ruehsen@gmx.de>
 
 	* NEWS: Add release changes for 1.20.1

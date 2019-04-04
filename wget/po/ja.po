@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget 1.20\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2018-12-26 21:10+0100\n"
+"POT-Creation-Date: 2019-04-01 20:28+0200\n"
 "PO-Revision-Date: 2018-11-14 19:17+0900\n"
 "Last-Translator: Hiroshi Takekawa <sian@big.or.jp>\n"
 "Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
@@ -27,7 +27,7 @@ msgstr "不明なシステムエラーです"
 msgid "Address family for hostname not supported"
 msgstr "ホスト名のアドレスファミリがサポートされていません"
 
-#: lib/gai_strerror.c:58 src/host.c:371
+#: lib/gai_strerror.c:58 src/host.c:372
 msgid "Temporary failure in name resolution"
 msgstr "名前解決中に一時的な失敗が発生しました"
 
@@ -95,7 +95,7 @@ msgstr "シグナルによって中断されました"
 msgid "Parameter string not correctly encoded"
 msgstr "パラメータ文字列のエンコードが正しくありません"
 
-#: lib/gai_strerror.c:87 src/host.c:373
+#: lib/gai_strerror.c:87 src/host.c:374
 msgid "Unknown error"
 msgstr "不明なエラーです"
 
@@ -231,7 +231,7 @@ msgstr "正規表現が大きすぎます"
 msgid "Unmatched ) or \\)"
 msgstr "マッチしない ) や \\)"
 
-#: lib/regcomp.c:688
+#: lib/regcomp.c:676
 msgid "No previous regular expression"
 msgstr "これより前に正規表現はありません"
 
@@ -241,8 +241,8 @@ msgstr "これより前に正規表現はありません"
 msgid "cannot create pipe"
 msgstr "パイプが作成できません"
 
-#: lib/spawn-pipe.c:235 lib/spawn-pipe.c:349 lib/wait-process.c:282
-#: lib/wait-process.c:356
+#: lib/spawn-pipe.c:235 lib/spawn-pipe.c:349 lib/wait-process.c:290
+#: lib/wait-process.c:364
 #, c-format
 msgid "%s subprocess failed"
 msgstr "%s サブプロセスが失敗しました"
@@ -257,12 +257,12 @@ msgstr "_open_osfhandle が失敗しました"
 msgid "cannot restore fd %d: dup2 failed"
 msgstr "fd %d をリストアできません: dup2 が失敗しました"
 
-#: lib/wait-process.c:223 lib/wait-process.c:255 lib/wait-process.c:317
+#: lib/wait-process.c:231 lib/wait-process.c:263 lib/wait-process.c:325
 #, c-format
 msgid "%s subprocess"
 msgstr "%s サブプロセス"
 
-#: lib/wait-process.c:274 lib/wait-process.c:346
+#: lib/wait-process.c:282 lib/wait-process.c:354
 #, c-format
 msgid "%s subprocess got fatal signal %d"
 msgstr "%s サブプロセスが致命的なシグナル %d を受信しました"
@@ -271,53 +271,53 @@ msgstr "%s サブプロセスが致命的なシグナル %d を受信しまし�
 msgid "memory exhausted"
 msgstr "メモリ不足"
 
-#: src/connect.c:200
+#: src/connect.c:201
 #, c-format
 msgid "%s: unable to resolve bind address %s; disabling bind.\n"
 msgstr ""
 "%s: バインドしようとしたアドレス %s を解決できませんでした; バインドを禁止し"
 "ます。\n"
 
-#: src/connect.c:281
+#: src/connect.c:282
 #, c-format
 msgid "Connecting to %s|%s|:%d... "
 msgstr "%s|%s|:%d に接続しています... "
 
-#: src/connect.c:289
+#: src/connect.c:290
 #, c-format
 msgid "Connecting to %s:%d... "
 msgstr "%s:%d に接続しています... "
 
-#: src/connect.c:292
+#: src/connect.c:293
 #, c-format
 msgid "Connecting to [%s]:%d... "
 msgstr "[%s]:%d に接続しています... "
 
-#: src/connect.c:328
+#: src/connect.c:329
 #, c-format
 msgid "setsockopt SO_RCVBUF failed: %s\n"
 msgstr "setsockopt SO_RCVBUF が失敗しました: %s\n"
 
-#: src/connect.c:356
+#: src/connect.c:357
 msgid "connected.\n"
 msgstr "接続しました。\n"
 
-#: src/connect.c:375 src/host.c:914 src/host.c:952
+#: src/connect.c:376 src/host.c:915 src/host.c:953
 #, c-format
 msgid "failed: %s.\n"
 msgstr "失敗しました: %s.\n"
 
-#: src/connect.c:399 src/http.c:2108
+#: src/connect.c:400 src/http.c:2108
 #, c-format
 msgid "%s: unable to resolve host address %s\n"
 msgstr "%s: ホストアドレス %s を解決できませんでした。\n"
 
-#: src/connect.c:469
+#: src/connect.c:470
 #, c-format
 msgid "setsockopt SO_REUSEADDR failed: %s\n"
 msgstr "setsockopt SO_REUSEADDR が失敗しました: %s\n"
 
-#: src/connect.c:690 src/connect.c:737
+#: src/connect.c:691 src/connect.c:738
 #, c-format
 msgid "Too many fds open.  Cannot use select on a fd >= %d\n"
 msgstr ""
@@ -353,37 +353,37 @@ msgstr "%s の削除に失敗しました: %s\n"
 msgid "Cannot back up %s as %s: %s\n"
 msgstr "%s を %s としてバックアップできません: %s\n"
 
-#: src/cookies.c:310
+#: src/cookies.c:311
 #, c-format
 msgid "Unable to get cookie for %s\n"
 msgstr "%s のクッキーが取得できません\n"
 
-#: src/cookies.c:457
+#: src/cookies.c:458
 #, c-format
 msgid "Syntax error in Set-Cookie: %s at position %d.\n"
 msgstr "Set-Cookie: %s の位置 %d には文法エラーがあります。\n"
 
-#: src/cookies.c:771
+#: src/cookies.c:772
 #, c-format
 msgid "Cookie coming from %s attempted to set domain to "
 msgstr "%s からのクッキーがドメインを次のように設定しようとしました。"
 
-#: src/cookies.c:774 src/spider.c:92
+#: src/cookies.c:775 src/spider.c:91
 #, c-format
 msgid "%s\n"
 msgstr "%s\n"
 
-#: src/cookies.c:1225 src/cookies.c:1346
+#: src/cookies.c:1226 src/cookies.c:1347
 #, c-format
 msgid "Cannot open cookies file %s: %s\n"
 msgstr "クッキーファイル %s を開けませんでした: %s\n"
 
-#: src/cookies.c:1383
+#: src/cookies.c:1384
 #, c-format
 msgid "Error writing to %s: %s\n"
 msgstr "%s へ書き込めません: %s\n"
 
-#: src/cookies.c:1386
+#: src/cookies.c:1387
 #, c-format
 msgid "Error closing %s: %s\n"
 msgstr "%s を閉じる際にエラーが発生しました: %s\n"
@@ -657,8 +657,8 @@ msgstr ""
 "%s (%s) - %s へ保存終了 [%s]\n"
 "\n"
 
-#: src/ftp.c:2100 src/main.c:2172 src/metalink.c:1135 src/recur.c:511
-#: src/recur.c:749 src/retr.c:1309
+#: src/ftp.c:2100 src/main.c:2172 src/metalink.c:1135 src/recur.c:512
+#: src/recur.c:750 src/retr.c:1309
 #, c-format
 msgid "Removing %s.\n"
 msgstr "%s を削除しました。\n"
@@ -793,169 +793,175 @@ msgstr "%s [%s]にHTML化されたインデックスを書きました。\n"
 msgid "Wrote HTML-ized index to %s.\n"
 msgstr "%s にHTML化されたインデックスを書きました。\n"
 
-#: src/gnutls.c:119
+#: src/gnutls.c:120
 #, c-format
 msgid "ERROR: Cannot open directory %s.\n"
 msgstr "エラー：%s というディレクトリを開けません。\n"
 
-#: src/gnutls.c:169
+#: src/gnutls.c:170
 #, c-format
 msgid "ERROR: Failed to open cert %s: (%d).\n"
 msgstr "エラー：%s という証明書を開けません: (%d)\n"
 
-#: src/gnutls.c:174
+#: src/gnutls.c:175
 #, c-format
 msgid "Loaded CA certificate '%s'\n"
 msgstr "CA証明書 '%s' をロードしました\n"
 
-#: src/gnutls.c:184
+#: src/gnutls.c:185
 #, c-format
 msgid "ERROR: Failed to load CRL file '%s': (%d)\n"
 msgstr "エラー：%s というCRLファイルを開けません: (%d)\n"
 
-#: src/gnutls.c:188
+#: src/gnutls.c:189
 #, c-format
 msgid "Loaded CRL file '%s'\n"
 msgstr "CRL ファイル '%s' をロードしました\n"
 
-#: src/gnutls.c:212
+#: src/gnutls.c:213
 msgid "ERROR: GnuTLS requires the key and the cert to be of the same type.\n"
 msgstr "エラー: GnuTLS は鍵と証明書のタイプが同じでなければなりません。\n"
 
-#: src/gnutls.c:664 src/gnutls.c:728
+#: src/gnutls.c:665 src/gnutls.c:729
 msgid "Your GnuTLS version is too old to support TLS 1.3\n"
 msgstr "GnuTLS のバージョンが古すぎて TLSv1.3 をサポートしていません\n"
 
-#: src/gnutls.c:676
+#: src/gnutls.c:677
 #, c-format
 msgid "GnuTLS: unimplemented 'secure-protocol' option value %u\n"
 msgstr "GnuTLS: 実装されていない 'secure-protocol' オプション値 %u\n"
 
-#: src/gnutls.c:678 src/gnutls.c:734 src/host.c:157 src/openssl.c:284
+#: src/gnutls.c:679 src/gnutls.c:735 src/host.c:158 src/openssl.c:285
 msgid "Please report this issue to bug-wget@gnu.org\n"
 msgstr "この問題を bug-wget@gnu.org に報告してください\n"
 
-#: src/gnutls.c:733
+#: src/gnutls.c:734
 #, c-format
 msgid "GnuTLS: unimplemented 'secure-protocol' option value %d\n"
 msgstr "GnuTLS: 実装されていない 'secure-protocol' オプション値 %d\n"
 
-#: src/gnutls.c:786
+#: src/gnutls.c:787
 msgid ""
 "GnuTLS: Cannot set prio string directly. Falling back to default priority.\n"
 msgstr "GnuTLS: 優先度を設定できませんでした。デフォルトの優先度にします。\n"
 
-#: src/gnutls.c:914 src/openssl.c:825
+#: src/gnutls.c:915 src/openssl.c:855
 msgid "ERROR"
 msgstr "エラー"
 
-#: src/gnutls.c:914 src/openssl.c:825
+#: src/gnutls.c:915 src/openssl.c:855
 msgid "WARNING"
 msgstr "警告"
 
-#: src/gnutls.c:925 src/openssl.c:838
+#: src/gnutls.c:926 src/openssl.c:868
 #, c-format
 msgid "%s: No certificate presented by %s.\n"
 msgstr "%s: %s から証明書の提示がありませんでした\n"
 
-#: src/gnutls.c:931
+#: src/gnutls.c:932
 #, c-format
 msgid "%s: The certificate of %s is not trusted.\n"
 msgstr "%s: %s の証明書は信用されません。\n"
 
-#: src/gnutls.c:932
+#: src/gnutls.c:933
 #, c-format
 msgid "%s: The certificate of %s doesn't have a known issuer.\n"
 msgstr "%s: %s の証明書の発行者が不明です。\n"
 
-#: src/gnutls.c:933
+#: src/gnutls.c:934
 #, c-format
 msgid "%s: The certificate of %s has been revoked.\n"
 msgstr "%s: %s の証明書は失効しています。\n"
 
-#: src/gnutls.c:934
+#: src/gnutls.c:935
 #, c-format
 msgid "%s: The certificate signer of %s was not a CA.\n"
 msgstr "%s: %s の証明書に署名しているのが CA ではありません。\n"
 
-#: src/gnutls.c:935
+#: src/gnutls.c:936
 #, c-format
 msgid "%s: The certificate of %s was signed using an insecure algorithm.\n"
 msgstr ""
 "%s: %s の証明書の署名に使われているアルゴリズムが安全ではありません。\n"
 
-#: src/gnutls.c:936
+#: src/gnutls.c:937
 #, c-format
 msgid "%s: The certificate of %s is not yet activated.\n"
 msgstr "%s: %s の証明書はまだ有効になっていません。\n"
 
-#: src/gnutls.c:937
+#: src/gnutls.c:938
 #, c-format
 msgid "%s: The certificate of %s has expired.\n"
 msgstr "%s: %s の証明書は失効しています。\n"
 
-#: src/gnutls.c:949
+#: src/gnutls.c:950
 #, c-format
 msgid "Error initializing X509 certificate: %s\n"
 msgstr "X509 証明書の初期化に失敗しました: %s\n"
 
-#: src/gnutls.c:958
+#: src/gnutls.c:959
 msgid "No certificate found\n"
 msgstr "証明書が見つかりません\n"
 
-#: src/gnutls.c:965
+#: src/gnutls.c:966
 #, c-format
 msgid "Error parsing certificate: %s\n"
 msgstr "証明書を解釈中にエラーが発生しました: %s\n"
 
-#: src/gnutls.c:972
+#: src/gnutls.c:973
 msgid "The certificate has not yet been activated\n"
 msgstr "証明書はまだ有効ではありません。\n"
 
-#: src/gnutls.c:977
+#: src/gnutls.c:978
 msgid "The certificate has expired\n"
 msgstr "証明書は失効しています。\n"
 
-#: src/gnutls.c:984
+#: src/gnutls.c:985
 #, c-format
 msgid "The certificate's owner does not match hostname %s\n"
 msgstr "証明書の所有者の名前とホスト名 %s が一致しません\n"
 
-#: src/gnutls.c:993 src/openssl.c:1034
+#: src/gnutls.c:994 src/openssl.c:1064
 msgid "The public key does not match pinned public key!\n"
 msgstr "公開鍵が固定した公開鍵と一致しません!\n"
 
-#: src/gnutls.c:1002
+#: src/gnutls.c:1003
 msgid "Certificate must be X.509\n"
 msgstr "証明書は X.509 形式でなければなりません\n"
 
-#: src/host.c:156
+#: src/host.c:157
 msgid "Error in handling the address list.\n"
 msgstr "アドレスリストを処理中にエラー\n"
 
-#: src/host.c:367
+#: src/host.c:368
 msgid "Unknown host"
 msgstr "不明なホストです"
 
-#: src/host.c:849
+#: src/host.c:850
 #, c-format
 msgid "Resolving %s... "
 msgstr "%s をDNSに問いあわせています... "
 
-#: src/host.c:925
+#: src/host.c:926
 msgid "failed: No IPv4/IPv6 addresses for host.\n"
 msgstr "失敗: ホストに IPv4/IPv6 アドレスがありません。\n"
 
-#: src/host.c:955
+#: src/host.c:956
 msgid "failed: timed out.\n"
 msgstr "失敗しました: タイムアウト.\n"
 
-#: src/html-url.c:305
+#: src/html-url.c:306
 #, c-format
 msgid "%s: Cannot resolve incomplete link %s.\n"
 msgstr "%s: 不完全なリンク %s を解決できません。\n"
 
-#: src/html-url.c:939
+#: src/html-url.c:841
+#, c-format
+msgid ""
+"no-follow attribute found in %s. Will not follow any links on this page\n"
+msgstr ""
+
+#: src/html-url.c:944
 #, c-format
 msgid "%s: Invalid URL %s: %s\n"
 msgstr "%s: %s は無効な URL です(%s)。\n"
@@ -1441,40 +1447,40 @@ msgstr ""
 "    unix か vms か windows、lowercase か uppercase、nocontrol や ascii を指定"
 "してください。\n"
 
-#: src/iri.c:113
+#: src/iri.c:114
 #, c-format
 msgid "Encoding %s isn't valid\n"
 msgstr "エンコード %s は無効です\n"
 
-#: src/iri.c:139 src/url.c:1570
+#: src/iri.c:140 src/url.c:1571
 #, c-format
 msgid "Conversion from %s to %s isn't supported\n"
 msgstr "%s から %s への変換はサポートしていません\n"
 
-#: src/iri.c:179 src/url.c:1600
+#: src/iri.c:180 src/url.c:1601
 msgid "Incomplete or invalid multibyte sequence encountered\n"
 msgstr "不完全か不正なマルチバイト文字列です\n"
 
-#: src/iri.c:198 src/url.c:1617
+#: src/iri.c:199 src/url.c:1618
 #, c-format
 msgid "Unhandled errno %d\n"
 msgstr "処理されないエラー (errno %d)\n"
 
-#: src/iri.c:235
+#: src/iri.c:236
 msgid "locale_to_utf8: locale is unset\n"
 msgstr "locale_to_utf8: ロケールが設定されていません\n"
 
-#: src/iri.c:281 src/iri.c:296
+#: src/iri.c:282 src/iri.c:297
 #, c-format
 msgid "idn_encode failed (%d): %s\n"
 msgstr "idn_encode に失敗しました (%d): %s\n"
 
-#: src/iri.c:288
+#: src/iri.c:289
 #, c-format
 msgid "Failed to convert to lower: %d: %s\n"
 msgstr "小文字に変換できませんでした: %d: %s\n"
 
-#: src/log.c:931 src/log.c:950
+#: src/log.c:932 src/log.c:951
 #, c-format
 msgid ""
 "\n"
@@ -1483,7 +1489,7 @@ msgstr ""
 "\n"
 "%s に出力をリダイレクトします。\n"
 
-#: src/log.c:943
+#: src/log.c:944
 #, c-format
 msgid "%s: %s; disabling logging.\n"
 msgstr "%s: %s; ログ取りを禁止します。\n"
@@ -3144,7 +3150,7 @@ msgstr "バックグラウンドで継続します。\n"
 msgid "Continuing in background, pid %lu.\n"
 msgstr "バックグラウンドで継続します、pidは %lu。\n"
 
-#: src/mswindows.c:291 src/utils.c:508
+#: src/mswindows.c:291 src/utils.c:509
 #, c-format
 msgid "Output will be written to %s.\n"
 msgstr "出力を %s に書き込みます。\n"
@@ -3192,75 +3198,83 @@ msgstr "使い方: %s NETRC [ホスト名]\n"
 msgid "%s: cannot stat %s: %s\n"
 msgstr "%s: %sの情報を取得できません: %s\n"
 
-#: src/openssl.c:114
+#: src/openssl.c:115
 msgid "WARNING: using a weak random seed.\n"
 msgstr "警告: 弱い乱数の種を使用しています\n"
 
-#: src/openssl.c:192
+#: src/openssl.c:193
 msgid "Could not seed PRNG; consider using --random-file.\n"
 msgstr "PRNGの初期化に失敗しました。--random-file の使用を検討してください。\n"
 
-#: src/openssl.c:267
+#: src/openssl.c:268
 msgid "Your OpenSSL version is too old to support TLS 1.3\n"
 msgstr "OpenSSL のバージョンが古すぎて TLSv1.3 をサポートしていません\n"
 
-#: src/openssl.c:273
+#: src/openssl.c:274
 msgid "Your OpenSSL version is too old to support TLSv1.1\n"
 msgstr "OpenSSL のバージョンが古すぎて TLSv1.1 をサポートしていません\n"
 
-#: src/openssl.c:277
+#: src/openssl.c:278
 msgid "Your OpenSSL version is too old to support TLSv1.2\n"
 msgstr "OpenSSL のバージョンが古すぎて TLSv1.2 をサポートしていません\n"
 
-#: src/openssl.c:283
+#: src/openssl.c:284
 #, c-format
 msgid "OpenSSL: unimplemented 'secure-protocol' option value %d\n"
 msgstr "OpenSSL: 実装されていない 'secure-protocol' オプション値 %d\n"
 
-#: src/openssl.c:323
+#: src/openssl.c:324
 #, c-format
 msgid "OpenSSL: Invalid cipher list: %s\n"
 msgstr "OpenSSL: 無効な暗号リストです: %s\n"
 
-#: src/openssl.c:640
+#: src/openssl.c:350
+msgid "OpenSSL: Failed set trust to partial chain\n"
+msgstr ""
+
+#: src/openssl.c:356
+msgid "OpenSSL: Failed to allocate verification param\n"
+msgstr ""
+
+#: src/openssl.c:670
 msgid "WARNING: Could not seed PRNG. Consider using --random-file.\n"
 msgstr "PRNGの初期化に失敗しました。--random-file の使用を検討してください。\n"
 
-#: src/openssl.c:860
+#: src/openssl.c:890
 #, c-format
 msgid "%s: cannot verify %s's certificate, issued by %s:\n"
 msgstr "%s: %s の証明書(発行者: %s)の検証に失敗しました:\n"
 
-#: src/openssl.c:871
+#: src/openssl.c:901
 msgid "  Unable to locally verify the issuer's authority.\n"
 msgstr "  発行者の権限を検証できませんでした。\n"
 
-#: src/openssl.c:876
+#: src/openssl.c:906
 msgid "  Self-signed certificate encountered.\n"
 msgstr "  自己署名証明書です。\n"
 
-#: src/openssl.c:879
+#: src/openssl.c:909
 msgid "  Issued certificate not yet valid.\n"
 msgstr "  発行された証明書はまだ有効ではありません。\n"
 
-#: src/openssl.c:882
+#: src/openssl.c:912
 msgid "  Issued certificate has expired.\n"
 msgstr "  発行された証明書は失効しています。\n"
 
-#: src/openssl.c:970
+#: src/openssl.c:1000
 #, c-format
 msgid ""
 "%s: no certificate subject alternative name matches\n"
 "\trequested host name %s.\n"
 msgstr "%s: 証明書に記載されている別名とホスト名 %s が一致しません\n"
 
-#: src/openssl.c:989
+#: src/openssl.c:1019
 #, c-format
 msgid ""
 "    %s: certificate common name %s doesn't match requested host name %s.\n"
 msgstr "    %s: 証明書に記載されている名前 %s とホスト名 %s が一致しません\n"
 
-#: src/openssl.c:1021
+#: src/openssl.c:1051
 #, c-format
 msgid ""
 "    %s: certificate common name is invalid (contains a NUL character).\n"
@@ -3271,14 +3285,14 @@ msgstr ""
 "    接続先のサーバがなりすましている可能性があります。\n"
 "    つまり、本物の %s ではないかもしれません。\n"
 
-#: src/openssl.c:1046
+#: src/openssl.c:1076
 #, c-format
 msgid "To connect to %s insecurely, use `--no-check-certificate'.\n"
 msgstr ""
 "%s に安全の確認をしないで接続するには、`--no-check-certificate' を使ってくだ"
 "さい。\n"
 
-#: src/progress.c:244
+#: src/progress.c:245
 #, c-format
 msgid ""
 "\n"
@@ -3287,28 +3301,28 @@ msgstr ""
 "\n"
 "%*s[ %sK とばします ]"
 
-#: src/progress.c:465
+#: src/progress.c:466
 #, c-format
 msgid "Invalid dot style specification %s; leaving unchanged.\n"
 msgstr "%s は無効なドット表示形式なので変更しません。\n"
 
 #. TRANSLATORS: "ETA" is English-centric, but this must
 #. be short, ideally 3 chars.  Abbreviate if necessary.
-#: src/progress.c:857
+#: src/progress.c:858
 #, c-format
 msgid "    eta %s"
 msgstr "   残り%s"
 
-#: src/progress.c:1147
+#: src/progress.c:1148
 msgid "    in "
 msgstr " 時間 "
 
-#: src/ptimer.c:157
+#: src/ptimer.c:158
 #, c-format
 msgid "Cannot get REALTIME clock frequency: %s\n"
 msgstr "リアルタイムクロックの周波数を取得できません: %s\n"
 
-#: src/recur.c:512
+#: src/recur.c:513
 #, c-format
 msgid "Removing %s since it should be rejected.\n"
 msgstr "拒否すべきなので、%s を削除しました。\n"
@@ -3353,7 +3367,7 @@ msgstr ""
 "再試行しています。\n"
 "\n"
 
-#: src/spider.c:75
+#: src/spider.c:74
 msgid ""
 "Found no broken links.\n"
 "\n"
@@ -3361,7 +3375,7 @@ msgstr ""
 "壊れているリンクはありません。\n"
 "\n"
 
-#: src/spider.c:82
+#: src/spider.c:81
 #, c-format
 msgid ""
 "Found %d broken link.\n"
@@ -3376,111 +3390,111 @@ msgstr[1] ""
 "%d 個のリンクが壊れています。\n"
 "\n"
 
-#: src/url.c:674
+#: src/url.c:675
 msgid "No error"
 msgstr "エラーなし"
 
-#: src/url.c:676
+#: src/url.c:677
 #, c-format
 msgid "Unsupported scheme %s"
 msgstr "%s はサポートされていないスキームです"
 
-#: src/url.c:678
+#: src/url.c:679
 msgid "Scheme missing"
 msgstr "スキームがありません"
 
-#: src/url.c:680
+#: src/url.c:681
 msgid "Invalid host name"
 msgstr "ホスト名が不正です"
 
-#: src/url.c:682
+#: src/url.c:683
 msgid "Bad port number"
 msgstr "ポート番号が不正です"
 
-#: src/url.c:684
+#: src/url.c:685
 msgid "Invalid user name"
 msgstr "ユーザ名が不正です"
 
-#: src/url.c:686
+#: src/url.c:687
 msgid "Unterminated IPv6 numeric address"
 msgstr "IPv6 アドレスの記述が終了していません"
 
-#: src/url.c:688
+#: src/url.c:689
 msgid "IPv6 addresses not supported"
 msgstr "IPv6 アドレスはサポートされていません"
 
-#: src/url.c:690
+#: src/url.c:691
 msgid "Invalid IPv6 numeric address"
 msgstr "IPv6 アドレスが不正です"
 
-#: src/url.c:1006
+#: src/url.c:1007
 msgid "HTTPS support not compiled in"
 msgstr "HTTPS がサポートされるようコンパイルされていません"
 
-#: src/url.c:1603
+#: src/url.c:1604
 msgid "Unconvertable multibyte sequence encountered\n"
 msgstr "変換できないマルチバイト文字列です\n"
 
-#: src/utils.c:128
+#: src/utils.c:129
 #, c-format
 msgid "%s: %s: Failed to allocate enough memory; memory exhausted.\n"
 msgstr "%s: %s: メモリの確保に失敗しました; メモリがいっぱいです\n"
 
-#: src/utils.c:134
+#: src/utils.c:135
 #, c-format
 msgid "%s: %s: Failed to allocate %ld bytes; memory exhausted.\n"
 msgstr "%s: %s: %ld バイトの確保に失敗しました; メモリがいっぱいです\n"
 
-#: src/utils.c:354
+#: src/utils.c:355
 #, c-format
 msgid "%s: aprintf: text buffer is too big (%d bytes), aborting.\n"
 msgstr ""
 "%s: aprintf: テキストバッファ (%d bytes) は大きすぎるので、中止します。\n"
 
-#: src/utils.c:506
+#: src/utils.c:507
 #, c-format
 msgid "Continuing in background, pid %d.\n"
 msgstr "バックグラウンドで継続します、pidは %d。\n"
 
-#: src/utils.c:557
+#: src/utils.c:558
 #, c-format
 msgid "Failed to unlink symlink %s: %s\n"
 msgstr "シンボリックリンク %s の削除に失敗しました: %s\n"
 
-#: src/utils.c:865
+#: src/utils.c:866
 #, c-format
 msgid "Failed to Fopen file %s\n"
 msgstr "ファイル %s の fopen() 失敗しました\n"
 
-#: src/utils.c:871
+#: src/utils.c:872
 #, c-format
 msgid "Failed to get FD for file %s\n"
 msgstr "ファイル %s の FD(ファイルディスクリプタ) の取得に失敗しました\n"
 
-#: src/utils.c:878
+#: src/utils.c:879
 #, c-format
 msgid "Failed to stat file %s, (check permissions)\n"
 msgstr ""
 "ファイル %s の stat() に失敗しました (パーミッションを確認してください)\n"
 
-#: src/utils.c:888
+#: src/utils.c:889
 #, c-format
 msgid "File %s changed since the last check. Security check failed."
 msgstr ""
 "ファイル %s は最後に確認した時から変更されています。セキュリティチェックに失"
 "敗しました。"
 
-#: src/utils.c:923
+#: src/utils.c:924
 #, c-format
 msgid "Failed to open file %s, reason :%s\n"
 msgstr "ファイル %s のオープンに失敗しました: %s\n"
 
-#: src/utils.c:929
+#: src/utils.c:930
 #, c-format
 msgid "Failed to stat file %s, error: %s\n"
 msgstr "ファイル %s の stat() に失敗しました: %s\n"
 
-#: src/utils.c:939
+#: src/utils.c:940
 #, c-format
 msgid ""
 "Trying to open file %s but it changed since last check. Security check "
@@ -3489,39 +3503,39 @@ msgstr ""
 "ファイル %s をオープンしようとしたところ最後に確認した時から変更されていまし"
 "た。セキュリティチェックに失敗しました。"
 
-#: src/utils.c:2445
+#: src/utils.c:2446
 #, c-format
 msgid "Invalid regular expression %s, PCRE2 error %d\n"
 msgstr "%s は無効な正規表現です, PCRE2 エラー %d\n"
 
-#: src/utils.c:2462 src/utils.c:2485
+#: src/utils.c:2463 src/utils.c:2486
 #, c-format
 msgid "Invalid regular expression %s, %s\n"
 msgstr "%s は無効な正規表現です, %s\n"
 
-#: src/utils.c:2515 src/utils.c:2537 src/utils.c:2561
+#: src/utils.c:2516 src/utils.c:2538 src/utils.c:2562
 #, c-format
 msgid "Error while matching %s: %d\n"
 msgstr "%s をマッチ中にエラーが発生しました: %d\n"
 
-#: src/utils.c:2854
+#: src/utils.c:2855
 #, c-format
 msgid "Skipping key with wrong size (%d/%d): %s\n"
 msgstr "間違ったサイズのキーをスキップします (%d/%d): %s\n"
 
-#: src/warc.c:222
+#: src/warc.c:223
 msgid "Error duplicating WARC file file descriptor.\n"
 msgstr "WARC ファイルディスクリプタを複製中にエラー。\n"
 
-#: src/warc.c:233
+#: src/warc.c:234
 msgid "Error opening GZIP stream to WARC file.\n"
 msgstr "GZIP ストリームを WARC ファイル向けにオープンできませんでした\n"
 
-#: src/warc.c:809
+#: src/warc.c:810
 msgid "Error writing warcinfo record to WARC file.\n"
 msgstr "WARC ファイルへ warcinfo レコードを書き込めません。\n"
 
-#: src/warc.c:872
+#: src/warc.c:873
 #, c-format
 msgid ""
 "Opening WARC file %s.\n"
@@ -3530,24 +3544,24 @@ msgstr ""
 "WARC ファイル %s をオープンしています。\n"
 "\n"
 
-#: src/warc.c:878
+#: src/warc.c:879
 #, c-format
 msgid "Error opening WARC file %s.\n"
 msgstr "WARC ファイル %s をオープンできません。\n"
 
-#: src/warc.c:1075
+#: src/warc.c:1076
 msgid "CDX file does not list original urls. (Missing column 'a'.)\n"
 msgstr "CDX ファイルに元のURLの列'a'がありません。\n"
 
-#: src/warc.c:1078
+#: src/warc.c:1079
 msgid "CDX file does not list checksums. (Missing column 'k'.)\n"
 msgstr "CDX ファイルにチェックサムの列'k'がありません。\n"
 
-#: src/warc.c:1081
+#: src/warc.c:1082
 msgid "CDX file does not list record ids. (Missing column 'u'.)\n"
 msgstr "CDX ファイルにレコードIDの列'u'がありません。\n"
 
-#: src/warc.c:1105
+#: src/warc.c:1106
 #, c-format
 msgid ""
 "Loaded %d record from CDX.\n"
@@ -3562,32 +3576,32 @@ msgstr[1] ""
 "CDX ファイルから %d レコードを読みこみました。\n"
 "\n"
 
-#: src/warc.c:1151
+#: src/warc.c:1152
 #, c-format
 msgid "Could not read CDX file %s for deduplication.\n"
 msgstr "CDX ファイル %s を重複除去のために読みこめませんでした。\n"
 
-#: src/warc.c:1161
+#: src/warc.c:1162
 msgid "Could not open temporary WARC manifest file.\n"
 msgstr "一時 WARC マニフェストファイルがオープンできません。\n"
 
-#: src/warc.c:1171
+#: src/warc.c:1172
 msgid "Could not open temporary WARC log file.\n"
 msgstr "一時 WARC ログファイルをオープンできません。\n"
 
-#: src/warc.c:1180
+#: src/warc.c:1181
 msgid "Could not open WARC file.\n"
 msgstr "WARC ファイルをオープンできません。\n"
 
-#: src/warc.c:1189
+#: src/warc.c:1190
 msgid "Could not open CDX file for output.\n"
 msgstr "CDX ファイルを出力用にオープンできませんでした。\n"
 
-#: src/warc.c:1219
+#: src/warc.c:1220
 msgid "Could not open temporary WARC file.\n"
 msgstr "一時 WARC ファイルをオープンできません。\n"
 
-#: src/warc.c:1495
+#: src/warc.c:1496
 msgid "Found exact match in CDX file. Saving revisit record to WARC.\n"
 msgstr ""
 "CDX ファイルに一致を発見しました。revisit レコードを WARC に記録します。\n"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget 1.8.1\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2018-12-26 21:10+0100\n"
+"POT-Creation-Date: 2019-04-01 20:28+0200\n"
 "PO-Revision-Date: 2002-03-18 03:11\n"
 "Last-Translator: Yassen Roussev <slona@bulgaria.com>\n"
 "Language-Team: Bulgarian <bg@bulgaria.com>\n"
@@ -27,7 +27,7 @@ msgstr "Непозната грешка"
 msgid "Address family for hostname not supported"
 msgstr ""
 
-#: lib/gai_strerror.c:58 src/host.c:371
+#: lib/gai_strerror.c:58 src/host.c:372
 msgid "Temporary failure in name resolution"
 msgstr ""
 
@@ -95,7 +95,7 @@ msgstr ""
 msgid "Parameter string not correctly encoded"
 msgstr ""
 
-#: lib/gai_strerror.c:87 src/host.c:373
+#: lib/gai_strerror.c:87 src/host.c:374
 msgid "Unknown error"
 msgstr "Непозната грешка"
 
@@ -231,7 +231,7 @@ msgstr ""
 msgid "Unmatched ) or \\)"
 msgstr ""
 
-#: lib/regcomp.c:688
+#: lib/regcomp.c:676
 msgid "No previous regular expression"
 msgstr ""
 
@@ -241,8 +241,8 @@ msgstr ""
 msgid "cannot create pipe"
 msgstr ""
 
-#: lib/spawn-pipe.c:235 lib/spawn-pipe.c:349 lib/wait-process.c:282
-#: lib/wait-process.c:356
+#: lib/spawn-pipe.c:235 lib/spawn-pipe.c:349 lib/wait-process.c:290
+#: lib/wait-process.c:364
 #, c-format
 msgid "%s subprocess failed"
 msgstr ""
@@ -257,12 +257,12 @@ msgstr ""
 msgid "cannot restore fd %d: dup2 failed"
 msgstr ""
 
-#: lib/wait-process.c:223 lib/wait-process.c:255 lib/wait-process.c:317
+#: lib/wait-process.c:231 lib/wait-process.c:263 lib/wait-process.c:325
 #, c-format
 msgid "%s subprocess"
 msgstr ""
 
-#: lib/wait-process.c:274 lib/wait-process.c:346
+#: lib/wait-process.c:282 lib/wait-process.c:354
 #, c-format
 msgid "%s subprocess got fatal signal %d"
 msgstr ""
@@ -271,51 +271,51 @@ msgstr ""
 msgid "memory exhausted"
 msgstr ""
 
-#: src/connect.c:200
+#: src/connect.c:201
 #, c-format
 msgid "%s: unable to resolve bind address %s; disabling bind.\n"
 msgstr ""
 
-#: src/connect.c:281
+#: src/connect.c:282
 #, fuzzy, c-format
 msgid "Connecting to %s|%s|:%d... "
 msgstr "Установяване на контакт с %s[%s]:%hu... "
 
-#: src/connect.c:289
+#: src/connect.c:290
 #, fuzzy, c-format
 msgid "Connecting to %s:%d... "
 msgstr "Установяване на контакт с %s:%hu... "
 
-#: src/connect.c:292
+#: src/connect.c:293
 #, fuzzy, c-format
 msgid "Connecting to [%s]:%d... "
 msgstr "Установяване на контакт с %s[%s]:%hu... "
 
-#: src/connect.c:328
+#: src/connect.c:329
 #, c-format
 msgid "setsockopt SO_RCVBUF failed: %s\n"
 msgstr ""
 
-#: src/connect.c:356
+#: src/connect.c:357
 msgid "connected.\n"
 msgstr "успешно свързване.\n"
 
-#: src/connect.c:375 src/host.c:914 src/host.c:952
+#: src/connect.c:376 src/host.c:915 src/host.c:953
 #, c-format
 msgid "failed: %s.\n"
 msgstr "неуспя: %s.\n"
 
-#: src/connect.c:399 src/http.c:2108
+#: src/connect.c:400 src/http.c:2108
 #, c-format
 msgid "%s: unable to resolve host address %s\n"
 msgstr ""
 
-#: src/connect.c:469
+#: src/connect.c:470
 #, c-format
 msgid "setsockopt SO_REUSEADDR failed: %s\n"
 msgstr ""
 
-#: src/connect.c:690 src/connect.c:737
+#: src/connect.c:691 src/connect.c:738
 #, c-format
 msgid "Too many fds open.  Cannot use select on a fd >= %d\n"
 msgstr ""
@@ -349,37 +349,37 @@ msgstr "Немога да изтрия `%s': %s\n"
 msgid "Cannot back up %s as %s: %s\n"
 msgstr "Немога да подсигуря %s като %s: %s\n"
 
-#: src/cookies.c:310
+#: src/cookies.c:311
 #, fuzzy, c-format
 msgid "Unable to get cookie for %s\n"
 msgstr "Немога да изтрия `%s': %s\n"
 
-#: src/cookies.c:457
+#: src/cookies.c:458
 #, fuzzy, c-format
 msgid "Syntax error in Set-Cookie: %s at position %d.\n"
 msgstr "Синтактична грешка при операция Set-Cookie: неправилен низ.\n"
 
-#: src/cookies.c:771
+#: src/cookies.c:772
 #, c-format
 msgid "Cookie coming from %s attempted to set domain to "
 msgstr ""
 
-#: src/cookies.c:774 src/spider.c:92
+#: src/cookies.c:775 src/spider.c:91
 #, c-format
 msgid "%s\n"
 msgstr ""
 
-#: src/cookies.c:1225 src/cookies.c:1346
+#: src/cookies.c:1226 src/cookies.c:1347
 #, fuzzy, c-format
 msgid "Cannot open cookies file %s: %s\n"
 msgstr "Не мога да отворя cookies файла \"cookies\", `%s': %s\n"
 
-#: src/cookies.c:1383
+#: src/cookies.c:1384
 #, fuzzy, c-format
 msgid "Error writing to %s: %s\n"
 msgstr "Грешка при запис на `%s': %s\n"
 
-#: src/cookies.c:1386
+#: src/cookies.c:1387
 #, fuzzy, c-format
 msgid "Error closing %s: %s\n"
 msgstr "Грешка при затваряне на `%s': %s\n"
@@ -652,8 +652,8 @@ msgstr ""
 "%s (%s) - `%s' записан [%ld]\n"
 "\n"
 
-#: src/ftp.c:2100 src/main.c:2172 src/metalink.c:1135 src/recur.c:511
-#: src/recur.c:749 src/retr.c:1309
+#: src/ftp.c:2100 src/main.c:2172 src/metalink.c:1135 src/recur.c:512
+#: src/recur.c:750 src/retr.c:1309
 #, c-format
 msgid "Removing %s.\n"
 msgstr "Премахвам %s.\n"
@@ -780,171 +780,177 @@ msgstr "Записах HTML-изиран индекс в `%s' [%ld].\n"
 msgid "Wrote HTML-ized index to %s.\n"
 msgstr "Записах HTML-изиран индекс в `%s'.\n"
 
-#: src/gnutls.c:119
+#: src/gnutls.c:120
 #, c-format
 msgid "ERROR: Cannot open directory %s.\n"
 msgstr ""
 
-#: src/gnutls.c:169
+#: src/gnutls.c:170
 #, c-format
 msgid "ERROR: Failed to open cert %s: (%d).\n"
 msgstr ""
 
-#: src/gnutls.c:174
+#: src/gnutls.c:175
 #, fuzzy, c-format
 msgid "Loaded CA certificate '%s'\n"
 msgstr "Неуспех при зареждане на сертификати от %s\n"
 
-#: src/gnutls.c:184
+#: src/gnutls.c:185
 #, c-format
 msgid "ERROR: Failed to load CRL file '%s': (%d)\n"
 msgstr ""
 
-#: src/gnutls.c:188
+#: src/gnutls.c:189
 #, c-format
 msgid "Loaded CRL file '%s'\n"
 msgstr ""
 
-#: src/gnutls.c:212
+#: src/gnutls.c:213
 msgid "ERROR: GnuTLS requires the key and the cert to be of the same type.\n"
 msgstr ""
 
-#: src/gnutls.c:664 src/gnutls.c:728
+#: src/gnutls.c:665 src/gnutls.c:729
 msgid "Your GnuTLS version is too old to support TLS 1.3\n"
 msgstr ""
 
-#: src/gnutls.c:676
+#: src/gnutls.c:677
 #, c-format
 msgid "GnuTLS: unimplemented 'secure-protocol' option value %u\n"
 msgstr ""
 
-#: src/gnutls.c:678 src/gnutls.c:734 src/host.c:157 src/openssl.c:284
+#: src/gnutls.c:679 src/gnutls.c:735 src/host.c:158 src/openssl.c:285
 #, fuzzy
 msgid "Please report this issue to bug-wget@gnu.org\n"
 msgstr "Изпращайте съобщения за грешки и предложения до <bug-wget@gnu.org>.\n"
 
-#: src/gnutls.c:733
+#: src/gnutls.c:734
 #, c-format
 msgid "GnuTLS: unimplemented 'secure-protocol' option value %d\n"
 msgstr ""
 
-#: src/gnutls.c:786
+#: src/gnutls.c:787
 msgid ""
 "GnuTLS: Cannot set prio string directly. Falling back to default priority.\n"
 msgstr ""
 
-#: src/gnutls.c:914 src/openssl.c:825
+#: src/gnutls.c:915 src/openssl.c:855
 msgid "ERROR"
 msgstr ""
 
-#: src/gnutls.c:914 src/openssl.c:825
+#: src/gnutls.c:915 src/openssl.c:855
 msgid "WARNING"
 msgstr ""
 
-#: src/gnutls.c:925 src/openssl.c:838
+#: src/gnutls.c:926 src/openssl.c:868
 #, c-format
 msgid "%s: No certificate presented by %s.\n"
 msgstr ""
 
-#: src/gnutls.c:931
+#: src/gnutls.c:932
 #, c-format
 msgid "%s: The certificate of %s is not trusted.\n"
 msgstr ""
 
-#: src/gnutls.c:932
+#: src/gnutls.c:933
 #, c-format
 msgid "%s: The certificate of %s doesn't have a known issuer.\n"
 msgstr ""
 
-#: src/gnutls.c:933
+#: src/gnutls.c:934
 #, c-format
 msgid "%s: The certificate of %s has been revoked.\n"
 msgstr ""
 
-#: src/gnutls.c:934
+#: src/gnutls.c:935
 #, c-format
 msgid "%s: The certificate signer of %s was not a CA.\n"
 msgstr ""
 
-#: src/gnutls.c:935
+#: src/gnutls.c:936
 #, c-format
 msgid "%s: The certificate of %s was signed using an insecure algorithm.\n"
 msgstr ""
 
-#: src/gnutls.c:936
+#: src/gnutls.c:937
 #, c-format
 msgid "%s: The certificate of %s is not yet activated.\n"
 msgstr ""
 
-#: src/gnutls.c:937
+#: src/gnutls.c:938
 #, c-format
 msgid "%s: The certificate of %s has expired.\n"
 msgstr ""
 
-#: src/gnutls.c:949
+#: src/gnutls.c:950
 #, c-format
 msgid "Error initializing X509 certificate: %s\n"
 msgstr ""
 
-#: src/gnutls.c:958
+#: src/gnutls.c:959
 msgid "No certificate found\n"
 msgstr ""
 
-#: src/gnutls.c:965
+#: src/gnutls.c:966
 #, fuzzy, c-format
 msgid "Error parsing certificate: %s\n"
 msgstr "Грешка при транслирането на прокси УРЛ %s: %s\n"
 
-#: src/gnutls.c:972
+#: src/gnutls.c:973
 msgid "The certificate has not yet been activated\n"
 msgstr ""
 
-#: src/gnutls.c:977
+#: src/gnutls.c:978
 msgid "The certificate has expired\n"
 msgstr ""
 
-#: src/gnutls.c:984
+#: src/gnutls.c:985
 #, c-format
 msgid "The certificate's owner does not match hostname %s\n"
 msgstr ""
 
-#: src/gnutls.c:993 src/openssl.c:1034
+#: src/gnutls.c:994 src/openssl.c:1064
 msgid "The public key does not match pinned public key!\n"
 msgstr ""
 
-#: src/gnutls.c:1002
+#: src/gnutls.c:1003
 msgid "Certificate must be X.509\n"
 msgstr ""
 
-#: src/host.c:156
+#: src/host.c:157
 msgid "Error in handling the address list.\n"
 msgstr ""
 
-#: src/host.c:367
+#: src/host.c:368
 #, fuzzy
 msgid "Unknown host"
 msgstr "Непозната грешка"
 
-#: src/host.c:849
+#: src/host.c:850
 #, c-format
 msgid "Resolving %s... "
 msgstr "Преобразувам %s... "
 
-#: src/host.c:925
+#: src/host.c:926
 msgid "failed: No IPv4/IPv6 addresses for host.\n"
 msgstr ""
 
-#: src/host.c:955
+#: src/host.c:956
 #, fuzzy
 msgid "failed: timed out.\n"
 msgstr "неуспя: %s.\n"
 
-#: src/html-url.c:305
+#: src/html-url.c:306
 #, c-format
 msgid "%s: Cannot resolve incomplete link %s.\n"
 msgstr "%s: Не мога да изасня несъвършенния линк %s.\n"
 
-#: src/html-url.c:939
+#: src/html-url.c:841
+#, c-format
+msgid ""
+"no-follow attribute found in %s. Will not follow any links on this page\n"
+msgstr ""
+
+#: src/html-url.c:944
 #, fuzzy, c-format
 msgid "%s: Invalid URL %s: %s\n"
 msgstr "%s: Невалидна спецификация `%s'\n"
@@ -1396,40 +1402,40 @@ msgid ""
 "    use [unix|vms|windows],[lowercase|uppercase],[nocontrol],[ascii].\n"
 msgstr ""
 
-#: src/iri.c:113
+#: src/iri.c:114
 #, c-format
 msgid "Encoding %s isn't valid\n"
 msgstr ""
 
-#: src/iri.c:139 src/url.c:1570
+#: src/iri.c:140 src/url.c:1571
 #, c-format
 msgid "Conversion from %s to %s isn't supported\n"
 msgstr ""
 
-#: src/iri.c:179 src/url.c:1600
+#: src/iri.c:180 src/url.c:1601
 msgid "Incomplete or invalid multibyte sequence encountered\n"
 msgstr ""
 
-#: src/iri.c:198 src/url.c:1617
+#: src/iri.c:199 src/url.c:1618
 #, c-format
 msgid "Unhandled errno %d\n"
 msgstr ""
 
-#: src/iri.c:235
+#: src/iri.c:236
 msgid "locale_to_utf8: locale is unset\n"
 msgstr ""
 
-#: src/iri.c:281 src/iri.c:296
+#: src/iri.c:282 src/iri.c:297
 #, c-format
 msgid "idn_encode failed (%d): %s\n"
 msgstr ""
 
-#: src/iri.c:288
+#: src/iri.c:289
 #, fuzzy, c-format
 msgid "Failed to convert to lower: %d: %s\n"
 msgstr "немога да се свържа към %s:%hu: %s\n"
 
-#: src/log.c:931 src/log.c:950
+#: src/log.c:932 src/log.c:951
 #, fuzzy, c-format
 msgid ""
 "\n"
@@ -1438,7 +1444,7 @@ msgstr ""
 "\n"
 "%s получени, пре-адресиране на резултата към `%%s'.\n"
 
-#: src/log.c:943
+#: src/log.c:944
 #, c-format
 msgid "%s: %s; disabling logging.\n"
 msgstr "%s: %s; спирам записването.\n"
@@ -2871,7 +2877,7 @@ msgstr "Продължавам на заден план.\n"
 msgid "Continuing in background, pid %lu.\n"
 msgstr "Продължавам на заден план, pid %d.\n"
 
-#: src/mswindows.c:291 src/utils.c:508
+#: src/mswindows.c:291 src/utils.c:509
 #, fuzzy, c-format
 msgid "Output will be written to %s.\n"
 msgstr "Резултатът ще бъде записван в `%s'.\n"
@@ -2916,76 +2922,85 @@ msgstr "Употреба: %s NETRC [ИМЕ НА ХОСТ]\n"
 msgid "%s: cannot stat %s: %s\n"
 msgstr "%s: непълен формат %s: %s\n"
 
-#: src/openssl.c:114
+#: src/openssl.c:115
 msgid "WARNING: using a weak random seed.\n"
 msgstr ""
 
-#: src/openssl.c:192
+#: src/openssl.c:193
 #, fuzzy
 msgid "Could not seed PRNG; consider using --random-file.\n"
 msgstr "Не мога да намеря OpenSSL PRNG; продължавам без SSL.\n"
 
-#: src/openssl.c:267
+#: src/openssl.c:268
 msgid "Your OpenSSL version is too old to support TLS 1.3\n"
 msgstr ""
 
-#: src/openssl.c:273
+#: src/openssl.c:274
 msgid "Your OpenSSL version is too old to support TLSv1.1\n"
 msgstr ""
 
-#: src/openssl.c:277
+#: src/openssl.c:278
 msgid "Your OpenSSL version is too old to support TLSv1.2\n"
 msgstr ""
 
-#: src/openssl.c:283
+#: src/openssl.c:284
 #, c-format
 msgid "OpenSSL: unimplemented 'secure-protocol' option value %d\n"
 msgstr ""
 
-#: src/openssl.c:323
+#: src/openssl.c:324
 #, c-format
 msgid "OpenSSL: Invalid cipher list: %s\n"
 msgstr ""
 
-#: src/openssl.c:640
+#: src/openssl.c:350
+msgid "OpenSSL: Failed set trust to partial chain\n"
+msgstr ""
+
+#: src/openssl.c:356
+#, fuzzy
+msgid "OpenSSL: Failed to allocate verification param\n"
+msgstr "Неуспех при зареждане на сертификати от %s\n"
+
+#: src/openssl.c:670
 msgid "WARNING: Could not seed PRNG. Consider using --random-file.\n"
 msgstr ""
 
-#: src/openssl.c:860
+#: src/openssl.c:890
 #, c-format
 msgid "%s: cannot verify %s's certificate, issued by %s:\n"
 msgstr ""
 
-#: src/openssl.c:871
+#: src/openssl.c:901
 msgid "  Unable to locally verify the issuer's authority.\n"
 msgstr ""
 
-#: src/openssl.c:876
+#: src/openssl.c:906
 msgid "  Self-signed certificate encountered.\n"
 msgstr ""
 
-#: src/openssl.c:879
+#: src/openssl.c:909
 msgid "  Issued certificate not yet valid.\n"
 msgstr ""
 
-#: src/openssl.c:882
+#: src/openssl.c:912
 msgid "  Issued certificate has expired.\n"
 msgstr ""
 
-#: src/openssl.c:970
+#: src/openssl.c:1000
 #, c-format
 msgid ""
 "%s: no certificate subject alternative name matches\n"
 "\trequested host name %s.\n"
 msgstr ""
 
-#: src/openssl.c:989
+#: src/openssl.c:1019
 #, c-format
 msgid ""
 "    %s: certificate common name %s doesn't match requested host name %s.\n"
 msgstr ""
 
-#: src/openssl.c:1021
+#: src/openssl.c:1051
 #, c-format
 msgid ""
 "    %s: certificate common name is invalid (contains a NUL character).\n"
@@ -2993,12 +3008,12 @@ msgid ""
 "    (that is, it is not the real %s).\n"
 msgstr ""
 
-#: src/openssl.c:1046
+#: src/openssl.c:1076
 #, c-format
 msgid "To connect to %s insecurely, use `--no-check-certificate'.\n"
 msgstr ""
 
-#: src/progress.c:244
+#: src/progress.c:245
 #, fuzzy, c-format
 msgid ""
 "\n"
@@ -3007,28 +3022,28 @@ msgstr ""
 "\n"
 "%*s[ пропускам %dK ]"
 
-#: src/progress.c:465
+#: src/progress.c:466
 #, fuzzy, c-format
 msgid "Invalid dot style specification %s; leaving unchanged.\n"
 msgstr "Невалидна точкова спецификация `%s'; оставам непроменено.\n"
 
 #. TRANSLATORS: "ETA" is English-centric, but this must
 #. be short, ideally 3 chars.  Abbreviate if necessary.
-#: src/progress.c:857
+#: src/progress.c:858
 #, c-format
 msgid "    eta %s"
 msgstr ""
 
-#: src/progress.c:1147
+#: src/progress.c:1148
 msgid "    in "
 msgstr ""
 
-#: src/ptimer.c:157
+#: src/ptimer.c:158
 #, c-format
 msgid "Cannot get REALTIME clock frequency: %s\n"
 msgstr ""
 
-#: src/recur.c:512
+#: src/recur.c:513
 #, c-format
 msgid "Removing %s since it should be rejected.\n"
 msgstr "Премахване на %s, след като той би трябвало да бъде отхвърлен.\n"
@@ -3073,13 +3088,13 @@ msgstr ""
 "Продължавам.\n"
 "\n"
 
-#: src/spider.c:75
+#: src/spider.c:74
 msgid ""
 "Found no broken links.\n"
 "\n"
 msgstr ""
 
-#: src/spider.c:82
+#: src/spider.c:81
 #, c-format
 msgid ""
 "Found %d broken link.\n"
@@ -3090,172 +3105,172 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/url.c:674
+#: src/url.c:675
 #, fuzzy
 msgid "No error"
 msgstr "Непозната грешка"
 
-#: src/url.c:676
+#: src/url.c:677
 #, c-format
 msgid "Unsupported scheme %s"
 msgstr ""
 
-#: src/url.c:678
+#: src/url.c:679
 msgid "Scheme missing"
 msgstr ""
 
-#: src/url.c:680
+#: src/url.c:681
 msgid "Invalid host name"
 msgstr ""
 
-#: src/url.c:682
+#: src/url.c:683
 msgid "Bad port number"
 msgstr ""
 
-#: src/url.c:684
+#: src/url.c:685
 msgid "Invalid user name"
 msgstr ""
 
-#: src/url.c:686
+#: src/url.c:687
 msgid "Unterminated IPv6 numeric address"
 msgstr ""
 
-#: src/url.c:688
+#: src/url.c:689
 msgid "IPv6 addresses not supported"
 msgstr ""
 
-#: src/url.c:690
+#: src/url.c:691
 msgid "Invalid IPv6 numeric address"
 msgstr ""
 
-#: src/url.c:1006
+#: src/url.c:1007
 #, fuzzy
 msgid "HTTPS support not compiled in"
 msgstr "%s: поддръжката на \"debug\" не е компилирана.\n"
 
-#: src/url.c:1603
+#: src/url.c:1604
 msgid "Unconvertable multibyte sequence encountered\n"
 msgstr ""
 
-#: src/utils.c:128
+#: src/utils.c:129
 #, c-format
 msgid "%s: %s: Failed to allocate enough memory; memory exhausted.\n"
 msgstr ""
 
-#: src/utils.c:134
+#: src/utils.c:135
 #, c-format
 msgid "%s: %s: Failed to allocate %ld bytes; memory exhausted.\n"
 msgstr ""
 
-#: src/utils.c:354
+#: src/utils.c:355
 #, c-format
 msgid "%s: aprintf: text buffer is too big (%d bytes), aborting.\n"
 msgstr ""
 
-#: src/utils.c:506
+#: src/utils.c:507
 #, c-format
 msgid "Continuing in background, pid %d.\n"
 msgstr "Продължавам на заден план, pid %d.\n"
 
-#: src/utils.c:557
+#: src/utils.c:558
 #, fuzzy, c-format
 msgid "Failed to unlink symlink %s: %s\n"
 msgstr "Грешка при изтриване на символична връзка `%s': %s\n"
 
-#: src/utils.c:865
+#: src/utils.c:866
 #, fuzzy, c-format
 msgid "Failed to Fopen file %s\n"
 msgstr "Неуспех при зареждане на сертификати от %s\n"
 
-#: src/utils.c:871
+#: src/utils.c:872
 #, fuzzy, c-format
 msgid "Failed to get FD for file %s\n"
 msgstr "Неуспех при взимане на ключа към сертификата от %s\n"
 
-#: src/utils.c:878
+#: src/utils.c:879
 #, c-format
 msgid "Failed to stat file %s, (check permissions)\n"
 msgstr ""
 
-#: src/utils.c:888
+#: src/utils.c:889
 #, c-format
 msgid "File %s changed since the last check. Security check failed."
 msgstr ""
 
-#: src/utils.c:923
+#: src/utils.c:924
 #, fuzzy, c-format
 msgid "Failed to open file %s, reason :%s\n"
 msgstr "Неуспех при зареждане на сертификати от %s\n"
 
-#: src/utils.c:929
+#: src/utils.c:930
 #, fuzzy, c-format
 msgid "Failed to stat file %s, error: %s\n"
 msgstr "Неуспех при зареждане на сертификати от %s\n"
 
-#: src/utils.c:939
+#: src/utils.c:940
 #, c-format
 msgid ""
 "Trying to open file %s but it changed since last check. Security check "
 "failed."
 msgstr ""
 
-#: src/utils.c:2445
+#: src/utils.c:2446
 #, c-format
 msgid "Invalid regular expression %s, PCRE2 error %d\n"
 msgstr ""
 
-#: src/utils.c:2462 src/utils.c:2485
+#: src/utils.c:2463 src/utils.c:2486
 #, c-format
 msgid "Invalid regular expression %s, %s\n"
 msgstr ""
 
-#: src/utils.c:2515 src/utils.c:2537 src/utils.c:2561
+#: src/utils.c:2516 src/utils.c:2538 src/utils.c:2562
 #, fuzzy, c-format
 msgid "Error while matching %s: %d\n"
 msgstr "Грешка при запис на `%s': %s\n"
 
-#: src/utils.c:2854
+#: src/utils.c:2855
 #, c-format
 msgid "Skipping key with wrong size (%d/%d): %s\n"
 msgstr ""
 
-#: src/warc.c:222
+#: src/warc.c:223
 msgid "Error duplicating WARC file file descriptor.\n"
 msgstr ""
 
-#: src/warc.c:233
+#: src/warc.c:234
 msgid "Error opening GZIP stream to WARC file.\n"
 msgstr ""
 
-#: src/warc.c:809
+#: src/warc.c:810
 msgid "Error writing warcinfo record to WARC file.\n"
 msgstr ""
 
-#: src/warc.c:872
+#: src/warc.c:873
 #, c-format
 msgid ""
 "Opening WARC file %s.\n"
 "\n"
 msgstr ""
 
-#: src/warc.c:878
+#: src/warc.c:879
 #, fuzzy, c-format
 msgid "Error opening WARC file %s.\n"
 msgstr "Грешка при транслирането на прокси УРЛ %s: %s\n"
 
-#: src/warc.c:1075
+#: src/warc.c:1076
 msgid "CDX file does not list original urls. (Missing column 'a'.)\n"
 msgstr ""
 
-#: src/warc.c:1078
+#: src/warc.c:1079
 msgid "CDX file does not list checksums. (Missing column 'k'.)\n"
 msgstr ""
 
-#: src/warc.c:1081
+#: src/warc.c:1082
 msgid "CDX file does not list record ids. (Missing column 'u'.)\n"
 msgstr ""
 
-#: src/warc.c:1105
+#: src/warc.c:1106
 #, c-format
 msgid ""
 "Loaded %d record from CDX.\n"
@@ -3266,33 +3281,33 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/warc.c:1151
+#: src/warc.c:1152
 #, c-format
 msgid "Could not read CDX file %s for deduplication.\n"
 msgstr ""
 
-#: src/warc.c:1161
+#: src/warc.c:1162
 msgid "Could not open temporary WARC manifest file.\n"
 msgstr ""
 
-#: src/warc.c:1171
+#: src/warc.c:1172
 msgid "Could not open temporary WARC log file.\n"
 msgstr ""
 
-#: src/warc.c:1180
+#: src/warc.c:1181
 msgid "Could not open WARC file.\n"
 msgstr ""
 
-#: src/warc.c:1189
+#: src/warc.c:1190
 #, fuzzy
 msgid "Could not open CDX file for output.\n"
 msgstr "Немога да намеря прокси хоста.\n"
 
-#: src/warc.c:1219
+#: src/warc.c:1220
 msgid "Could not open temporary WARC file.\n"
 msgstr ""
 
-#: src/warc.c:1495
+#: src/warc.c:1496
 msgid "Found exact match in CDX file. Saving revisit record to WARC.\n"
 msgstr ""
 
