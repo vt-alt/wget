@@ -18,7 +18,7 @@ END-INFO-DIR-ENTRY
 
 File: wget.info,  Node: Top,  Next: Overview,  Prev: (dir),  Up: (dir)
 
-Wget 1.20.2
+Wget 1.20.3
 ***********
 
 This file documents the GNU Wget utility for downloading network data.
@@ -3805,8 +3805,8 @@ File: wget.info,  Node: Distribution,  Next: Web Site,  Prev: Proxies,  Up: Vari
 
 Like all GNU utilities, the latest version of Wget can be found at the
 master GNU archive site ftp.gnu.org, and its mirrors.  For example, Wget
-1.20.2 can be found at
-<https://ftp.gnu.org/pub/gnu/wget/wget-1.20.2.tar.gz>
+1.20.3 can be found at
+<https://ftp.gnu.org/pub/gnu/wget/wget-1.20.3.tar.gz>
 
 
 File: wget.info,  Node: Web Site,  Next: Mailing Lists,  Prev: Distribution,  Up: Various

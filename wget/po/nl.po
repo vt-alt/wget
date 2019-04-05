@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget 1.16.3.124\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2019-04-01 20:28+0200\n"
+"POT-Creation-Date: 2019-04-05 12:07+0200\n"
 "PO-Revision-Date: 2015-09-23 11:42+0200\n"
 "Last-Translator: Benno Schulenberg <benno@vertaalt.nl>\n"
 "Language-Team: Dutch <vertaling@vrijschrift.org>\n"
@@ -853,15 +853,15 @@ msgid ""
 "GnuTLS: Cannot set prio string directly. Falling back to default priority.\n"
 msgstr ""
 
-#: src/gnutls.c:915 src/openssl.c:855
+#: src/gnutls.c:915 src/openssl.c:857
 msgid "ERROR"
 msgstr "FOUT"
 
-#: src/gnutls.c:915 src/openssl.c:855
+#: src/gnutls.c:915 src/openssl.c:857
 msgid "WARNING"
 msgstr "WAARSCHUWING"
 
-#: src/gnutls.c:926 src/openssl.c:868
+#: src/gnutls.c:926 src/openssl.c:870
 #, c-format
 msgid "%s: No certificate presented by %s.\n"
 msgstr "%s: Geen certificaat aangeboden door %s.\n"
@@ -929,7 +929,7 @@ msgstr "Het certificaat is verlopen\n"
 msgid "The certificate's owner does not match hostname %s\n"
 msgstr "De certificaateigenaar komt niet overeen met hostnaam '%s'\n"
 
-#: src/gnutls.c:994 src/openssl.c:1064
+#: src/gnutls.c:994 src/openssl.c:1066
 msgid "The public key does not match pinned public key!\n"
 msgstr ""
 
@@ -1455,25 +1455,30 @@ msgstr "Codering %s is niet geldig\n"
 msgid "Conversion from %s to %s isn't supported\n"
 msgstr "Omzetting van %s naar UTF-8 wordt niet ondersteund\n"
 
-#: src/iri.c:180 src/url.c:1601
+#: src/iri.c:183 src/url.c:1601
 msgid "Incomplete or invalid multibyte sequence encountered\n"
 msgstr "Incomplete of ongeldige multibyte-volgorde aangetroffen\n"
 
-#: src/iri.c:199 src/url.c:1618
+#: src/iri.c:195
+#, c-format
+msgid "Reallocate output buffer len=%d outlen=%d inlen=%d\n"
+msgstr ""
+
+#: src/iri.c:205 src/url.c:1618
 #, c-format
 msgid "Unhandled errno %d\n"
 msgstr "Onafgehandeld foutnummer %d\n"
 
-#: src/iri.c:236
+#: src/iri.c:242
 msgid "locale_to_utf8: locale is unset\n"
 msgstr "locale_to_utf8(): locale is niet ingesteld\n"
 
-#: src/iri.c:282 src/iri.c:297
+#: src/iri.c:288 src/iri.c:303
 #, c-format
 msgid "idn_encode failed (%d): %s\n"
 msgstr "idn_encode() is mislukt (%d): %s\n"
 
-#: src/iri.c:289
+#: src/iri.c:295
 #, fuzzy, c-format
 msgid "Failed to convert to lower: %d: %s\n"
 msgstr "Kan geen verbinding maken met %s op poort %d: %s\n"
@@ -3230,42 +3235,42 @@ msgstr "OpenSSL: niet-geïmplementeerde 'secure-protocol'-optiewaarde %d\n"
 msgid "OpenSSL: Invalid cipher list: %s\n"
 msgstr "%s: Ongeldige URL '%s': %s.\n"
 
-#: src/openssl.c:350
+#: src/openssl.c:351
 msgid "OpenSSL: Failed set trust to partial chain\n"
 msgstr ""
 
-#: src/openssl.c:356
+#: src/openssl.c:357
 msgid "OpenSSL: Failed to allocate verification param\n"
 msgstr ""
 
-#: src/openssl.c:670
+#: src/openssl.c:672
 #, fuzzy
 msgid "WARNING: Could not seed PRNG. Consider using --random-file.\n"
 msgstr ""
 "Kan geen 'seed' voor PRNG vinden;  gebruik eventueel '--random-file'.\n"
 
-#: src/openssl.c:890
+#: src/openssl.c:892
 #, c-format
 msgid "%s: cannot verify %s's certificate, issued by %s:\n"
 msgstr "%s: kan certificaat van %s (uitgegeven door %s) niet controleren:\n"
 
-#: src/openssl.c:901
+#: src/openssl.c:903
 msgid "  Unable to locally verify the issuer's authority.\n"
 msgstr "  Kan de autoriteit van de uitgever niet lokaal verifiëren.\n"
 
-#: src/openssl.c:906
+#: src/openssl.c:908
 msgid "  Self-signed certificate encountered.\n"
 msgstr "  Zelf-ondertekend certificaat gevonden.\n"
 
-#: src/openssl.c:909
+#: src/openssl.c:911
 msgid "  Issued certificate not yet valid.\n"
 msgstr "  Certificaat is nog niet geldig.\n"
 
-#: src/openssl.c:912
+#: src/openssl.c:914
 msgid "  Issued certificate has expired.\n"
 msgstr "  Certificaat is verlopen.\n"
 
-#: src/openssl.c:1000
+#: src/openssl.c:1002
 #, c-format
 msgid ""
 "%s: no certificate subject alternative name matches\n"
@@ -3274,7 +3279,7 @@ msgstr ""
 "%s: geen van de alternatieve namen in het certificaat komt\n"
 "    overeen met de gevraagde hostnaam '%s'.\n"
 
-#: src/openssl.c:1019
+#: src/openssl.c:1021
 #, c-format
 msgid ""
 "    %s: certificate common name %s doesn't match requested host name %s.\n"
@@ -3282,7 +3287,7 @@ msgstr ""
 "    %s: naam '%s' in certificaat komt niet overeen met gevraagde hostnaam "
 "'%s'.\n"
 
-#: src/openssl.c:1051
+#: src/openssl.c:1053
 #, c-format
 msgid ""
 "    %s: certificate common name is invalid (contains a NUL character).\n"
@@ -3293,7 +3298,7 @@ msgstr ""
 "    Dit zou erop kunnen wijzen dat de host niet is wie die zegt te zijn\n"
 "    (oftewel dat het niet de echte '%s' is).\n"
 
-#: src/openssl.c:1076
+#: src/openssl.c:1078
 #, c-format
 msgid "To connect to %s insecurely, use `--no-check-certificate'.\n"
 msgstr ""

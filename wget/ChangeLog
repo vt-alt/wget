@@ -1,6 +1,22 @@
-2019-04-01  Darshit Shah  <darnir@gnu.org>
+2019-04-05  Darshit Shah  <darnir@gnu.org>
 
 	* NEWS: Update NEWS for new release
+
+2019-04-05  Tim Ruehsen  <tim.ruehsen@gmx.de>
+
+	Fix a buffer overflow vulnerability
+	* src/iri.c(do_conversion): Reallocate the output buffer to a larger
+	  size if it is already full
+
+2019-04-05  Darshit Shah  <darnir@gnu.org>
+
+	* NEWS: Update NEWS for new release
+
+2019-04-03  Tim Rühsen  <tim.ruehsen@gmx.de>
+
+	* src/openssl.c (ssl_init): Check for X509_V_FLAG_PARTIAL_CHAIN
+
+2019-04-01  Darshit Shah  <darnir@gnu.org>
 
 	* gnulib: Pull forward
 

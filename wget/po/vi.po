@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget 1.18.109\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2019-04-01 20:28+0200\n"
+"POT-Creation-Date: 2019-04-05 12:07+0200\n"
 "PO-Revision-Date: 2017-01-24 08:49+0700\n"
 "Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
 "Language-Team: Vietnamese <translation-team-vi@lists.sourceforge.net>\n"
@@ -845,15 +845,15 @@ msgid ""
 "GnuTLS: Cannot set prio string directly. Falling back to default priority.\n"
 msgstr ""
 
-#: src/gnutls.c:915 src/openssl.c:855
+#: src/gnutls.c:915 src/openssl.c:857
 msgid "ERROR"
 msgstr "LỖI"
 
-#: src/gnutls.c:915 src/openssl.c:855
+#: src/gnutls.c:915 src/openssl.c:857
 msgid "WARNING"
 msgstr "CẢNH BÁO"
 
-#: src/gnutls.c:926 src/openssl.c:868
+#: src/gnutls.c:926 src/openssl.c:870
 #, c-format
 msgid "%s: No certificate presented by %s.\n"
 msgstr "%s: Không có chứng thực từ %s.\n"
@@ -920,7 +920,7 @@ msgstr "Chứng nhận đã hết hạn dùng\n"
 msgid "The certificate's owner does not match hostname %s\n"
 msgstr "Chủ chứng nhận không tương ứng với tên máy %s\n"
 
-#: src/gnutls.c:994 src/openssl.c:1064
+#: src/gnutls.c:994 src/openssl.c:1066
 msgid "The public key does not match pinned public key!\n"
 msgstr "Khóa công không khớp với khóa công được đóng cứng!\n"
 
@@ -1452,25 +1452,30 @@ msgstr "Bảng mã %s không hợp lệ\n"
 msgid "Conversion from %s to %s isn't supported\n"
 msgstr "Không hỗ trợ chức năng chuyển đổi từ %s sang %s\n"
 
-#: src/iri.c:180 src/url.c:1601
+#: src/iri.c:183 src/url.c:1601
 msgid "Incomplete or invalid multibyte sequence encountered\n"
 msgstr "Gặp chuỗi byte không hoàn chỉnh hoặc không hợp lệ\n"
 
-#: src/iri.c:199 src/url.c:1618
+#: src/iri.c:195
+#, c-format
+msgid "Reallocate output buffer len=%d outlen=%d inlen=%d\n"
+msgstr ""
+
+#: src/iri.c:205 src/url.c:1618
 #, c-format
 msgid "Unhandled errno %d\n"
 msgstr "Mã lỗi %d không được xử lý\n"
 
-#: src/iri.c:236
+#: src/iri.c:242
 msgid "locale_to_utf8: locale is unset\n"
 msgstr "locale_to_utf8: chưa đặt miền địa phương\n"
 
-#: src/iri.c:282 src/iri.c:297
+#: src/iri.c:288 src/iri.c:303
 #, c-format
 msgid "idn_encode failed (%d): %s\n"
 msgstr "idn_encode bị lỗi (%d): %s\n"
 
-#: src/iri.c:289
+#: src/iri.c:295
 #, c-format
 msgid "Failed to convert to lower: %d: %s\n"
 msgstr "Gặp lỗi khi chuyển sang chữ thường: %d: %s\n"
@@ -3260,41 +3265,41 @@ msgstr "OpenSSL: giá trị tùy chọn “secure-protocol” chưa được th�
 msgid "OpenSSL: Invalid cipher list: %s\n"
 msgstr "%s: URL không hợp lệ %s: %s\n"
 
-#: src/openssl.c:350
+#: src/openssl.c:351
 msgid "OpenSSL: Failed set trust to partial chain\n"
 msgstr ""
 
-#: src/openssl.c:356
+#: src/openssl.c:357
 msgid "OpenSSL: Failed to allocate verification param\n"
 msgstr ""
 
-#: src/openssl.c:670
+#: src/openssl.c:672
 #, fuzzy
 msgid "WARNING: Could not seed PRNG. Consider using --random-file.\n"
 msgstr "Không thể tạo mầm PRNG, coi như sử dụng --random-file.\n"
 
-#: src/openssl.c:890
+#: src/openssl.c:892
 #, c-format
 msgid "%s: cannot verify %s's certificate, issued by %s:\n"
 msgstr "%s: không thể thẩm tra chứng nhận của %s, cấp bởi %s:\n"
 
-#: src/openssl.c:901
+#: src/openssl.c:903
 msgid "  Unable to locally verify the issuer's authority.\n"
 msgstr "  Không thể thẩm tra cục bộ quyền của nhà cấp.\n"
 
-#: src/openssl.c:906
+#: src/openssl.c:908
 msgid "  Self-signed certificate encountered.\n"
 msgstr "  Gặp chứng nhận tự ký.\n"
 
-#: src/openssl.c:909
+#: src/openssl.c:911
 msgid "  Issued certificate not yet valid.\n"
 msgstr "  Chứng nhận đã cấp nhưng chưa hợp lệ.\n"
 
-#: src/openssl.c:912
+#: src/openssl.c:914
 msgid "  Issued certificate has expired.\n"
 msgstr "  Chứng nhận đã cấp cũng đã hết hạn dùng.\n"
 
-#: src/openssl.c:1000
+#: src/openssl.c:1002
 #, c-format
 msgid ""
 "%s: no certificate subject alternative name matches\n"
@@ -3303,7 +3308,7 @@ msgstr ""
 "%s: không có tên thay thế của chủ thể chứng nhận mà\n"
 "\ttương ứng với tên máy yêu cầu %s.\n"
 
-#: src/openssl.c:1019
+#: src/openssl.c:1021
 #, c-format
 msgid ""
 "    %s: certificate common name %s doesn't match requested host name %s.\n"
@@ -3311,7 +3316,7 @@ msgstr ""
 "    %s: tên thường gọi của chứng nhận %s không tương ứng tên máy yêu cầu "
 "%s.\n"
 
-#: src/openssl.c:1051
+#: src/openssl.c:1053
 #, c-format
 msgid ""
 "    %s: certificate common name is invalid (contains a NUL character).\n"
@@ -3323,7 +3328,7 @@ msgstr ""
 "vệ\n"
 "    (do vậy, máy không phải là %s thật).\n"
 
-#: src/openssl.c:1076
+#: src/openssl.c:1078
 #, c-format
 msgid "To connect to %s insecurely, use `--no-check-certificate'.\n"
 msgstr "Để kết nối không an toàn tới %s, hãy dùng “-no-check-certificate”.\n"

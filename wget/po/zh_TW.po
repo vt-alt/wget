@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget 1.20\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2019-04-01 20:28+0200\n"
+"POT-Creation-Date: 2019-04-05 12:07+0200\n"
 "PO-Revision-Date: 2018-11-17 14:02+0800\n"
 "Last-Translator: pan93412 <pan93412@gmail.com>\n"
 "Language-Team: Chinese (traditional) <zh-l10n@linux.org.tw>\n"
@@ -841,15 +841,15 @@ msgid ""
 "GnuTLS: Cannot set prio string directly. Falling back to default priority.\n"
 msgstr "GnuTLS：無法直接設定優先級 (prio) 字串。選擇退回到預設的優先級。\n"
 
-#: src/gnutls.c:915 src/openssl.c:855
+#: src/gnutls.c:915 src/openssl.c:857
 msgid "ERROR"
 msgstr "錯誤"
 
-#: src/gnutls.c:915 src/openssl.c:855
+#: src/gnutls.c:915 src/openssl.c:857
 msgid "WARNING"
 msgstr "警告"
 
-#: src/gnutls.c:926 src/openssl.c:868
+#: src/gnutls.c:926 src/openssl.c:870
 #, c-format
 msgid "%s: No certificate presented by %s.\n"
 msgstr "%s：%s 沒有提供憑證。\n"
@@ -916,7 +916,7 @@ msgstr "憑證已過期\n"
 msgid "The certificate's owner does not match hostname %s\n"
 msgstr "憑證所有者與主機名稱 %s 不相符\n"
 
-#: src/gnutls.c:994 src/openssl.c:1064
+#: src/gnutls.c:994 src/openssl.c:1066
 msgid "The public key does not match pinned public key!\n"
 msgstr "公鑰與釘選公鑰不符！\n"
 
@@ -1445,25 +1445,30 @@ msgstr "編碼方式 %s 無效\n"
 msgid "Conversion from %s to %s isn't supported\n"
 msgstr "不支援從 %s 轉換到 %s\n"
 
-#: src/iri.c:180 src/url.c:1601
+#: src/iri.c:183 src/url.c:1601
 msgid "Incomplete or invalid multibyte sequence encountered\n"
 msgstr "遇到不完整或無效的多位元序列\n"
 
-#: src/iri.c:199 src/url.c:1618
+#: src/iri.c:195
+#, c-format
+msgid "Reallocate output buffer len=%d outlen=%d inlen=%d\n"
+msgstr ""
+
+#: src/iri.c:205 src/url.c:1618
 #, c-format
 msgid "Unhandled errno %d\n"
 msgstr "未處理的 errno %d\n"
 
-#: src/iri.c:236
+#: src/iri.c:242
 msgid "locale_to_utf8: locale is unset\n"
 msgstr "locale_to_utf8：locale 未設定\n"
 
-#: src/iri.c:282 src/iri.c:297
+#: src/iri.c:288 src/iri.c:303
 #, c-format
 msgid "idn_encode failed (%d): %s\n"
 msgstr "idn_encode 失敗 (%d)：%s\n"
 
-#: src/iri.c:289
+#: src/iri.c:295
 #, c-format
 msgid "Failed to convert to lower: %d: %s\n"
 msgstr "無法轉換至小寫：%d：%s\n"
@@ -3100,40 +3105,40 @@ msgstr "OpenSSL：未實做的「secure-protocol」選項值 %d\n"
 msgid "OpenSSL: Invalid cipher list: %s\n"
 msgstr "OpenSSL：無效的密文列表：%s\n"
 
-#: src/openssl.c:350
+#: src/openssl.c:351
 msgid "OpenSSL: Failed set trust to partial chain\n"
 msgstr ""
 
-#: src/openssl.c:356
+#: src/openssl.c:357
 msgid "OpenSSL: Failed to allocate verification param\n"
 msgstr ""
 
-#: src/openssl.c:670
+#: src/openssl.c:672
 msgid "WARNING: Could not seed PRNG. Consider using --random-file.\n"
 msgstr "警告：無法產生種子 PRNG。請考慮使用 --random-file。\n"
 
-#: src/openssl.c:890
+#: src/openssl.c:892
 #, c-format
 msgid "%s: cannot verify %s's certificate, issued by %s:\n"
 msgstr "%s：無法驗證 %s 的憑證 (由 %s 簽發)：\n"
 
-#: src/openssl.c:901
+#: src/openssl.c:903
 msgid "  Unable to locally verify the issuer's authority.\n"
 msgstr " 無法本機驗證此發行者的身份。\n"
 
-#: src/openssl.c:906
+#: src/openssl.c:908
 msgid "  Self-signed certificate encountered.\n"
 msgstr "  遇到自簽憑證。\n"
 
-#: src/openssl.c:909
+#: src/openssl.c:911
 msgid "  Issued certificate not yet valid.\n"
 msgstr "  發行的憑證尚未有效。\n"
 
-#: src/openssl.c:912
+#: src/openssl.c:914
 msgid "  Issued certificate has expired.\n"
 msgstr "  發行的憑證已過期\n"
 
-#: src/openssl.c:1000
+#: src/openssl.c:1002
 #, c-format
 msgid ""
 "%s: no certificate subject alternative name matches\n"
@@ -3142,13 +3147,13 @@ msgstr ""
 "%s：沒有憑證主旨替代名稱符合\n"
 "\t請求的主機名稱 %s。\n"
 
-#: src/openssl.c:1019
+#: src/openssl.c:1021
 #, c-format
 msgid ""
 "    %s: certificate common name %s doesn't match requested host name %s.\n"
 msgstr "    %s：憑證的一般名稱「%s」和請求的主機名稱「%s」不符。\n"
 
-#: src/openssl.c:1051
+#: src/openssl.c:1053
 #, c-format
 msgid ""
 "    %s: certificate common name is invalid (contains a NUL character).\n"
@@ -3159,7 +3164,7 @@ msgstr ""
 "    這可能是主機非由聲稱者擁有的跡象（也就是說，\n"
 "    其不是真正的 %s）。\n"
 
-#: src/openssl.c:1076
+#: src/openssl.c:1078
 #, c-format
 msgid "To connect to %s insecurely, use `--no-check-certificate'.\n"
 msgstr "如果不想用安全模式連接 %s，請使用 ‘--no-check-certificate’ 選項\n"

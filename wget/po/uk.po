@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget 1.20\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2019-04-01 20:28+0200\n"
+"POT-Creation-Date: 2019-04-05 12:07+0200\n"
 "PO-Revision-Date: 2018-11-13 21:07+0200\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <translation-team-uk@lists.sourceforge.net>\n"
@@ -862,15 +862,15 @@ msgstr ""
 "GnuTLS: не вдалося встановити рядок prio безпосередньо. Повертаємося до "
 "типового рівня пріоритетності.\n"
 
-#: src/gnutls.c:915 src/openssl.c:855
+#: src/gnutls.c:915 src/openssl.c:857
 msgid "ERROR"
 msgstr "ПОМИЛКА"
 
-#: src/gnutls.c:915 src/openssl.c:855
+#: src/gnutls.c:915 src/openssl.c:857
 msgid "WARNING"
 msgstr "УВАГА"
 
-#: src/gnutls.c:926 src/openssl.c:868
+#: src/gnutls.c:926 src/openssl.c:870
 #, c-format
 msgid "%s: No certificate presented by %s.\n"
 msgstr "%s: %s не надано жодних сертифікатів.\n"
@@ -938,7 +938,7 @@ msgstr "Сертифікат прострочений\n"
 msgid "The certificate's owner does not match hostname %s\n"
 msgstr "Запис власника сертифіката не відповідає назві вузла %s\n"
 
-#: src/gnutls.c:994 src/openssl.c:1064
+#: src/gnutls.c:994 src/openssl.c:1066
 msgid "The public key does not match pinned public key!\n"
 msgstr "Відкритий ключ не збігається із приєднаним відкритим ключем!\n"
 
@@ -1484,25 +1484,30 @@ msgstr "Кодування %s є некоректним\n"
 msgid "Conversion from %s to %s isn't supported\n"
 msgstr "Підтримки перетворення з %s на %s не передбачено\n"
 
-#: src/iri.c:180 src/url.c:1601
+#: src/iri.c:183 src/url.c:1601
 msgid "Incomplete or invalid multibyte sequence encountered\n"
 msgstr "Виявлено неповну або некоректну багатобайтову послідовність\n"
 
-#: src/iri.c:199 src/url.c:1618
+#: src/iri.c:195
+#, c-format
+msgid "Reallocate output buffer len=%d outlen=%d inlen=%d\n"
+msgstr ""
+
+#: src/iri.c:205 src/url.c:1618
 #, c-format
 msgid "Unhandled errno %d\n"
 msgstr "Неопрацьована помилка (errno %d)\n"
 
-#: src/iri.c:236
+#: src/iri.c:242
 msgid "locale_to_utf8: locale is unset\n"
 msgstr "locale_to_utf8: локаль не встановлено\n"
 
-#: src/iri.c:282 src/iri.c:297
+#: src/iri.c:288 src/iri.c:303
 #, c-format
 msgid "idn_encode failed (%d): %s\n"
 msgstr "Помилка у idn_encode (%d): %s\n"
 
-#: src/iri.c:289
+#: src/iri.c:295
 #, c-format
 msgid "Failed to convert to lower: %d: %s\n"
 msgstr "Не вдалося перетворити на нижній регістр: %d: %s\n"
@@ -3339,42 +3344,42 @@ msgstr "OpenSSL: не реалізоване значення параметра
 msgid "OpenSSL: Invalid cipher list: %s\n"
 msgstr "OpenSSL: некоректний список шифрів: %s\n"
 
-#: src/openssl.c:350
+#: src/openssl.c:351
 msgid "OpenSSL: Failed set trust to partial chain\n"
 msgstr ""
 
-#: src/openssl.c:356
+#: src/openssl.c:357
 msgid "OpenSSL: Failed to allocate verification param\n"
 msgstr ""
 
-#: src/openssl.c:670
+#: src/openssl.c:672
 msgid "WARNING: Could not seed PRNG. Consider using --random-file.\n"
 msgstr ""
 "УВАГА: не вдалося створити початкове значення PRNG. Вам варто скористатися --"
 "random-file.\n"
 
-#: src/openssl.c:890
+#: src/openssl.c:892
 #, c-format
 msgid "%s: cannot verify %s's certificate, issued by %s:\n"
 msgstr "%s: не вдалося перевірити сертифікат %s, випущений %s:\n"
 
-#: src/openssl.c:901
+#: src/openssl.c:903
 msgid "  Unable to locally verify the issuer's authority.\n"
 msgstr "  Неможливо локально перевірити чинність запису видавця.\n"
 
-#: src/openssl.c:906
+#: src/openssl.c:908
 msgid "  Self-signed certificate encountered.\n"
 msgstr "  Виявлено самопідписаний сертифікат.\n"
 
-#: src/openssl.c:909
+#: src/openssl.c:911
 msgid "  Issued certificate not yet valid.\n"
 msgstr "  Виданий сертифікат ще не дійсний.\n"
 
-#: src/openssl.c:912
+#: src/openssl.c:914
 msgid "  Issued certificate has expired.\n"
 msgstr "  Виданий сертифікат прострочений.\n"
 
-#: src/openssl.c:1000
+#: src/openssl.c:1002
 #, c-format
 msgid ""
 "%s: no certificate subject alternative name matches\n"
@@ -3383,7 +3388,7 @@ msgstr ""
 "%s: жоден з варіантів призначення сертифіката не\n"
 "\tвідповідає потрібній назві вузла, %s.\n"
 
-#: src/openssl.c:1019
+#: src/openssl.c:1021
 #, c-format
 msgid ""
 "    %s: certificate common name %s doesn't match requested host name %s.\n"
@@ -3391,7 +3396,7 @@ msgstr ""
 "    %s: загальна назва об’єкта сертифікації, %s, не відповідає потрібній "
 "назві вузла %s.\n"
 
-#: src/openssl.c:1051
+#: src/openssl.c:1053
 #, c-format
 msgid ""
 "    %s: certificate common name is invalid (contains a NUL character).\n"
@@ -3402,7 +3407,7 @@ msgstr ""
 "    Це може означати, що автентичність вузла викликає сумніви\n"
 "    (тобто це насправді не %s).\n"
 
-#: src/openssl.c:1076
+#: src/openssl.c:1078
 #, c-format
 msgid "To connect to %s insecurely, use `--no-check-certificate'.\n"
 msgstr ""

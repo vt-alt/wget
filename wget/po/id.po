@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU wget 1.16.1.46\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2019-04-01 20:28+0200\n"
+"POT-Creation-Date: 2019-04-05 12:07+0200\n"
 "PO-Revision-Date: 2015-06-01 10:00+0700\n"
 "Last-Translator: Arif E. Nugroho <arif_endro@yahoo.com>\n"
 "Language-Team: Indonesian <translation-team-id@lists.sourceforge.net>\n"
@@ -842,15 +842,15 @@ msgid ""
 "GnuTLS: Cannot set prio string directly. Falling back to default priority.\n"
 msgstr ""
 
-#: src/gnutls.c:915 src/openssl.c:855
+#: src/gnutls.c:915 src/openssl.c:857
 msgid "ERROR"
 msgstr "ERROR"
 
-#: src/gnutls.c:915 src/openssl.c:855
+#: src/gnutls.c:915 src/openssl.c:857
 msgid "WARNING"
 msgstr "PERINGATAN"
 
-#: src/gnutls.c:926 src/openssl.c:868
+#: src/gnutls.c:926 src/openssl.c:870
 #, c-format
 msgid "%s: No certificate presented by %s.\n"
 msgstr "%s: Tidak ada certificate yang di berikan oleh %s.\n"
@@ -917,7 +917,7 @@ msgstr "Sertifikat telah habis masa berlakunya.\n"
 msgid "The certificate's owner does not match hostname %s\n"
 msgstr "Pemilik sertifikat tidak cocok dengan nama host %s.\n"
 
-#: src/gnutls.c:994 src/openssl.c:1064
+#: src/gnutls.c:994 src/openssl.c:1066
 msgid "The public key does not match pinned public key!\n"
 msgstr ""
 
@@ -1437,25 +1437,30 @@ msgstr "Pengkodean %s tidak valid\n"
 msgid "Conversion from %s to %s isn't supported\n"
 msgstr "Konversi dari %s ke %s belum didukung\n"
 
-#: src/iri.c:180 src/url.c:1601
+#: src/iri.c:183 src/url.c:1601
 msgid "Incomplete or invalid multibyte sequence encountered\n"
 msgstr "Tidak lengkap atau tidak valid urutan multibyte ditemui\n"
 
-#: src/iri.c:199 src/url.c:1618
+#: src/iri.c:195
+#, c-format
+msgid "Reallocate output buffer len=%d outlen=%d inlen=%d\n"
+msgstr ""
+
+#: src/iri.c:205 src/url.c:1618
 #, c-format
 msgid "Unhandled errno %d\n"
 msgstr "Errno tidak tertangani %d\n"
 
-#: src/iri.c:236
+#: src/iri.c:242
 msgid "locale_to_utf8: locale is unset\n"
 msgstr "local_to_utf8: lokal tidak diset\n"
 
-#: src/iri.c:282 src/iri.c:297
+#: src/iri.c:288 src/iri.c:303
 #, c-format
 msgid "idn_encode failed (%d): %s\n"
 msgstr "idn_encode gagal (%d): %s\n"
 
-#: src/iri.c:289
+#: src/iri.c:295
 #, fuzzy, c-format
 msgid "Failed to convert to lower: %d: %s\n"
 msgstr "tidak dapat menghubungi %s port %d: %s\n"
@@ -3314,42 +3319,42 @@ msgstr ""
 msgid "OpenSSL: Invalid cipher list: %s\n"
 msgstr "%s: URL tidak valid %s: %s\n"
 
-#: src/openssl.c:350
+#: src/openssl.c:351
 msgid "OpenSSL: Failed set trust to partial chain\n"
 msgstr ""
 
-#: src/openssl.c:356
+#: src/openssl.c:357
 msgid "OpenSSL: Failed to allocate verification param\n"
 msgstr ""
 
-#: src/openssl.c:670
+#: src/openssl.c:672
 #, fuzzy
 msgid "WARNING: Could not seed PRNG. Consider using --random-file.\n"
 msgstr "Tidak dapat seed PRNG; pertimbangkan menggunakan --random-file.\n"
 
-#: src/openssl.c:890
+#: src/openssl.c:892
 #, c-format
 msgid "%s: cannot verify %s's certificate, issued by %s:\n"
 msgstr ""
 "%s: Tidak dapat memverifikasi sertifikat %s, yang diterbitkan oleh %s:\n"
 
-#: src/openssl.c:901
+#: src/openssl.c:903
 msgid "  Unable to locally verify the issuer's authority.\n"
 msgstr "  Tidak dapat untuk memverifikasi atoritas penerbit secara lokal.\n"
 
-#: src/openssl.c:906
+#: src/openssl.c:908
 msgid "  Self-signed certificate encountered.\n"
 msgstr "  Selft-signed sertifikat ditemukan.\n"
 
-#: src/openssl.c:909
+#: src/openssl.c:911
 msgid "  Issued certificate not yet valid.\n"
 msgstr "  Sertifikat yang diterbitkan tidak sah.\n"
 
-#: src/openssl.c:912
+#: src/openssl.c:914
 msgid "  Issued certificate has expired.\n"
 msgstr "  Sertifikat yang diterbikan telah expired.\n"
 
-#: src/openssl.c:1000
+#: src/openssl.c:1002
 #, c-format
 msgid ""
 "%s: no certificate subject alternative name matches\n"
@@ -3358,7 +3363,7 @@ msgstr ""
 "%s: nama pengguna sertifikat\n"
 "\ttidak cocok dengan yang diberikan oleh hostname %s.\n"
 
-#: src/openssl.c:1019
+#: src/openssl.c:1021
 #, c-format
 msgid ""
 "    %s: certificate common name %s doesn't match requested host name %s.\n"
@@ -3366,7 +3371,7 @@ msgstr ""
 "    %s: nama pengguna sertifikat %s tidak cocok dengan yang diberikan oleh "
 "hostname %s.\n"
 
-#: src/openssl.c:1051
+#: src/openssl.c:1053
 #, c-format
 msgid ""
 "    %s: certificate common name is invalid (contains a NUL character).\n"
@@ -3377,7 +3382,7 @@ msgstr ""
 "    Ini mungkin merupakan indikasi bahwa host bukan yang dimaksud\n"
 "    (mungkin ini bukan %s sesungguhnya).\n"
 
-#: src/openssl.c:1076
+#: src/openssl.c:1078
 #, c-format
 msgid "To connect to %s insecurely, use `--no-check-certificate'.\n"
 msgstr ""

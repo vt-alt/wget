@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget 1.20\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2019-04-01 20:28+0200\n"
+"POT-Creation-Date: 2019-04-05 12:07+0200\n"
 "PO-Revision-Date: 2018-11-13 20:36+01:00\n"
 "Last-Translator: Petr Pisar <petr.pisar@atlas.cz>\n"
 "Language-Team: Czech <translation-team-cs@lists.sourceforge.net>\n"
@@ -865,15 +865,15 @@ msgstr ""
 "GnuTLS: Řetězec s prioritami nelze přímo nastavit. Návrat k výchozí "
 "prioritě.\n"
 
-#: src/gnutls.c:915 src/openssl.c:855
+#: src/gnutls.c:915 src/openssl.c:857
 msgid "ERROR"
 msgstr "CHYBA"
 
-#: src/gnutls.c:915 src/openssl.c:855
+#: src/gnutls.c:915 src/openssl.c:857
 msgid "WARNING"
 msgstr "VAROVÁNÍ"
 
-#: src/gnutls.c:926 src/openssl.c:868
+#: src/gnutls.c:926 src/openssl.c:870
 #, c-format
 msgid "%s: No certificate presented by %s.\n"
 msgstr "%s: %s nepředložil žádný certifikát.\n"
@@ -940,7 +940,7 @@ msgstr "Certifikátu uplynula doba platnosti\n"
 msgid "The certificate's owner does not match hostname %s\n"
 msgstr "Jméno vlastníka certifikátu se neshoduje se jménem počítače %s\n"
 
-#: src/gnutls.c:994 src/openssl.c:1064
+#: src/gnutls.c:994 src/openssl.c:1066
 msgid "The public key does not match pinned public key!\n"
 msgstr "Veřejný klíč se neshoduje s uloženým veřejným klíčem!\n"
 
@@ -1484,25 +1484,30 @@ msgstr "Kódování %s není platné\n"
 msgid "Conversion from %s to %s isn't supported\n"
 msgstr "Převod z %s do %s není podporován\n"
 
-#: src/iri.c:180 src/url.c:1601
+#: src/iri.c:183 src/url.c:1601
 msgid "Incomplete or invalid multibyte sequence encountered\n"
 msgstr "Zaznamenána neúplná nebo neplatná vícebajtová posloupnost\n"
 
-#: src/iri.c:199 src/url.c:1618
+#: src/iri.c:195
+#, c-format
+msgid "Reallocate output buffer len=%d outlen=%d inlen=%d\n"
+msgstr ""
+
+#: src/iri.c:205 src/url.c:1618
 #, c-format
 msgid "Unhandled errno %d\n"
 msgstr "Neobsloužená chyba č. %d\n"
 
-#: src/iri.c:236
+#: src/iri.c:242
 msgid "locale_to_utf8: locale is unset\n"
 msgstr "locale_to_utf8: národní prostředí není nastaveno\n"
 
-#: src/iri.c:282 src/iri.c:297
+#: src/iri.c:288 src/iri.c:303
 #, c-format
 msgid "idn_encode failed (%d): %s\n"
 msgstr "idn_encode selhala (%d): %s\n"
 
-#: src/iri.c:289
+#: src/iri.c:295
 #, c-format
 msgid "Failed to convert to lower: %d: %s\n"
 msgstr "Nebylo možné převést na malá písmena: %d: %s\n"
@@ -3304,42 +3309,42 @@ msgstr "OpenSSL: neimplementovaná hodnota %d volby „secure-protocol“\n"
 msgid "OpenSSL: Invalid cipher list: %s\n"
 msgstr "OpenSSL: Neplatný seznam šifer: %s\n"
 
-#: src/openssl.c:350
+#: src/openssl.c:351
 msgid "OpenSSL: Failed set trust to partial chain\n"
 msgstr ""
 
-#: src/openssl.c:356
+#: src/openssl.c:357
 msgid "OpenSSL: Failed to allocate verification param\n"
 msgstr ""
 
-#: src/openssl.c:670
+#: src/openssl.c:672
 msgid "WARNING: Could not seed PRNG. Consider using --random-file.\n"
 msgstr ""
 "POZOR: PRNG nebylo možné zinicializovat. Zvažte použití přepínače --random-"
 "file.\n"
 
-#: src/openssl.c:890
+#: src/openssl.c:892
 #, c-format
 msgid "%s: cannot verify %s's certificate, issued by %s:\n"
 msgstr "%s: certifikát pro %s vydaný %s nelze ověřit:\n"
 
-#: src/openssl.c:901
+#: src/openssl.c:903
 msgid "  Unable to locally verify the issuer's authority.\n"
 msgstr "  Autoritu vydavatele nelze lokálně ověřit.\n"
 
-#: src/openssl.c:906
+#: src/openssl.c:908
 msgid "  Self-signed certificate encountered.\n"
 msgstr "  Nalezen certifikát podepsaný sám sebou.\n"
 
-#: src/openssl.c:909
+#: src/openssl.c:911
 msgid "  Issued certificate not yet valid.\n"
 msgstr "  Vydaný certifikát ještě nenabyl platnosti.\n"
 
-#: src/openssl.c:912
+#: src/openssl.c:914
 msgid "  Issued certificate has expired.\n"
 msgstr "  Vydanému certifikátu uplynula doba platnosti.\n"
 
-#: src/openssl.c:1000
+#: src/openssl.c:1002
 #, c-format
 msgid ""
 "%s: no certificate subject alternative name matches\n"
@@ -3348,7 +3353,7 @@ msgstr ""
 "%s: žádné alternativní jméno z certifikátu se neshoduje\n"
 "\ts požadovaným jménem počítače %s.\n"
 
-#: src/openssl.c:1019
+#: src/openssl.c:1021
 #, c-format
 msgid ""
 "    %s: certificate common name %s doesn't match requested host name %s.\n"
@@ -3356,7 +3361,7 @@ msgstr ""
 "    %s: obecné jméno (CN) certifikátu %s se neshoduje s požadovaným jménem "
 "počítače %s.\n"
 
-#: src/openssl.c:1051
+#: src/openssl.c:1053
 #, c-format
 msgid ""
 "    %s: certificate common name is invalid (contains a NUL character).\n"
@@ -3367,7 +3372,7 @@ msgstr ""
 "    To může ukazovat na to, že stroj není tím, za koho se vydává (to jest,\n"
 "    ve skutečnosti to není %s).\n"
 
-#: src/openssl.c:1076
+#: src/openssl.c:1078
 #, c-format
 msgid "To connect to %s insecurely, use `--no-check-certificate'.\n"
 msgstr "Pro nezabezpečené spojení s %s použijte „--no-check-certificate“.\n"
