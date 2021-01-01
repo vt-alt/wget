@@ -1,4 +1,4 @@
-/* Copyright (C) 2002, 2004-2005, 2007, 2009-2019 Free Software Foundation,
+/* Copyright (C) 2002, 2004-2005, 2007, 2009-2020 Free Software Foundation,
    Inc.
    This file is part of the GNU C Library.
 
@@ -28,6 +28,7 @@
 #endif
 #include <limits.h>
 #include <string.h>
+#include <strings.h>
 #include <stdbool.h>
 
 #ifdef _LIBC
@@ -202,11 +203,12 @@ day_of_the_week (struct tm *tm)
      difference between this data in the one on TM and so determine
      the weekday.  */
   int corr_year = 1900 + tm->tm_year - (tm->tm_mon < 2);
+  int corr_quad = corr_year / 4;
   int wday = (-473
               + (365 * (tm->tm_year - 70))
-              + (corr_year / 4)
-              - ((corr_year / 4) / 25) + ((corr_year / 4) % 25 < 0)
-              + (((corr_year / 4) / 25) / 4)
+              + corr_quad
+              - ((corr_quad + (corr_quad < 0)) / 25 - (corr_quad < 0))
+              + ((corr_quad / 25) / 4)
               + __mon_yday[0][tm->tm_mon]
               + tm->tm_mday - 1);
   tm->tm_wday = ((wday % 7) + 7) % 7;
