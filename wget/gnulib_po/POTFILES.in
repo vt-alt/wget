@@ -1,5 +1,5 @@
 ## DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2020 Free Software Foundation, Inc.
+# Copyright (C) 2002-2021 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -58,6 +58,8 @@ lib/c-strcaseeq.h
 lib/c-strcasestr.c
 lib/c-strcasestr.h
 lib/c-strncasecmp.c
+lib/calloc.c
+lib/canonicalize-lgpl.c
 lib/canonicalize.c
 lib/canonicalize.h
 lib/cdefs.h
@@ -81,6 +83,8 @@ lib/dup-safer-flag.c
 lib/dup-safer.c
 lib/dup.c
 lib/dup2.c
+lib/dynarray.h
+lib/eloop-threshold.h
 lib/errno.in.h
 lib/error.c
 lib/error.h
@@ -164,6 +168,8 @@ lib/hash-triple-simple.c
 lib/hash-triple.h
 lib/hash.c
 lib/hash.h
+lib/ialloc.c
+lib/ialloc.h
 lib/iconv.in.h
 lib/idx.h
 lib/inet_ntop.c
@@ -190,6 +196,13 @@ lib/localeconv.c
 lib/lseek.c
 lib/lstat.c
 lib/malloc.c
+lib/malloc/dynarray-skeleton.c
+lib/malloc/dynarray.h
+lib/malloc/dynarray_at_failure.c
+lib/malloc/dynarray_emplace_enlarge.c
+lib/malloc/dynarray_finalize.c
+lib/malloc/dynarray_resize.c
+lib/malloc/dynarray_resize_clear.c
 lib/malloc/scratch_buffer.h
 lib/malloc/scratch_buffer_dupfree.c
 lib/malloc/scratch_buffer_grow.c
@@ -264,6 +277,7 @@ lib/rawmemchr.valgrind
 lib/readdir.c
 lib/readlink.c
 lib/realloc.c
+lib/reallocarray.c
 lib/recv.c
 lib/regcomp.c
 lib/regex.c
@@ -271,7 +285,9 @@ lib/regex.h
 lib/regex_internal.c
 lib/regex_internal.h
 lib/regexec.c
+lib/rename.c
 lib/rewinddir.c
+lib/rmdir.c
 lib/same-inode.h
 lib/save-cwd.c
 lib/save-cwd.h
@@ -429,7 +445,6 @@ lib/uniwidth/cjk.h
 lib/uniwidth/width.c
 lib/unlink.c
 lib/unlocked-io.h
-lib/unused-parameter.h
 lib/utime.c
 lib/utime.in.h
 lib/utimens.c

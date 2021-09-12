@@ -1,5 +1,5 @@
 /* Command line parsing.
-   Copyright (C) 1996-2015, 2018-2020 Free Software Foundation, Inc.
+   Copyright (C) 1996-2015, 2018-2021 Free Software Foundation, Inc.
 
 This file is part of GNU Wget.
 
@@ -1422,8 +1422,8 @@ main (int argc, char **argv)
      option ("--config") and parse it before the other user options. */
   longindex = -1;
 
-  while ((retconf = getopt_long (argc, argv,
-                                short_options, long_options, &longindex)) != -1)
+  while ((getopt_long (argc, argv,
+                       short_options, long_options, &longindex)) != -1)
     {
       int confval;
       struct cmdline_option *config_opt;

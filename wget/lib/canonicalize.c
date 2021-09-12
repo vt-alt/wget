@@ -1,5 +1,5 @@
 /* Return the canonical absolute name of a given file.
-   Copyright (C) 1996-2020 Free Software Foundation, Inc.
+   Copyright (C) 1996-2021 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -41,10 +41,6 @@
 #else
 # define IF_LINT(Code) /* empty */
 #endif
-
-/* True if adding two valid object sizes might overflow idx_t.
-   As a practical matter, this cannot happen on 64-bit machines.  */
-enum { NARROW_ADDRESSES = IDX_MAX >> 31 >> 31 == 0 };
 
 #ifndef DOUBLE_SLASH_IS_DISTINCT_ROOT
 # define DOUBLE_SLASH_IS_DISTINCT_ROOT false
@@ -393,7 +389,7 @@ canonicalize_filename_mode_stk (const char *name, canonicalize_mode_t can_mode,
               if (end_in_extra_buffer)
                 end_idx = end - extra_buf;
               size_t len = strlen (end);
-              if (NARROW_ADDRESSES && INT_ADD_OVERFLOW (len, n))
+              if (INT_ADD_OVERFLOW (len, n))
                 xalloc_die ();
               while (extra_buffer.length <= len + n)
                 {

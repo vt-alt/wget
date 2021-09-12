@@ -31,7 +31,7 @@ This file documents the GNU Wget utility for downloading network
 data.
 
 @c man begin COPYRIGHT
-Copyright @copyright{} 1996-2011, 2015, 2018-2020 Free Software
+Copyright @copyright{} 1996--2011, 2015, 2018--2021 Free Software
 Foundation, Inc.
 
 @iftex
@@ -384,7 +384,7 @@ and @file{/~somebody}.  You can also clear the lists in @file{.wgetrc}
 (@pxref{Wgetrc Syntax}).
 
 @example
-wget -X '' -X /~nobody,/~somebody
+wget -X "" -X /~nobody,/~somebody
 @end example
 
 Most options that do not accept arguments are @dfn{boolean} options,

@@ -1,5 +1,5 @@
 /* File Transfer Protocol support.
-   Copyright (C) 1996-2011, 2014-2015, 2018-2020 Free Software
+   Copyright (C) 1996-2011, 2014-2015, 2018-2021 Free Software
    Foundation, Inc.
 
 This file is part of GNU Wget.
@@ -991,9 +991,6 @@ Error in server response, closing control connection.\n"));
             } /* for */
 
           /* 2004-09-20 SMS. */
-
-          if (target != targetbuf)
-            xfree (target);
 
         } /* else */
     }
@@ -2355,15 +2352,15 @@ The sizes do not match (local %s) -- retrieving.\n\n"),
                             {
                               logprintf (LOG_VERBOSE, _("\
 Already have correct symlink %s -> %s\n\n"),
-                                         quote (con->target),
-                                         quote (f->linkto));
+                                         quote_n (0, con->target),
+                                         quote_n (1, f->linkto));
                               dlthis = false;
                               break;
                             }
                         }
                     }
                   logprintf (LOG_VERBOSE, _("Creating symlink %s -> %s\n"),
-                             quote (con->target), quote (f->linkto));
+                             quote_n (0, con->target), quote_n (1, f->linkto));
                   /* Unlink before creating symlink!  */
                   unlink (con->target);
                   if (symlink (f->linkto, con->target) == -1)

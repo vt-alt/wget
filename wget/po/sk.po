@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU wget 1.21\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2020-12-31 16:55+0100\n"
+"POT-Creation-Date: 2021-09-07 21:01+0200\n"
 "PO-Revision-Date: 2020-09-08 09:43+0200\n"
 "Last-Translator: Marcel Telka <marcel@telka.sk>\n"
 "Language-Team: Slovak <sk-i18n@lists.linux.sk>\n"
@@ -206,8 +206,8 @@ msgid "Logging in as %s ... "
 msgstr "Prihlasovanie ako %s ... "
 
 #: src/ftp.c:504 src/ftp.c:590 src/ftp.c:657 src/ftp.c:722 src/ftp.c:963
-#: src/ftp.c:1019 src/ftp.c:1066 src/ftp.c:1129 src/ftp.c:1190 src/ftp.c:1288
-#: src/ftp.c:1338
+#: src/ftp.c:1016 src/ftp.c:1063 src/ftp.c:1126 src/ftp.c:1187 src/ftp.c:1285
+#: src/ftp.c:1335
 msgid "Error in server response, closing control connection.\n"
 msgstr "Server odpovedal chybne, riadiace spojenie sa uzatvára.\n"
 
@@ -215,8 +215,8 @@ msgstr "Server odpovedal chybne, riadiace spojenie sa uzatvára.\n"
 msgid "Error in server greeting.\n"
 msgstr "Úvodná odpoveď servera je chybná.\n"
 
-#: src/ftp.c:518 src/ftp.c:730 src/ftp.c:971 src/ftp.c:1074 src/ftp.c:1139
-#: src/ftp.c:1200 src/ftp.c:1298 src/ftp.c:1348
+#: src/ftp.c:518 src/ftp.c:730 src/ftp.c:971 src/ftp.c:1071 src/ftp.c:1136
+#: src/ftp.c:1197 src/ftp.c:1295 src/ftp.c:1345
 msgid "Write failed, closing control connection.\n"
 msgstr "Zápis dát zlyhal, riadiace spojenie sa uzatvára.\n"
 
@@ -245,11 +245,11 @@ msgstr "Server neakceptoval príkaz 'PROT %c'.\n"
 msgid "Server error, can't determine system type.\n"
 msgstr "Chyba servera, nie je možné zistiť typ systému.\n"
 
-#: src/ftp.c:607 src/ftp.c:1109 src/ftp.c:1173 src/ftp.c:1216
+#: src/ftp.c:607 src/ftp.c:1106 src/ftp.c:1170 src/ftp.c:1213
 msgid "done.    "
 msgstr "hotovo.  "
 
-#: src/ftp.c:710 src/ftp.c:989 src/ftp.c:1036 src/ftp.c:1318 src/ftp.c:1367
+#: src/ftp.c:710 src/ftp.c:989 src/ftp.c:1033 src/ftp.c:1315 src/ftp.c:1364
 msgid "done.\n"
 msgstr "hotovo.\n"
 
@@ -290,37 +290,37 @@ msgstr ""
 "Adresár %s neexistuje.\n"
 "\n"
 
-#: src/ftp.c:1001
+#: src/ftp.c:998
 msgid "==> CWD not required.\n"
 msgstr "==> CWD nie je potrebné.\n"
 
-#: src/ftp.c:1044
+#: src/ftp.c:1041
 msgid "File has already been retrieved.\n"
 msgstr "Súbor už bol prenesený.\n"
 
-#: src/ftp.c:1080
+#: src/ftp.c:1077
 msgid "Cannot initiate PASV transfer.\n"
 msgstr "Nie je možné iniciovať prenos príkazom PASV.\n"
 
-#: src/ftp.c:1084
+#: src/ftp.c:1081
 msgid "Cannot parse PASV response.\n"
 msgstr "Nie je možné analyzovať odpoveď na PASV.\n"
 
-#: src/ftp.c:1101
+#: src/ftp.c:1098
 #, c-format
 msgid "couldn't connect to %s port %d: %s\n"
 msgstr "nepodarilo sa pripojiť k %s port %d: %s\n"
 
-#: src/ftp.c:1155
+#: src/ftp.c:1152
 #, c-format
 msgid "Bind error (%s).\n"
 msgstr "Chyba pri operácii \"bind\" (%s).\n"
 
-#: src/ftp.c:1161
+#: src/ftp.c:1158
 msgid "Invalid PORT.\n"
 msgstr "Neplatný PORT.\n"
 
-#: src/ftp.c:1207
+#: src/ftp.c:1204
 msgid ""
 "\n"
 "REST failed, starting from scratch.\n"
@@ -328,17 +328,17 @@ msgstr ""
 "\n"
 "REST zlyhal, začína sa odznova.\n"
 
-#: src/ftp.c:1250
+#: src/ftp.c:1247
 #, c-format
 msgid "File %s exists.\n"
 msgstr "Súbor %s existuje.\n"
 
-#: src/ftp.c:1256
+#: src/ftp.c:1253
 #, c-format
 msgid "No such file %s.\n"
 msgstr "Súbor %s neexistuje.\n"
 
-#: src/ftp.c:1306
+#: src/ftp.c:1303
 #, c-format
 msgid ""
 "No such file %s.\n"
@@ -347,7 +347,7 @@ msgstr ""
 "Súbor %s neexistuje.\n"
 "\n"
 
-#: src/ftp.c:1356
+#: src/ftp.c:1353
 #, c-format
 msgid ""
 "No such file or directory %s.\n"
@@ -356,40 +356,40 @@ msgstr ""
 "Súbor alebo adresár %s neexistuje.\n"
 "\n"
 
-#: src/ftp.c:1515 src/http.c:2597
+#: src/ftp.c:1512 src/http.c:2597
 #, c-format
 msgid "%s has sprung into existence.\n"
 msgstr "%s bol odpružený do existencie.\n"
 
-#: src/ftp.c:1604
+#: src/ftp.c:1601
 #, c-format
 msgid "%s: %s, closing control connection.\n"
 msgstr "%s: %s, riadiace spojenie sa uzatvára.\n"
 
-#: src/ftp.c:1616
+#: src/ftp.c:1613
 #, c-format
 msgid "%s (%s) - Data connection: %s; "
 msgstr "%s (%s) - Dátové spojenie: %s; "
 
-#: src/ftp.c:1631
+#: src/ftp.c:1628
 msgid "Control connection closed.\n"
 msgstr "Riadiace spojenie uzatvorené.\n"
 
-#: src/ftp.c:1649
+#: src/ftp.c:1646
 msgid "Data transfer aborted.\n"
 msgstr "Prenos dát bol predčasne ukončený.\n"
 
-#: src/ftp.c:1873 src/main.c:1690
+#: src/ftp.c:1870 src/main.c:1690
 #, c-format
 msgid "File %s already there; not retrieving.\n"
 msgstr "Súbor %s je už tam, nebude sa prenášať.\n"
 
-#: src/ftp.c:1958 src/http.c:4362
+#: src/ftp.c:1955 src/http.c:4362
 #, c-format
 msgid "(try:%2d)"
 msgstr "(pokus:%2d)"
 
-#: src/ftp.c:2050 src/http.c:4792
+#: src/ftp.c:2047 src/http.c:4792
 #, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s]\n"
@@ -398,7 +398,7 @@ msgstr ""
 "%s (%s) - zapísané na štandardný výstup %s[%s]\n"
 "\n"
 
-#: src/ftp.c:2051 src/http.c:4793
+#: src/ftp.c:2048 src/http.c:4793
 #, c-format
 msgid ""
 "%s (%s) - %s saved [%s]\n"
@@ -407,33 +407,33 @@ msgstr ""
 "%s (%s) - %s uložený [%s]\n"
 "\n"
 
-#: src/ftp.c:2111 src/main.c:2174 src/metalink.c:1135 src/recur.c:512
-#: src/recur.c:750 src/retr.c:1317
+#: src/ftp.c:2108 src/main.c:2174 src/metalink.c:1135 src/recur.c:513
+#: src/recur.c:752 src/retr.c:1317
 #, c-format
 msgid "Removing %s.\n"
 msgstr "Odstraňuje sa %s.\n"
 
-#: src/ftp.c:2168
+#: src/ftp.c:2165
 #, c-format
 msgid "Using %s as listing tmp file.\n"
 msgstr "Použiť %s ako dočasný súbor zoznamu.\n"
 
-#: src/ftp.c:2185
+#: src/ftp.c:2182
 #, c-format
 msgid "Removed %s.\n"
 msgstr "Odstránené %s.\n"
 
-#: src/ftp.c:2224
+#: src/ftp.c:2221
 #, c-format
 msgid "Recursion depth %d exceeded max. depth %d.\n"
 msgstr "Hĺbka rekurzie %d prekročila maximálnu hĺbku %d.\n"
 
-#: src/ftp.c:2294
+#: src/ftp.c:2291
 #, c-format
 msgid "Remote file no newer than local file %s -- not retrieving.\n"
 msgstr "Vzdialený súbor nie je novší ako miestny súbor %s -- neprenáša sa.\n"
 
-#: src/ftp.c:2302
+#: src/ftp.c:2299
 #, c-format
 msgid ""
 "Remote file is newer than local file %s -- retrieving.\n"
@@ -442,7 +442,7 @@ msgstr ""
 "Vzdialený súbor je novší ako miestny súbor %s -- prenáša sa.\n"
 "\n"
 
-#: src/ftp.c:2309
+#: src/ftp.c:2306
 #, c-format
 msgid ""
 "The sizes do not match (local %s) -- retrieving.\n"
@@ -451,11 +451,11 @@ msgstr ""
 "Veľkosti se nezhodujú (miestny %s) -- prenáša sa.\n"
 "\n"
 
-#: src/ftp.c:2327
+#: src/ftp.c:2324
 msgid "Invalid name of the symlink, skipping.\n"
 msgstr "Neplatný názov symoblického odkazu, preskakuje sa.\n"
 
-#: src/ftp.c:2356
+#: src/ftp.c:2353
 #, c-format
 msgid ""
 "Already have correct symlink %s -> %s\n"
@@ -464,217 +464,217 @@ msgstr ""
 "Korektný symbolický odkaz %s -> %s už existuje.\n"
 "\n"
 
-#: src/ftp.c:2365
+#: src/ftp.c:2362
 #, c-format
 msgid "Creating symlink %s -> %s\n"
 msgstr "Vytvára sa symbolický odkaz %s -> %s\n"
 
-#: src/ftp.c:2375
+#: src/ftp.c:2372
 #, c-format
 msgid "Symlinks not supported, skipping symlink %s.\n"
 msgstr ""
 "Symbolické odkazy nie sú podporované, preskakuje sa symbolický odkaz %s.\n"
 
-#: src/ftp.c:2390
+#: src/ftp.c:2387
 #, c-format
 msgid "Skipping directory %s.\n"
 msgstr "Preskakuje sa adresár %s.\n"
 
-#: src/ftp.c:2403
+#: src/ftp.c:2400
 #, c-format
 msgid "%s: unknown/unsupported file type.\n"
 msgstr "%s: neznámy/nepodporovaný typ súboru.\n"
 
-#: src/ftp.c:2427
+#: src/ftp.c:2424
 #, c-format
 msgid "Failed to set permissions for %s.\n"
 msgstr "Nastavenie prístupových práv pre %s zlyhalo.\n"
 
-#: src/ftp.c:2448
+#: src/ftp.c:2445
 #, c-format
 msgid "%s: corrupt time-stamp.\n"
 msgstr "%s: časové značka súboru je porušená.\n"
 
-#: src/ftp.c:2472
+#: src/ftp.c:2469
 #, c-format
 msgid "Will not retrieve dirs since depth is %d (max %d).\n"
 msgstr "Nebudú sa prenášať adresáre, pretože hĺbka je %d (maximum je %d).\n"
 
-#: src/ftp.c:2531
+#: src/ftp.c:2528
 #, c-format
 msgid "Not descending to %s as it is excluded/not-included.\n"
 msgstr "Nezostupuje sa do %s, pretože je vylúčený/nezačlenený.\n"
 
-#: src/ftp.c:2647
+#: src/ftp.c:2644
 #, c-format
 msgid "Rejecting %s.\n"
 msgstr "Odmieta sa %s.\n"
 
-#: src/ftp.c:2657
+#: src/ftp.c:2654
 #, c-format
 msgid "Rejecting %s (Invalid Entry).\n"
 msgstr "Odmieta sa %s (neplatná položka).\n"
 
-#: src/ftp.c:2678
+#: src/ftp.c:2675
 #, c-format
 msgid "%s is excluded/not-included through regex.\n"
 msgstr "%s je vylúčený/nezačlenený pomocou regulárneho výrazu.\n"
 
-#: src/ftp.c:2698
+#: src/ftp.c:2695
 #, c-format
 msgid "Error matching %s against %s: %s\n"
 msgstr "Chyba pri hľadaní zhody %s s %s: %s\n"
 
-#: src/ftp.c:2738
+#: src/ftp.c:2735
 #, c-format
 msgid "No matches on pattern %s.\n"
 msgstr "Vzoru %s nič nezodpovedá.\n"
 
-#: src/ftp.c:2810
+#: src/ftp.c:2807
 #, c-format
 msgid "Wrote HTML-ized index to %s [%s].\n"
 msgstr "Výpis adresára v HTML formáte bol zapísaný do %s [%s].\n"
 
-#: src/ftp.c:2815
+#: src/ftp.c:2812
 #, c-format
 msgid "Wrote HTML-ized index to %s.\n"
 msgstr "Výpis adresára v HTML formáte bol zapísaný do %s.\n"
 
-#: src/gnutls.c:132
+#: src/gnutls.c:134
 #, c-format
 msgid "ERROR: Cannot open directory %s.\n"
 msgstr "CHYBA: Nie je možné otvoriť adresár %s.\n"
 
-#: src/gnutls.c:178
+#: src/gnutls.c:180
 #, c-format
 msgid "ERROR: Failed to open cert %s: (%d).\n"
 msgstr "CHYBA: Otvorenie certifikátu %s zlyhalo: (%d).\n"
 
-#: src/gnutls.c:183
+#: src/gnutls.c:185
 #, c-format
 msgid "Loaded CA certificate '%s'\n"
 msgstr "Načítaný CA certifikát '%s'\n"
 
-#: src/gnutls.c:191
+#: src/gnutls.c:193
 #, c-format
 msgid "ERROR: Failed to load CRL file '%s': (%d)\n"
 msgstr "CHYBA: Načítanie CRL súboru '%s' zlyhalo: (%d)\n"
 
-#: src/gnutls.c:195
+#: src/gnutls.c:197
 #, c-format
 msgid "Loaded CRL file '%s'\n"
 msgstr "Načítaný CRL súbor '%s'\n"
 
-#: src/gnutls.c:219
+#: src/gnutls.c:221
 msgid "ERROR: GnuTLS requires the key and the cert to be of the same type.\n"
 msgstr "CHYBA: GnuTLS vyžaduje, aby kľúč a certifikát boli rovnakého typu.\n"
 
-#: src/gnutls.c:771 src/gnutls.c:835
+#: src/gnutls.c:780 src/gnutls.c:844
 msgid "Your GnuTLS version is too old to support TLS 1.3\n"
 msgstr "Vaša verzia GnuTLS je príliš stará, aby podporovala TLS 1.3\n"
 
-#: src/gnutls.c:783
+#: src/gnutls.c:792
 #, c-format
 msgid "GnuTLS: unimplemented 'secure-protocol' option value %u\n"
 msgstr "GnuTLS: neimplementovaná hodnota %u voľby 'secure-protocol'\n"
 
-#: src/gnutls.c:785 src/gnutls.c:841 src/host.c:158 src/openssl.c:288
+#: src/gnutls.c:794 src/gnutls.c:850 src/host.c:158 src/openssl.c:288
 msgid "Please report this issue to bug-wget@gnu.org\n"
 msgstr "Oznámte, prosím, tento problém na bug-wget@gnu.org (iba anglicky)\n"
 
-#: src/gnutls.c:840
+#: src/gnutls.c:849
 #, c-format
 msgid "GnuTLS: unimplemented 'secure-protocol' option value %d\n"
 msgstr "GnuTLS: neimplementovaná hodnota %d voľby 'secure-protocol'\n"
 
-#: src/gnutls.c:893
+#: src/gnutls.c:902
 msgid ""
 "GnuTLS: Cannot set prio string directly. Falling back to default priority.\n"
 msgstr ""
 "GnuTLS: Nie je možné priamo nastaviť reťazec prio. Použije sa predvolená "
 "priorita.\n"
 
-#: src/gnutls.c:1021 src/openssl.c:1029
+#: src/gnutls.c:1030 src/openssl.c:1029
 msgid "ERROR"
 msgstr "CHYBA"
 
-#: src/gnutls.c:1021 src/openssl.c:1029
+#: src/gnutls.c:1030 src/openssl.c:1029
 msgid "WARNING"
 msgstr "UPOZORNENIE"
 
-#: src/gnutls.c:1032 src/openssl.c:1042
+#: src/gnutls.c:1041 src/openssl.c:1042
 #, c-format
 msgid "%s: No certificate presented by %s.\n"
 msgstr "%s: %s neprezentoval certifikát.\n"
 
-#: src/gnutls.c:1038
+#: src/gnutls.c:1047
 #, c-format
 msgid "%s: The certificate of %s is not trusted.\n"
 msgstr "%s: Certifikát %s nie je dôveryhodný.\n"
 
-#: src/gnutls.c:1039
+#: src/gnutls.c:1048
 #, c-format
 msgid "%s: The certificate of %s doesn't have a known issuer.\n"
 msgstr "%s: Certifikát %s nemá známeho vydavateľa.\n"
 
-#: src/gnutls.c:1040
+#: src/gnutls.c:1049
 #, c-format
 msgid "%s: The certificate of %s has been revoked.\n"
 msgstr "%s: Certifikát %s bol zrušený.\n"
 
-#: src/gnutls.c:1041
+#: src/gnutls.c:1050
 #, c-format
 msgid "%s: The certificate signer of %s was not a CA.\n"
 msgstr "%s: Ten, kto podpísal certifikát %s, nebol CA.\n"
 
-#: src/gnutls.c:1042
+#: src/gnutls.c:1051
 #, c-format
 msgid "%s: The certificate of %s was signed using an insecure algorithm.\n"
 msgstr ""
 "%s: Certifikát %s bol podpísaný pomocou algoritmu, ktorý nie je bezpečný.\n"
 
-#: src/gnutls.c:1043
+#: src/gnutls.c:1052
 #, c-format
 msgid "%s: The certificate of %s is not yet activated.\n"
 msgstr "%s: Certifikát %s ešte nie je aktivovaný.\n"
 
-#: src/gnutls.c:1044
+#: src/gnutls.c:1053
 #, c-format
 msgid "%s: The certificate of %s has expired.\n"
 msgstr "%s: Certifikátu %s vypršala platnosť.\n"
 
-#: src/gnutls.c:1056
+#: src/gnutls.c:1065
 #, c-format
 msgid "Error initializing X509 certificate: %s\n"
 msgstr "Chyba pri inicializácii certifikátu X509: %s\n"
 
-#: src/gnutls.c:1065
+#: src/gnutls.c:1074
 msgid "No certificate found\n"
 msgstr "Certifikát nenájdený\n"
 
-#: src/gnutls.c:1072
+#: src/gnutls.c:1081
 #, c-format
 msgid "Error parsing certificate: %s\n"
 msgstr "Chyba pri analýze certifikátu: %s\n"
 
-#: src/gnutls.c:1079
+#: src/gnutls.c:1088
 msgid "The certificate has not yet been activated\n"
 msgstr "Certifikát ešte nebol aktivovaný\n"
 
-#: src/gnutls.c:1084
+#: src/gnutls.c:1093
 msgid "The certificate has expired\n"
 msgstr "Certifikátu vypršala platnosť\n"
 
-#: src/gnutls.c:1091
+#: src/gnutls.c:1100
 #, c-format
 msgid "The certificate's owner does not match hostname %s\n"
 msgstr "Majiteľ certifikátu sa nezhoduje s názvom hostiteľa %s\n"
 
-#: src/gnutls.c:1100 src/openssl.c:1238
+#: src/gnutls.c:1109 src/openssl.c:1238
 msgid "The public key does not match pinned public key!\n"
 msgstr "Verejný kľúč sa nezhoduje so zadaným verejným kľúčom!\n"
 
-#: src/gnutls.c:1109
+#: src/gnutls.c:1118
 msgid "Certificate must be X.509\n"
 msgstr "Certifikát musí byť X.509\n"
 
@@ -712,15 +712,7 @@ msgstr "zlyhalo: časový limit vypršal.\n"
 msgid "%s: Cannot resolve incomplete link %s.\n"
 msgstr "%s: Nie je možné rozložiť neúplný odkaz %s.\n"
 
-#: src/html-url.c:841
-#, c-format
-msgid ""
-"no-follow attribute found in %s. Will not follow any links on this page\n"
-msgstr ""
-"Bol nájdený príznak no-follow v %s. Nebudú nasledované žiadne odkazy na "
-"tejto stránke\n"
-
-#: src/html-url.c:944
+#: src/html-url.c:945
 #, c-format
 msgid "%s: Invalid URL %s: %s\n"
 msgstr "%s: Neplatné URL %s: %s\n"
@@ -747,7 +739,7 @@ msgstr ""
 msgid "gmtime failed. This is probably a bug.\n"
 msgstr "gmtime zlyhalo. Toto je pravdepodobne programátorská chyba.\n"
 
-#: src/http.c:1897
+#: src/http.c:1918
 msgid ""
 "Cannot convert timestamp to http format. Falling back to time 0 as last "
 "modification time.\n"
@@ -1213,16 +1205,16 @@ msgstr ""
 msgid "Encoding %s isn't valid\n"
 msgstr "Kódovanie %s nie je platné\n"
 
-#: src/iri.c:140 src/url.c:1587
+#: src/iri.c:140 src/url.c:1615
 #, c-format
 msgid "Conversion from %s to %s isn't supported\n"
 msgstr "Konverzia z %s na %s nie je podporovaná\n"
 
-#: src/iri.c:180 src/url.c:1617
+#: src/iri.c:180 src/url.c:1645
 msgid "Incomplete or invalid multibyte sequence encountered\n"
 msgstr "Vyskytla sa nekompletná alebo neplatná viacbajtová postupnosť\n"
 
-#: src/iri.c:200 src/url.c:1634
+#: src/iri.c:200 src/url.c:1662
 #, c-format
 msgid "Unhandled errno %d\n"
 msgstr "Nespracované errno %d\n"
@@ -2988,7 +2980,7 @@ msgstr "Pokračovanie v behu na pozadí.\n"
 msgid "Continuing in background, pid %lu.\n"
 msgstr "Pokračovanie v behu na pozadí, pid %lu.\n"
 
-#: src/mswindows.c:291 src/utils.c:509
+#: src/mswindows.c:291 src/utils.c:502
 #, c-format
 msgid "Output will be written to %s.\n"
 msgstr "Výstup bude zapísaný do %s.\n"
@@ -3166,7 +3158,15 @@ msgstr "    za "
 msgid "Cannot get REALTIME clock frequency: %s\n"
 msgstr "Nie je možné získať frekvenciu hodín reálneho času: %s\n"
 
-#: src/recur.c:513
+#: src/recur.c:430
+#, fuzzy, c-format
+msgid ""
+"nofollow attribute found in %s. Will not follow any links on this page\n"
+msgstr ""
+"Bol nájdený príznak no-follow v %s. Nebudú nasledované žiadne odkazy na "
+"tejto stránke\n"
+
+#: src/recur.c:514
 #, c-format
 msgid "Removing %s since it should be rejected.\n"
 msgstr "Odstraňuje sa %s, pretože by mal byť odmietnutý.\n"
@@ -3278,70 +3278,70 @@ msgstr "Neplatná číselná adresa IPv6"
 msgid "HTTPS support not compiled in"
 msgstr "Podpora pre HTTPS nie je zakompilovaná"
 
-#: src/url.c:1620
+#: src/url.c:1648
 msgid "Unconvertable multibyte sequence encountered\n"
 msgstr "Vyskytla sa neprevoditeľná viacbajtová postupnosť\n"
 
-#: src/utils.c:129
+#: src/utils.c:122
 #, c-format
 msgid "%s: %s: Failed to allocate enough memory; memory exhausted.\n"
 msgstr "%s: %s: Zlyhalo vyžiadanie dostatočnej pamäte; pamäť je vyčerpaná.\n"
 
-#: src/utils.c:135
+#: src/utils.c:128
 #, c-format
 msgid "%s: %s: Failed to allocate %ld bytes; memory exhausted.\n"
 msgstr "%s: %s: Zlyhalo vyžiadanie %ld bajtov; pamäť je vyčerpaná.\n"
 
-#: src/utils.c:355
+#: src/utils.c:348
 #, c-format
 msgid "%s: aprintf: text buffer is too big (%d bytes), aborting.\n"
 msgstr ""
 "%s: aprintf: pamäť na text je príliš veľká (%d bajtov), predčasne "
 "ukončujem.\n"
 
-#: src/utils.c:507
+#: src/utils.c:500
 #, c-format
 msgid "Continuing in background, pid %d.\n"
 msgstr "Pokračovanie v behu na pozadí, pid %d.\n"
 
-#: src/utils.c:558
+#: src/utils.c:551
 #, c-format
 msgid "Failed to unlink symlink %s: %s\n"
 msgstr "Nebolo možné odstrániť symbolický odkaz %s: %s\n"
 
-#: src/utils.c:879
+#: src/utils.c:872
 #, c-format
 msgid "Failed to Fopen file %s\n"
 msgstr "Zlyhalo otvorenie súboru %s pomocou Fopen\n"
 
-#: src/utils.c:885
+#: src/utils.c:878
 #, c-format
 msgid "Failed to get FD for file %s\n"
 msgstr "Zlyhalo získanie FD súboru %s.\n"
 
-#: src/utils.c:892
+#: src/utils.c:885
 #, c-format
 msgid "Failed to stat file %s, (check permissions)\n"
 msgstr ""
 "Zlyhalo získanie informácií o súbore %s pomocou stat, (kontrola oprávnenia)\n"
 
-#: src/utils.c:902
+#: src/utils.c:895
 #, c-format
 msgid "File %s changed since the last check. Security check failed.\n"
 msgstr ""
 "Súbor %s sa zmenil od poslednej kontroly. Kontrola bezpečnosti zlyhala.\n"
 
-#: src/utils.c:937
+#: src/utils.c:930
 #, c-format
 msgid "Failed to open file %s, reason :%s\n"
 msgstr "Zlyhalo otvorenie súboru %s z dôvodu: %s\n"
 
-#: src/utils.c:943
+#: src/utils.c:936
 #, c-format
 msgid "Failed to stat file %s, error: %s\n"
 msgstr "Zlyhalo získanie informácií o súbore %s pomocou stat s chybou: %s\n"
 
-#: src/utils.c:953
+#: src/utils.c:946
 #, c-format
 msgid ""
 "Trying to open file %s but it changed since last check. Security check "
@@ -3350,22 +3350,22 @@ msgstr ""
 "Skúša sa otvoriť súbor %s, ale sa zmenil od poslednej kontroly. Bezpečnostná "
 "kontrola zlyhala.\n"
 
-#: src/utils.c:2442
+#: src/utils.c:2443
 #, c-format
 msgid "Invalid regular expression %s, PCRE2 error %d\n"
 msgstr "Neplatný regulárny výraz %s, chyba PCRE2 %d\n"
 
-#: src/utils.c:2459 src/utils.c:2482
+#: src/utils.c:2460 src/utils.c:2483
 #, c-format
 msgid "Invalid regular expression %s, %s\n"
 msgstr "Neplatný regulárny výraz %s, %s\n"
 
-#: src/utils.c:2512 src/utils.c:2534 src/utils.c:2558
+#: src/utils.c:2513 src/utils.c:2535 src/utils.c:2559
 #, c-format
 msgid "Error while matching %s: %d\n"
 msgstr "Chyba pri hľadaní zhody %s: %d\n"
 
-#: src/utils.c:2851
+#: src/utils.c:2852
 #, c-format
 msgid "Skipping key with wrong size (%d/%d): %s\n"
 msgstr "Preskakuje sa kľúč s nesprávnou veľkosťou (%d/%d): %s\n"

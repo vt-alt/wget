@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget 1.21\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2020-12-31 16:55+0100\n"
+"POT-Creation-Date: 2021-09-07 21:01+0200\n"
 "PO-Revision-Date: 2020-09-09 07:23+0300\n"
 "Last-Translator: Yuri Kozlov <yuray@komyakino.ru>\n"
 "Language-Team: Russian <gnu@d07.ru>\n"
@@ -211,8 +211,8 @@ msgid "Logging in as %s ... "
 msgstr "Выполняется вход под именем %s … "
 
 #: src/ftp.c:504 src/ftp.c:590 src/ftp.c:657 src/ftp.c:722 src/ftp.c:963
-#: src/ftp.c:1019 src/ftp.c:1066 src/ftp.c:1129 src/ftp.c:1190 src/ftp.c:1288
-#: src/ftp.c:1338
+#: src/ftp.c:1016 src/ftp.c:1063 src/ftp.c:1126 src/ftp.c:1187 src/ftp.c:1285
+#: src/ftp.c:1335
 msgid "Error in server response, closing control connection.\n"
 msgstr "Ошибка в ответе сервера, управляющее соединение закрывается.\n"
 
@@ -220,8 +220,8 @@ msgstr "Ошибка в ответе сервера, управляющее со
 msgid "Error in server greeting.\n"
 msgstr "Ошибка в приветствии сервера.\n"
 
-#: src/ftp.c:518 src/ftp.c:730 src/ftp.c:971 src/ftp.c:1074 src/ftp.c:1139
-#: src/ftp.c:1200 src/ftp.c:1298 src/ftp.c:1348
+#: src/ftp.c:518 src/ftp.c:730 src/ftp.c:971 src/ftp.c:1071 src/ftp.c:1136
+#: src/ftp.c:1197 src/ftp.c:1295 src/ftp.c:1345
 msgid "Write failed, closing control connection.\n"
 msgstr "Ошибка записи, управляющее соединение закрывается.\n"
 
@@ -250,11 +250,11 @@ msgstr "Сервер не принял команду «PROT %c».\n"
 msgid "Server error, can't determine system type.\n"
 msgstr "Ошибка сервера, невозможно определить тип системы.\n"
 
-#: src/ftp.c:607 src/ftp.c:1109 src/ftp.c:1173 src/ftp.c:1216
+#: src/ftp.c:607 src/ftp.c:1106 src/ftp.c:1170 src/ftp.c:1213
 msgid "done.    "
 msgstr "готово.  "
 
-#: src/ftp.c:710 src/ftp.c:989 src/ftp.c:1036 src/ftp.c:1318 src/ftp.c:1367
+#: src/ftp.c:710 src/ftp.c:989 src/ftp.c:1033 src/ftp.c:1315 src/ftp.c:1364
 msgid "done.\n"
 msgstr "готово.\n"
 
@@ -295,37 +295,37 @@ msgstr ""
 "Нет такого каталога: %s.\n"
 "\n"
 
-#: src/ftp.c:1001
+#: src/ftp.c:998
 msgid "==> CWD not required.\n"
 msgstr "==> CWD не требуется.\n"
 
-#: src/ftp.c:1044
+#: src/ftp.c:1041
 msgid "File has already been retrieved.\n"
 msgstr "Файл уже был загружен.\n"
 
-#: src/ftp.c:1080
+#: src/ftp.c:1077
 msgid "Cannot initiate PASV transfer.\n"
 msgstr "Невозможно начать PASV-передачу.\n"
 
-#: src/ftp.c:1084
+#: src/ftp.c:1081
 msgid "Cannot parse PASV response.\n"
 msgstr "Ошибка разбора ответа PASV.\n"
 
-#: src/ftp.c:1101
+#: src/ftp.c:1098
 #, c-format
 msgid "couldn't connect to %s port %d: %s\n"
 msgstr "невозможно было подключиться к %s порт %d: %s\n"
 
-#: src/ftp.c:1155
+#: src/ftp.c:1152
 #, c-format
 msgid "Bind error (%s).\n"
 msgstr "Ошибка bind (%s).\n"
 
-#: src/ftp.c:1161
+#: src/ftp.c:1158
 msgid "Invalid PORT.\n"
 msgstr "Недопустимый PORT.\n"
 
-#: src/ftp.c:1207
+#: src/ftp.c:1204
 msgid ""
 "\n"
 "REST failed, starting from scratch.\n"
@@ -333,17 +333,17 @@ msgstr ""
 "\n"
 "Сбой REST, запуск с начала.\n"
 
-#: src/ftp.c:1250
+#: src/ftp.c:1247
 #, c-format
 msgid "File %s exists.\n"
 msgstr "Файл %s существует.\n"
 
-#: src/ftp.c:1256
+#: src/ftp.c:1253
 #, c-format
 msgid "No such file %s.\n"
 msgstr "Нет такого файла: %s.\n"
 
-#: src/ftp.c:1306
+#: src/ftp.c:1303
 #, c-format
 msgid ""
 "No such file %s.\n"
@@ -352,7 +352,7 @@ msgstr ""
 "Нет такого файла: %s.\n"
 "\n"
 
-#: src/ftp.c:1356
+#: src/ftp.c:1353
 #, c-format
 msgid ""
 "No such file or directory %s.\n"
@@ -361,40 +361,40 @@ msgstr ""
 "Нет такого файла или каталога: %s.\n"
 "\n"
 
-#: src/ftp.c:1515 src/http.c:2597
+#: src/ftp.c:1512 src/http.c:2597
 #, c-format
 msgid "%s has sprung into existence.\n"
 msgstr "%s вырвался в действительность.\n"
 
-#: src/ftp.c:1604
+#: src/ftp.c:1601
 #, c-format
 msgid "%s: %s, closing control connection.\n"
 msgstr "%s: %s, управляющее соединение закрывается.\n"
 
-#: src/ftp.c:1616
+#: src/ftp.c:1613
 #, c-format
 msgid "%s (%s) - Data connection: %s; "
 msgstr "%s (%s) - Соединение: %s; "
 
-#: src/ftp.c:1631
+#: src/ftp.c:1628
 msgid "Control connection closed.\n"
 msgstr "Управляющее соединение закрыто.\n"
 
-#: src/ftp.c:1649
+#: src/ftp.c:1646
 msgid "Data transfer aborted.\n"
 msgstr "Передача данных прервана.\n"
 
-#: src/ftp.c:1873 src/main.c:1690
+#: src/ftp.c:1870 src/main.c:1690
 #, c-format
 msgid "File %s already there; not retrieving.\n"
 msgstr "Файл %s уже существует; не загружается.\n"
 
-#: src/ftp.c:1958 src/http.c:4362
+#: src/ftp.c:1955 src/http.c:4362
 #, c-format
 msgid "(try:%2d)"
 msgstr "(попытка:%2d)"
 
-#: src/ftp.c:2050 src/http.c:4792
+#: src/ftp.c:2047 src/http.c:4792
 #, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s]\n"
@@ -403,7 +403,7 @@ msgstr ""
 "%s (%s) - записан в stdout %s[%s]\n"
 "\n"
 
-#: src/ftp.c:2051 src/http.c:4793
+#: src/ftp.c:2048 src/http.c:4793
 #, c-format
 msgid ""
 "%s (%s) - %s saved [%s]\n"
@@ -412,33 +412,33 @@ msgstr ""
 "%s (%s) - %s сохранён [%s]\n"
 "\n"
 
-#: src/ftp.c:2111 src/main.c:2174 src/metalink.c:1135 src/recur.c:512
-#: src/recur.c:750 src/retr.c:1317
+#: src/ftp.c:2108 src/main.c:2174 src/metalink.c:1135 src/recur.c:513
+#: src/recur.c:752 src/retr.c:1317
 #, c-format
 msgid "Removing %s.\n"
 msgstr "Удаляется %s.\n"
 
-#: src/ftp.c:2168
+#: src/ftp.c:2165
 #, c-format
 msgid "Using %s as listing tmp file.\n"
 msgstr "В качестве временного файла для листинга используется %s.\n"
 
-#: src/ftp.c:2185
+#: src/ftp.c:2182
 #, c-format
 msgid "Removed %s.\n"
 msgstr "Удалён %s.\n"
 
-#: src/ftp.c:2224
+#: src/ftp.c:2221
 #, c-format
 msgid "Recursion depth %d exceeded max. depth %d.\n"
 msgstr "Глубина рекурсии %d превысила максимальную глубину %d.\n"
 
-#: src/ftp.c:2294
+#: src/ftp.c:2291
 #, c-format
 msgid "Remote file no newer than local file %s -- not retrieving.\n"
 msgstr "Удалённый файл не новее локального файла %s — не загружается.\n"
 
-#: src/ftp.c:2302
+#: src/ftp.c:2299
 #, c-format
 msgid ""
 "Remote file is newer than local file %s -- retrieving.\n"
@@ -447,7 +447,7 @@ msgstr ""
 "Удалённый файл новее локального файла %s — загружается.\n"
 "\n"
 
-#: src/ftp.c:2309
+#: src/ftp.c:2306
 #, c-format
 msgid ""
 "The sizes do not match (local %s) -- retrieving.\n"
@@ -456,11 +456,11 @@ msgstr ""
 "Размеры не совпадают (локальный размер %s) — загружается.\n"
 "\n"
 
-#: src/ftp.c:2327
+#: src/ftp.c:2324
 msgid "Invalid name of the symlink, skipping.\n"
 msgstr "Недопустимое имя символической ссылки, пропускается.\n"
 
-#: src/ftp.c:2356
+#: src/ftp.c:2353
 #, c-format
 msgid ""
 "Already have correct symlink %s -> %s\n"
@@ -469,216 +469,216 @@ msgstr ""
 "Корректная символическая ссылка %s -> %s уже существует.\n"
 "\n"
 
-#: src/ftp.c:2365
+#: src/ftp.c:2362
 #, c-format
 msgid "Creating symlink %s -> %s\n"
 msgstr "Создаётся символическая ссылка %s -> %s\n"
 
-#: src/ftp.c:2375
+#: src/ftp.c:2372
 #, c-format
 msgid "Symlinks not supported, skipping symlink %s.\n"
 msgstr "Символические ссылки не поддерживаются, ссылка %s пропускается.\n"
 
-#: src/ftp.c:2390
+#: src/ftp.c:2387
 #, c-format
 msgid "Skipping directory %s.\n"
 msgstr "Пропускается каталог %s.\n"
 
-#: src/ftp.c:2403
+#: src/ftp.c:2400
 #, c-format
 msgid "%s: unknown/unsupported file type.\n"
 msgstr "%s: неизвестный/неподдерживаемый тип файла.\n"
 
-#: src/ftp.c:2427
+#: src/ftp.c:2424
 #, c-format
 msgid "Failed to set permissions for %s.\n"
 msgstr "Не удалось назначить права для %s.\n"
 
-#: src/ftp.c:2448
+#: src/ftp.c:2445
 #, c-format
 msgid "%s: corrupt time-stamp.\n"
 msgstr "%s: повреждена метка даты/времени.\n"
 
-#: src/ftp.c:2472
+#: src/ftp.c:2469
 #, c-format
 msgid "Will not retrieve dirs since depth is %d (max %d).\n"
 msgstr ""
 "Каталоги не будут загружены, т.к. глубина составляет %d (максимум %d).\n"
 
-#: src/ftp.c:2531
+#: src/ftp.c:2528
 #, c-format
 msgid "Not descending to %s as it is excluded/not-included.\n"
 msgstr "Вход в каталог «%s» не выполняется, т.к. он исключён/не включён.\n"
 
-#: src/ftp.c:2647
+#: src/ftp.c:2644
 #, c-format
 msgid "Rejecting %s.\n"
 msgstr "Отклоняется %s.\n"
 
-#: src/ftp.c:2657
+#: src/ftp.c:2654
 #, c-format
 msgid "Rejecting %s (Invalid Entry).\n"
 msgstr "Отклоняется %s (некорректный элемент).\n"
 
-#: src/ftp.c:2678
+#: src/ftp.c:2675
 #, c-format
 msgid "%s is excluded/not-included through regex.\n"
 msgstr "«%s» исключён/не включён в соответствии с регулярным выражением.\n"
 
-#: src/ftp.c:2698
+#: src/ftp.c:2695
 #, c-format
 msgid "Error matching %s against %s: %s\n"
 msgstr "Ошибка сопоставления %s с %s: %s\n"
 
-#: src/ftp.c:2738
+#: src/ftp.c:2735
 #, c-format
 msgid "No matches on pattern %s.\n"
 msgstr "Нет совпадений с шаблоном %s.\n"
 
-#: src/ftp.c:2810
+#: src/ftp.c:2807
 #, c-format
 msgid "Wrote HTML-ized index to %s [%s].\n"
 msgstr "Индекс в формате HTML записан в файл «%s» [%s].\n"
 
-#: src/ftp.c:2815
+#: src/ftp.c:2812
 #, c-format
 msgid "Wrote HTML-ized index to %s.\n"
 msgstr "Индекс в формате HTML записан в файл «%s».\n"
 
-#: src/gnutls.c:132
+#: src/gnutls.c:134
 #, c-format
 msgid "ERROR: Cannot open directory %s.\n"
 msgstr "ОШИБКА: Не удалось открыть каталог %s.\n"
 
-#: src/gnutls.c:178
+#: src/gnutls.c:180
 #, c-format
 msgid "ERROR: Failed to open cert %s: (%d).\n"
 msgstr "ОШИБКА: Ошибка открытия сертификата %s: (%d).\n"
 
-#: src/gnutls.c:183
+#: src/gnutls.c:185
 #, c-format
 msgid "Loaded CA certificate '%s'\n"
 msgstr "Загружен сертификат CA «%s»\n"
 
-#: src/gnutls.c:191
+#: src/gnutls.c:193
 #, c-format
 msgid "ERROR: Failed to load CRL file '%s': (%d)\n"
 msgstr "ОШИБКА: Не удалось загрузить CRL-файл «%s»: (%d).\n"
 
-#: src/gnutls.c:195
+#: src/gnutls.c:197
 #, c-format
 msgid "Loaded CRL file '%s'\n"
 msgstr "Загружен CRL-файл «%s»\n"
 
-#: src/gnutls.c:219
+#: src/gnutls.c:221
 msgid "ERROR: GnuTLS requires the key and the cert to be of the same type.\n"
 msgstr "ОШИБКА: Для GnuTLS требуется ключ и сертификат одного типа.\n"
 
-#: src/gnutls.c:771 src/gnutls.c:835
+#: src/gnutls.c:780 src/gnutls.c:844
 msgid "Your GnuTLS version is too old to support TLS 1.3\n"
 msgstr "Слишком старая версия GnuTLS, чтобы поддерживать TLS 1.3\n"
 
-#: src/gnutls.c:783
+#: src/gnutls.c:792
 #, c-format
 msgid "GnuTLS: unimplemented 'secure-protocol' option value %u\n"
 msgstr "GnuTLS: значение %u параметра «secure-protocol» не реализовано\n"
 
-#: src/gnutls.c:785 src/gnutls.c:841 src/host.c:158 src/openssl.c:288
+#: src/gnutls.c:794 src/gnutls.c:850 src/host.c:158 src/openssl.c:288
 msgid "Please report this issue to bug-wget@gnu.org\n"
 msgstr "Сообщите об этой ошибке по адресу bug-wget@gnu.org\n"
 
-#: src/gnutls.c:840
+#: src/gnutls.c:849
 #, c-format
 msgid "GnuTLS: unimplemented 'secure-protocol' option value %d\n"
 msgstr "GnuTLS: значение %d параметра «secure-protocol» не реализовано\n"
 
-#: src/gnutls.c:893
+#: src/gnutls.c:902
 msgid ""
 "GnuTLS: Cannot set prio string directly. Falling back to default priority.\n"
 msgstr ""
 "GnuTLS: невозможно задать строку приоритета напрямую. Возвращаемся к "
 "приоритету по умолчанию.\n"
 
-#: src/gnutls.c:1021 src/openssl.c:1029
+#: src/gnutls.c:1030 src/openssl.c:1029
 msgid "ERROR"
 msgstr "ОШИБКА"
 
-#: src/gnutls.c:1021 src/openssl.c:1029
+#: src/gnutls.c:1030 src/openssl.c:1029
 msgid "WARNING"
 msgstr "ПРЕДУПРЕЖДЕНИЕ"
 
-#: src/gnutls.c:1032 src/openssl.c:1042
+#: src/gnutls.c:1041 src/openssl.c:1042
 #, c-format
 msgid "%s: No certificate presented by %s.\n"
 msgstr "%s: Нет сертификата, представленного %s.\n"
 
-#: src/gnutls.c:1038
+#: src/gnutls.c:1047
 #, c-format
 msgid "%s: The certificate of %s is not trusted.\n"
 msgstr "%s: Нет доверия сертификату для %s.\n"
 
-#: src/gnutls.c:1039
+#: src/gnutls.c:1048
 #, c-format
 msgid "%s: The certificate of %s doesn't have a known issuer.\n"
 msgstr "%s: Неизвестный издатель сертификата %s.\n"
 
-#: src/gnutls.c:1040
+#: src/gnutls.c:1049
 #, c-format
 msgid "%s: The certificate of %s has been revoked.\n"
 msgstr "%s: Сертификат для %s отозван.\n"
 
-#: src/gnutls.c:1041
+#: src/gnutls.c:1050
 #, c-format
 msgid "%s: The certificate signer of %s was not a CA.\n"
 msgstr "%s: Подписавший сертификат %s отсутствует в УЦ.\n"
 
-#: src/gnutls.c:1042
+#: src/gnutls.c:1051
 #, c-format
 msgid "%s: The certificate of %s was signed using an insecure algorithm.\n"
 msgstr "%s: Для подписания сертификата %s использован небезопасный алгоритм.\n"
 
-#: src/gnutls.c:1043
+#: src/gnutls.c:1052
 #, c-format
 msgid "%s: The certificate of %s is not yet activated.\n"
 msgstr "%s: Сертификат %s ещё не активирован.\n"
 
-#: src/gnutls.c:1044
+#: src/gnutls.c:1053
 #, c-format
 msgid "%s: The certificate of %s has expired.\n"
 msgstr "%s: Срок действия сертификата %s истёк.\n"
 
-#: src/gnutls.c:1056
+#: src/gnutls.c:1065
 #, c-format
 msgid "Error initializing X509 certificate: %s\n"
 msgstr "Ошибка инициализации сертификата X509: %s\n"
 
-#: src/gnutls.c:1065
+#: src/gnutls.c:1074
 msgid "No certificate found\n"
 msgstr "Сертификат не найден\n"
 
-#: src/gnutls.c:1072
+#: src/gnutls.c:1081
 #, c-format
 msgid "Error parsing certificate: %s\n"
 msgstr "Ошибка разбора сертификата: %s\n"
 
-#: src/gnutls.c:1079
+#: src/gnutls.c:1088
 msgid "The certificate has not yet been activated\n"
 msgstr "Сертификат ещё не активирован\n"
 
-#: src/gnutls.c:1084
+#: src/gnutls.c:1093
 msgid "The certificate has expired\n"
 msgstr "Срок действия сертификата истек\n"
 
-#: src/gnutls.c:1091
+#: src/gnutls.c:1100
 #, c-format
 msgid "The certificate's owner does not match hostname %s\n"
 msgstr "Владелец сертификата не совпадает с именем узла %s\n"
 
-#: src/gnutls.c:1100 src/openssl.c:1238
+#: src/gnutls.c:1109 src/openssl.c:1238
 msgid "The public key does not match pinned public key!\n"
 msgstr "Открытый ключ не соответствует прикреплённому открытому ключу!\n"
 
-#: src/gnutls.c:1109
+#: src/gnutls.c:1118
 msgid "Certificate must be X.509\n"
 msgstr "Сертификат должен соответствовать X.509\n"
 
@@ -716,15 +716,7 @@ msgstr "ошибка: время ожидания истекло.\n"
 msgid "%s: Cannot resolve incomplete link %s.\n"
 msgstr "%s: не удаётся распознать неполную ссылку %s.\n"
 
-#: src/html-url.c:841
-#, c-format
-msgid ""
-"no-follow attribute found in %s. Will not follow any links on this page\n"
-msgstr ""
-"В %s найден атрибут no-follow. По ссылкам из этой страницы переходов "
-"выполняться не будет\n"
-
-#: src/html-url.c:944
+#: src/html-url.c:945
 #, c-format
 msgid "%s: Invalid URL %s: %s\n"
 msgstr "%s: недопустимый URL %s: %s\n"
@@ -751,7 +743,7 @@ msgstr ""
 msgid "gmtime failed. This is probably a bug.\n"
 msgstr "Ошибка gmtime. Вероятно, из-за дефекта.\n"
 
-#: src/http.c:1897
+#: src/http.c:1918
 msgid ""
 "Cannot convert timestamp to http format. Falling back to time 0 as last "
 "modification time.\n"
@@ -1217,16 +1209,16 @@ msgstr ""
 msgid "Encoding %s isn't valid\n"
 msgstr "Недопустимая кодировка %s\n"
 
-#: src/iri.c:140 src/url.c:1587
+#: src/iri.c:140 src/url.c:1615
 #, c-format
 msgid "Conversion from %s to %s isn't supported\n"
 msgstr "Преобразование из %s в %s не поддерживается\n"
 
-#: src/iri.c:180 src/url.c:1617
+#: src/iri.c:180 src/url.c:1645
 msgid "Incomplete or invalid multibyte sequence encountered\n"
 msgstr "Встречена неполная или недопустимая многобайтовая последовательность\n"
 
-#: src/iri.c:200 src/url.c:1634
+#: src/iri.c:200 src/url.c:1662
 #, c-format
 msgid "Unhandled errno %d\n"
 msgstr "Код необработанной ошибки %d\n"
@@ -2956,7 +2948,7 @@ msgstr "Работа продолжается в фоновом режиме.\n"
 msgid "Continuing in background, pid %lu.\n"
 msgstr "Работа продолжается в фоновом режиме, pid %lu.\n"
 
-#: src/mswindows.c:291 src/utils.c:509
+#: src/mswindows.c:291 src/utils.c:502
 #, c-format
 msgid "Output will be written to %s.\n"
 msgstr "Выходные данные будут записаны в %s.\n"
@@ -3139,7 +3131,15 @@ msgstr "    за "
 msgid "Cannot get REALTIME clock frequency: %s\n"
 msgstr "Не удаётся получить REALTIME-частоту часов: %s\n"
 
-#: src/recur.c:513
+#: src/recur.c:430
+#, fuzzy, c-format
+msgid ""
+"nofollow attribute found in %s. Will not follow any links on this page\n"
+msgstr ""
+"В %s найден атрибут no-follow. По ссылкам из этой страницы переходов "
+"выполняться не будет\n"
+
+#: src/recur.c:514
 #, c-format
 msgid "Removing %s since it should be rejected.\n"
 msgstr "Удаляется %s, т. к. он должен быть исключён.\n"
@@ -3251,68 +3251,68 @@ msgstr "Недопустимый числовой адрес IPv6"
 msgid "HTTPS support not compiled in"
 msgstr "Программа скомпилирована без поддержки HTTPS"
 
-#: src/url.c:1620
+#: src/url.c:1648
 msgid "Unconvertable multibyte sequence encountered\n"
 msgstr "Обнаружена непреобразуемая многобайтовая последовательность\n"
 
-#: src/utils.c:129
+#: src/utils.c:122
 #, c-format
 msgid "%s: %s: Failed to allocate enough memory; memory exhausted.\n"
 msgstr "%s: %s: Не удалось выделить достаточно памяти; нехватка памяти.\n"
 
-#: src/utils.c:135
+#: src/utils.c:128
 #, c-format
 msgid "%s: %s: Failed to allocate %ld bytes; memory exhausted.\n"
 msgstr "%s: %s: не удалось выделить %ld байт; недостаточно памяти.\n"
 
-#: src/utils.c:355
+#: src/utils.c:348
 #, c-format
 msgid "%s: aprintf: text buffer is too big (%d bytes), aborting.\n"
 msgstr "%s: aprintf: текстовый буфер слишком велик (%d байт), останов.\n"
 
-#: src/utils.c:507
+#: src/utils.c:500
 #, c-format
 msgid "Continuing in background, pid %d.\n"
 msgstr "Работа продолжается в фоновом режиме, pid %d.\n"
 
-#: src/utils.c:558
+#: src/utils.c:551
 #, c-format
 msgid "Failed to unlink symlink %s: %s\n"
 msgstr "Не удалось разорвать символьную ссылку %s: %s\n"
 
-#: src/utils.c:879
+#: src/utils.c:872
 #, c-format
 msgid "Failed to Fopen file %s\n"
 msgstr "Ошибка при выполнении Fopen для файла %s\n"
 
-#: src/utils.c:885
+#: src/utils.c:878
 #, c-format
 msgid "Failed to get FD for file %s\n"
 msgstr "Ошибка при получении FD для файла %s\n"
 
-#: src/utils.c:892
+#: src/utils.c:885
 #, c-format
 msgid "Failed to stat file %s, (check permissions)\n"
 msgstr "Ошибка при выполнении stat для файла %s (проверьте права доступа)\n"
 
-#: src/utils.c:902
+#: src/utils.c:895
 #, c-format
 msgid "File %s changed since the last check. Security check failed.\n"
 msgstr ""
 "С момента последней проверки файл %s изменился. Ошибка при проверке "
 "безопасности.\n"
 
-#: src/utils.c:937
+#: src/utils.c:930
 #, c-format
 msgid "Failed to open file %s, reason :%s\n"
 msgstr "Ошибка при открытии файла %s, причина: %s\n"
 
-#: src/utils.c:943
+#: src/utils.c:936
 #, c-format
 msgid "Failed to stat file %s, error: %s\n"
 msgstr "Ошибка при выполнении stat для файла %s, ошибка: %s\n"
 
-#: src/utils.c:953
+#: src/utils.c:946
 #, c-format
 msgid ""
 "Trying to open file %s but it changed since last check. Security check "
@@ -3321,22 +3321,22 @@ msgstr ""
 "Выполняется попытка открытия файла %s, так как он изменился с момента "
 "последней проверки. Ошибка при проверке безопасности.\n"
 
-#: src/utils.c:2442
+#: src/utils.c:2443
 #, c-format
 msgid "Invalid regular expression %s, PCRE2 error %d\n"
 msgstr "Недопустимое регулярное выражение %s, ошибка PCRE2 %d\n"
 
-#: src/utils.c:2459 src/utils.c:2482
+#: src/utils.c:2460 src/utils.c:2483
 #, c-format
 msgid "Invalid regular expression %s, %s\n"
 msgstr "Недопустимое регулярное выражение %s, %s\n"
 
-#: src/utils.c:2512 src/utils.c:2534 src/utils.c:2558
+#: src/utils.c:2513 src/utils.c:2535 src/utils.c:2559
 #, c-format
 msgid "Error while matching %s: %d\n"
 msgstr "Ошибка при сравнении %s: %d\n"
 
-#: src/utils.c:2851
+#: src/utils.c:2852
 #, c-format
 msgid "Skipping key with wrong size (%d/%d): %s\n"
 msgstr "Пропускается ключ с неправильным размером (%d/%d): %s\n"

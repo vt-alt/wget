@@ -1,5 +1,5 @@
 # Makefile for `wget' utility
-# Copyright (C) 1995-2011, 2015, 2018-2020 Free Software Foundation,
+# Copyright (C) 1995-2011, 2015, 2018-2021 Free Software Foundation,
 # Inc.
 
 # This program is free software; you can redistribute it and/or modify
@@ -61,7 +61,7 @@ wget_SOURCES = connect.c convert.c cookies.c ftp.c	\
 		spider.h ssl.h sysdep.h url.h warc.h utils.h wget.h iri.h	\
 		exits.h version.h metalink.h xattr.h
 nodist_wget_SOURCES = version.c
-EXTRA_wget_SOURCES = iri.c
+EXTRA_wget_SOURCES = iri.c metalink.c xattr.c
 LDADD = $(CODE_COVERAGE_LIBS) $(LIBOBJS) ../lib/libgnu.a $(GETADDRINFO_LIB) $(HOSTENT_LIB)\
  $(INET_NTOP_LIB) $(LIBSOCKET) $(LIB_CLOCK_GETTIME) $(LIB_CRYPTO)\
  $(LIB_NANOSLEEP) $(LIB_POSIX_SPAWN) $(LIB_SELECT) $(LIBICONV) $(LIBINTL)\

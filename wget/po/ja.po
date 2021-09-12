@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: wget 1.21\n"
 "Report-Msgid-Bugs-To: bug-wget@gnu.org\n"
-"POT-Creation-Date: 2020-12-31 16:55+0100\n"
+"POT-Creation-Date: 2021-09-07 21:01+0200\n"
 "PO-Revision-Date: 2020-09-08 18:43+0900\n"
 "Last-Translator: Hiroshi Takekawa <sian@big.or.jp>\n"
 "Language-Team: Japanese <translation-team-ja@lists.sourceforge.net>\n"
@@ -209,8 +209,8 @@ msgid "Logging in as %s ... "
 msgstr "%s としてログインしています... "
 
 #: src/ftp.c:504 src/ftp.c:590 src/ftp.c:657 src/ftp.c:722 src/ftp.c:963
-#: src/ftp.c:1019 src/ftp.c:1066 src/ftp.c:1129 src/ftp.c:1190 src/ftp.c:1288
-#: src/ftp.c:1338
+#: src/ftp.c:1016 src/ftp.c:1063 src/ftp.c:1126 src/ftp.c:1187 src/ftp.c:1285
+#: src/ftp.c:1335
 msgid "Error in server response, closing control connection.\n"
 msgstr "サーバの応答にエラーがあるので、接続を終了します。\n"
 
@@ -218,8 +218,8 @@ msgstr "サーバの応答にエラーがあるので、接続を終了します
 msgid "Error in server greeting.\n"
 msgstr "サーバの初期応答にエラーがあります。\n"
 
-#: src/ftp.c:518 src/ftp.c:730 src/ftp.c:971 src/ftp.c:1074 src/ftp.c:1139
-#: src/ftp.c:1200 src/ftp.c:1298 src/ftp.c:1348
+#: src/ftp.c:518 src/ftp.c:730 src/ftp.c:971 src/ftp.c:1071 src/ftp.c:1136
+#: src/ftp.c:1197 src/ftp.c:1295 src/ftp.c:1345
 msgid "Write failed, closing control connection.\n"
 msgstr "書き込みに失敗したので、接続を終了します。\n"
 
@@ -248,11 +248,11 @@ msgstr "サーバが 'PROT %c' コマンドを受けいれませんでした。\
 msgid "Server error, can't determine system type.\n"
 msgstr "サーバエラーで、システムがなにか判別できません。\n"
 
-#: src/ftp.c:607 src/ftp.c:1109 src/ftp.c:1173 src/ftp.c:1216
+#: src/ftp.c:607 src/ftp.c:1106 src/ftp.c:1170 src/ftp.c:1213
 msgid "done.    "
 msgstr "完了しました。    "
 
-#: src/ftp.c:710 src/ftp.c:989 src/ftp.c:1036 src/ftp.c:1318 src/ftp.c:1367
+#: src/ftp.c:710 src/ftp.c:989 src/ftp.c:1033 src/ftp.c:1315 src/ftp.c:1364
 msgid "done.\n"
 msgstr "完了しました。\n"
 
@@ -293,37 +293,37 @@ msgstr ""
 "%s というディレクトリはありません。\n"
 "\n"
 
-#: src/ftp.c:1001
+#: src/ftp.c:998
 msgid "==> CWD not required.\n"
 msgstr "==> CWD は必要ありません。\n"
 
-#: src/ftp.c:1044
+#: src/ftp.c:1041
 msgid "File has already been retrieved.\n"
 msgstr "ファイルはすでに取得済です。\n"
 
-#: src/ftp.c:1080
+#: src/ftp.c:1077
 msgid "Cannot initiate PASV transfer.\n"
 msgstr "PASV転送の初期化ができません。\n"
 
-#: src/ftp.c:1084
+#: src/ftp.c:1081
 msgid "Cannot parse PASV response.\n"
 msgstr "PASVの応答を解析できません。\n"
 
-#: src/ftp.c:1101
+#: src/ftp.c:1098
 #, c-format
 msgid "couldn't connect to %s port %d: %s\n"
 msgstr "%s:%d へ接続できませんでした: %s\n"
 
-#: src/ftp.c:1155
+#: src/ftp.c:1152
 #, c-format
 msgid "Bind error (%s).\n"
 msgstr "バインドエラーです (%s)。\n"
 
-#: src/ftp.c:1161
+#: src/ftp.c:1158
 msgid "Invalid PORT.\n"
 msgstr "無効なポート番号です。\n"
 
-#: src/ftp.c:1207
+#: src/ftp.c:1204
 msgid ""
 "\n"
 "REST failed, starting from scratch.\n"
@@ -331,17 +331,17 @@ msgstr ""
 "\n"
 "RESTに失敗しました、最初から始めます。\n"
 
-#: src/ftp.c:1250
+#: src/ftp.c:1247
 #, c-format
 msgid "File %s exists.\n"
 msgstr "%s というファイルが存在します。\n"
 
-#: src/ftp.c:1256
+#: src/ftp.c:1253
 #, c-format
 msgid "No such file %s.\n"
 msgstr "%s というファイルはありません。\n"
 
-#: src/ftp.c:1306
+#: src/ftp.c:1303
 #, c-format
 msgid ""
 "No such file %s.\n"
@@ -350,7 +350,7 @@ msgstr ""
 "%s というファイルはありません。\n"
 "\n"
 
-#: src/ftp.c:1356
+#: src/ftp.c:1353
 #, c-format
 msgid ""
 "No such file or directory %s.\n"
@@ -359,40 +359,40 @@ msgstr ""
 "%s というファイルまたはディレクトリはありません。\n"
 "\n"
 
-#: src/ftp.c:1515 src/http.c:2597
+#: src/ftp.c:1512 src/http.c:2597
 #, c-format
 msgid "%s has sprung into existence.\n"
 msgstr "%s が存在しています。\n"
 
-#: src/ftp.c:1604
+#: src/ftp.c:1601
 #, c-format
 msgid "%s: %s, closing control connection.\n"
 msgstr "%s: %s、接続を終了します。\n"
 
-#: src/ftp.c:1616
+#: src/ftp.c:1613
 #, c-format
 msgid "%s (%s) - Data connection: %s; "
 msgstr "%s (%s) - データ接続: %s; "
 
-#: src/ftp.c:1631
+#: src/ftp.c:1628
 msgid "Control connection closed.\n"
 msgstr "制御用の接続を切断します。\n"
 
-#: src/ftp.c:1649
+#: src/ftp.c:1646
 msgid "Data transfer aborted.\n"
 msgstr "データ転送を中断しました。\n"
 
-#: src/ftp.c:1873 src/main.c:1690
+#: src/ftp.c:1870 src/main.c:1690
 #, c-format
 msgid "File %s already there; not retrieving.\n"
 msgstr "ファイル %s はすでに存在するので、取得しません。\n"
 
-#: src/ftp.c:1958 src/http.c:4362
+#: src/ftp.c:1955 src/http.c:4362
 #, c-format
 msgid "(try:%2d)"
 msgstr "(試行:%2d)"
 
-#: src/ftp.c:2050 src/http.c:4792
+#: src/ftp.c:2047 src/http.c:4792
 #, c-format
 msgid ""
 "%s (%s) - written to stdout %s[%s]\n"
@@ -401,7 +401,7 @@ msgstr ""
 "%s (%s) - stdout へ出力しました %s[%s]\n"
 "\n"
 
-#: src/ftp.c:2051 src/http.c:4793
+#: src/ftp.c:2048 src/http.c:4793
 #, c-format
 msgid ""
 "%s (%s) - %s saved [%s]\n"
@@ -410,35 +410,35 @@ msgstr ""
 "%s (%s) - %s へ保存終了 [%s]\n"
 "\n"
 
-#: src/ftp.c:2111 src/main.c:2174 src/metalink.c:1135 src/recur.c:512
-#: src/recur.c:750 src/retr.c:1317
+#: src/ftp.c:2108 src/main.c:2174 src/metalink.c:1135 src/recur.c:513
+#: src/recur.c:752 src/retr.c:1317
 #, c-format
 msgid "Removing %s.\n"
 msgstr "%s を削除しました。\n"
 
-#: src/ftp.c:2168
+#: src/ftp.c:2165
 #, c-format
 msgid "Using %s as listing tmp file.\n"
 msgstr "リスト一時ファイルに %s を使用します。\n"
 
-#: src/ftp.c:2185
+#: src/ftp.c:2182
 #, c-format
 msgid "Removed %s.\n"
 msgstr "%s を削除しました。\n"
 
-#: src/ftp.c:2224
+#: src/ftp.c:2221
 #, c-format
 msgid "Recursion depth %d exceeded max. depth %d.\n"
 msgstr "再帰する深さ %d が最大値を超過しています。深さは %d です。\n"
 
-#: src/ftp.c:2294
+#: src/ftp.c:2291
 #, c-format
 msgid "Remote file no newer than local file %s -- not retrieving.\n"
 msgstr ""
 "サーバ側のファイルよりローカルのファイル %s の方が新しいか同じなので取得しま"
 "せん。\n"
 
-#: src/ftp.c:2302
+#: src/ftp.c:2299
 #, c-format
 msgid ""
 "Remote file is newer than local file %s -- retrieving.\n"
@@ -447,7 +447,7 @@ msgstr ""
 "サーバ側のファイルの方がローカルのファイル %s より新しいので取得します。\n"
 "\n"
 
-#: src/ftp.c:2309
+#: src/ftp.c:2306
 #, c-format
 msgid ""
 "The sizes do not match (local %s) -- retrieving.\n"
@@ -456,11 +456,11 @@ msgstr ""
 "サイズが合わないので(ローカルは %s)、取得します。\n"
 "\n"
 
-#: src/ftp.c:2327
+#: src/ftp.c:2324
 msgid "Invalid name of the symlink, skipping.\n"
 msgstr "不正なシンボリックリンク名なので、とばします。\n"
 
-#: src/ftp.c:2356
+#: src/ftp.c:2353
 #, c-format
 msgid ""
 "Already have correct symlink %s -> %s\n"
@@ -469,216 +469,216 @@ msgstr ""
 "すでに %s -> %s という正しいシンボリックリンクがあります\n"
 "\n"
 
-#: src/ftp.c:2365
+#: src/ftp.c:2362
 #, c-format
 msgid "Creating symlink %s -> %s\n"
 msgstr "%s -> %s というシンボリックリンクを作成しています\n"
 
-#: src/ftp.c:2375
+#: src/ftp.c:2372
 #, c-format
 msgid "Symlinks not supported, skipping symlink %s.\n"
 msgstr ""
 "シンボリックリンクに対応していないので、シンボリックリンク %s をとばしま"
 "す。\n"
 
-#: src/ftp.c:2390
+#: src/ftp.c:2387
 #, c-format
 msgid "Skipping directory %s.\n"
 msgstr "ディレクトリ %s をとばします。\n"
 
-#: src/ftp.c:2403
+#: src/ftp.c:2400
 #, c-format
 msgid "%s: unknown/unsupported file type.\n"
 msgstr "%s: 不明なまたは対応していないファイルの種類です。\n"
 
-#: src/ftp.c:2427
+#: src/ftp.c:2424
 #, c-format
 msgid "Failed to set permissions for %s.\n"
 msgstr "%s のパーミッションが設定できません。\n"
 
-#: src/ftp.c:2448
+#: src/ftp.c:2445
 #, c-format
 msgid "%s: corrupt time-stamp.\n"
 msgstr "%s: 日付が壊れています。\n"
 
-#: src/ftp.c:2472
+#: src/ftp.c:2469
 #, c-format
 msgid "Will not retrieve dirs since depth is %d (max %d).\n"
 msgstr "深さが %d (最大 %d)なのでディレクトリを転送しません。\n"
 
-#: src/ftp.c:2531
+#: src/ftp.c:2528
 #, c-format
 msgid "Not descending to %s as it is excluded/not-included.\n"
 msgstr "除外されているか含まれていないので %s に移動しません。\n"
 
-#: src/ftp.c:2647
+#: src/ftp.c:2644
 #, c-format
 msgid "Rejecting %s.\n"
 msgstr "%s を除外します。\n"
 
-#: src/ftp.c:2657
+#: src/ftp.c:2654
 #, c-format
 msgid "Rejecting %s (Invalid Entry).\n"
 msgstr "%s を除外します (不正なエントリ)。\n"
 
-#: src/ftp.c:2678
+#: src/ftp.c:2675
 #, c-format
 msgid "%s is excluded/not-included through regex.\n"
 msgstr "%s は正規表現により除外されているか含まれていません。\n"
 
-#: src/ftp.c:2698
+#: src/ftp.c:2695
 #, c-format
 msgid "Error matching %s against %s: %s\n"
 msgstr "%s は %s に対してマッチしませんでした: %s\n"
 
-#: src/ftp.c:2738
+#: src/ftp.c:2735
 #, c-format
 msgid "No matches on pattern %s.\n"
 msgstr "パターン %s に適合するものがありません。\n"
 
-#: src/ftp.c:2810
+#: src/ftp.c:2807
 #, c-format
 msgid "Wrote HTML-ized index to %s [%s].\n"
 msgstr "%s [%s]にHTML化されたインデックスを書きました。\n"
 
-#: src/ftp.c:2815
+#: src/ftp.c:2812
 #, c-format
 msgid "Wrote HTML-ized index to %s.\n"
 msgstr "%s にHTML化されたインデックスを書きました。\n"
 
-#: src/gnutls.c:132
+#: src/gnutls.c:134
 #, c-format
 msgid "ERROR: Cannot open directory %s.\n"
 msgstr "エラー：%s というディレクトリを開けません。\n"
 
-#: src/gnutls.c:178
+#: src/gnutls.c:180
 #, c-format
 msgid "ERROR: Failed to open cert %s: (%d).\n"
 msgstr "エラー：%s という証明書を開けません: (%d)\n"
 
-#: src/gnutls.c:183
+#: src/gnutls.c:185
 #, c-format
 msgid "Loaded CA certificate '%s'\n"
 msgstr "CA証明書 '%s' をロードしました\n"
 
-#: src/gnutls.c:191
+#: src/gnutls.c:193
 #, c-format
 msgid "ERROR: Failed to load CRL file '%s': (%d)\n"
 msgstr "エラー：%s というCRLファイルを開けません: (%d)\n"
 
-#: src/gnutls.c:195
+#: src/gnutls.c:197
 #, c-format
 msgid "Loaded CRL file '%s'\n"
 msgstr "CRL ファイル '%s' をロードしました\n"
 
-#: src/gnutls.c:219
+#: src/gnutls.c:221
 msgid "ERROR: GnuTLS requires the key and the cert to be of the same type.\n"
 msgstr "エラー: GnuTLS は鍵と証明書のタイプが同じでなければなりません。\n"
 
-#: src/gnutls.c:771 src/gnutls.c:835
+#: src/gnutls.c:780 src/gnutls.c:844
 msgid "Your GnuTLS version is too old to support TLS 1.3\n"
 msgstr "GnuTLS のバージョンが古すぎて TLSv1.3 をサポートしていません\n"
 
-#: src/gnutls.c:783
+#: src/gnutls.c:792
 #, c-format
 msgid "GnuTLS: unimplemented 'secure-protocol' option value %u\n"
 msgstr "GnuTLS: 実装されていない 'secure-protocol' オプション値 %u\n"
 
-#: src/gnutls.c:785 src/gnutls.c:841 src/host.c:158 src/openssl.c:288
+#: src/gnutls.c:794 src/gnutls.c:850 src/host.c:158 src/openssl.c:288
 msgid "Please report this issue to bug-wget@gnu.org\n"
 msgstr "この問題を bug-wget@gnu.org に報告してください\n"
 
-#: src/gnutls.c:840
+#: src/gnutls.c:849
 #, c-format
 msgid "GnuTLS: unimplemented 'secure-protocol' option value %d\n"
 msgstr "GnuTLS: 実装されていない 'secure-protocol' オプション値 %d\n"
 
-#: src/gnutls.c:893
+#: src/gnutls.c:902
 msgid ""
 "GnuTLS: Cannot set prio string directly. Falling back to default priority.\n"
 msgstr "GnuTLS: 優先度を設定できませんでした。デフォルトの優先度にします。\n"
 
-#: src/gnutls.c:1021 src/openssl.c:1029
+#: src/gnutls.c:1030 src/openssl.c:1029
 msgid "ERROR"
 msgstr "エラー"
 
-#: src/gnutls.c:1021 src/openssl.c:1029
+#: src/gnutls.c:1030 src/openssl.c:1029
 msgid "WARNING"
 msgstr "警告"
 
-#: src/gnutls.c:1032 src/openssl.c:1042
+#: src/gnutls.c:1041 src/openssl.c:1042
 #, c-format
 msgid "%s: No certificate presented by %s.\n"
 msgstr "%s: %s から証明書の提示がありませんでした\n"
 
-#: src/gnutls.c:1038
+#: src/gnutls.c:1047
 #, c-format
 msgid "%s: The certificate of %s is not trusted.\n"
 msgstr "%s: %s の証明書は信用されません。\n"
 
-#: src/gnutls.c:1039
+#: src/gnutls.c:1048
 #, c-format
 msgid "%s: The certificate of %s doesn't have a known issuer.\n"
 msgstr "%s: %s の証明書の発行者が不明です。\n"
 
-#: src/gnutls.c:1040
+#: src/gnutls.c:1049
 #, c-format
 msgid "%s: The certificate of %s has been revoked.\n"
 msgstr "%s: %s の証明書は失効しています。\n"
 
-#: src/gnutls.c:1041
+#: src/gnutls.c:1050
 #, c-format
 msgid "%s: The certificate signer of %s was not a CA.\n"
 msgstr "%s: %s の証明書に署名しているのが CA ではありません。\n"
 
-#: src/gnutls.c:1042
+#: src/gnutls.c:1051
 #, c-format
 msgid "%s: The certificate of %s was signed using an insecure algorithm.\n"
 msgstr ""
 "%s: %s の証明書の署名に使われているアルゴリズムが安全ではありません。\n"
 
-#: src/gnutls.c:1043
+#: src/gnutls.c:1052
 #, c-format
 msgid "%s: The certificate of %s is not yet activated.\n"
 msgstr "%s: %s の証明書はまだ有効になっていません。\n"
 
-#: src/gnutls.c:1044
+#: src/gnutls.c:1053
 #, c-format
 msgid "%s: The certificate of %s has expired.\n"
 msgstr "%s: %s の証明書は失効しています。\n"
 
-#: src/gnutls.c:1056
+#: src/gnutls.c:1065
 #, c-format
 msgid "Error initializing X509 certificate: %s\n"
 msgstr "X509 証明書の初期化に失敗しました: %s\n"
 
-#: src/gnutls.c:1065
+#: src/gnutls.c:1074
 msgid "No certificate found\n"
 msgstr "証明書が見つかりません\n"
 
-#: src/gnutls.c:1072
+#: src/gnutls.c:1081
 #, c-format
 msgid "Error parsing certificate: %s\n"
 msgstr "証明書を解釈中にエラーが発生しました: %s\n"
 
-#: src/gnutls.c:1079
+#: src/gnutls.c:1088
 msgid "The certificate has not yet been activated\n"
 msgstr "証明書はまだ有効ではありません。\n"
 
-#: src/gnutls.c:1084
+#: src/gnutls.c:1093
 msgid "The certificate has expired\n"
 msgstr "証明書は失効しています。\n"
 
-#: src/gnutls.c:1091
+#: src/gnutls.c:1100
 #, c-format
 msgid "The certificate's owner does not match hostname %s\n"
 msgstr "証明書の所有者の名前とホスト名 %s が一致しません\n"
 
-#: src/gnutls.c:1100 src/openssl.c:1238
+#: src/gnutls.c:1109 src/openssl.c:1238
 msgid "The public key does not match pinned public key!\n"
 msgstr "公開鍵が固定した公開鍵と一致しません!\n"
 
-#: src/gnutls.c:1109
+#: src/gnutls.c:1118
 msgid "Certificate must be X.509\n"
 msgstr "証明書は X.509 形式でなければなりません\n"
 
@@ -716,15 +716,7 @@ msgstr "失敗しました: タイムアウト.\n"
 msgid "%s: Cannot resolve incomplete link %s.\n"
 msgstr "%s: 不完全なリンク %s を解決できません。\n"
 
-#: src/html-url.c:841
-#, c-format
-msgid ""
-"no-follow attribute found in %s. Will not follow any links on this page\n"
-msgstr ""
-"no-follow 属性が %s に見つかりました。このページのリンクはもうたどりませ"
-"ん。\n"
-
-#: src/html-url.c:944
+#: src/html-url.c:945
 #, c-format
 msgid "%s: Invalid URL %s: %s\n"
 msgstr "%s: %s は無効な URL です(%s)。\n"
@@ -751,7 +743,7 @@ msgstr ""
 msgid "gmtime failed. This is probably a bug.\n"
 msgstr "gmtime が失敗しました。おそらくバグです。\n"
 
-#: src/http.c:1897
+#: src/http.c:1918
 msgid ""
 "Cannot convert timestamp to http format. Falling back to time 0 as last "
 "modification time.\n"
@@ -1220,16 +1212,16 @@ msgstr ""
 msgid "Encoding %s isn't valid\n"
 msgstr "エンコード %s は無効です\n"
 
-#: src/iri.c:140 src/url.c:1587
+#: src/iri.c:140 src/url.c:1615
 #, c-format
 msgid "Conversion from %s to %s isn't supported\n"
 msgstr "%s から %s への変換はサポートしていません\n"
 
-#: src/iri.c:180 src/url.c:1617
+#: src/iri.c:180 src/url.c:1645
 msgid "Incomplete or invalid multibyte sequence encountered\n"
 msgstr "不完全か不正なマルチバイト文字列です\n"
 
-#: src/iri.c:200 src/url.c:1634
+#: src/iri.c:200 src/url.c:1662
 #, c-format
 msgid "Unhandled errno %d\n"
 msgstr "処理されないエラー (errno %d)\n"
@@ -2932,7 +2924,7 @@ msgstr "バックグラウンドで継続します。\n"
 msgid "Continuing in background, pid %lu.\n"
 msgstr "バックグラウンドで継続します、pidは %lu。\n"
 
-#: src/mswindows.c:291 src/utils.c:509
+#: src/mswindows.c:291 src/utils.c:502
 #, c-format
 msgid "Output will be written to %s.\n"
 msgstr "出力を %s に書き込みます。\n"
@@ -3108,7 +3100,15 @@ msgstr " 時間 "
 msgid "Cannot get REALTIME clock frequency: %s\n"
 msgstr "リアルタイムクロックの周波数を取得できません: %s\n"
 
-#: src/recur.c:513
+#: src/recur.c:430
+#, fuzzy, c-format
+msgid ""
+"nofollow attribute found in %s. Will not follow any links on this page\n"
+msgstr ""
+"no-follow 属性が %s に見つかりました。このページのリンクはもうたどりませ"
+"ん。\n"
+
+#: src/recur.c:514
 #, c-format
 msgid "Removing %s since it should be rejected.\n"
 msgstr "拒否すべきなので、%s を削除しました。\n"
@@ -3217,70 +3217,70 @@ msgstr "IPv6 アドレスが不正です"
 msgid "HTTPS support not compiled in"
 msgstr "HTTPS がサポートされるようコンパイルされていません"
 
-#: src/url.c:1620
+#: src/url.c:1648
 msgid "Unconvertable multibyte sequence encountered\n"
 msgstr "変換できないマルチバイト文字列です\n"
 
-#: src/utils.c:129
+#: src/utils.c:122
 #, c-format
 msgid "%s: %s: Failed to allocate enough memory; memory exhausted.\n"
 msgstr "%s: %s: メモリの確保に失敗しました; メモリがいっぱいです\n"
 
-#: src/utils.c:135
+#: src/utils.c:128
 #, c-format
 msgid "%s: %s: Failed to allocate %ld bytes; memory exhausted.\n"
 msgstr "%s: %s: %ld バイトの確保に失敗しました; メモリがいっぱいです\n"
 
-#: src/utils.c:355
+#: src/utils.c:348
 #, c-format
 msgid "%s: aprintf: text buffer is too big (%d bytes), aborting.\n"
 msgstr ""
 "%s: aprintf: テキストバッファ (%d bytes) は大きすぎるので、中止します。\n"
 
-#: src/utils.c:507
+#: src/utils.c:500
 #, c-format
 msgid "Continuing in background, pid %d.\n"
 msgstr "バックグラウンドで継続します、pidは %d。\n"
 
-#: src/utils.c:558
+#: src/utils.c:551
 #, c-format
 msgid "Failed to unlink symlink %s: %s\n"
 msgstr "シンボリックリンク %s の削除に失敗しました: %s\n"
 
-#: src/utils.c:879
+#: src/utils.c:872
 #, c-format
 msgid "Failed to Fopen file %s\n"
 msgstr "ファイル %s の fopen() 失敗しました\n"
 
-#: src/utils.c:885
+#: src/utils.c:878
 #, c-format
 msgid "Failed to get FD for file %s\n"
 msgstr "ファイル %s の FD(ファイルディスクリプタ) の取得に失敗しました\n"
 
-#: src/utils.c:892
+#: src/utils.c:885
 #, c-format
 msgid "Failed to stat file %s, (check permissions)\n"
 msgstr ""
 "ファイル %s の stat() に失敗しました (パーミッションを確認してください)\n"
 
-#: src/utils.c:902
+#: src/utils.c:895
 #, c-format
 msgid "File %s changed since the last check. Security check failed.\n"
 msgstr ""
 "ファイル %s は最後に確認した時から変更されています。セキュリティチェックに失"
 "敗しました。\n"
 
-#: src/utils.c:937
+#: src/utils.c:930
 #, c-format
 msgid "Failed to open file %s, reason :%s\n"
 msgstr "ファイル %s のオープンに失敗しました: %s\n"
 
-#: src/utils.c:943
+#: src/utils.c:936
 #, c-format
 msgid "Failed to stat file %s, error: %s\n"
 msgstr "ファイル %s の stat() に失敗しました: %s\n"
 
-#: src/utils.c:953
+#: src/utils.c:946
 #, c-format
 msgid ""
 "Trying to open file %s but it changed since last check. Security check "
@@ -3289,22 +3289,22 @@ msgstr ""
 "ファイル %s をオープンしようとしたところ最後に確認した時から変更されていまし"
 "た。セキュリティチェックに失敗しました。\n"
 
-#: src/utils.c:2442
+#: src/utils.c:2443
 #, c-format
 msgid "Invalid regular expression %s, PCRE2 error %d\n"
 msgstr "%s は無効な正規表現です, PCRE2 エラー %d\n"
 
-#: src/utils.c:2459 src/utils.c:2482
+#: src/utils.c:2460 src/utils.c:2483
 #, c-format
 msgid "Invalid regular expression %s, %s\n"
 msgstr "%s は無効な正規表現です, %s\n"
 
-#: src/utils.c:2512 src/utils.c:2534 src/utils.c:2558
+#: src/utils.c:2513 src/utils.c:2535 src/utils.c:2559
 #, c-format
 msgid "Error while matching %s: %d\n"
 msgstr "%s をマッチ中にエラーが発生しました: %d\n"
 
-#: src/utils.c:2851
+#: src/utils.c:2852
 #, c-format
 msgid "Skipping key with wrong size (%d/%d): %s\n"
 msgstr "間違ったサイズのキーをスキップします (%d/%d): %s\n"

@@ -1,18 +1,18 @@
 /* Provide a more complete sys/stat.h header file.
-   Copyright (C) 2005-2020 Free Software Foundation, Inc.
+   Copyright (C) 2005-2021 Free Software Foundation, Inc.
 
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 3, or (at your option)
-   any later version.
+   This file is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-   This program is distributed in the hope that it will be useful,
+   This file is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+   GNU Lesser General Public License for more details.
 
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, see <https://www.gnu.org/licenses/>.  */
+   You should have received a copy of the GNU Lesser General Public License
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* Written by Eric Blake, Paul Eggert, and Jim Meyering.  */
 
@@ -713,11 +713,21 @@ _GL_WARN_ON_USE (mkfifo, "mkfifo is not portable - "
 
 
 #if @GNULIB_MKFIFOAT@
-# if !@HAVE_MKFIFOAT@
+# if @REPLACE_MKFIFOAT@
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef mkfifoat
+#   define mkfifoat rpl_mkfifoat
+#  endif
+_GL_FUNCDECL_RPL (mkfifoat, int, (int fd, char const *file, mode_t mode)
+                                 _GL_ARG_NONNULL ((2)));
+_GL_CXXALIAS_RPL (mkfifoat, int, (int fd, char const *file, mode_t mode));
+# else
+#  if !@HAVE_MKFIFOAT@
 _GL_FUNCDECL_SYS (mkfifoat, int, (int fd, char const *file, mode_t mode)
                                  _GL_ARG_NONNULL ((2)));
-# endif
+#  endif
 _GL_CXXALIAS_SYS (mkfifoat, int, (int fd, char const *file, mode_t mode));
+# endif
 _GL_CXXALIASWARN (mkfifoat);
 #elif defined GNULIB_POSIXCHECK
 # undef mkfifoat
@@ -756,13 +766,25 @@ _GL_WARN_ON_USE (mknod, "mknod is not portable - "
 
 
 #if @GNULIB_MKNODAT@
-# if !@HAVE_MKNODAT@
+# if @REPLACE_MKNODAT@
+#  if !(defined __cplusplus && defined GNULIB_NAMESPACE)
+#   undef mknodat
+#   define mknodat rpl_mknodat
+#  endif
+_GL_FUNCDECL_RPL (mknodat, int,
+                  (int fd, char const *file, mode_t mode, dev_t dev)
+                  _GL_ARG_NONNULL ((2)));
+_GL_CXXALIAS_RPL (mknodat, int,
+                  (int fd, char const *file, mode_t mode, dev_t dev));
+# else
+#  if !@HAVE_MKNODAT@
 _GL_FUNCDECL_SYS (mknodat, int,
                   (int fd, char const *file, mode_t mode, dev_t dev)
                   _GL_ARG_NONNULL ((2)));
-# endif
+#  endif
 _GL_CXXALIAS_SYS (mknodat, int,
                   (int fd, char const *file, mode_t mode, dev_t dev));
+# endif
 _GL_CXXALIASWARN (mknodat);
 #elif defined GNULIB_POSIXCHECK
 # undef mknodat
