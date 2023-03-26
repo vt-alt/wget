@@ -63,6 +63,8 @@ as that of the covered work.  */
 #include <getopt.h>
 #include <getpass.h>
 #include <quote.h>
+#include <sys/resource.h>
+#include <sys/capability.h>
 
 #ifdef TESTING
 /* Rename the main function so we can have a main() in fuzzing code
@@ -2103,6 +2105,19 @@ only if outputting to a regular file.\n"));
 #ifdef SIGWINCH
   signal (SIGWINCH, progress_handle_sigwinch);
 #endif
+
+#ifndef __SANITIZE_ADDRESS__
+  /* Do not allow new processes. */
+  struct rlimit rlim_zero = { 0, 0 };
+  setrlimit(RLIMIT_NPROC, &rlim_zero);
+#endif
+
+  /* Drop accidental root capabilities. */
+  cap_t caps = cap_init();
+  if (caps) {
+    cap_set_proc(caps);
+    cap_free(caps);
+  }
 
 #ifdef HAVE_HSTS
   /* Load the HSTS database.

@@ -994,6 +994,8 @@ fi
 test "X${ENABLE_XATTR}" = "Xyes" && AC_DEFINE([ENABLE_XATTR], 1,
     [Define if you want file meta-data storing into POSIX Extended Attributes compiled in.])
 
+AC_CHECK_LIB(cap, cap_init)
+
 dnl Needed by src/Makefile.am
 AM_CONDITIONAL([WITH_IRI], [test "X$iri" != "Xno"])
 AM_CONDITIONAL([WITH_SSL], [test "X$with_ssl" != "Xno"])
