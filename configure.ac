@@ -996,6 +996,9 @@ test "X${ENABLE_XATTR}" = "Xyes" && AC_DEFINE([ENABLE_XATTR], 1,
 
 AC_CHECK_LIB(cap, cap_init)
 
+# Install libseccomp-devel to enable sandboxing.
+AC_CHECK_HEADERS(seccomp.h, [AC_CHECK_LIB(seccomp, seccomp_init)])
+
 dnl Needed by src/Makefile.am
 AM_CONDITIONAL([WITH_IRI], [test "X$iri" != "Xno"])
 AM_CONDITIONAL([WITH_SSL], [test "X$with_ssl" != "Xno"])
