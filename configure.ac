@@ -655,6 +655,23 @@ then
   fi
 fi
 
+dnl
+dnl libproxy support
+dnl
+AC_ARG_ENABLE(libproxy,
+  [  --enable-libproxy       libproxy support for system wide proxy configuration])
+if test "${enable_libproxy}" != "no"
+then
+  PKG_CHECK_MODULES([libproxy], [libproxy-1.0], [enable_libproxy=yes], [enable_libproxy=no])
+fi
+if test "${enable_libproxy}" = "yes"
+then
+  AC_CHECK_LIB(proxy, px_proxy_factory_new)
+  AC_SUBST(libproxy_CFLAGS)
+  AC_SUBST(libproxy_LIBS)
+  AC_DEFINE([HAVE_LIBPROXY], 1, [Define when using libproxy])
+fi
+
 dnl **********************************************************************
 dnl Checks for IPv6
 dnl **********************************************************************

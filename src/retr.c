@@ -60,6 +60,10 @@ as that of the covered work.  */
 #include "iri.h"
 #include "hsts.h"
 
+#ifdef HAVE_LIBPROXY
+#include "proxy.h"
+#endif
+
 /* Total size of downloaded files.  Used to enforce quota.  */
 wgint total_downloaded_bytes;
 
@@ -1489,7 +1493,40 @@ getproxy (struct url *u)
       break;
     }
   if (!proxy || !*proxy)
+#ifdef HAVE_LIBPROXY
+  {
+       pxProxyFactory *pf = px_proxy_factory_new();
+       if (!pf)
+       {
+	       debug_logprintf (_("Allocating memory for libproxy failed"));
+	       return NULL;
+       }
+       int i;
+       char direct[] = "direct://";
+
+       debug_logprintf (_("asking libproxy about url '%s'\n"), u->url);
+       char **proxies = px_proxy_factory_get_proxies(pf, u->url);
+       if (proxies[0])
+       {
+	   char *check = NULL;
+	   asprintf(&check , "%s", proxies[0]);
+	  debug_logprintf (_("libproxy suggest to use '%s'\n"), check);
+	  if(strcmp(check ,direct) != 0)
+	  {
+	       asprintf(&proxy , "%s", proxies[0]);
+	       debug_logprintf (_("case 2: libproxy setting to use '%s'\n"), proxy);
+	  }
+       }
+       for(i=0;proxies[i];i++) free(proxies[i]);
+       free(proxies);
+       px_proxy_factory_free(pf);
+
+       if (!proxy || !*proxy)
+	  return NULL;
+  }
+#else
     return NULL;
+#endif
 
   /* Handle shorthands.  `rewritten_storage' is a kludge to allow
      getproxy() to return static storage. */

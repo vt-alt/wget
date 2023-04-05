@@ -31,6 +31,7 @@
 #
 # Version: @VERSION@
 #
++LIBS     += $(libproxy_LIBS)
 
 ../src/wget$(EXEEXT):
 	cd ../src && $(MAKE) $(AM_MAKEFLAGS)
