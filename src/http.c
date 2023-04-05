@@ -1550,6 +1550,7 @@ persistent_available_p (const char *host, int port, bool ssl,
    active, registered connection".  */
 
 #define CLOSE_FINISH(fd) do {                   \
+  int errno_sav = errno;                        \
   if (!keep_alive)                              \
     {                                           \
       if (pconn_active && (fd) == pconn.socket) \
@@ -1558,14 +1559,17 @@ persistent_available_p (const char *host, int port, bool ssl,
           fd_close (fd);                        \
       fd = -1;                                  \
     }                                           \
+  errno = errno_sav;                            \
 } while (0)
 
 #define CLOSE_INVALIDATE(fd) do {               \
+  int errno_sav = errno;                        \
   if (pconn_active && (fd) == pconn.socket)     \
     invalidate_persistent ();                   \
   else                                          \
     fd_close (fd);                              \
   fd = -1;                                      \
+  errno = errno_sav;                            \
 } while (0)
 
 typedef enum
