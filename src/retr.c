@@ -870,7 +870,7 @@ retrieve_url (struct url * orig_parsed, const char *origurl, char **file,
 {
   uerr_t result;
   char *url;
-  bool location_changed;
+  bool location_changed = 0;
   bool iri_fallbacked = 0;
   int dummy;
   char *mynewloc, *proxy;
@@ -967,7 +967,7 @@ retrieve_url (struct url * orig_parsed, const char *origurl, char **file,
 	}
 #endif
       result = http_loop (u, orig_parsed, &mynewloc, &local_file, refurl, dt,
-                          proxy_url, iri);
+                          proxy_url, iri, location_changed);
     }
   else if (u->scheme == SCHEME_FTP
 #ifdef HAVE_SSL

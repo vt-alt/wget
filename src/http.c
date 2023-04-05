@@ -3149,6 +3149,33 @@ fail:
 }
 #endif /* HAVE_METALINK */
 
+/*
+ * Check if the corresponding header line should not
+ * be sent after a redirect
+ */
+static inline int
+unredirectable_headerline(char *line)
+{
+    static struct {
+        size_t len;
+	char *name;
+    } field_name[] = {
+        { 14, "Authorization:" },
+	{ 7, "Cookie:" },
+	{ 0, NULL }
+    };
+    int i;
+
+    /*
+     * Note: According to RFC 2616, Field names are case-insensitive.
+     */
+    for (i = 0; field_name[i].name != NULL; i++)
+        if (strncasecmp(line, field_name[i].name, field_name[i].len) == 0)
+	    return 1;
+
+    return 0;
+}
+
 /* Retrieve a document through HTTP protocol.  It recognizes status
    code, and correctly handles redirections.  It closes the network
    socket.  If it receives an error from the functions below it, it
@@ -3161,7 +3188,7 @@ fail:
    server, and u->url will be requested.  */
 static uerr_t
 gethttp (const struct url *u, struct url *original_url, struct http_stat *hs,
-         int *dt, struct url *proxy, struct iri *iri, int count)
+         int *dt, struct url *proxy, struct iri *iri, int count, int location_changed)
 {
   struct request *req = NULL;
 
@@ -3305,7 +3332,16 @@ gethttp (const struct url *u, struct url *original_url, struct http_stat *hs,
     {
       int i;
       for (i = 0; opt.user_headers[i]; i++)
-        request_set_user_header (req, opt.user_headers[i]);
+	{
+	 /*
+	  * IF we have been redirected
+	  * AND the user-supplied header line should NOT be sent to the new host
+	  * DO NOT append that header line
+	  */
+	 if (location_changed && unredirectable_headerline(opt.user_headers[i]))
+	   continue;
+	 request_set_user_header (req, opt.user_headers[i]);
+	}
     }
 
   proxyauth = NULL;
@@ -4226,7 +4262,7 @@ check_retry_on_http_error (const int statcode)
 uerr_t
 http_loop (const struct url *u, struct url *original_url, char **newloc,
            char **local_file, const char *referer, int *dt, struct url *proxy,
-           struct iri *iri)
+           struct iri *iri, int location_changed)
 {
   int count;
   bool got_head = false;         /* used for time-stamping and filename detection */
@@ -4418,7 +4454,7 @@ http_loop (const struct url *u, struct url *original_url, char **newloc,
         *dt &= ~SEND_NOCACHE;
 
       /* Try fetching the document, or at least its head.  */
-      err = gethttp (u, original_url, &hstat, dt, proxy, iri, count);
+      err = gethttp (u, original_url, &hstat, dt, proxy, iri, count, location_changed);
 
       /* Time?  */
       tms = datetime_str (time (NULL));
