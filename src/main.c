@@ -2188,6 +2188,7 @@ only if outputting to a regular file.\n"));
     seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(getpid), 0);
     seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(getrandom), 0);
     seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(getsockname), 0);
+    seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(getsockopt), 0);
     seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(getuid), 0);
     seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(getuid32), 0);
     seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(ioctl), 0);
@@ -2248,10 +2249,11 @@ only if outputting to a regular file.\n"));
     seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(wait4), 0);
     seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(waitid), 0);
     seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(write), 0);
-    /* Marginal syscalls. */
 #ifdef __SNR_openat2
-    seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(openat2), 0);
+    /* Forbid usage of this garbage syscall, but not kill process. */
+    seccomp_rule_add(ctx, SCMP_ACT_ERRNO(ENOSYS), SCMP_SYS(openat2), 0);
 #endif
+    /* Architectural syscalls. */
 #ifdef __e2k__
     seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(access_hw_stacks), 0);
     seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(e2k_longjmp2), 0);
