@@ -2154,7 +2154,9 @@ only if outputting to a regular file.\n"));
       }
       free(syscall_list);
     }
+#ifdef SCMP_FLTATR_CTL_OPTIMIZE
     seccomp_attr_set(ctx, SCMP_FLTATR_CTL_OPTIMIZE, 2);
+#endif
     seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(arch_prctl), 0);
     seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(bind), 0);
     seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(brk), 0);
