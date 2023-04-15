@@ -2110,9 +2110,14 @@ only if outputting to a regular file.\n"));
 #endif
 
 #ifndef __SANITIZE_ADDRESS__
-  /* Do not allow new processes. */
-  struct rlimit rlim_zero = { 0, 0 };
-  setrlimit(RLIMIT_NPROC, &rlim_zero);
+  if (!opt.use_askpass) {
+    /* Do not allow new processes. */
+    struct rlimit rlim_zero = { 0, 0 };
+    setrlimit(RLIMIT_NPROC, &rlim_zero);
+    /* Note that this will not work for a 'global root user', even if they
+     * drop appropriate capabilities (below). There is special exception in
+     * Linux since 2003. In that case we still rely on seccomp. */
+  }
 #endif
 
   /* Drop accidental root capabilities. */
